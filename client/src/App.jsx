@@ -477,16 +477,49 @@ export default function App() {
             <div className="pro-header-actions">
               <button 
                 onClick={() => setShowStatusModal(true)}
-                className="btn-outline-cyan"
+                className="btn-outline-cyan header-btn-status"
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-3.5 h-3.5" />
                 <span>ตรวจสถานะ</span>
               </button>
+
+              {user ? (
+                /* Logged In: User Profile Capsule */
+                <div className="user-profile-pill">
+                  <div className="user-avatar-badge">
+                    <User className="w-3.5 h-3.5 text-cyan-300" />
+                  </div>
+                  <span className="user-name-label">{user.fullName || 'ผู้เข้าแข่งขัน'}</span>
+                  <button 
+                    onClick={() => {
+                      setUser(null);
+                      setPortalTab('register');
+                    }}
+                    title="ออกจากระบบ"
+                    className="user-logout-btn"
+                  >
+                    <LogIn className="w-3.5 h-3.5 rotate-180" />
+                  </button>
+                </div>
+              ) : (
+                /* Not Logged In: Subtle Glass Auth Button */
+                <button 
+                  onClick={() => {
+                    setPortalTab('login');
+                    setShowPortalModal(true);
+                  }}
+                  className="btn-ghost-auth"
+                >
+                  <LogIn className="w-4 h-4 text-cyan-400" />
+                  <span>เข้าสู่ระบบ</span>
+                </button>
+              )}
 
               <button 
                 onClick={() => {
                   setShowPortalModal(true);
                   if (user) setPortalTab('submission');
+                  else setPortalTab('register');
                 }}
                 className="btn-solid-primary"
               >

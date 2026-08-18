@@ -209,6 +209,82 @@ p {
   white-space: nowrap;
 }
 
+.btn-ghost-auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(18, 34, 68, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #E2E8F0;
+  font-family: var(--font-th);
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-ghost-auth:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.7);
+  color: #38BDF8;
+  transform: translateY(-1px);
+}
+
+.user-profile-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(18, 34, 68, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  padding: 4px 10px 4px 6px;
+  border-radius: 999px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.user-avatar-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(6, 182, 212, 0.25);
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-name-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #F8FAFC;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-logout-btn {
+  background: none;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.user-logout-btn:hover {
+  color: #EF4444;
+}
+
 /* ============================================================
    BUTTONS & BADGES
    ============================================================ */
