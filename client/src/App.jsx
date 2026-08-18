@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { 
   Trophy, Award, Rocket, Search, CheckCircle2, Clock, 
@@ -7,7 +7,8 @@ import {
   BookOpen, HelpCircle, Layers, Calendar, MapPin, Phone, Mail, Globe,
   Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
   CheckCircle, User, ShieldAlert, Check, Video, ClipboardList, CheckSquare,
-  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown, Eye, Menu
+  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown, Eye, Menu,
+  Volume2, VolumeX
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3001/api';
@@ -222,6 +223,8 @@ export default function App() {
   };
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  const heroVideoRef = useRef(null);
+  const [heroVideoMuted, setHeroVideoMuted] = useState(true);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -626,12 +629,30 @@ export default function App() {
           {/* Hero Section */}
           <section className="hero-section hero-video-stage">
             <iframe
+              ref={heroVideoRef}
               className="hero-background-video hero-youtube-background"
-              src="https://www.youtube.com/embed/LwAgN-X9yy8?autoplay=1&mute=1&loop=1&playlist=LwAgN-X9yy8&controls=0&modestbranding=1&rel=0&playsinline=1"
+              src="https://www.youtube.com/embed/LwAgN-X9yy8?autoplay=1&mute=1&loop=1&playlist=LwAgN-X9yy8&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1"
               title="KMUTNB Innovation Awards 2025 background video"
               allow="autoplay; encrypted-media"
               aria-hidden="true"
             />
+            <button
+              type="button"
+              className="hero-video-sound-toggle"
+              aria-label={heroVideoMuted ? 'เปิดเสียงวิดีโอ' : 'ปิดเสียงวิดีโอ'}
+              title={heroVideoMuted ? 'เปิดเสียงวิดีโอ' : 'ปิดเสียงวิดีโอ'}
+              onClick={() => {
+                const nextMuted = !heroVideoMuted;
+                heroVideoRef.current?.contentWindow?.postMessage(
+                  JSON.stringify({ event: 'command', func: nextMuted ? 'mute' : 'unMute', args: [] }),
+                  'https://www.youtube.com'
+                );
+                setHeroVideoMuted(nextMuted);
+              }}
+            >
+              {heroVideoMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              <span>{heroVideoMuted ? 'เปิดเสียง' : 'ปิดเสียง'}</span>
+            </button>
             <div className="pro-container">
               <div className="hero-grid hero-cinematic-grid">
                 

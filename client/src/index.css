@@ -1535,6 +1535,31 @@ p {
   transform: scale(1.68);
 }
 
+.hero-video-sound-toggle {
+  position: absolute;
+  z-index: 2;
+  right: 28px;
+  bottom: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(216, 181, 104, 0.52);
+  border-radius: 999px;
+  background: rgba(4, 19, 14, 0.62);
+  color: #f8f4e8;
+  font: 600 0.75rem var(--font-en);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.hero-video-sound-toggle:hover {
+  border-color: #d8b568;
+  background: rgba(4, 19, 14, 0.86);
+  transform: translateY(-2px);
+}
+
 .hero-video-stage::before {
   z-index: -1;
   inset: 0;
@@ -1626,6 +1651,11 @@ p {
 
   .hero-video-stage .hero-youtube-background {
     transform: scale(1.28);
+  }
+
+  .hero-video-sound-toggle {
+    right: 16px;
+    bottom: 16px;
   }
 
   .hero-video-stage::before {
