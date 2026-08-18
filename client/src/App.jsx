@@ -7,7 +7,7 @@ import {
   BookOpen, HelpCircle, Layers, Calendar, MapPin, Phone, Mail, Globe,
   Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
   CheckCircle, User, ShieldAlert, Check, Video, ClipboardList, CheckSquare,
-  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown, Eye
+  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3001/api';
@@ -416,7 +416,7 @@ export default function App() {
   return (
     <div>
       
-      {/* 1. ENTERPRISE NAVBAR (STREAMLINED + LOGOS + COUNTER) */}
+      {/* 1. ENTERPRISE NAVBAR (STREAMLINED + LOGOS) */}
       <header className="pro-header">
         <div className="pro-container">
           <div className="pro-header-inner">
@@ -483,21 +483,8 @@ export default function App() {
               </button>
             </nav>
 
-            {/* Header Action Buttons & Visitor Counter */}
+            {/* Header Action Buttons */}
             <div className="pro-header-actions">
-              <div className="hero-visitor-chip header-visitor-chip">
-                <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                <span>128,686</span>
-              </div>
-
-              <button 
-                onClick={() => setShowStatusModal(true)}
-                className="btn-outline-cyan header-btn-status"
-              >
-                <Search className="w-3.5 h-3.5" />
-                <span>ตรวจสถานะ</span>
-              </button>
-
               {user ? (
                 /* Logged In: User Profile Capsule */
                 <div className="user-profile-pill">
@@ -721,39 +708,6 @@ export default function App() {
                     <span>ดูประกาศผล & ข่าวทั้งหมด</span>
                     <ChevronRight className="w-4 h-4" />
                   </span>
-                </div>
-              </div>
-
-              {/* Floating Bottom Social & Hotline Contact Capsule (Inspired by Reference Footer Bar) */}
-              <div className="hero-social-floating-bar">
-                <a 
-                  href="https://facebook.com" 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="hero-social-item"
-                >
-                  <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.75rem', fontWeight: 800 }}>f</span>
-                  <span>KMUTNB Innovation Award</span>
-                </a>
-
-                <a 
-                  href="https://line.me" 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="hero-social-item"
-                >
-                  <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#06C755', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.7rem', fontWeight: 800 }}>LINE</span>
-                  <span>@KMUTNB.inno.award</span>
-                </a>
-
-                <div className="hero-social-item">
-                  <Phone className="w-4 h-4 text-emerald-400" />
-                  <span>095-461-4261 / 02-555-2000 ต่อ 1508</span>
-                </div>
-
-                <div className="hero-visitor-chip">
-                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>128,686+ เข้าชม</span>
                 </div>
               </div>
 
@@ -1820,8 +1774,24 @@ export default function App() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                       <Phone className="w-5 h-5 text-emerald-400" />
                       <div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>เบอร์โทรศัพท์ติดต่อ:</div>
-                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>02-555-2000 ต่อ 1508, 1509</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>เบอร์โทรศัพท์ติดต่อและสายด่วน:</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>095-461-4261 / 02-555-2000 ต่อ 1508, 1509</div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                      <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#06C755', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.65rem', fontWeight: 800 }}>LINE</span>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>LINE Official Account:</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>@KMUTNB.inno.award</div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                      <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.75rem', fontWeight: 800 }}>f</span>
+                      <div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Facebook Fanpage:</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>KMUTNB Innovation Award</div>
                       </div>
                     </div>
 
@@ -1851,8 +1821,26 @@ export default function App() {
       )}
 
       {/* GLOBAL FOOTER */}
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '28px 0', textAlign: 'center', fontSize: '0.82rem', color: 'var(--text-muted)', background: '#04130E' }}>
+      <footer className="site-footer">
         <div className="pro-container">
+          <div className="site-footer-contact">
+            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="site-footer-contact-item">
+              <span className="site-footer-social-icon site-footer-facebook">f</span>
+              <span>KMUTNB Innovation Award</span>
+            </a>
+            <a href="https://line.me" target="_blank" rel="noreferrer" className="site-footer-contact-item">
+              <span className="site-footer-social-icon site-footer-line">LINE</span>
+              <span>@KMUTNB.inno.award</span>
+            </a>
+            <a href="tel:0954614261" className="site-footer-contact-item">
+              <Phone className="w-4 h-4 text-emerald-400" />
+              <span>095-461-4261 / 02-555-2000 ต่อ 1508</span>
+            </a>
+            <div className="hero-visitor-chip" style={{ background: 'rgba(7, 34, 26, 0.9)' }}>
+              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+              <span>128,686+ เข้าชม</span>
+            </div>
+          </div>
           <div style={{ marginBottom: '8px', color: 'var(--text-secondary)' }}>
             โครงการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569 (KMUTNB Innovation Awards 2026)
           </div>

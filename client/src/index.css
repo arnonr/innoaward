@@ -799,57 +799,58 @@ p {
   box-shadow: 0 0 12px rgba(255, 209, 102, 0.2);
 }
 
-/* ============================================================
-   FLOATING BOTTOM SOCIAL & HOTLINE BAR (REFERENCE INSPIRED)
-   ============================================================ */
-.hero-social-floating-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 28px;
-  padding: 10px 24px;
-  background: rgba(4, 19, 14, 0.88);
-  border: 1px solid var(--border-medium);
-  border-radius: 9999px;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--emerald-glow);
+.site-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: 28px 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: #04130E;
 }
 
-.hero-social-item {
+.site-footer-contact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px 40px;
+  margin-bottom: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.site-footer-contact-item {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.82rem;
+  color: var(--text-primary);
   font-weight: 600;
-  color: #E2FDF2;
   text-decoration: none;
-  transition: color 0.2s ease;
 }
 
-.hero-social-item:hover {
-  color: #00F5A0;
+.site-footer-contact-item:hover {
+  color: var(--emerald-400);
 }
 
-.hero-visitor-chip {
+.site-footer-social-icon {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(0, 245, 160, 0.2);
-  border: 1px solid var(--emerald-400);
-  color: #00F5A0;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.7rem;
   font-weight: 800;
-  padding: 4px 12px;
-  border-radius: 9999px;
 }
 
-.header-visitor-chip {
-  padding: 4px 10px;
-  font-size: 0.74rem;
+.site-footer-facebook {
+  background: #1877F2;
+  font-size: 0.75rem;
+}
+
+.site-footer-line {
+  background: #06C755;
 }
 
 /* ============================================================
