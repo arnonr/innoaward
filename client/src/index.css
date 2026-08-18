@@ -1607,6 +1607,7 @@ p {
   font-weight: 600;
   letter-spacing: 0.08em;
   line-height: 1.08;
+  white-space: nowrap;
 }
 
 .hero-side-lockup-meta {
