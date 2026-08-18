@@ -18,6 +18,8 @@ const DOMAINS = [
     id: 'energy_environment',
     nameTh: 'Energy & Environment',
     nameEn: 'Energy & Environment',
+    titleTh: 'พลังงานและสิ่งแวดล้อม',
+    titleEn: 'Energy & Environment',
     desc: 'นวัตกรรมด้านพลังงานทดแทน การจัดการสิ่งแวดล้อม เทคโนโลยีสีเขียว และการลดการปล่อยคาร์บอน',
     icon: Zap,
     color: '#059669',
@@ -27,6 +29,8 @@ const DOMAINS = [
     id: 'food_agriculture',
     nameTh: 'Food & Agriculture',
     nameEn: 'Food & Agriculture',
+    titleTh: 'เกษตรและอาหารแปรรูป',
+    titleEn: 'Food & Agriculture',
     desc: 'นวัตกรรมเกษตรอัจฉริยะ (AgriTech) อาหารแห่งอนาคต การแปรรูปผลิตผล และความมั่นคงทางอาหาร',
     icon: Leaf,
     color: '#16A34A',
@@ -36,15 +40,19 @@ const DOMAINS = [
     id: 'social_economy',
     nameTh: 'Social & Economy',
     nameEn: 'Social & Economy',
+    titleTh: 'เศรษฐกิจและสังคมดิจิทัล',
+    titleEn: 'Social & Economy',
     desc: 'นวัตกรรมเพื่อการพัฒนาสังคม เศรษฐกิจดิจิทัล เทคโนโลยีการศึกษา และการยกระดับคุณภาพชีวิตชุมชน',
     icon: Users,
-    color: '#4F46E5',
+    color: '#06B6D4',
     bgImage: '/domain-social.jpg'
   },
   {
     id: 'medical_device',
     nameTh: 'Medical Device',
     nameEn: 'Medical Device',
+    titleTh: 'เครื่องมือแพทย์และสาธารณสุข',
+    titleEn: 'Medical Device',
     desc: 'อุปกรณ์และเครื่องมือทางการแพทย์ เทคโนโลยีสุขภาพ (HealthTech) ชีวการแพทย์ และอุปกรณ์ช่วยดูแลสุขภาพ',
     icon: Activity,
     color: '#E11D48',
@@ -54,6 +62,8 @@ const DOMAINS = [
     id: 'material',
     nameTh: 'Material',
     nameEn: 'Material',
+    titleTh: 'วัสดุศาสตร์และเทคโนโลยีก้าวหน้า',
+    titleEn: 'Material',
     desc: 'นวัตกรรมด้านวัสดุศาสตร์ คอมโพสิต โพลีเมอร์ สารเคลือบผิว นาโนเทคโนโลยี และวัสดุก้าวหน้า',
     icon: Box,
     color: '#D97706',
@@ -406,15 +416,15 @@ export default function App() {
   return (
     <div>
       
-      {/* 1. ENTERPRISE NAVBAR (6 FOCUSED LINKS + NO MULTI-LINE WRAP) */}
+      {/* 1. ENTERPRISE NAVBAR (STREAMLINED + LOGOS + COUNTER) */}
       <header className="pro-header">
         <div className="pro-container">
           <div className="pro-header-inner">
             
-            {/* Brand Logo */}
+            {/* Brand Logo & University Badges */}
             <div onClick={() => navigateTo('home')} className="pro-brand" style={{ cursor: 'pointer' }}>
               <div className="pro-brand-icon">
-                <Trophy className="w-5 h-5 text-amber-400" />
+                <Trophy className="w-5 h-5 text-amber-300" />
               </div>
               <div className="pro-brand-text">
                 <h1>KMUTNB INNOVATION</h1>
@@ -473,8 +483,13 @@ export default function App() {
               </button>
             </nav>
 
-            {/* Header Action Buttons */}
+            {/* Header Action Buttons & Visitor Counter */}
             <div className="pro-header-actions">
+              <div className="hero-visitor-chip header-visitor-chip">
+                <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                <span>128,686</span>
+              </div>
+
               <button 
                 onClick={() => setShowStatusModal(true)}
                 className="btn-outline-cyan header-btn-status"
@@ -542,12 +557,12 @@ export default function App() {
             <div className="pro-container">
               <div className="hero-grid hero-cinematic-grid">
                 
-                {/* Left: Content */}
+                {/* Left: Brand & Core Mission Content */}
                 <div className="hero-text-content">
                   <div>
                     <div className="badge-royal">
                       <Crown className="w-4 h-4 text-amber-300 animate-pulse" />
-                      <span>ครองถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</span>
+                      <span>ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</span>
                     </div>
                   </div>
 
@@ -558,7 +573,7 @@ export default function App() {
                   </h1>
 
                   <p className="hero-desc">
-                    เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ขับเคลื่อน 5 สาขานวัตกรรมเป้าหมายสู่อนาคต พร้อมเปิดรับข้อเสนอโครงการจากนักเรียน นักศึกษา และนักวิจัยทั่วประเทศ
+                    เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ขับเคลื่อน 5 สาขานวัตกรรมเป้าหมายสู่อนาคต ชิงเงินรางวัลรวมกว่า 300,000+ บาท พร้อมเปิดรับข้อเสนอโครงการทั่วประเทศ
                   </p>
 
                   {/* Countdown Bar (Mission Launch Glass HUD) */}
@@ -617,62 +632,70 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right: Clean Royal Prestige Showcase Card (No 3D Image) */}
+                {/* Right: Interactive 5+1 Innovation Category Stack (Inspired by the Reference!) */}
                 <div className="hero-showcase-column">
-                  <div className="royal-prestige-card">
-                    
-                    <div className="royal-card-header">
-                      <div className="royal-emblem-badge">
-                        <Crown className="w-8 h-8 text-amber-300" />
+                  <div className="hero-category-matrix-card">
+                    <div className="category-matrix-header">
+                      <div className="category-matrix-badge">
+                        <Sparkles className="w-4 h-4 text-emerald-400" />
+                        <span>COMPETITION DOMAINS</span>
                       </div>
-                      <div className="royal-emblem-text">
-                        <span className="royal-subtitle">เกียรติยศสูงสุดแห่งการประกวด</span>
-                        <h3 className="royal-title">ถ้วยพระราชทาน</h3>
-                      </div>
+                      <h3 className="category-matrix-title">CATEGORY:</h3>
                     </div>
 
-                    <p className="royal-dedication">
-                      สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี
-                    </p>
+                    <div className="category-buttons-stack">
+                      {DOMAINS.map((domain, idx) => {
+                        const IconComponent = domain.icon;
+                        return (
+                          <button
+                            key={domain.id}
+                            onClick={() => {
+                              setSelectedDomain(domain);
+                              setShowDomainDetail(true);
+                            }}
+                            className="hero-category-btn"
+                          >
+                            <div className="hero-category-btn-left">
+                              <span className="hero-category-num">0{idx + 1}</span>
+                              <div className="hero-category-icon-box">
+                                <IconComponent className="w-4 h-4" />
+                              </div>
+                              <div className="hero-category-text">
+                                <span className="hero-category-en">{domain.titleEn.toUpperCase()}</span>
+                                <span className="hero-category-th">{domain.titleTh}</span>
+                              </div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 hero-category-arrow" />
+                          </button>
+                        );
+                      })}
 
-                    <div className="royal-stats-matrix">
-                      <div className="royal-stat-box">
-                        <span className="stat-label">เงินรางวัลรวม</span>
-                        <strong className="stat-value gold">300,000+</strong>
-                        <span className="stat-sub">บาท (THB)</span>
-                      </div>
-                      <div className="royal-stat-box">
-                        <span className="stat-label">รางวัลเกียรติยศ</span>
-                        <strong className="stat-value cyan">Grand Prize</strong>
-                        <span className="stat-sub">พร้อมถ้วยและโล่รางวัล</span>
-                      </div>
-                      <div className="royal-stat-box">
-                        <span className="stat-label">สาขาประกวด</span>
-                        <strong className="stat-value">5 สาขา</strong>
-                        <span className="stat-sub">นวัตกรรมเป้าหมาย</span>
-                      </div>
-                      <div className="royal-stat-box">
-                        <span className="stat-label">กลุ่มผู้สมัคร</span>
-                        <strong className="stat-value">2 ระดับ</strong>
-                        <span className="stat-sub">การศึกษาทั่วประเทศ</span>
-                      </div>
+                      {/* 6th: Cross-Disciplinary / Others */}
+                      <button
+                        onClick={() => openSubmissionWithDomain('others')}
+                        className="hero-category-btn"
+                      >
+                        <div className="hero-category-btn-left">
+                          <span className="hero-category-num">06</span>
+                          <div className="hero-category-icon-box" style={{ borderColor: 'rgba(255, 209, 102, 0.5)', color: '#FFD166' }}>
+                            <Globe className="w-4 h-4" />
+                          </div>
+                          <div className="hero-category-text">
+                            <span className="hero-category-en">OTHERS & MULTIDISCIPLINARY</span>
+                            <span className="hero-category-th">นวัตกรรมแบบบูรณาการและอื่นๆ</span>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 hero-category-arrow" />
+                      </button>
                     </div>
 
-                    <div className="royal-card-footer">
-                      <div className="royal-perk-tag">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>เกียรติบัตรระดับชาติ</span>
-                      </div>
-                      <div className="royal-perk-tag">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>ต่อยอดเชิงพาณิชย์</span>
-                      </div>
-                      <div className="royal-perk-tag">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>รับรองโดย มจพ.</span>
+                    {/* Royal Trophy Banner inside Matrix */}
+                    <div className="category-matrix-footer">
+                      <div className="royal-pill-mini">
+                        <Crown className="w-3.5 h-3.5 text-amber-300" />
+                        <span>ชิงถ้วยพระราชทานฯ • เงินรางวัลรวม 300,000+ บาท</span>
                       </div>
                     </div>
-
                   </div>
                 </div>
 
@@ -686,7 +709,7 @@ export default function App() {
                 >
                   <div className="announcement-pill-left">
                     <span className="announcement-pill-badge">
-                      <Megaphone className="w-4 h-4 text-cyan-300 animate-pulse" />
+                      <Megaphone className="w-4 h-4 text-emerald-300 animate-pulse" />
                       <span>ข่าวล่าสุด</span>
                     </span>
                     <span className="announcement-pill-text">
@@ -698,6 +721,39 @@ export default function App() {
                     <span>ดูประกาศผล & ข่าวทั้งหมด</span>
                     <ChevronRight className="w-4 h-4" />
                   </span>
+                </div>
+              </div>
+
+              {/* Floating Bottom Social & Hotline Contact Capsule (Inspired by Reference Footer Bar) */}
+              <div className="hero-social-floating-bar">
+                <a 
+                  href="https://facebook.com" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="hero-social-item"
+                >
+                  <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.75rem', fontWeight: 800 }}>f</span>
+                  <span>KMUTNB Innovation Award</span>
+                </a>
+
+                <a 
+                  href="https://line.me" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="hero-social-item"
+                >
+                  <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#06C755', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.7rem', fontWeight: 800 }}>LINE</span>
+                  <span>@KMUTNB.inno.award</span>
+                </a>
+
+                <div className="hero-social-item">
+                  <Phone className="w-4 h-4 text-emerald-400" />
+                  <span>095-461-4261 / 02-555-2000 ต่อ 1508</span>
+                </div>
+
+                <div className="hero-visitor-chip">
+                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>128,686+ เข้าชม</span>
                 </div>
               </div>
 

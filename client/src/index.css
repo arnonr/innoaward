@@ -637,7 +637,7 @@ p {
 }
 
 /* ============================================================
-   CLEAN ROYAL PRESTIGE SHOWCASE CARD
+   HERO CATEGORY MATRIX CARD (INSPIRED BY REFERENCE, 2026 3D)
    ============================================================ */
 .hero-showcase-column {
   display: flex;
@@ -645,147 +645,211 @@ p {
   align-items: center;
 }
 
-.royal-prestige-card {
+.hero-category-matrix-card {
   width: 100%;
   max-width: 480px;
-  background: linear-gradient(165deg, rgba(7, 34, 26, 0.92) 0%, rgba(4, 19, 14, 0.97) 100%);
-  border: 1px solid rgba(255, 209, 102, 0.55);
+  background: rgba(4, 19, 14, 0.88);
+  border: 1px solid rgba(0, 245, 160, 0.45);
   border-radius: 24px;
-  padding: 28px;
+  padding: 22px;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(255, 209, 102, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px var(--emerald-glow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   transition: all 0.3s ease;
 }
 
-.royal-prestige-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 209, 102, 0.85);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 45px rgba(0, 245, 160, 0.35);
+.hero-category-matrix-card:hover {
+  border-color: var(--emerald-400);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 45px var(--emerald-glow);
 }
 
-.royal-card-header {
+.category-matrix-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 10px;
 }
 
-.royal-emblem-badge {
-  width: 60px;
-  height: 60px;
-  border-radius: 18px;
-  background: radial-gradient(circle at center, rgba(255, 209, 102, 0.3) 0%, rgba(245, 158, 11, 0.1) 100%);
-  border: 1px solid rgba(255, 209, 102, 0.6);
-  display: flex;
+.category-matrix-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 0 24px rgba(255, 209, 102, 0.4);
-}
-
-.royal-emblem-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.royal-subtitle {
-  font-size: 0.76rem;
+  gap: 6px;
+  font-size: 0.72rem;
   font-weight: 800;
-  color: var(--gold-400);
+  color: var(--emerald-300);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.royal-title {
-  font-size: 1.45rem;
+.category-matrix-title {
+  font-family: var(--font-th), var(--font-en);
+  font-size: 1.1rem;
   font-weight: 800;
   color: #FFFFFF;
-  line-height: 1.2;
+  letter-spacing: 0.04em;
 }
 
-.royal-dedication {
-  font-size: 0.88rem;
-  color: #E2FDF2;
-  line-height: 1.6;
-  padding: 12px 14px;
-  background: rgba(4, 19, 14, 0.8);
-  border-left: 3px solid #FFD166;
-  border-radius: 0 10px 10px 0;
-  margin-bottom: 20px;
+.category-buttons-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.royal-stats-matrix {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.royal-stat-box {
-  background: rgba(4, 19, 14, 0.85);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  padding: 12px 14px;
-  transition: all 0.2s ease;
-}
-
-.royal-stat-box:hover {
-  border-color: var(--emerald-400);
-  background: rgba(11, 49, 38, 0.95);
-}
-
-.stat-label {
-  display: block;
-  font-size: 0.7rem;
-  color: #86EFAC;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  line-height: 1.1;
-}
-
-.stat-value.gold {
-  color: #FFD166;
-  text-shadow: 0 0 14px rgba(255, 209, 102, 0.5);
-}
-
-.stat-value.cyan {
-  color: #00F5A0;
-  text-shadow: 0 0 14px rgba(0, 245, 160, 0.5);
-}
-
-.stat-sub {
-  display: block;
-  font-size: 0.68rem;
-  color: #86EFAC;
-  margin-top: 3px;
-}
-
-.royal-card-footer {
+.hero-category-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(110, 231, 183, 0.2);
-  flex-wrap: wrap;
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(7, 34, 26, 0.85);
+  border: 1px solid rgba(110, 231, 183, 0.22);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
 }
 
-.royal-perk-tag {
+.hero-category-btn:hover {
+  background: rgba(14, 56, 44, 0.95);
+  border-color: var(--emerald-400);
+  transform: translateX(4px);
+  box-shadow: 0 4px 18px rgba(0, 245, 160, 0.35);
+}
+
+.hero-category-btn-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-category-num {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--emerald-400);
+  opacity: 0.85;
+}
+
+.hero-category-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 245, 160, 0.18);
+  border: 1px solid var(--border-cyan);
+  color: var(--emerald-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-category-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-category-en {
+  font-family: var(--font-en);
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+}
+
+.hero-category-th {
+  font-size: 0.7rem;
+  color: #86EFAC;
+  margin-top: 2px;
+}
+
+.hero-category-arrow {
+  color: var(--emerald-400);
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.hero-category-btn:hover .hero-category-arrow {
+  transform: translateX(3px);
+  opacity: 1;
+}
+
+.category-matrix-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.royal-pill-mini {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  background: rgba(255, 209, 102, 0.15);
+  border: 1px solid rgba(255, 209, 102, 0.4);
+  color: var(--gold-300);
   font-size: 0.74rem;
-  color: #D1FAE5;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  box-shadow: 0 0 12px rgba(255, 209, 102, 0.2);
+}
+
+/* ============================================================
+   FLOATING BOTTOM SOCIAL & HOTLINE BAR (REFERENCE INSPIRED)
+   ============================================================ */
+.hero-social-floating-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 28px;
+  padding: 10px 24px;
+  background: rgba(4, 19, 14, 0.88);
+  border: 1px solid var(--border-medium);
+  border-radius: 9999px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--emerald-glow);
+}
+
+.hero-social-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
   font-weight: 600;
+  color: #E2FDF2;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.hero-social-item:hover {
+  color: #00F5A0;
+}
+
+.hero-visitor-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 245, 160, 0.2);
+  border: 1px solid var(--emerald-400);
+  color: #00F5A0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.header-visitor-chip {
+  padding: 4px 10px;
+  font-size: 0.74rem;
 }
 
 /* ============================================================
