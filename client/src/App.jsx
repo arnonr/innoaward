@@ -584,34 +584,13 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right: Unbounded 3D Royal Trophy Showcase (Cinematic Stage) */}
+                {/* Right: Clean & Prestigious 3D Royal Trophy Showcase */}
                 <div className="hero-trophy-cinematic">
                   
-                  {/* Volumetric Radial Light Aura Behind Trophy */}
+                  {/* Volumetric Soft Radial Light Aura Behind Trophy */}
                   <div className="trophy-volumetric-aura" />
 
-                  {/* 4 Floating Glass Achievement Badges */}
-                  <div className="trophy-floating-pill pill-top-left">
-                    <Crown className="w-4 h-4 text-amber-300" />
-                    <span>ถ้วยพระราชทานฯ</span>
-                  </div>
-
-                  <div className="trophy-floating-pill pill-top-right">
-                    <Sparkles className="w-4 h-4 text-cyan-300" />
-                    <span>รางวัลรวม 300,000+ บาท</span>
-                  </div>
-
-                  <div className="trophy-floating-pill pill-bottom-left">
-                    <Trophy className="w-4 h-4 text-amber-400" />
-                    <span>Grand Prize & โล่เกียรติยศ</span>
-                  </div>
-
-                  <div className="trophy-floating-pill pill-bottom-right">
-                    <GraduationCap className="w-4 h-4 text-emerald-300" />
-                    <span>2 ระดับการศึกษาทั่วประเทศ</span>
-                  </div>
-
-                  {/* 3D Trophy Showcase (Masked & Radiant Unbounded) */}
+                  {/* 3D Trophy Showcase (Masked & Radiant) */}
                   <div className="trophy-unbounded-wrap">
                     <img 
                       src="/royal-trophy-3d.jpg" 
@@ -621,7 +600,7 @@ export default function App() {
                     <div className="trophy-bottom-gradient-blend" />
                   </div>
 
-                  {/* Prestige Caption Bar */}
+                  {/* Prestige Caption & Metrics Plate */}
                   <div className="trophy-caption-plate">
                     <div className="trophy-caption-title">
                       <Crown className="w-4 h-4 text-amber-300 inline mr-1" />
@@ -629,6 +608,23 @@ export default function App() {
                     </div>
                     <div className="trophy-caption-sub">
                       รางวัลชนะเลิศสูงสุด โครงการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569
+                    </div>
+                    
+                    <div className="trophy-grounded-metrics">
+                      <div className="metric-item">
+                        <strong>300,000+</strong>
+                        <span>เงินรางวัลรวม</span>
+                      </div>
+                      <div className="metric-divider" />
+                      <div className="metric-item">
+                        <strong>5 สาขา</strong>
+                        <span>นวัตกรรมเป้าหมาย</span>
+                      </div>
+                      <div className="metric-divider" />
+                      <div className="metric-item">
+                        <strong>2 ระดับ</strong>
+                        <span>การศึกษาทั่วประเทศ</span>
+                      </div>
                     </div>
                   </div>
 
