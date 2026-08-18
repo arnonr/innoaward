@@ -7,7 +7,7 @@ import {
   BookOpen, HelpCircle, Layers, Calendar, MapPin, Phone, Mail, Globe,
   Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
   CheckCircle, User, ShieldAlert, Check, Video, ClipboardList, CheckSquare,
-  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone
+  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3001/api';
@@ -507,47 +507,56 @@ export default function App() {
           {/* Hero Section */}
           <section className="hero-section">
             <div className="pro-container">
-              <div className="hero-grid">
+              <div className="hero-grid hero-cinematic-grid">
                 
                 {/* Left: Content */}
                 <div className="hero-text-content">
                   <div>
                     <div className="badge-royal">
-                      <Sparkles className="w-4 h-4 text-amber-400" />
-                      <span>ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</span>
+                      <Crown className="w-4 h-4 text-amber-300 animate-pulse" />
+                      <span>ครองถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</span>
                     </div>
                   </div>
 
                   <h1 className="hero-title">
-                    KMUTNB <span className="hero-title-gradient">INNOVATION</span> AWARDS 2026
+                    <span className="hero-brand-lead">KMUTNB</span>
+                    <span className="hero-title-cyan">INNOVATION</span>
+                    <span className="hero-title-gold">AWARDS 2026</span>
                   </h1>
 
                   <p className="hero-desc">
-                    โครงการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569 ขับเคลื่อน 5 สาขานวัตกรรมเป้าหมาย พร้อมเปิดรับผู้เข้าแข่งขัน 2 ระดับการศึกษาจากทั่วประเทศ
+                    เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ขับเคลื่อน 5 สาขานวัตกรรมเป้าหมายสู่อนาคต พร้อมเปิดรับข้อเสนอโครงการจากนักเรียน นักศึกษา และนักวิจัยทั่วประเทศ
                   </p>
 
-                  {/* Countdown Bar (Live Ticking) */}
-                  <div className="countdown-box">
-                    <div className="countdown-label">
-                      <Clock className="w-4 h-4 animate-pulse" />
-                      <span>เวลาคงเหลือในการยื่นข้อเสนอผลงาน (SUBMISSION DEADLINE):</span>
+                  {/* Countdown Bar (Mission Launch Glass HUD) */}
+                  <div className="hero-mission-hud">
+                    <div className="hud-header">
+                      <div className="hud-status-chip">
+                        <span className="hud-dot" />
+                        <span>OPEN FOR SUBMISSIONS</span>
+                      </div>
+                      <span className="hud-title-label">เวลาคงเหลือปิดรับสมัคร (COUNTDOWN)</span>
                     </div>
-                    <div className="countdown-digits">
-                      <div className="countdown-col">
-                        <div className="countdown-num">{timeLeft.days}</div>
-                        <div className="countdown-unit">วัน (DAYS)</div>
+
+                    <div className="hud-digits-row">
+                      <div className="hud-digit-block">
+                        <span className="hud-num">{timeLeft.days}</span>
+                        <span className="hud-unit">DAYS</span>
                       </div>
-                      <div className="countdown-col">
-                        <div className="countdown-num">{timeLeft.hours}</div>
-                        <div className="countdown-unit">ชั่วโมง (HOURS)</div>
+                      <span className="hud-sep">:</span>
+                      <div className="hud-digit-block">
+                        <span className="hud-num">{timeLeft.hours}</span>
+                        <span className="hud-unit">HOURS</span>
                       </div>
-                      <div className="countdown-col">
-                        <div className="countdown-num">{timeLeft.minutes}</div>
-                        <div className="countdown-unit">นาที (MINUTES)</div>
+                      <span className="hud-sep">:</span>
+                      <div className="hud-digit-block">
+                        <span className="hud-num">{timeLeft.minutes}</span>
+                        <span className="hud-unit">MINS</span>
                       </div>
-                      <div className="countdown-col">
-                        <div className="countdown-num accent">{timeLeft.seconds}</div>
-                        <div className="countdown-unit">วินาที (SECONDS)</div>
+                      <span className="hud-sep">:</span>
+                      <div className="hud-digit-block accent">
+                        <span className="hud-num">{timeLeft.seconds}</span>
+                        <span className="hud-unit">SECS</span>
                       </div>
                     </div>
                   </div>
@@ -559,17 +568,15 @@ export default function App() {
                         setShowPortalModal(true);
                         if (user) setPortalTab('submission');
                       }}
-                      className="btn-solid-primary"
-                      style={{ padding: '12px 28px', fontSize: '0.95rem' }}
+                      className="btn-solid-primary hero-main-cta"
                     >
-                      <Rocket className="w-4 h-4" />
+                      <Rocket className="w-5 h-5" />
                       <span>สมัครเข้าร่วมประกวด (Submit Entry)</span>
                     </button>
 
                     <button 
                       onClick={() => navigateTo('guidelines')}
-                      className="btn-outline-cyan"
-                      style={{ padding: '12px 24px', fontSize: '0.95rem' }}
+                      className="btn-outline-cyan hero-sub-cta"
                     >
                       <BookOpen className="w-4 h-4" />
                       <span>ดูรายละเอียดการแข่งขัน</span>
@@ -577,28 +584,54 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right: Royal Trophy Showcase Card */}
-                <div>
-                  <div className="trophy-card">
-                    <Trophy className="trophy-glow-icon" />
-                    
-                    <h3>ถ้วยพระราชทานอันทรงเกียรติยศ</h3>
-                    <p>
-                      สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี
-                    </p>
+                {/* Right: Unbounded 3D Royal Trophy Showcase (Cinematic Stage) */}
+                <div className="hero-trophy-cinematic">
+                  
+                  {/* Volumetric Radial Light Aura Behind Trophy */}
+                  <div className="trophy-volumetric-aura" />
 
-                    <div className="trophy-meta-grid">
-                      <div className="trophy-meta-item">
-                        <strong>300,000+</strong>
-                        <span>เงินรางวัลรวม (บาท)</span>
-                      </div>
-                      <div className="trophy-meta-divider" />
-                      <div className="trophy-meta-item">
-                        <strong style={{ color: 'var(--gold-400)' }}>Grand Prize</strong>
-                        <span>พร้อมโล่และเกียรติบัตร</span>
-                      </div>
+                  {/* 4 Floating Glass Achievement Badges */}
+                  <div className="trophy-floating-pill pill-top-left">
+                    <Crown className="w-4 h-4 text-amber-300" />
+                    <span>ถ้วยพระราชทานฯ</span>
+                  </div>
+
+                  <div className="trophy-floating-pill pill-top-right">
+                    <Sparkles className="w-4 h-4 text-cyan-300" />
+                    <span>รางวัลรวม 300,000+ บาท</span>
+                  </div>
+
+                  <div className="trophy-floating-pill pill-bottom-left">
+                    <Trophy className="w-4 h-4 text-amber-400" />
+                    <span>Grand Prize & โล่เกียรติยศ</span>
+                  </div>
+
+                  <div className="trophy-floating-pill pill-bottom-right">
+                    <GraduationCap className="w-4 h-4 text-emerald-300" />
+                    <span>2 ระดับการศึกษาทั่วประเทศ</span>
+                  </div>
+
+                  {/* 3D Trophy Showcase (Masked & Radiant Unbounded) */}
+                  <div className="trophy-unbounded-wrap">
+                    <img 
+                      src="/royal-trophy-3d.jpg" 
+                      alt="KMUTNB Royal Innovation Trophy 3D" 
+                      className="trophy-unbounded-img"
+                    />
+                    <div className="trophy-bottom-gradient-blend" />
+                  </div>
+
+                  {/* Prestige Caption Bar */}
+                  <div className="trophy-caption-plate">
+                    <div className="trophy-caption-title">
+                      <Crown className="w-4 h-4 text-amber-300 inline mr-1" />
+                      ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี
+                    </div>
+                    <div className="trophy-caption-sub">
+                      รางวัลชนะเลิศสูงสุด โครงการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569
                     </div>
                   </div>
+
                 </div>
 
               </div>
