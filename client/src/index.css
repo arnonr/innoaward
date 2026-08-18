@@ -1564,8 +1564,8 @@ p {
   z-index: -1;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(7, 17, 15, 0.78) 0%, rgba(7, 17, 15, 0.7) 29%, rgba(7, 17, 15, 0.34) 53%, rgba(7, 17, 15, 0.12) 100%),
-    linear-gradient(180deg, rgba(4, 19, 14, 0.16), rgba(4, 19, 14, 0.58));
+    linear-gradient(90deg, rgba(7, 17, 15, 0.48) 0%, rgba(7, 17, 15, 0.34) 28%, rgba(7, 17, 15, 0.12) 55%, transparent 82%),
+    linear-gradient(180deg, rgba(4, 19, 14, 0.08), rgba(4, 19, 14, 0.2));
   animation: none;
 }
 
