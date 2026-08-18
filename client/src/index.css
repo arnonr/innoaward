@@ -1545,17 +1545,7 @@ p {
 }
 
 .hero-video-stage::after {
-  z-index: -1;
-  top: 0;
-  right: auto;
-  bottom: 0;
-  left: 36%;
-  width: 1px;
-  height: auto;
-  background: linear-gradient(180deg, transparent, rgba(216, 181, 104, 0.48), transparent);
-  transform: none;
-  animation: none;
-  box-shadow: 0 0 18px rgba(216, 181, 104, 0.2);
+  display: none;
 }
 
 .hero-video-stage .pro-container {
