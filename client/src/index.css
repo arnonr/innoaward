@@ -1532,7 +1532,7 @@ p {
 }
 
 .hero-video-stage .hero-youtube-background {
-  transform: scale(1.28);
+  transform: scale(1.46);
 }
 
 .hero-video-stage::before {
@@ -1632,6 +1632,10 @@ p {
     width: 100%;
     height: 100%;
     opacity: 0.5;
+  }
+
+  .hero-video-stage .hero-youtube-background {
+    transform: scale(1.28);
   }
 
   .hero-video-stage::before {
