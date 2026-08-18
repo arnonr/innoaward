@@ -653,6 +653,11 @@ export default function App() {
               {heroVideoMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               <span>{heroVideoMuted ? 'เปิดเสียง' : 'ปิดเสียง'}</span>
             </button>
+            <div className="hero-side-lockup" aria-hidden="true">
+              <span className="hero-side-lockup-kicker">KMUTNB // 2026</span>
+              <span className="hero-side-lockup-title">NATIONAL<br />INNOVATION<br />PLATFORM</span>
+              <span className="hero-side-lockup-meta">IDEAS THAT MOVE THE FUTURE</span>
+            </div>
             <div className="pro-container">
               <div className="hero-grid hero-cinematic-grid">
                 

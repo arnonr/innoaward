@@ -1572,28 +1572,43 @@ p {
 }
 
 .hero-video-stage::after {
-  content: '26';
-  display: block;
+  display: none;
+}
+
+.hero-side-lockup {
   position: absolute;
-  z-index: -1;
-  top: 12%;
-  right: auto;
-  bottom: auto;
-  left: 2%;
-  width: 34%;
-  height: auto;
-  color: transparent;
-  font-family: var(--font-en);
-  font-size: clamp(15rem, 29vw, 31rem);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: -0.1em;
-  text-align: center;
-  -webkit-text-stroke: 1px rgba(0, 245, 160, 0.16);
-  opacity: 0.9;
-  mix-blend-mode: screen;
+  z-index: 1;
+  left: clamp(20px, 3vw, 48px);
+  bottom: 12%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 150px;
   pointer-events: none;
-  transform: translateX(-3%);
+}
+
+.hero-side-lockup-kicker,
+.hero-side-lockup-meta {
+  color: rgba(0, 245, 160, 0.72);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  line-height: 1.5;
+}
+
+.hero-side-lockup-title {
+  color: rgba(248, 244, 232, 0.72);
+  font-family: var(--font-en);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.08;
+}
+
+.hero-side-lockup-meta {
+  color: rgba(216, 181, 104, 0.7);
+  font-size: 0.48rem;
 }
 
 .hero-video-stage .pro-container {
@@ -1692,6 +1707,10 @@ p {
     left: 4%;
     width: 92%;
     font-size: clamp(12rem, 46vw, 20rem);
+  }
+
+  .hero-side-lockup {
+    display: none;
   }
 
   .hero-video-stage .hero-grid {
