@@ -624,37 +624,45 @@ export default function App() {
       {currentView === 'home' && (
         <main>
           {/* Hero Section */}
-          <section className="hero-section">
+          <section className="hero-section hero-video-stage">
+            <iframe
+              className="hero-background-video hero-youtube-background"
+              src="https://www.youtube.com/embed/LwAgN-X9yy8?autoplay=1&mute=1&loop=1&playlist=LwAgN-X9yy8&controls=0&modestbranding=1&rel=0&playsinline=1"
+              title="KMUTNB Innovation Awards 2025 background video"
+              allow="autoplay; encrypted-media"
+              aria-hidden="true"
+            />
             <div className="pro-container">
               <div className="hero-grid hero-cinematic-grid">
                 
                 {/* Left: Brand & Core Mission Content */}
                 <div className="hero-text-content">
                   <div>
-                    <div className="badge-royal">
+                    <div className="badge-royal hero-editorial-eyebrow">
                       <Crown className="w-4 h-4 text-amber-300 animate-pulse" />
                       <span>ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</span>
                     </div>
                   </div>
 
-                  <h1 className="hero-title">
+                  <h1 className="hero-title hero-editorial-title">
                     <span className="hero-brand-lead">KMUTNB</span>
                     <span className="hero-title-cyan">INNOVATION</span>
                     <span className="hero-title-gold">AWARDS 2026</span>
                   </h1>
 
-                  <p className="hero-desc">
-                    เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ขับเคลื่อน 5 สาขานวัตกรรมเป้าหมายสู่อนาคต ชิงเงินรางวัลรวมกว่า 300,000+ บาท พร้อมเปิดรับข้อเสนอโครงการทั่วประเทศ
+                  <p className="hero-desc hero-editorial-desc">
+                    เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ เพื่อค้นหาแนวคิดที่จะขับเคลื่อนอนาคต<br />
+                    ชิงถ้วยพระราชทานฯ และเงินรางวัลรวมกว่า 300,000+ บาท
                   </p>
 
                   {/* Countdown Bar (Mission Launch Glass HUD) */}
-                  <div className="hero-mission-hud">
+                  <div className="hero-mission-hud hero-editorial-hud">
                     <div className="hud-header">
                       <div className="hud-status-chip">
                         <span className="hud-dot" />
-                        <span>OPEN FOR SUBMISSIONS</span>
+                        <span>LIVE // OPEN FOR SUBMISSIONS</span>
                       </div>
-                      <span className="hud-title-label">เวลาคงเหลือปิดรับสมัคร (COUNTDOWN)</span>
+                      <span className="hud-title-label">T-MINUS TO DEADLINE</span>
                     </div>
 
                     <div className="hud-digits-row">
@@ -690,7 +698,7 @@ export default function App() {
                       className="btn-solid-primary hero-main-cta"
                     >
                       <Rocket className="w-5 h-5" />
-                      <span>สมัครเข้าร่วมประกวด (Submit Entry)</span>
+                      <span>INITIALIZE SUBMISSION</span>
                     </button>
 
                     <button 
@@ -703,73 +711,65 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right: Interactive 5+1 Innovation Category Stack (Inspired by the Reference!) */}
+                {/* Right: Editorial Award Spotlight */}
                 <div className="hero-showcase-column">
-                  <div className="hero-category-matrix-card">
-                    <div className="category-matrix-header">
-                      <div className="category-matrix-badge">
-                        <Sparkles className="w-4 h-4 text-emerald-400" />
-                        <span>COMPETITION DOMAINS</span>
-                      </div>
-                      <h3 className="category-matrix-title">CATEGORY:</h3>
+                  <div className="editorial-award-spotlight">
+                    <div className="editorial-spotlight-orbit editorial-orbit-one" />
+                    <div className="editorial-spotlight-orbit editorial-orbit-two" />
+                    <div className="editorial-spotlight-crown">
+                      <Crown className="w-12 h-12 text-amber-300" />
                     </div>
-
-                    <div className="category-buttons-stack">
-                      {DOMAINS.map((domain, idx) => {
-                        const IconComponent = domain.icon;
-                        return (
-                          <button
-                            key={domain.id}
-                            onClick={() => {
-                              setSelectedDomain(domain);
-                              setShowDomainDetail(true);
-                            }}
-                            className="hero-category-btn"
-                          >
-                            <div className="hero-category-btn-left">
-                              <span className="hero-category-num">0{idx + 1}</span>
-                              <div className="hero-category-icon-box">
-                                <IconComponent className="w-4 h-4" />
-                              </div>
-                              <div className="hero-category-text">
-                                <span className="hero-category-en">{domain.titleEn.toUpperCase()}</span>
-                                <span className="hero-category-th">{domain.titleTh}</span>
-                              </div>
-                            </div>
-                            <ChevronRight className="w-4 h-4 hero-category-arrow" />
-                          </button>
-                        );
-                      })}
-
-                      {/* 6th: Cross-Disciplinary / Others */}
-                      <button
-                        onClick={() => openSubmissionWithDomain('others')}
-                        className="hero-category-btn"
-                      >
-                        <div className="hero-category-btn-left">
-                          <span className="hero-category-num">06</span>
-                          <div className="hero-category-icon-box" style={{ borderColor: 'rgba(255, 209, 102, 0.5)', color: '#FFD166' }}>
-                            <Globe className="w-4 h-4" />
-                          </div>
-                          <div className="hero-category-text">
-                            <span className="hero-category-en">OTHERS & MULTIDISCIPLINARY</span>
-                            <span className="hero-category-th">นวัตกรรมแบบบูรณาการและอื่นๆ</span>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 hero-category-arrow" />
-                      </button>
-                    </div>
-
-                    {/* Royal Trophy Banner inside Matrix */}
-                    <div className="category-matrix-footer">
-                      <div className="royal-pill-mini">
-                        <Crown className="w-3.5 h-3.5 text-amber-300" />
-                        <span>ชิงถ้วยพระราชทานฯ • เงินรางวัลรวม 300,000+ บาท</span>
+                    <span className="editorial-spotlight-kicker">THE ROYAL INNOVATION AWARD</span>
+                    <h2>เวทีแห่งความคิด<br /><em>ที่เปลี่ยนอนาคต</em></h2>
+                    <div className="editorial-spotlight-rule" />
+                    <div className="editorial-spotlight-stats">
+                      <div>
+                        <span className="editorial-stat-label">TOTAL PRIZE</span>
+                        <strong>300,000<span>+</span></strong>
+                        <small>บาท</small>
                       </div>
+                      <div>
+                        <span className="editorial-stat-label">DEADLINE</span>
+                        <strong>15.11</strong>
+                        <small>2569</small>
+                      </div>
+                    </div>
+                    <div className="editorial-spotlight-footer">
+                      <Crown className="w-4 h-4 text-amber-300" />
+                      <span>ชิงถ้วยพระราชทานฯ</span>
                     </div>
                   </div>
                 </div>
 
+              </div>
+
+              {/* Editorial Category Navigation Strip */}
+              <div className="editorial-category-strip">
+                <div className="editorial-category-strip-label">EXPLORE<br />DOMAINS</div>
+                <div className="editorial-category-list">
+                  {DOMAINS.map((domain, idx) => {
+                    const IconComponent = domain.icon;
+                    return (
+                      <button
+                        key={domain.id}
+                        onClick={() => {
+                          setSelectedDomain(domain);
+                          setShowDomainDetail(true);
+                        }}
+                        className="editorial-category-item"
+                      >
+                        <span className="editorial-category-index">0{idx + 1}</span>
+                        <IconComponent className="w-4 h-4" />
+                        <span>{domain.titleEn}</span>
+                      </button>
+                    );
+                  })}
+                  <button onClick={() => openSubmissionWithDomain('others')} className="editorial-category-item editorial-category-item-other">
+                    <span className="editorial-category-index">06</span>
+                    <Globe className="w-4 h-4" />
+                    <span>Others</span>
+                  </button>
+                </div>
               </div>
 
               {/* Perfectly Centered Announcement Alert Banner */}
