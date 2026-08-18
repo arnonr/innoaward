@@ -1725,26 +1725,26 @@ export default function App() {
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: '#FFFFFF', border: '1px solid var(--border-medium)', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(7, 34, 26, 0.85)', border: '1px solid var(--border-medium)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <FileText className="w-5 h-5 text-emerald-600" />
+                        <FileText className="w-5 h-5 text-emerald-400" />
                         <div>
                           <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>ประกาศเกณฑ์การประกวดฉบับทางการ 2569.pdf</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร PDF • 2.4 MB</div>
                         </div>
                       </div>
-                      <Download className="w-4 h-4 text-emerald-600" />
+                      <Download className="w-4 h-4 text-emerald-400" />
                     </a>
 
-                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: '#FFFFFF', border: '1px solid var(--border-medium)', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(7, 34, 26, 0.85)', border: '1px solid var(--border-medium)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <FileText className="w-5 h-5 text-amber-600" />
+                        <FileText className="w-5 h-5 text-amber-400" />
                         <div>
                           <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>แบบฟอร์มข้อเสนอโครงการ (Proposal Template).docx</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร Word • 512 KB</div>
                         </div>
                       </div>
-                      <Download className="w-4 h-4 text-amber-600" />
+                      <Download className="w-4 h-4 text-amber-400" />
                     </a>
                   </div>
                 </div>
@@ -1761,24 +1761,24 @@ export default function App() {
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.88rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                      <Phone className="w-5 h-5 text-emerald-600" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                      <Phone className="w-5 h-5 text-emerald-400" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>เบอร์โทรศัพท์ติดต่อ:</div>
                         <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>02-555-2000 ต่อ 1508, 1509</div>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                      <Mail className="w-5 h-5 text-emerald-600" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                      <Mail className="w-5 h-5 text-emerald-400" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>อีเมลสอบถามข้อมูล:</div>
                         <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>innoaward@kmutnb.ac.th</div>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                      <Globe className="w-5 h-5 text-emerald-600" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                      <Globe className="w-5 h-5 text-emerald-400" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>เว็บไซต์ทางการ:</div>
                         <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>https://kmutnb-innoawards.com</div>
@@ -1795,7 +1795,7 @@ export default function App() {
       )}
 
       {/* GLOBAL FOOTER */}
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '28px 0', textAlign: 'center', fontSize: '0.82rem', color: 'var(--text-muted)', background: '#F8FAFC' }}>
+      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '28px 0', textAlign: 'center', fontSize: '0.82rem', color: 'var(--text-muted)', background: '#04130E' }}>
         <div className="pro-container">
           <div style={{ marginBottom: '8px', color: 'var(--text-secondary)' }}>
             โครงการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569 (KMUTNB Innovation Awards 2026)
