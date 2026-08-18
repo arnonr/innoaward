@@ -1340,7 +1340,7 @@ p {
 .hero-video-stage::before {
   content: '';
   position: absolute;
-  z-index: -1;
+  z-index: 0;
   inset: 0;
   background:
     radial-gradient(circle at 50% 42%, rgba(255, 209, 102, 0.06), transparent 34%),
@@ -1589,8 +1589,9 @@ p {
   line-height: 0.9;
   letter-spacing: -0.1em;
   text-align: center;
-  -webkit-text-stroke: 1px rgba(0, 245, 160, 0.09);
-  opacity: 0.72;
+  -webkit-text-stroke: 1px rgba(0, 245, 160, 0.16);
+  opacity: 0.9;
+  mix-blend-mode: screen;
   pointer-events: none;
   transform: translateX(-3%);
 }
