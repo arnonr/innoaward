@@ -20,7 +20,7 @@ const DOMAINS = [
     nameEn: 'Energy & Environment',
     desc: 'นวัตกรรมด้านพลังงานทดแทน การจัดการสิ่งแวดล้อม เทคโนโลยีสีเขียว และการลดการปล่อยคาร์บอน',
     icon: Zap,
-    color: '#22D3EE',
+    color: '#059669',
     bgImage: '/domain-energy.jpg'
   },
   {
@@ -29,7 +29,7 @@ const DOMAINS = [
     nameEn: 'Food & Agriculture',
     desc: 'นวัตกรรมเกษตรอัจฉริยะ (AgriTech) อาหารแห่งอนาคต การแปรรูปผลิตผล และความมั่นคงทางอาหาร',
     icon: Leaf,
-    color: '#4ADE80',
+    color: '#16A34A',
     bgImage: '/domain-food.jpg'
   },
   {
@@ -38,7 +38,7 @@ const DOMAINS = [
     nameEn: 'Social & Economy',
     desc: 'นวัตกรรมเพื่อการพัฒนาสังคม เศรษฐกิจดิจิทัล เทคโนโลยีการศึกษา และการยกระดับคุณภาพชีวิตชุมชน',
     icon: Users,
-    color: '#818CF8',
+    color: '#4F46E5',
     bgImage: '/domain-social.jpg'
   },
   {
@@ -47,7 +47,7 @@ const DOMAINS = [
     nameEn: 'Medical Device',
     desc: 'อุปกรณ์และเครื่องมือทางการแพทย์ เทคโนโลยีสุขภาพ (HealthTech) ชีวการแพทย์ และอุปกรณ์ช่วยดูแลสุขภาพ',
     icon: Activity,
-    color: '#F43F5E',
+    color: '#E11D48',
     bgImage: '/domain-medical.jpg'
   },
   {
@@ -56,7 +56,7 @@ const DOMAINS = [
     nameEn: 'Material',
     desc: 'นวัตกรรมด้านวัสดุศาสตร์ คอมโพสิต โพลีเมอร์ สารเคลือบผิว นาโนเทคโนโลยี และวัสดุก้าวหน้า',
     icon: Box,
-    color: '#FBBF24',
+    color: '#D97706',
     bgImage: '/domain-material.jpg'
   }
 ];
@@ -1725,26 +1725,26 @@ export default function App() {
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(16, 31, 61, 0.85)', border: '1px solid var(--border-medium)' }}>
+                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: '#FFFFFF', border: '1px solid var(--border-medium)', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <FileText className="w-5 h-5 text-cyan-400" />
+                        <FileText className="w-5 h-5 text-emerald-600" />
                         <div>
                           <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>ประกาศเกณฑ์การประกวดฉบับทางการ 2569.pdf</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร PDF • 2.4 MB</div>
                         </div>
                       </div>
-                      <Download className="w-4 h-4 text-cyan-400" />
+                      <Download className="w-4 h-4 text-emerald-600" />
                     </a>
 
-                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(16, 31, 61, 0.85)', border: '1px solid var(--border-medium)' }}>
+                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: '#FFFFFF', border: '1px solid var(--border-medium)', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <FileText className="w-5 h-5 text-amber-400" />
+                        <FileText className="w-5 h-5 text-amber-600" />
                         <div>
                           <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>แบบฟอร์มข้อเสนอโครงการ (Proposal Template).docx</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร Word • 512 KB</div>
                         </div>
                       </div>
-                      <Download className="w-4 h-4 text-amber-400" />
+                      <Download className="w-4 h-4 text-amber-600" />
                     </a>
                   </div>
                 </div>
@@ -1761,24 +1761,24 @@ export default function App() {
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.88rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-                      <Phone className="w-5 h-5 text-cyan-400" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                      <Phone className="w-5 h-5 text-emerald-600" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>เบอร์โทรศัพท์ติดต่อ:</div>
                         <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>02-555-2000 ต่อ 1508, 1509</div>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-                      <Mail className="w-5 h-5 text-cyan-400" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                      <Mail className="w-5 h-5 text-emerald-600" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>อีเมลสอบถามข้อมูล:</div>
                         <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>innoaward@kmutnb.ac.th</div>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-                      <Globe className="w-5 h-5 text-cyan-400" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                      <Globe className="w-5 h-5 text-emerald-600" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>เว็บไซต์ทางการ:</div>
                         <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>https://kmutnb-innoawards.com</div>
@@ -1795,7 +1795,7 @@ export default function App() {
       )}
 
       {/* GLOBAL FOOTER */}
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '28px 0', textAlign: 'center', fontSize: '0.82rem', color: 'var(--text-muted)', background: '#091222' }}>
+      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '28px 0', textAlign: 'center', fontSize: '0.82rem', color: 'var(--text-muted)', background: '#F8FAFC' }}>
         <div className="pro-container">
           <div style={{ marginBottom: '8px', color: 'var(--text-secondary)' }}>
             โครงการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569 (KMUTNB Innovation Awards 2026)
@@ -2052,22 +2052,22 @@ export default function App() {
             {statusLoading && <div style={{ textAlign: 'center', color: 'var(--cyan-300)', fontSize: '0.88rem', padding: '16px' }}>กำลังค้นหาข้อมูล...</div>}
 
             {statusError && (
-              <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.35)', color: '#FCA5A5', fontSize: '0.85rem', textAlign: 'center' }}>
+              <div style={{ padding: '12px 16px', borderRadius: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', fontSize: '0.85rem', textAlign: 'center' }}>
                 {statusError}
               </div>
             )}
 
             {statusResult && (
-              <div style={{ background: 'var(--bg-base)', border: '1px solid var(--border-cyan)', borderRadius: '12px', padding: '18px', fontSize: '0.85rem' }}>
+              <div style={{ background: '#F0FDF4', border: '1px solid #A7F3D0', borderRadius: '12px', padding: '18px', fontSize: '0.85rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--cyan-300)', fontWeight: 700 }}>{statusResult.trackingCode}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', color: '#059669', fontWeight: 700 }}>{statusResult.trackingCode}</span>
                   <span className="badge-category">{statusResult.status}</span>
                 </div>
-                <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px' }}>{statusResult.titleTh}</div>
+                <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px', color: '#0F172A' }}>{statusResult.titleTh}</div>
                 <div style={{ color: 'var(--text-secondary)', marginBottom: '12px' }}>ทีม: {statusResult.teamName}</div>
-                <div style={{ background: 'var(--bg-surface)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                  <strong style={{ color: 'var(--cyan-300)', display: 'block', marginBottom: '4px' }}>ข้อความจากคณะกรรมการ:</strong>
-                  <span>{statusResult.feedback}</span>
+                <div style={{ background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                  <strong style={{ color: '#059669', display: 'block', marginBottom: '4px' }}>ข้อความจากคณะกรรมการ:</strong>
+                  <span style={{ color: 'var(--text-primary)' }}>{statusResult.feedback}</span>
                 </div>
               </div>
             )}
@@ -2096,27 +2096,27 @@ export default function App() {
               />
             </div>
 
-            <h2 style={{ fontSize: '1.6rem', marginBottom: '4px' }}>{selectedWinnerModal.titleTh}</h2>
-            <div style={{ color: 'var(--cyan-300)', fontSize: '0.88rem', fontWeight: 500, marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '1.6rem', marginBottom: '4px', color: '#0F172A' }}>{selectedWinnerModal.titleTh}</h2>
+            <div style={{ color: '#059669', fontSize: '0.88rem', fontWeight: 600, marginBottom: '20px' }}>
               {selectedWinnerModal.titleEn}
             </div>
 
-            <div style={{ background: 'var(--bg-base)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '18px', marginBottom: '20px' }}>
-              <h4 style={{ color: 'var(--cyan-300)', fontSize: '0.95rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ background: '#F8FAFC', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '18px', marginBottom: '20px' }}>
+              <h4 style={{ color: '#059669', fontSize: '0.95rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <BookOpen className="w-4 h-4" />
                 <span>ที่มาและปัญหาของนวัตกรรม (Problem & Solution)</span>
               </h4>
-              <p style={{ fontSize: '0.88rem', lineHeight: 1.7 }}>
+              <p style={{ fontSize: '0.88rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                 {selectedWinnerModal.abstractTh}
               </p>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.84rem', marginBottom: '24px' }}>
-              <div style={{ background: 'var(--bg-base)', padding: '12px', borderRadius: '8px' }}>
+              <div style={{ background: '#F8FAFC', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--text-muted)', display: 'block' }}>ทีมพัฒนา:</span>
                 <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.teamName}</strong>
               </div>
-              <div style={{ background: 'var(--bg-base)', padding: '12px', borderRadius: '8px' }}>
+              <div style={{ background: '#F8FAFC', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--text-muted)', display: 'block' }}>อาจารย์ที่ปรึกษา:</span>
                 <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.advisorName}</strong>
               </div>
