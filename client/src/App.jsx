@@ -7,7 +7,7 @@ import {
   BookOpen, HelpCircle, Layers, Calendar, MapPin, Phone, Mail, Globe,
   Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
   CheckCircle, User, ShieldAlert, Check, Video, ClipboardList, CheckSquare,
-  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown
+  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown, Eye
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3001/api';
