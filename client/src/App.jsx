@@ -655,8 +655,6 @@ export default function App() {
             </button>
             <div className="hero-side-lockup" aria-hidden="true">
               <span className="hero-side-lockup-kicker">KMUTNB // 2026</span>
-              <span className="hero-side-lockup-title">NATIONAL INNOVATION PLATFORM</span>
-              <span className="hero-side-lockup-meta">IDEAS THAT MOVE THE FUTURE</span>
             </div>
             <div className="pro-container">
               <div className="hero-grid hero-cinematic-grid">
