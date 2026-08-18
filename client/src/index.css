@@ -692,6 +692,85 @@ p {
 }
 
 /* ============================================================
+   HERO INTEGRATED ANNOUNCEMENT ALERT PILL (CENTERED & BALANCED)
+   ============================================================ */
+.hero-announcement-strip {
+  margin-top: 40px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-announcement-pill {
+  width: 100%;
+  background: rgba(11, 21, 40, 0.82);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 16px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.12);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.hero-announcement-pill:hover {
+  background: rgba(16, 31, 61, 0.95);
+  border-color: rgba(56, 189, 248, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 28px rgba(6, 182, 212, 0.25);
+}
+
+.announcement-pill-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.announcement-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(6, 182, 212, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.55);
+  color: #38BDF8;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+.announcement-pill-text {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #F8FAFC;
+  line-height: 1.4;
+}
+
+.announcement-pill-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--cyan-400);
+  white-space: nowrap;
+  transition: transform 0.2s ease;
+}
+
+.hero-announcement-pill:hover .announcement-pill-action {
+  transform: translateX(3px);
+  color: #38BDF8;
+}
+
+/* ============================================================
    SECTIONS & HEADERS
    ============================================================ */
 .section-wrapper {

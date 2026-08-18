@@ -644,37 +644,32 @@ export default function App() {
                 </div>
 
               </div>
+
+              {/* Perfectly Centered Announcement Alert Banner */}
+              <div className="hero-announcement-strip">
+                <div 
+                  onClick={() => navigateTo('announcements')}
+                  className="hero-announcement-pill"
+                >
+                  <div className="announcement-pill-left">
+                    <span className="announcement-pill-badge">
+                      <Megaphone className="w-4 h-4 text-cyan-300 animate-pulse" />
+                      <span>ข่าวล่าสุด</span>
+                    </span>
+                    <span className="announcement-pill-text">
+                      เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2026 จนถึง 15 พ.ย. 2569
+                    </span>
+                  </div>
+                  
+                  <span className="announcement-pill-action">
+                    <span>ดูประกาศผล & ข่าวทั้งหมด</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </span>
+                </div>
+              </div>
+
             </div>
           </section>
-
-          {/* Announcement Alert Banner on Home */}
-          <div className="pro-container" style={{ marginTop: '24px' }}>
-            <div 
-              onClick={() => navigateTo('announcements')}
-              style={{ 
-                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.12) 0%, rgba(18, 34, 68, 0.9) 100%)', 
-                border: '1px solid var(--border-cyan)', 
-                borderRadius: '14px', 
-                padding: '14px 20px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Megaphone className="w-5 h-5 text-cyan-400 animate-pulse" />
-                <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-                  <strong>ข่าวประกาศล่าสุด:</strong> เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2026 จนถึง 15 พ.ย. 2569
-                </span>
-              </div>
-              <span className="winner-cta-link" style={{ fontSize: '0.84rem' }}>
-                <span>ดูประกาศผล & ข่าวทั้งหมด</span>
-                <ChevronRight className="w-4 h-4" />
-              </span>
-            </div>
-          </div>
 
           {/* 3-Pillar Highlights Grid */}
           <section className="section-wrapper" style={{ paddingTop: '50px', paddingBottom: '50px' }}>
