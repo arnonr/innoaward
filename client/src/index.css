@@ -540,131 +540,155 @@ p {
 }
 
 /* ============================================================
-   CLEAN & PRESTIGIOUS 3D ROYAL TROPHY SHOWCASE
+   CLEAN ROYAL PRESTIGE SHOWCASE CARD
    ============================================================ */
-.hero-trophy-cinematic {
-  position: relative;
+.hero-showcase-column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.royal-prestige-card {
+  width: 100%;
+  max-width: 480px;
+  background: linear-gradient(165deg, rgba(16, 31, 61, 0.85) 0%, rgba(10, 20, 42, 0.95) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  border-radius: 24px;
+  padding: 28px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(245, 158, 11, 0.15);
+  transition: all 0.3s ease;
+}
+
+.royal-prestige-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(251, 191, 36, 0.65);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 45px rgba(245, 158, 11, 0.25);
+}
+
+.royal-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.royal-emblem-badge {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: radial-gradient(circle at center, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0.08) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+}
+
+.royal-emblem-text {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 440px;
 }
 
-.trophy-volumetric-aura {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -15%);
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.22) 0%, rgba(56, 189, 248, 0.16) 45%, rgba(6, 13, 26, 0) 70%);
-  filter: blur(40px);
-  pointer-events: none;
-  z-index: 1;
+.royal-subtitle {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--gold-400);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.trophy-unbounded-wrap {
-  position: relative;
-  width: 100%;
-  max-width: 400px;
-  height: 350px;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 25px rgba(251, 191, 36, 0.25));
-}
-
-.trophy-unbounded-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-  border-radius: 20px;
-  mask-image: radial-gradient(ellipse at 50% 50%, black 76%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 76%, transparent 100%);
-  transition: transform 0.4s ease;
-}
-
-.hero-trophy-cinematic:hover .trophy-unbounded-img {
-  transform: scale(1.02);
-}
-
-.trophy-bottom-gradient-blend {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 70px;
-  background: linear-gradient(0deg, rgba(6, 13, 26, 0.95) 0%, transparent 100%);
-  pointer-events: none;
-}
-
-.trophy-caption-plate {
-  position: relative;
-  z-index: 3;
-  text-align: center;
-  margin-top: -10px;
-  background: rgba(11, 21, 40, 0.85);
-  border: 1px solid rgba(251, 191, 36, 0.35);
-  border-radius: 16px;
-  padding: 14px 20px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-  max-width: 420px;
-  width: 100%;
-}
-
-.trophy-caption-title {
-  font-size: 0.9rem;
+.royal-title {
+  font-size: 1.45rem;
   font-weight: 800;
-  color: #FCD34D;
-  margin-bottom: 4px;
-  letter-spacing: 0.02em;
+  color: #FFFFFF;
+  line-height: 1.2;
 }
 
-.trophy-caption-sub {
-  font-size: 0.74rem;
-  color: #94A3B8;
-  line-height: 1.4;
-  margin-bottom: 12px;
+.royal-dedication {
+  font-size: 0.88rem;
+  color: #E2E8F0;
+  line-height: 1.6;
+  padding: 12px 14px;
+  background: rgba(6, 13, 26, 0.6);
+  border-left: 3px solid #F59E0B;
+  border-radius: 0 10px 10px 0;
+  margin-bottom: 20px;
 }
 
-.trophy-grounded-metrics {
+.royal-stats-matrix {
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  align-items: center;
-  gap: 8px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.metric-item {
-  text-align: center;
+.royal-stat-box {
+  background: rgba(11, 21, 40, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 12px 14px;
+  transition: all 0.2s ease;
 }
 
-.metric-item strong {
+.royal-stat-box:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(16, 31, 61, 0.9);
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #94A3B8;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.stat-value {
   display: block;
   font-family: var(--font-mono);
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  color: #38BDF8;
+  color: #FFFFFF;
   line-height: 1.1;
 }
 
-.metric-item span {
+.stat-value.gold {
+  color: #FCD34D;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+}
+
+.stat-value.cyan {
+  color: #38BDF8;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.stat-sub {
   display: block;
   font-size: 0.68rem;
   color: #94A3B8;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
-.metric-divider {
-  width: 1px;
-  height: 24px;
-  background: rgba(148, 163, 184, 0.2);
+.royal-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  flex-wrap: wrap;
+}
+
+.royal-perk-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  color: #CBD5E1;
+  font-weight: 600;
 }
 
 /* ============================================================

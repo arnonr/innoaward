@@ -584,50 +584,63 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right: Clean & Prestigious 3D Royal Trophy Showcase */}
-                <div className="hero-trophy-cinematic">
-                  
-                  {/* Volumetric Soft Radial Light Aura Behind Trophy */}
-                  <div className="trophy-volumetric-aura" />
-
-                  {/* 3D Trophy Showcase (Masked & Radiant) */}
-                  <div className="trophy-unbounded-wrap">
-                    <img 
-                      src="/royal-trophy-3d.jpg" 
-                      alt="KMUTNB Royal Innovation Trophy 3D" 
-                      className="trophy-unbounded-img"
-                    />
-                    <div className="trophy-bottom-gradient-blend" />
-                  </div>
-
-                  {/* Prestige Caption & Metrics Plate */}
-                  <div className="trophy-caption-plate">
-                    <div className="trophy-caption-title">
-                      <Crown className="w-4 h-4 text-amber-300 inline mr-1" />
-                      ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี
-                    </div>
-                    <div className="trophy-caption-sub">
-                      รางวัลชนะเลิศสูงสุด โครงการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569
-                    </div>
+                {/* Right: Clean Royal Prestige Showcase Card (No 3D Image) */}
+                <div className="hero-showcase-column">
+                  <div className="royal-prestige-card">
                     
-                    <div className="trophy-grounded-metrics">
-                      <div className="metric-item">
-                        <strong>300,000+</strong>
-                        <span>เงินรางวัลรวม</span>
+                    <div className="royal-card-header">
+                      <div className="royal-emblem-badge">
+                        <Crown className="w-8 h-8 text-amber-300" />
                       </div>
-                      <div className="metric-divider" />
-                      <div className="metric-item">
-                        <strong>5 สาขา</strong>
-                        <span>นวัตกรรมเป้าหมาย</span>
-                      </div>
-                      <div className="metric-divider" />
-                      <div className="metric-item">
-                        <strong>2 ระดับ</strong>
-                        <span>การศึกษาทั่วประเทศ</span>
+                      <div className="royal-emblem-text">
+                        <span className="royal-subtitle">เกียรติยศสูงสุดแห่งการประกวด</span>
+                        <h3 className="royal-title">ถ้วยพระราชทาน</h3>
                       </div>
                     </div>
-                  </div>
 
+                    <p className="royal-dedication">
+                      สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี
+                    </p>
+
+                    <div className="royal-stats-matrix">
+                      <div className="royal-stat-box">
+                        <span className="stat-label">เงินรางวัลรวม</span>
+                        <strong className="stat-value gold">300,000+</strong>
+                        <span className="stat-sub">บาท (THB)</span>
+                      </div>
+                      <div className="royal-stat-box">
+                        <span className="stat-label">รางวัลเกียรติยศ</span>
+                        <strong className="stat-value cyan">Grand Prize</strong>
+                        <span className="stat-sub">พร้อมถ้วยและโล่รางวัล</span>
+                      </div>
+                      <div className="royal-stat-box">
+                        <span className="stat-label">สาขาประกวด</span>
+                        <strong className="stat-value">5 สาขา</strong>
+                        <span className="stat-sub">นวัตกรรมเป้าหมาย</span>
+                      </div>
+                      <div className="royal-stat-box">
+                        <span className="stat-label">กลุ่มผู้สมัคร</span>
+                        <strong className="stat-value">2 ระดับ</strong>
+                        <span className="stat-sub">การศึกษาทั่วประเทศ</span>
+                      </div>
+                    </div>
+
+                    <div className="royal-card-footer">
+                      <div className="royal-perk-tag">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>เกียรติบัตรระดับชาติ</span>
+                      </div>
+                      <div className="royal-perk-tag">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>ต่อยอดเชิงพาณิชย์</span>
+                      </div>
+                      <div className="royal-perk-tag">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>รับรองโดย มจพ.</span>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
 
               </div>
