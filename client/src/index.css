@@ -1581,10 +1581,13 @@ p {
   left: clamp(20px, 3vw, 48px);
   bottom: 12%;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 150px;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 18px;
+  width: max-content;
   pointer-events: none;
+  transform: rotate(-90deg);
+  transform-origin: left bottom;
 }
 
 .hero-side-lockup-kicker,
