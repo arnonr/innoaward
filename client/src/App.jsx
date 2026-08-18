@@ -7,7 +7,7 @@ import {
   BookOpen, HelpCircle, Layers, Calendar, MapPin, Phone, Mail, Globe,
   Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
   CheckCircle, User, ShieldAlert, Check, Video, ClipboardList, CheckSquare,
-  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown
+  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown, Eye, Menu
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:3001/api';
@@ -135,6 +135,7 @@ export default function App() {
   };
 
   const [currentView, setCurrentView] = useState(parseRoute());
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [activeGuidelineTab, setActiveGuidelineTab] = useState('eligibility');
 
   // Announcement Filters
@@ -188,6 +189,7 @@ export default function App() {
   // Navigate Helper
   const navigateTo = (view, subSection = null) => {
     setCurrentView(view);
+    setMobileNavOpen(false);
     if (view === 'home') {
       window.location.hash = '#/';
     } else if (subSection) {
@@ -510,7 +512,7 @@ export default function App() {
                     setPortalTab('login');
                     setShowPortalModal(true);
                   }}
-                  className="btn-ghost-auth"
+                  className="btn-ghost-auth header-btn-auth"
                 >
                   <LogIn className="w-4 h-4 text-cyan-400" />
                   <span>เข้าสู่ระบบ</span>
@@ -523,14 +525,96 @@ export default function App() {
                   if (user) setPortalTab('submission');
                   else setPortalTab('register');
                 }}
-                className="btn-solid-primary"
+                className="btn-solid-primary header-btn-cta"
               >
                 <Rocket className="w-4 h-4" />
                 <span>{user ? 'ยื่นผลงาน' : 'สมัครประกวด'}</span>
               </button>
+
+              {/* Mobile Hamburger Toggle Button */}
+              <button 
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                className="mobile-nav-toggle-btn"
+                aria-label="เมนูหลัก"
+              >
+                {mobileNavOpen ? (
+                  <X className="w-5 h-5 text-emerald-400" />
+                ) : (
+                  <Menu className="w-5 h-5 text-emerald-400" />
+                )}
+              </button>
             </div>
 
           </div>
+
+          {/* Mobile Navigation Drawer */}
+          {mobileNavOpen && (
+            <div className="mobile-nav-drawer">
+              <div className="mobile-nav-links">
+                <button 
+                  onClick={() => navigateTo('home')} 
+                  className={`mobile-nav-item ${currentView === 'home' ? 'active' : ''}`}
+                >
+                  <span>หน้าแรก</span>
+                  <ChevronRight className="w-4 h-4 text-emerald-400" />
+                </button>
+
+                <button 
+                  onClick={() => navigateTo('guidelines')} 
+                  className={`mobile-nav-item ${currentView === 'guidelines' ? 'active' : ''}`}
+                >
+                  <span>รายละเอียดการแข่งขัน</span>
+                  <ChevronRight className="w-4 h-4 text-emerald-400" />
+                </button>
+
+                <button 
+                  onClick={() => navigateTo('schedule')} 
+                  className={`mobile-nav-item ${currentView === 'schedule' ? 'active' : ''}`}
+                >
+                  <span>กำหนดการ</span>
+                  <ChevronRight className="w-4 h-4 text-emerald-400" />
+                </button>
+
+                <button 
+                  onClick={() => navigateTo('announcements')} 
+                  className={`mobile-nav-item ${currentView === 'announcements' ? 'active' : ''}`}
+                >
+                  <span>ประกาศผล</span>
+                  <ChevronRight className="w-4 h-4 text-emerald-400" />
+                </button>
+
+                <button 
+                  onClick={() => navigateTo('halloffame')} 
+                  className={`mobile-nav-item ${currentView === 'halloffame' ? 'active' : ''}`}
+                >
+                  <span>คลังผลงาน</span>
+                  <ChevronRight className="w-4 h-4 text-emerald-400" />
+                </button>
+
+                <button 
+                  onClick={() => navigateTo('contact')} 
+                  className={`mobile-nav-item ${currentView === 'contact' ? 'active' : ''}`}
+                >
+                  <span>ติดต่อ</span>
+                  <ChevronRight className="w-4 h-4 text-emerald-400" />
+                </button>
+              </div>
+
+              <div className="mobile-nav-footer-box">
+                <button 
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    setShowStatusModal(true);
+                  }}
+                  className="btn-outline-cyan"
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
+                  <Search className="w-4 h-4" />
+                  <span>ตรวจสถานะผลงาน</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
