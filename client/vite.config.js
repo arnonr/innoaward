@@ -8,4 +8,8 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    // Allow temporary external preview URLs such as ngrok during development.
+    allowedHosts: true
+  },
 })

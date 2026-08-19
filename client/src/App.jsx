@@ -1,13 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { 
-  Trophy, Award, Rocket, Search, CheckCircle2, Clock, 
+  Trophy, Award, Rocket, Search, CheckCircle2,
   FileText, Download, UserCheck, ShieldCheck, ChevronRight, 
-  ExternalLink, Sparkles, X, Filter, LogIn, UserPlus, Send, Save,
-  BookOpen, HelpCircle, Layers, Calendar, MapPin, Phone, Mail, Globe,
+  ExternalLink, X, LogIn, UserPlus, Send, Save,
+  BookOpen, Layers, Calendar, MapPin, Phone, Mail, Globe,
   Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
-  CheckCircle, User, ShieldAlert, Check, Video, ClipboardList, CheckSquare,
-  BarChart3, Medal, FileCheck, HelpCircle as InfoIcon, Bell, Megaphone, Crown, Eye, Menu,
+  CheckCircle, User, Video, ClipboardList, CheckSquare,
+  BarChart3, FileCheck, Bell, Megaphone, Crown, Medal, Eye, Menu,
   Volume2, VolumeX
 } from 'lucide-react';
 
@@ -128,25 +128,27 @@ const TARGET_DEADLINE = new Date('2026-11-15T23:59:59+07:00').getTime();
 export default function App() {
   // Navigation & View Routing State
   const parseRoute = () => {
-    const hash = window.location.hash.replace('#/', '').replace('#', '');
-    if (['guidelines', 'schedule', 'announcements', 'halloffame', 'contact'].includes(hash.split('#')[0])) {
-      return hash.split('#')[0];
+    const route = window.location.hash.replace(/^#\//, '');
+    const [view] = route.split('#');
+    if (['guidelines', 'schedule', 'announcements', 'halloffame', 'contact'].includes(view)) {
+      return view;
     }
     return 'home';
   };
 
   const [currentView, setCurrentView] = useState(parseRoute());
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [activeGuidelineTab, setActiveGuidelineTab] = useState('eligibility');
+  const [activeGuidelineSection, setActiveGuidelineSection] = useState(() => {
+    const section = window.location.hash.split('#')[2];
+    return ['eligibility', 'domains', 'prizes', 'standards', 'criteria'].includes(section) ? section : 'eligibility';
+  });
 
   // Announcement Filters
   const [annCategory, setAnnCategory] = useState('all');
   const [annSearch, setAnnSearch] = useState('');
 
   // App Data States
-  const [config, setConfig] = useState(null);
   const [winners, setWinners] = useState([]);
-  const [news, setNews] = useState([]);
 
   // Hall of Fame Filters
   const [selectedDomain, setSelectedDomain] = useState('all');
@@ -186,6 +188,8 @@ export default function App() {
   });
 
   const [subSuccess, setSubSuccess] = useState(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [submissionLoading, setSubmissionLoading] = useState(false);
 
   // Navigate Helper
   const navigateTo = (view, subSection = null) => {
@@ -218,7 +222,7 @@ export default function App() {
         seconds: String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0')
       };
     } else {
-      return { days: '89', hours: '12', minutes: '34', seconds: '50' };
+      return { days: '00', hours: '00', minutes: '00', seconds: '00', expired: true };
     }
   };
 
@@ -232,20 +236,10 @@ export default function App() {
     };
     window.addEventListener('hashchange', handleHashChange);
 
-    fetch(`${API_BASE}/config`)
-      .then(res => res.json())
-      .then(data => setConfig(data))
-      .catch(err => console.warn('Using local fallback for config:', err));
-
     fetch(`${API_BASE}/winners`)
       .then(res => res.json())
       .then(data => setWinners(data.data || []))
       .catch(err => console.warn('Using local fallback for winners:', err));
-
-    fetch(`${API_BASE}/news`)
-      .then(res => res.json())
-      .then(data => setNews(data.data || []))
-      .catch(err => console.warn('Using local fallback for news:', err));
 
     setTimeLeft(calculateTimeLeft());
     const interval = setInterval(() => {
@@ -257,6 +251,80 @@ export default function App() {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    const hasOpenModal = showPortalModal || showStatusModal || selectedWinnerModal;
+    if (!hasOpenModal) return undefined;
+
+    const modal = document.querySelector('[role="dialog"]');
+    const focusable = modal
+      ? Array.from(modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+      : [];
+    focusable[0]?.focus();
+
+    const handleModalKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setShowPortalModal(false);
+        setShowStatusModal(false);
+        setSelectedWinnerModal(null);
+        return;
+      }
+
+      if (event.key !== 'Tab' || focusable.length < 2) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleModalKeyDown);
+    return () => document.removeEventListener('keydown', handleModalKeyDown);
+  }, [showPortalModal, showStatusModal, selectedWinnerModal]);
+
+  useEffect(() => {
+    if (currentView !== 'guidelines') return undefined;
+
+    const sections = ['eligibility', 'domains', 'prizes', 'standards', 'criteria']
+      .map(id => document.getElementById(id))
+      .filter(Boolean);
+    if (!sections.length) return undefined;
+
+    const sectionFromHash = window.location.hash.split('#')[2];
+    if (sections.some(section => section.id === sectionFromHash)) {
+      setActiveGuidelineSection(sectionFromHash);
+      window.setTimeout(() => {
+        document.getElementById(sectionFromHash)?.scrollIntoView({ behavior: 'auto', block: 'start' });
+      }, 0);
+    }
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (visible) {
+          setActiveGuidelineSection(visible.target.id);
+        }
+      },
+      { rootMargin: '-150px 0px -55% 0px', threshold: 0.01 }
+    );
+
+    sections.forEach(section => observer.observe(section));
+    return () => observer.disconnect();
+  }, [currentView]);
+
+  const scrollToGuidelineSection = (sectionId) => {
+    setActiveGuidelineSection(sectionId);
+    window.location.hash = `#/guidelines#${sectionId}`;
+    window.setTimeout(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
+  };
 
   // Filter Announcements
   const filteredAnnouncements = ANNOUNCEMENTS.filter(a => {
@@ -305,6 +373,8 @@ export default function App() {
 
   const handleAuthRegister = (e) => {
     e.preventDefault();
+    if (authLoading) return;
+    setAuthLoading(true);
     fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -322,11 +392,14 @@ export default function App() {
         setUser({ fullName: regForm.fullName, email: regForm.email });
         setPortalTab('submission');
         confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-      });
+      })
+      .finally(() => setAuthLoading(false));
   };
 
   const handleAuthLogin = (e) => {
     e.preventDefault();
+    if (authLoading) return;
+    setAuthLoading(true);
     fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -342,15 +415,18 @@ export default function App() {
       .catch(() => {
         setUser({ fullName: 'ผู้เข้าแข่งขัน', email: regForm.email });
         setPortalTab('submission');
-      });
+      })
+      .finally(() => setAuthLoading(false));
   };
 
   const handleSubmission = (isDraft = false) => {
+    if (submissionLoading) return;
     if (!subForm.titleTh) {
       alert('กรุณากรอกชื่อผลงาน (ภาษาไทย)');
       return;
     }
 
+    setSubmissionLoading(true);
     fetch(`${API_BASE}/submissions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -375,7 +451,8 @@ export default function App() {
         if (!isDraft) {
           confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
         }
-      });
+      })
+      .finally(() => setSubmissionLoading(false));
   };
 
   const handleStatusCheck = (e) => {
@@ -427,15 +504,9 @@ export default function App() {
           <div className="pro-header-inner">
             
             {/* Brand Logo & University Badges */}
-            <div onClick={() => navigateTo('home')} className="pro-brand" style={{ cursor: 'pointer' }}>
-              <div className="pro-brand-icon">
-                <Trophy className="w-5 h-5 text-amber-300" />
-              </div>
-              <div className="pro-brand-text">
-                <h1>KMUTNB INNOVATION</h1>
-                <span>AWARDS 2026</span>
-              </div>
-            </div>
+            <button type="button" onClick={() => navigateTo('home')} className="pro-brand">
+              <img className="pro-brand-logo" src="/logo-68.png" alt="KMUTNB Techno Park" />
+            </button>
 
             {/* Streamlined Menu Links */}
             <nav className="pro-nav">
@@ -510,7 +581,8 @@ export default function App() {
                 </div>
               ) : (
                 /* Not Logged In: Subtle Glass Auth Button */
-                <button 
+                <button
+                  aria-label="เข้าสู่ระบบ"
                   onClick={() => {
                     setPortalTab('login');
                     setShowPortalModal(true);
@@ -554,7 +626,7 @@ export default function App() {
           {mobileNavOpen && (
             <div className="mobile-nav-drawer">
               <div className="mobile-nav-links">
-                <button 
+                <button
                   onClick={() => navigateTo('home')} 
                   className={`mobile-nav-item ${currentView === 'home' ? 'active' : ''}`}
                 >
@@ -603,19 +675,6 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="mobile-nav-footer-box">
-                <button 
-                  onClick={() => {
-                    setMobileNavOpen(false);
-                    setShowStatusModal(true);
-                  }}
-                  className="btn-outline-cyan"
-                  style={{ width: '100%', justifyContent: 'center' }}
-                >
-                  <Search className="w-4 h-4" />
-                  <span>ตรวจสถานะผลงาน</span>
-                </button>
-              </div>
             </div>
           )}
         </div>
@@ -628,12 +687,14 @@ export default function App() {
         <main>
           {/* Hero Section */}
           <section className="hero-section hero-video-stage">
-            <iframe
+            <video
               ref={heroVideoRef}
               className="hero-background-video hero-youtube-background"
-              src="https://www.youtube.com/embed/LwAgN-X9yy8?autoplay=1&mute=1&loop=1&playlist=LwAgN-X9yy8&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1"
-              title="KMUTNB Innovation Awards 2025 background video"
-              allow="autoplay; encrypted-media"
+              src="/hero-highlight-2025.mp4"
+              autoPlay
+              muted={heroVideoMuted}
+              loop
+              playsInline
               aria-hidden="true"
             />
             <button
@@ -643,10 +704,7 @@ export default function App() {
               title={heroVideoMuted ? 'เปิดเสียงวิดีโอ' : 'ปิดเสียงวิดีโอ'}
               onClick={() => {
                 const nextMuted = !heroVideoMuted;
-                heroVideoRef.current?.contentWindow?.postMessage(
-                  JSON.stringify({ event: 'command', func: nextMuted ? 'mute' : 'unMute', args: [] }),
-                  'https://www.youtube.com'
-                );
+                if (heroVideoRef.current) heroVideoRef.current.muted = nextMuted;
                 setHeroVideoMuted(nextMuted);
               }}
             >
@@ -662,9 +720,15 @@ export default function App() {
                 {/* Left: Brand & Core Mission Content */}
                 <div className="hero-text-content">
                   <div>
-                    <div className="badge-royal hero-editorial-eyebrow">
-                      <Crown className="w-4 h-4 text-amber-300 animate-pulse" />
-                      <span>ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</span>
+                    <div className="badge-royal hero-editorial-eyebrow hero-royal-honor">
+                      <Crown className="w-4 h-4 text-orange-300 animate-pulse" />
+                      <span>
+                        <strong>ชิงถ้วยพระราชทาน</strong>
+                        <span className="hero-royal-recipient">
+                          สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ<br />
+                          สยามบรมราชกุมารี
+                        </span>
+                      </span>
                     </div>
                   </div>
 
@@ -680,7 +744,7 @@ export default function App() {
                   </p>
 
                   {/* Countdown Bar (Mission Launch Glass HUD) */}
-                  <div className="hero-mission-hud hero-editorial-hud">
+                  <div className="hero-mission-hud hero-editorial-hud" aria-live="polite">
                     <div className="hud-header">
                       <div className="hud-status-chip">
                         <span className="hud-dot" />
@@ -689,6 +753,9 @@ export default function App() {
                       <span className="hud-title-label">T-MINUS TO DEADLINE</span>
                     </div>
 
+                    {timeLeft.expired ? (
+                      <div className="deadline-expired-message">ปิดรับสมัครแล้ว</div>
+                    ) : (
                     <div className="hud-digits-row">
                       <div className="hud-digit-block">
                         <span className="hud-num">{timeLeft.days}</span>
@@ -710,6 +777,7 @@ export default function App() {
                         <span className="hud-unit">SECS</span>
                       </div>
                     </div>
+                    )}
                   </div>
 
                   {/* Action Buttons */}
@@ -720,9 +788,10 @@ export default function App() {
                         if (user) setPortalTab('submission');
                       }}
                       className="btn-solid-primary hero-main-cta"
+                      disabled={timeLeft.expired}
                     >
                       <Rocket className="w-5 h-5" />
-                      <span>INITIALIZE SUBMISSION</span>
+                      <span>{timeLeft.expired ? 'ปิดรับสมัครแล้ว' : 'สมัครส่งผลงาน'}</span>
                     </button>
 
                     <button 
@@ -741,7 +810,7 @@ export default function App() {
                     <div className="editorial-spotlight-orbit editorial-orbit-one" />
                     <div className="editorial-spotlight-orbit editorial-orbit-two" />
                     <div className="editorial-spotlight-crown">
-                      <Crown className="w-12 h-12 text-amber-300" />
+                      <Crown className="w-12 h-12 text-orange-300" />
                     </div>
                     <span className="editorial-spotlight-kicker">THE ROYAL INNOVATION AWARD</span>
                     <h2>เวทีแห่งความคิด<br /><em>ที่เปลี่ยนอนาคต</em></h2>
@@ -759,7 +828,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="editorial-spotlight-footer">
-                      <Crown className="w-4 h-4 text-amber-300" />
+                      <Crown className="w-4 h-4 text-orange-300" />
                       <span>ชิงถ้วยพระราชทานฯ</span>
                     </div>
                   </div>
@@ -785,7 +854,7 @@ export default function App() {
                         <span className="editorial-category-index">0{idx + 1}</span>
                         <IconComponent className="w-4 h-4" />
                         <span>{domain.titleEn}</span>
-                      </button>
+                        </button>
                     );
                   })}
                   <button onClick={() => openSubmissionWithDomain('others')} className="editorial-category-item editorial-category-item-other">
@@ -798,7 +867,8 @@ export default function App() {
 
               {/* Perfectly Centered Announcement Alert Banner */}
               <div className="hero-announcement-strip">
-                <div 
+                <button
+                  type="button"
                   onClick={() => navigateTo('announcements')}
                   className="hero-announcement-pill"
                 >
@@ -816,7 +886,7 @@ export default function App() {
                     <span>ดูประกาศผล & ข่าวทั้งหมด</span>
                     <ChevronRight className="w-4 h-4" />
                   </span>
-                </div>
+                </button>
               </div>
 
             </div>
@@ -846,7 +916,7 @@ export default function App() {
                 {/* Highlight 2: Prizes */}
                 <div className="home-highlight-card" style={{ borderColor: 'var(--border-gold)' }}>
                   <div>
-                    <div className="highlight-icon-wrap" style={{ background: 'rgba(250, 204, 21, 0.15)', color: 'var(--gold-400)' }}>
+                    <div className="highlight-icon-wrap" style={{ background: 'rgba(249, 115, 22, 0.15)', color: 'var(--orange-400)' }}>
                       <Award className="w-6 h-6" />
                     </div>
                     <h3 style={{ color: 'var(--gold-300)' }}>รางวัลรวม 300,000+ บาท</h3>
@@ -992,7 +1062,7 @@ export default function App() {
 
                 <div className="winner-grid" style={{ textAlign: 'left' }}>
                   {filteredWinners.slice(0, 2).map(w => (
-                    <div 
+                    <button type="button"
                       key={w.id}
                       onClick={() => setSelectedWinnerModal(w)}
                       className="winner-card"
@@ -1001,11 +1071,13 @@ export default function App() {
                         <img 
                           src={WINNER_IMAGES[w.id] || '/winner-robot.jpg'} 
                           alt={w.titleTh} 
+                          loading="lazy"
+                          decoding="async"
                           className="winner-card-image"
                         />
                         <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
                           <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px' }}>
-                            <Trophy className="w-3 h-3 text-amber-300" />
+                            <Trophy className="w-3 h-3 text-orange-300" />
                             <span>Grand Prize Winner</span>
                           </span>
                         </div>
@@ -1026,7 +1098,7 @@ export default function App() {
                           </span>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
 
@@ -1056,7 +1128,7 @@ export default function App() {
                   <BookOpen className="w-4 h-4" />
                   <span>COMPETITION GUIDELINES & RULES</span>
                 </div>
-                <h2>รายละเอียดและกติกาการแข่งขัน</h2>
+                <h1>รายละเอียดและกติกาการแข่งขัน</h1>
                 <p>
                   รวบรวมข้อกำหนด คุณสมบัติผู้สมัคร สาขานวัตกรรม รางวัล มาตรฐานผลงาน และเกณฑ์การตัดสินฉบับสมบูรณ์
                 </p>
@@ -1070,8 +1142,9 @@ export default function App() {
               <div className="subnav-tabs-container">
                 <a 
                   href="#eligibility"
-                  onClick={(e) => { e.preventDefault(); document.getElementById('eligibility')?.scrollIntoView({ behavior: 'smooth' }); }}
-                  className="subnav-tab-btn"
+                  onClick={(e) => { e.preventDefault(); scrollToGuidelineSection('eligibility'); }}
+                  className={`subnav-tab-btn ${activeGuidelineSection === 'eligibility' ? 'active' : ''}`}
+                  aria-current={activeGuidelineSection === 'eligibility' ? 'location' : undefined}
                 >
                   <UserCheck className="w-4 h-4" />
                   <span>1. คุณสมบัติและเงื่อนไข</span>
@@ -1079,8 +1152,9 @@ export default function App() {
 
                 <a 
                   href="#domains"
-                  onClick={(e) => { e.preventDefault(); document.getElementById('domains')?.scrollIntoView({ behavior: 'smooth' }); }}
-                  className="subnav-tab-btn"
+                  onClick={(e) => { e.preventDefault(); scrollToGuidelineSection('domains'); }}
+                  className={`subnav-tab-btn ${activeGuidelineSection === 'domains' ? 'active' : ''}`}
+                  aria-current={activeGuidelineSection === 'domains' ? 'location' : undefined}
                 >
                   <Layers className="w-4 h-4" />
                   <span>2. หมวดของผลงาน (5 สาขา)</span>
@@ -1088,8 +1162,9 @@ export default function App() {
 
                 <a 
                   href="#prizes"
-                  onClick={(e) => { e.preventDefault(); document.getElementById('prizes')?.scrollIntoView({ behavior: 'smooth' }); }}
-                  className="subnav-tab-btn"
+                  onClick={(e) => { e.preventDefault(); scrollToGuidelineSection('prizes'); }}
+                  className={`subnav-tab-btn ${activeGuidelineSection === 'prizes' ? 'active' : ''}`}
+                  aria-current={activeGuidelineSection === 'prizes' ? 'location' : undefined}
                 >
                   <Trophy className="w-4 h-4" />
                   <span>3. รางวัลการประกวด</span>
@@ -1097,8 +1172,9 @@ export default function App() {
 
                 <a 
                   href="#standards"
-                  onClick={(e) => { e.preventDefault(); document.getElementById('standards')?.scrollIntoView({ behavior: 'smooth' }); }}
-                  className="subnav-tab-btn"
+                  onClick={(e) => { e.preventDefault(); scrollToGuidelineSection('standards'); }}
+                  className={`subnav-tab-btn ${activeGuidelineSection === 'standards' ? 'active' : ''}`}
+                  aria-current={activeGuidelineSection === 'standards' ? 'location' : undefined}
                 >
                   <FileCheck className="w-4 h-4" />
                   <span>4. มาตรฐานผลงาน</span>
@@ -1106,8 +1182,9 @@ export default function App() {
 
                 <a 
                   href="#criteria"
-                  onClick={(e) => { e.preventDefault(); document.getElementById('criteria')?.scrollIntoView({ behavior: 'smooth' }); }}
-                  className="subnav-tab-btn"
+                  onClick={(e) => { e.preventDefault(); scrollToGuidelineSection('criteria'); }}
+                  className={`subnav-tab-btn ${activeGuidelineSection === 'criteria' ? 'active' : ''}`}
+                  aria-current={activeGuidelineSection === 'criteria' ? 'location' : undefined}
                 >
                   <BarChart3 className="w-4 h-4" />
                   <span>5. หลักเกณฑ์การพิจารณา</span>
@@ -1142,27 +1219,27 @@ export default function App() {
                       </div>
                     </div>
                     <p>เปิดรับสมัครโครงงานและสิ่งประดิษฐ์จากนักเรียนสายสามัญและสายอาชีพทั่วประเทศ</p>
-                    <div className="checklist-list">
-                      <div className="checklist-item">
+                    <ul className="checklist-list">
+                      <li className="checklist-item">
                         <CheckCircle className="checklist-icon" />
                         <span><strong>สถานะผู้สมัคร:</strong> นักเรียนมัธยมศึกษา (ม.1 - ม.6), ปวช. หรือเทียบเท่า</span>
-                      </div>
-                      <div className="checklist-item">
+                      </li>
+                      <li className="checklist-item">
                         <CheckCircle className="checklist-icon" />
                         <span><strong>ขนาดทีม:</strong> ส่งเดี่ยว หรือทีมไม่เกิน 3 - 5 คน</span>
-                      </div>
-                      <div className="checklist-item">
+                      </li>
+                      <li className="checklist-item">
                         <CheckCircle className="checklist-icon" />
                         <span><strong>อาจารย์ที่ปรึกษา:</strong> ต้องมีอาจารย์รับรองอย่างน้อย 1 ท่าน</span>
-                      </div>
-                      <div className="checklist-item">
+                      </li>
+                      <li className="checklist-item">
                         <CheckCircle className="checklist-icon" />
                         <span><strong>ลักษณะผลงาน:</strong> เป็นสิ่งประดิษฐ์ โมเดล หรือโครงงานที่คิดค้นขึ้นเอง</span>
-                      </div>
-                    </div>
+                      </li>
+                    </ul>
                   </div>
                   <div className="bento-tier-row">
-                    <span>🏆 รางวัลชนะเลิศระดับนี้:</span>
+                    <span className="tier-award-label"><Trophy className="w-4 h-4" aria-hidden="true" /> รางวัลชนะเลิศระดับนี้:</span>
                     <strong>30,000 บาท</strong>
                   </div>
                 </div>
@@ -1180,27 +1257,27 @@ export default function App() {
                       </div>
                     </div>
                     <p>เปิดรับสมัครผลงานวิจัย นวัตกรรม และสิ่งประดิษฐ์ต้นแบบพร้อมต่อยอดเชิงพาณิชย์</p>
-                    <div className="checklist-list">
-                      <div className="checklist-item">
+                    <ul className="checklist-list">
+                      <li className="checklist-item">
                         <CheckCircle className="checklist-icon gold" />
                         <span><strong>สถานะผู้สมัคร:</strong> นิสิต นักศึกษา (ป.ตรี-โท-เอก), อาจารย์, นักวิจัย, สตาร์ทอัพ และประชาชน</span>
-                      </div>
-                      <div className="checklist-item">
+                      </li>
+                      <li className="checklist-item">
                         <CheckCircle className="checklist-icon gold" />
                         <span><strong>ขนาดทีม:</strong> ส่งรายบุคคล หรือทีมสหสาขาวิชาชีพ (ไม่เกิน 3 - 5 คน)</span>
-                      </div>
-                      <div className="checklist-item">
+                      </li>
+                      <li className="checklist-item">
                         <CheckCircle className="checklist-icon gold" />
                         <span><strong>สังกัด:</strong> สถาบันอุดมศึกษา หน่วยงานรัฐ เอกชน หรืออิสระ</span>
-                      </div>
-                      <div className="checklist-item">
+                      </li>
+                      <li className="checklist-item">
                         <CheckCircle className="checklist-icon gold" />
                         <span><strong>ลักษณะผลงาน:</strong> มี Prototype หรือผลการทดสอบจริง พร้อมแผนต่อยอด</span>
-                      </div>
-                    </div>
+                      </li>
+                    </ul>
                   </div>
                   <div className="bento-tier-row">
-                    <span>🏆 รางวัลชนะเลิศระดับนี้:</span>
+                    <span className="tier-award-label"><Trophy className="w-4 h-4" aria-hidden="true" /> รางวัลชนะเลิศระดับนี้:</span>
                     <strong style={{ color: 'var(--gold-400)' }}>50,000 บาท</strong>
                   </div>
                 </div>
@@ -1212,29 +1289,29 @@ export default function App() {
                   <ShieldCheck className="w-5 h-5 text-cyan-400" />
                   <span>ข้อกำหนดและกติกาการส่งผลงานทั่วไป (General Rules)</span>
                 </h4>
-                <div className="general-rules-grid">
-                  <div className="general-rule-item">
+                <ul className="general-rules-grid">
+                  <li className="general-rule-item">
                     <div style={{ color: 'var(--cyan-400)', fontWeight: 700, fontSize: '1.1rem' }}>01</div>
                     <div>
                       <h5>สิทธิ์ในทรัพย์สินทางปัญญา (IP)</h5>
                       <p>ผลงานต้องเป็นลิขสิทธิ์ของผู้สมัครเอง ไม่คัดลอกหรือละเมิดทรัพย์สินทางปัญญา สิทธิบัตร หรือสิทธิของผู้อื่น</p>
                     </div>
-                  </div>
-                  <div className="general-rule-item">
+                  </li>
+                  <li className="general-rule-item">
                     <div style={{ color: 'var(--cyan-400)', fontWeight: 700, fontSize: '1.1rem' }}>02</div>
                     <div>
                       <h5>สถานะรางวัลเดิม</h5>
                       <p>ผลงานต้องไม่เคยได้รับรางวัลชนะเลิศระดับชาติหรือนานาชาติที่ติดสัญญาเงื่อนไขผูกพันห้ามเผยแพร่</p>
                     </div>
-                  </div>
-                  <div className="general-rule-item">
+                  </li>
+                  <li className="general-rule-item">
                     <div style={{ color: 'var(--cyan-400)', fontWeight: 700, fontSize: '1.1rem' }}>03</div>
                     <div>
                       <h5>การเผยแพร่เพื่อการศึกษา</h5>
                       <p>ยินยอมให้ผู้จัดงานเผยแพร่ภาพถ่าย วิดีโอ และบทคัดย่อ เพื่อประโยชน์ทางวิชาการและส่งเสริมนวัตกรรม</p>
                     </div>
-                  </div>
-                </div>
+                  </li>
+                </ul>
               </div>
             </section>
 
@@ -1253,10 +1330,7 @@ export default function App() {
                   const IconComp = domain.icon;
                   return (
                     <div key={domain.id} className="domain-card">
-                      <div 
-                        className="domain-card-bg" 
-                        style={{ backgroundImage: `url(${domain.bgImage})` }} 
-                      />
+                      <img className="domain-card-bg" src={domain.bgImage} alt="" loading="lazy" decoding="async" />
                       <div className="domain-card-overlay" />
                       <div>
                         <div className="domain-icon-wrap" style={{ borderColor: `${domain.color}90`, color: domain.color }}>
@@ -1294,30 +1368,30 @@ export default function App() {
                 {/* Higher & Above Level Prizes */}
                 <div>
                   <h4 style={{ fontSize: '1.15rem', color: 'var(--gold-300)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Building2 className="w-5 h-5 text-amber-400" />
+                    <Building2 className="w-5 h-5 text-orange-400" />
                     <span>รางวัลสำหรับระดับตั้งแต่อุดมศึกษาขึ้นไป (ป.ตรี-โท-เอก / อาจารย์ / นักวิจัย / ประชาชน)</span>
                   </h4>
                   <div className="prizes-tier-grid">
                     <div className="prize-card gold-champion">
-                      <div className="prize-medal-icon">👑</div>
+                      <div className="prize-medal-icon" aria-hidden="true"><Crown /></div>
                       <h5>ชนะเลิศ Grand Prize</h5>
                       <div className="prize-cash-amount">50,000 ฿</div>
                       <span>ถ้วยพระราชทานฯ + โล่ + เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
-                      <div className="prize-medal-icon">🥈</div>
+                      <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
                       <h5>รองชนะเลิศอันดับ 1</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>30,000 ฿</div>
                       <span>โล่รางวัล + เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
-                      <div className="prize-medal-icon">🥉</div>
+                      <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
                       <h5>รองชนะเลิศอันดับ 2</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>20,000 ฿</div>
                       <span>โล่รางวัล + เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
-                      <div className="prize-medal-icon">🎖️</div>
+                      <div className="prize-medal-icon" aria-hidden="true"><Award /></div>
                       <h5>รางวัลชมเชย (2 รางวัล)</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--text-secondary)' }}>10,000 ฿</div>
                       <span>เกียรติบัตรเชิดชูเกียรติ</span>
@@ -1339,19 +1413,19 @@ export default function App() {
                       <span>ถ้วยเกียรติยศ + โล่ + เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
-                      <div className="prize-medal-icon">🥈</div>
+                      <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
                       <h5>รองชนะเลิศอันดับ 1</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>20,000 ฿</div>
                       <span>โล่รางวัล + เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
-                      <div className="prize-medal-icon">🥉</div>
+                      <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
                       <h5>รองชนะเลิศอันดับ 2</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>10,000 ฿</div>
                       <span>โล่รางวัล + เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
-                      <div className="prize-medal-icon">🎖️</div>
+                      <div className="prize-medal-icon" aria-hidden="true"><Award /></div>
                       <h5>รางวัลชมเชย (2 รางวัล)</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--text-secondary)' }}>5,000 ฿</div>
                       <span>เกียรติบัตรเชิดชูเกียรติ</span>
@@ -1379,11 +1453,11 @@ export default function App() {
                   </div>
                   <h4>เอกสารข้อเสนอโครงการ (Proposal PDF)</h4>
                   <p>เขียนตามแบบฟอร์มที่โครงการกำหนด ความยาวเนื้อหารวมไม่เกิน 10 หน้ากระดาษ A4</p>
-                  <div className="standard-req-list">
-                    <div>• สรุปบทคัดย่อ (Abstract) และที่มาของปัญหา</div>
-                    <div>• หลักการทำงานและเทคโนโลยีที่ใช้</div>
-                    <div>• ผลการทดสอบและประโยชน์เชิงเศรษฐกิจ/สังคม</div>
-                  </div>
+                  <ul className="standard-req-list">
+                    <li>สรุปบทคัดย่อ (Abstract) และที่มาของปัญหา</li>
+                    <li>หลักการทำงานและเทคโนโลยีที่ใช้</li>
+                    <li>ผลการทดสอบและประโยชน์เชิงเศรษฐกิจ/สังคม</li>
+                  </ul>
                 </div>
 
                 <div className="standard-card">
@@ -1393,11 +1467,11 @@ export default function App() {
                   </div>
                   <h4>คลิปวิดีโอแนะนำผลงาน (Video Pitch)</h4>
                   <p>ความยาวไม่เกิน 2 - 3 นาที ความละเอียดอย่างน้อย 1080p Full HD อัปโหลดบน YouTube หรือ Drive</p>
-                  <div className="standard-req-list">
-                    <div>• แนะนำสมาชิกทีมและแรงบันดาลใจ</div>
-                    <div>• สาธิตการทำงานจริงของชิ้นงาน/โมเดล</div>
-                    <div>• เสียงบรรยายชัดเจน มีภาพประกอบการใช้งาน</div>
-                  </div>
+                  <ul className="standard-req-list">
+                    <li>แนะนำสมาชิกทีมและแรงบันดาลใจ</li>
+                    <li>สาธิตการทำงานจริงของชิ้นงาน/โมเดล</li>
+                    <li>เสียงบรรยายชัดเจน มีภาพประกอบการใช้งาน</li>
+                  </ul>
                 </div>
 
                 <div className="standard-card">
@@ -1407,11 +1481,11 @@ export default function App() {
                   </div>
                   <h4>ชิ้นงานต้นแบบ / ผลการทดสอบ (Prototype)</h4>
                   <p>ต้องมีชิ้นงานตัวอย่าง (Working Prototype) หรือผลวิจัยการทดลองที่สามารถนำมาจัดแสดงวัน Pitching</p>
-                  <div className="standard-req-list">
-                    <div>• สำหรับสายฮาร์ดแวร์: ชิ้นงานหรือโมเดลจำลอง</div>
-                    <div>• สำหรับสายซอฟต์แวร์: Live Demo หรือแอปพลิเคชัน</div>
-                    <div>• สำหรับสายวัสดุ/เกษตร: ตัวอย่างชิ้นงานจริง</div>
-                  </div>
+                  <ul className="standard-req-list">
+                    <li>สำหรับสายฮาร์ดแวร์: ชิ้นงานหรือโมเดลจำลอง</li>
+                    <li>สำหรับสายซอฟต์แวร์: Live Demo หรือแอปพลิเคชัน</li>
+                    <li>สำหรับสายวัสดุ/เกษตร: ตัวอย่างชิ้นงานจริง</li>
+                  </ul>
                 </div>
               </div>
             </section>
@@ -1432,7 +1506,7 @@ export default function App() {
                     <h5>ความคิดสร้างสรรค์และความแปลกใหม่ (Novelty & Innovation)</h5>
                     <span className="criteria-score-badge">30 คะแนน</span>
                   </div>
-                  <div className="criteria-progress-bg">
+                  <div className="criteria-progress-bg" role="progressbar" aria-label="ความคิดสร้างสรรค์และความแปลกใหม่ 30 คะแนน" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
                     <div className="criteria-progress-fill" style={{ width: '30%' }} />
                   </div>
                   <p>ความโดดเด่น ความคิดริเริ่มสร้างสรรค์ การแก้ปัญหาด้วยมุมมองใหม่ที่ไม่ซ้ำกับเทคโนโลยีที่มีอยู่เดิมในท้องตลาด</p>
@@ -1443,7 +1517,7 @@ export default function App() {
                     <h5>ความเป็นไปได้ทางเทคนิคและการใช้งานจริง (Technical Feasibility)</h5>
                     <span className="criteria-score-badge">25 คะแนน</span>
                   </div>
-                  <div className="criteria-progress-bg">
+                  <div className="criteria-progress-bg" role="progressbar" aria-label="ความเป็นไปได้ทางเทคนิคและการใช้งานจริง 25 คะแนน" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                     <div className="criteria-progress-fill" style={{ width: '25%' }} />
                   </div>
                   <p>ความถูกต้องตามหลักวิชาการ ประสิทธิภาพการทำงาน ความสมบูรณ์ของชิ้นงานต้นแบบ และความเสถียรในการทำงาน</p>
@@ -1454,7 +1528,7 @@ export default function App() {
                     <h5>ผลกระทบเชิงเศรษฐกิจ สังคม หรือสิ่งแวดล้อม (Impact & Value)</h5>
                     <span className="criteria-score-badge">25 คะแนน</span>
                   </div>
-                  <div className="criteria-progress-bg">
+                  <div className="criteria-progress-bg" role="progressbar" aria-label="ผลกระทบเชิงเศรษฐกิจ สังคม หรือสิ่งแวดล้อม 25 คะแนน" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
                     <div className="criteria-progress-fill" style={{ width: '25%' }} />
                   </div>
                   <p>ศักยภาพในการนำไปต่อยอดเชิงพาณิชย์ การลดต้นทุน การยกระดับคุณภาพชีวิตชุมชน หรือการอนุรักษ์สิ่งแวดล้อม</p>
@@ -1465,7 +1539,7 @@ export default function App() {
                     <h5>คุณภาพการนำเสนอและคลิปวิดีโอ (Presentation & Clarity)</h5>
                     <span className="criteria-score-badge">20 คะแนน</span>
                   </div>
-                  <div className="criteria-progress-bg">
+                  <div className="criteria-progress-bg" role="progressbar" aria-label="คุณภาพการนำเสนอและคลิปวิดีโอ 20 คะแนน" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
                     <div className="criteria-progress-fill" style={{ width: '20%' }} />
                   </div>
                   <p>ความชัดเจนในการสื่อสาร การตอบข้อซักถามของคณะกรรมการ ความน่าสนใจของคลิปวิดีโอ และการจัดเตรียมเอกสาร</p>
@@ -1548,7 +1622,7 @@ export default function App() {
                 </div>
 
                 <div className="step-card" style={{ borderColor: 'var(--border-gold)' }}>
-                  <div className="step-number" style={{ background: 'rgba(250, 204, 21, 0.18)', color: 'var(--gold-300)' }}>🏆</div>
+                  <div className="step-number" style={{ background: 'rgba(249, 115, 22, 0.18)', color: 'var(--orange-400)' }} aria-hidden="true"><Trophy /></div>
                   <div className="step-date" style={{ color: 'var(--gold-300)' }}>26 ม.ค. 2570</div>
                   <h4>Pitching & พิธีมอบรางวัล</h4>
                   <p>นำเสนอผลงานต่อหน้าคณะกรรมการ จัดแสดงบูธนิทรรศการ และพิธีมอบถ้วยพระราชทานฯ ณ อุทยานเทคโนโลยี มจพ.</p>
@@ -1619,7 +1693,7 @@ export default function App() {
                   )}
                 </div>
 
-                <div className="subnav-tabs-container">
+                <div className="subnav-tabs-container announcement-tabs">
                   <button 
                     onClick={() => setAnnCategory('all')} 
                     className={`subnav-tab-btn ${annCategory === 'all' ? 'active' : ''}`}
@@ -1764,23 +1838,25 @@ export default function App() {
 
               <div className="winner-grid">
                 {filteredWinners.map(w => (
-                  <div 
-                    key={w.id}
-                    onClick={() => setSelectedWinnerModal(w)}
-                    className="winner-card"
+                      <button type="button"
+                        key={w.id}
+                        onClick={() => setSelectedWinnerModal(w)}
+                        className="winner-card"
                   >
                     <div className="winner-card-image-wrap">
                       <img 
                         src={WINNER_IMAGES[w.id] || '/winner-robot.jpg'} 
                         alt={w.titleTh} 
+                        loading="lazy"
+                        decoding="async"
                         className="winner-card-image"
                       />
                       <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
                         <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px' }}>
-                          <Trophy className="w-3 h-3 text-amber-300" />
+                          <Trophy className="w-3 h-3 text-orange-300" />
                           <span>Grand Prize Winner</span>
                         </span>
-                      </div>
+                        </div>
                       <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(11, 21, 40, 0.85)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--cyan-300)' }}>
                         {w.trackingCode}
                       </div>
@@ -1801,7 +1877,7 @@ export default function App() {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
 
@@ -1829,7 +1905,7 @@ export default function App() {
                 </p>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+              <div className="contact-layout">
                 
                 {/* Download Docs */}
                 <div>
@@ -1842,8 +1918,8 @@ export default function App() {
                     ดาวน์โหลดแบบฟอร์มข้อเสนอโครงการ และเอกสารประกาศเกณฑ์การประกวด
                   </p>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(7, 34, 26, 0.85)', border: '1px solid var(--border-medium)' }}>
+                  <div className="contact-download-list">
+                    <a href="#" className="bento-tier-row contact-download-item" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(7, 34, 26, 0.85)', border: '1px solid var(--border-medium)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <FileText className="w-5 h-5 text-emerald-400" />
                         <div>
@@ -1854,15 +1930,15 @@ export default function App() {
                       <Download className="w-4 h-4 text-emerald-400" />
                     </a>
 
-                    <a href="#" className="bento-tier-row" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(7, 34, 26, 0.85)', border: '1px solid var(--border-medium)' }}>
+                    <a href="#" className="bento-tier-row contact-download-item" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(7, 34, 26, 0.85)', border: '1px solid var(--border-medium)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <FileText className="w-5 h-5 text-amber-400" />
+                        <FileText className="w-5 h-5 text-orange-400" />
                         <div>
                           <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>แบบฟอร์มข้อเสนอโครงการ (Proposal Template).docx</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร Word • 512 KB</div>
                         </div>
                       </div>
-                      <Download className="w-4 h-4 text-amber-400" />
+                        <Download className="w-4 h-4 text-orange-400" />
                     </a>
                   </div>
                 </div>
@@ -1878,8 +1954,8 @@ export default function App() {
                     อาคารอุทยานเทคโนโลยี มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ (KMUTNB Techno Park)
                   </p>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.88rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                  <div className="contact-info-list">
+                    <div className="contact-info-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                       <Phone className="w-5 h-5 text-emerald-400" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>เบอร์โทรศัพท์ติดต่อและสายด่วน:</div>
@@ -1887,7 +1963,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                    <div className="contact-info-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                       <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#06C755', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.65rem', fontWeight: 800 }}>LINE</span>
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>LINE Official Account:</div>
@@ -1895,7 +1971,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                    <div className="contact-info-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                       <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.75rem', fontWeight: 800 }}>f</span>
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Facebook Fanpage:</div>
@@ -1903,7 +1979,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                    <div className="contact-info-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                       <Mail className="w-5 h-5 text-emerald-400" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>อีเมลสอบถามข้อมูล:</div>
@@ -1911,7 +1987,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                    <div className="contact-info-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                       <Globe className="w-5 h-5 text-emerald-400" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>เว็บไซต์ทางการ:</div>
@@ -1932,20 +2008,20 @@ export default function App() {
       <footer className="site-footer">
         <div className="pro-container">
           <div className="site-footer-contact">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="site-footer-contact-item">
-              <span className="site-footer-social-icon site-footer-facebook">f</span>
+            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook: KMUTNB Innovation Award" className="site-footer-contact-item">
+              <span className="site-footer-social-icon site-footer-facebook" aria-hidden="true">f</span>
               <span>KMUTNB Innovation Award</span>
             </a>
-            <a href="https://line.me" target="_blank" rel="noreferrer" className="site-footer-contact-item">
-              <span className="site-footer-social-icon site-footer-line">LINE</span>
+            <a href="https://line.me" target="_blank" rel="noreferrer" aria-label="LINE: KMUTNB Innovation Award" className="site-footer-contact-item">
+              <span className="site-footer-social-icon site-footer-line" aria-hidden="true">LINE</span>
               <span>@KMUTNB.inno.award</span>
             </a>
             <a href="tel:0954614261" className="site-footer-contact-item">
               <Phone className="w-4 h-4 text-emerald-400" />
               <span>095-461-4261 / 02-555-2000 ต่อ 1508</span>
             </a>
-            <div className="hero-visitor-chip" style={{ background: 'rgba(7, 34, 26, 0.9)' }}>
-              <Eye className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="footer-visitor-chip" aria-label="ยอดเข้าชมเว็บไซต์">
+              <Eye className="footer-visitor-icon" aria-hidden="true" />
               <span>128,686+ เข้าชม</span>
             </div>
           </div>
@@ -1959,14 +2035,14 @@ export default function App() {
       {/* --- MODAL 1: ENTERPRISE AUTH & SUBMISSION PORTAL --- */}
       {showPortalModal && (
         <div className="modal-overlay" onClick={() => setShowPortalModal(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={() => setShowPortalModal(false)}>
+          <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="portal-modal-title" onClick={e => e.stopPropagation()}>
+            <button aria-label="ปิดหน้าต่างสมัครและส่งผลงาน" className="modal-close-btn" onClick={() => setShowPortalModal(false)}>
               <X className="w-5 h-5" />
             </button>
 
             {/* In-Modal Checklist Reminder */}
             <div className="modal-checklist-card">
-              <strong>📋 กรุณาเตรียมข้อมูลให้พร้อมก่อนสมัคร (Checklist):</strong>
+              <strong id="portal-modal-title"><ClipboardList className="w-4 h-4" /> กรุณาเตรียมข้อมูลให้พร้อมก่อนสมัคร (Checklist):</strong>
               <ol>
                 <li>ข้อมูลส่วนตัวของผู้สมัคร และทีมงาน</li>
                 <li>รายละเอียดผลงานโดยสังเขป</li>
@@ -1994,7 +2070,7 @@ export default function App() {
                   className={`modal-tab-btn ${portalTab === 'submission' ? 'active' : ''}`}
                   style={{ color: 'var(--gold-300)' }}
                 >
-                  📝 ยื่นแบบเสนอผลงาน
+                  ยื่นแบบเสนอผลงาน
                 </button>
               )}
             </div>
@@ -2003,9 +2079,9 @@ export default function App() {
             {portalTab === 'register' && (
               <form onSubmit={handleAuthRegister}>
                 <div className="form-group">
-                  <label className="form-label">ชื่อ-นามสกุล ผู้เสนอผลงาน / หัวหน้าทีม *</label>
+                  <label htmlFor="reg-full-name" className="form-label">ชื่อ-นามสกุล ผู้เสนอผลงาน / หัวหน้าทีม *</label>
                   <input 
-                    type="text" required
+                    id="reg-full-name" type="text" required
                     className="form-input"
                     placeholder="เช่น นายพิพัทธ์ พัฒนาชัย"
                     value={regForm.fullName}
@@ -2013,9 +2089,9 @@ export default function App() {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">อีเมล (สำหรับรับผลการคัดเลือก) *</label>
+                  <label htmlFor="reg-email" className="form-label">อีเมล (สำหรับรับผลการคัดเลือก) *</label>
                   <input 
-                    type="email" required
+                    id="reg-email" type="email" required
                     className="form-input"
                     placeholder="name@example.com"
                     value={regForm.email}
@@ -2023,9 +2099,9 @@ export default function App() {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">เบอร์โทรศัพท์ติดต่อ *</label>
+                  <label htmlFor="reg-phone" className="form-label">เบอร์โทรศัพท์ติดต่อ *</label>
                   <input 
-                    type="tel" required
+                    id="reg-phone" type="tel" required
                     className="form-input"
                     placeholder="081-234-5678"
                     value={regForm.phone}
@@ -2033,18 +2109,18 @@ export default function App() {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">สถาบัน / โรงเรียน / บริษัท *</label>
+                  <label htmlFor="reg-institution" className="form-label">สถาบัน / โรงเรียน / บริษัท *</label>
                   <input 
-                    type="text" required
+                    id="reg-institution" type="text" required
                     className="form-input"
                     placeholder="เช่น มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ"
                     value={regForm.institution}
                     onChange={e => setRegForm({...regForm, institution: e.target.value})}
                   />
                 </div>
-                <button type="submit" className="btn-solid-primary" style={{ width: '100%', marginTop: '12px' }}>
+                <button type="submit" disabled={authLoading} className="btn-solid-primary" style={{ width: '100%', marginTop: '12px' }}>
                   <UserPlus className="w-4 h-4" />
-                  <span>สร้างบัญชีและดำเนินการต่อ</span>
+                  <span>{authLoading ? 'กำลังดำเนินการ...' : 'สร้างบัญชีและดำเนินการต่อ'}</span>
                 </button>
               </form>
             )}
@@ -2053,18 +2129,18 @@ export default function App() {
             {portalTab === 'login' && (
               <form onSubmit={handleAuthLogin}>
                 <div className="form-group">
-                  <label className="form-label">กรอกอีเมลที่ใช้ลงทะเบียน *</label>
+                  <label htmlFor="login-email" className="form-label">กรอกอีเมลที่ใช้ลงทะเบียน *</label>
                   <input 
-                    type="email" required
+                    id="login-email" type="email" required
                     className="form-input"
                     placeholder="name@example.com"
                     value={regForm.email}
                     onChange={e => setRegForm({...regForm, email: e.target.value})}
                   />
                 </div>
-                <button type="submit" className="btn-solid-primary" style={{ width: '100%', marginTop: '12px' }}>
+                <button type="submit" disabled={authLoading} className="btn-solid-primary" style={{ width: '100%', marginTop: '12px' }}>
                   <LogIn className="w-4 h-4" />
-                  <span>เข้าสู่ระบบ</span>
+                  <span>{authLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}</span>
                 </button>
               </form>
             )}
@@ -2087,9 +2163,9 @@ export default function App() {
                 ) : (
                   <div>
                     <div className="form-group">
-                      <label className="form-label">ชื่อผลงานสิ่งประดิษฐ์/นวัตกรรม (ภาษาไทย) *</label>
+                      <label htmlFor="submission-title-th" className="form-label">ชื่อผลงานสิ่งประดิษฐ์/นวัตกรรม (ภาษาไทย) *</label>
                       <input 
-                        type="text" required
+                        id="submission-title-th" type="text" required
                         className="form-input"
                         placeholder="เช่น หุ่นยนต์สำรวจภัยพิบัติอัจฉริยะ"
                         value={subForm.titleTh}
@@ -2098,9 +2174,9 @@ export default function App() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <div className="form-group">
-                        <label className="form-label">หมวดหมู่นวัตกรรม *</label>
+                        <label htmlFor="submission-category" className="form-label">หมวดหมู่นวัตกรรม *</label>
                         <select 
-                          className="form-input"
+                          id="submission-category" className="form-input"
                           value={subForm.category}
                           onChange={e => setSubForm({...subForm, category: e.target.value})}
                         >
@@ -2112,9 +2188,9 @@ export default function App() {
                         </select>
                       </div>
                       <div className="form-group">
-                        <label className="form-label">ระดับการแข่งขัน *</label>
+                        <label htmlFor="submission-level" className="form-label">ระดับการแข่งขัน *</label>
                         <select 
-                          className="form-input"
+                          id="submission-level" className="form-input"
                           value={subForm.educationLevel}
                           onChange={e => setSubForm({...subForm, educationLevel: e.target.value})}
                         >
@@ -2124,9 +2200,9 @@ export default function App() {
                       </div>
                     </div>
                     <div className="form-group">
-                      <label className="form-label">ชื่อทีม / สถาบัน</label>
+                      <label htmlFor="submission-team" className="form-label">ชื่อทีม / สถาบัน</label>
                       <input 
-                        type="text"
+                        id="submission-team" type="text"
                         className="form-input"
                         placeholder="เช่น KMUTNB Robotics Lab"
                         value={subForm.teamName}
@@ -2134,9 +2210,9 @@ export default function App() {
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">บทคัดย่อ / คำอธิบายผลงานโดยสรุป</label>
+                      <label htmlFor="submission-abstract" className="form-label">บทคัดย่อ / คำอธิบายผลงานโดยสรุป</label>
                       <textarea 
-                        rows={3}
+                        id="submission-abstract" rows={3}
                         className="form-input"
                         placeholder="อธิบายหลักการทำงานและประโยชน์ของผลงาน..."
                         value={subForm.abstractTh}
@@ -2144,9 +2220,9 @@ export default function App() {
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">ลิงก์คลิปวิดีโอแนะนำผลงาน ความยาว 2 - 3 นาที (YouTube / Google Drive)</label>
+                      <label htmlFor="submission-video" className="form-label">ลิงก์คลิปวิดีโอแนะนำผลงาน ความยาว 2 - 3 นาที (YouTube / Google Drive)</label>
                       <input 
-                        type="url"
+                        id="submission-video" type="url"
                         className="form-input"
                         placeholder="https://youtube.com/watch?v=..."
                         value={subForm.videoUrl}
@@ -2154,13 +2230,13 @@ export default function App() {
                       />
                     </div>
                     <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-                      <button onClick={() => handleSubmission(true)} className="btn-outline-cyan" style={{ flex: 1 }}>
+                      <button type="button" disabled={submissionLoading} onClick={() => handleSubmission(true)} className="btn-outline-cyan" style={{ flex: 1 }}>
                         <Save className="w-4 h-4" />
-                        <span>บันทึกแบบร่าง</span>
+                        <span>{submissionLoading ? 'กำลังบันทึก...' : 'บันทึกแบบร่าง'}</span>
                       </button>
-                      <button onClick={() => handleSubmission(false)} className="btn-solid-primary" style={{ flex: 1 }}>
+                      <button type="button" disabled={submissionLoading || timeLeft.expired} onClick={() => handleSubmission(false)} className="btn-solid-primary" style={{ flex: 1 }}>
                         <Send className="w-4 h-4" />
-                        <span>ส่งผลงานฉบับสมบูรณ์</span>
+                        <span>{submissionLoading ? 'กำลังส่ง...' : 'ส่งผลงานฉบับสมบูรณ์'}</span>
                       </button>
                     </div>
                   </div>
@@ -2174,12 +2250,12 @@ export default function App() {
       {/* --- MODAL 2: STATUS CHECK --- */}
       {showStatusModal && (
         <div className="modal-overlay" onClick={() => setShowStatusModal(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={() => setShowStatusModal(false)}>
+          <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="status-modal-title" onClick={e => e.stopPropagation()}>
+            <button aria-label="ปิดหน้าต่างตรวจสอบสถานะ" className="modal-close-btn" onClick={() => setShowStatusModal(false)}>
               <X className="w-5 h-5" />
             </button>
 
-            <h3 style={{ fontSize: '1.4rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 id="status-modal-title" style={{ fontSize: '1.4rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Search className="w-5 h-5 text-cyan-300" />
               <span>ตรวจสอบสถานะการสมัคร</span>
             </h3>
@@ -2188,8 +2264,9 @@ export default function App() {
             </p>
 
             <form onSubmit={handleStatusCheck} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+              <label htmlFor="status-search" className="form-label" style={{ position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}>รหัสติดตามผลงาน</label>
               <input 
-                type="text" required
+                id="status-search" type="text" required
                 className="form-input"
                 style={{ textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}
                 placeholder="KMUTNB-XXXX-XXXX"
@@ -2201,10 +2278,10 @@ export default function App() {
               </button>
             </form>
 
-            {statusLoading && <div style={{ textAlign: 'center', color: 'var(--cyan-300)', fontSize: '0.88rem', padding: '16px' }}>กำลังค้นหาข้อมูล...</div>}
+            {statusLoading && <div role="status" aria-live="polite" style={{ textAlign: 'center', color: 'var(--cyan-300)', fontSize: '0.88rem', padding: '16px' }}>กำลังค้นหาข้อมูล...</div>}
 
             {statusError && (
-              <div style={{ padding: '12px 16px', borderRadius: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', fontSize: '0.85rem', textAlign: 'center' }}>
+              <div role="alert" aria-live="assertive" style={{ padding: '12px 16px', borderRadius: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', fontSize: '0.85rem', textAlign: 'center' }}>
                 {statusError}
               </div>
             )}
@@ -2230,8 +2307,8 @@ export default function App() {
       {/* --- MODAL 3: WINNER STORYTELLING MODAL --- */}
       {selectedWinnerModal && (
         <div className="modal-overlay" onClick={() => setSelectedWinnerModal(null)}>
-          <div className="modal-box" style={{ maxWidth: '680px' }} onClick={e => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={() => setSelectedWinnerModal(null)}>
+          <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="winner-modal-title" style={{ maxWidth: '680px' }} onClick={e => e.stopPropagation()}>
+            <button aria-label="ปิดหน้าต่างรายละเอียดผลงาน" className="modal-close-btn" onClick={() => setSelectedWinnerModal(null)}>
               <X className="w-5 h-5" />
             </button>
 
@@ -2244,11 +2321,12 @@ export default function App() {
               <img 
                 src={WINNER_IMAGES[selectedWinnerModal.id] || '/winner-robot.jpg'} 
                 alt={selectedWinnerModal.titleTh} 
+                decoding="async"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
 
-            <h2 style={{ fontSize: '1.6rem', marginBottom: '4px', color: '#0F172A' }}>{selectedWinnerModal.titleTh}</h2>
+            <h2 id="winner-modal-title" style={{ fontSize: '1.6rem', marginBottom: '4px', color: '#0F172A' }}>{selectedWinnerModal.titleTh}</h2>
             <div style={{ color: '#059669', fontSize: '0.88rem', fontWeight: 600, marginBottom: '20px' }}>
               {selectedWinnerModal.titleEn}
             </div>
