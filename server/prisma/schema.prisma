@@ -1,0 +1,254 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CONTESTANT
+  JUDGE
+  ADMIN
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  PASSED_FIRST_ROUND
+  FINALIST
+  AWARDED
+  REJECTED
+}
+
+enum AwardTier {
+  GRAND_WINNER
+  RUNNER_UP_1
+  RUNNER_UP_2
+  HONORABLE_MENTION
+}
+
+enum CompetitionStatus {
+  UPCOMING
+  OPEN_FOR_SUBMISSION
+  REVIEWING
+  FINALIST_ANNOUNCED
+  COMPLETED
+}
+
+enum AnnouncementType {
+  GENERAL
+  FINALISTS
+  WINNERS
+}
+
+model CompetitionYear {
+  id               String                    @id @default(cuid())
+  year             Int                       @unique // 2569, 2568, 2567, 2566
+  yearAd           Int                       // 2026, 2025, 2024, 2023
+  titleTh          String
+  titleEn          String
+  themeTh          String?                   @default("")
+  grandPrize       String?                   @default("ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี")
+  submissionStart  DateTime?
+  submissionEnd    DateTime?
+  announcementDate DateTime?
+  eventDate        DateTime?
+  isCurrent        Boolean                   @default(false)
+  status           CompetitionStatus         @default(OPEN_FOR_SUBMISSION)
+  
+  categories       CompetitionYearCategory[]
+  submissions      Submission[]
+  announcements    Announcement[]
+  
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+
+  @@map("competition_years")
+}
+
+model Category {
+  id             String                    @id @default(cuid())
+  code           String                    @unique // energy_environment, food_agriculture, social_economy, medical_device, material
+  nameTh         String
+  nameEn         String
+  descriptionTh  String?                   @db.Text
+  descriptionEn  String?                   @db.Text
+  icon           String?                   @default("Zap")
+  color          String?                   @default("#059669")
+  bgImage        String?                   @default("/domain-energy.jpg")
+  orderIndex     Int                       @default(0)
+  isActive       Boolean                   @default(true)
+  
+  yearCategories CompetitionYearCategory[]
+  submissions    Submission[]
+  
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+
+  @@map("categories")
+}
+
+model CompetitionYearCategory {
+  id                String          @id @default(cuid())
+  competitionYearId String
+  competitionYear   CompetitionYear @relation(fields: [competitionYearId], references: [id], onDelete: Cascade)
+  categoryId        String
+  category          Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  customNameTh      String?
+  customDescription String?         @db.Text
+  prizeSummary      String?         @default("เงินรางวัลชนะเลิศ 30,000 - 50,000 บาท พร้อมโล่รางวัลและเกียรติบัตร")
+  isActive          Boolean         @default(true)
+  orderIndex        Int             @default(0)
+  
+  submissions       Submission[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([competitionYearId, categoryId])
+  @@map("competition_year_categories")
+}
+
+model EducationLevel {
+  id          String       @id @default(cuid())
+  code        String       @unique // below_higher, higher_and_above
+  nameTh      String
+  nameEn      String
+  eligibleTh  String?      @db.Text
+  eligibleEn  String?      @db.Text
+  orderIndex  Int          @default(0)
+  isActive    Boolean      @default(true)
+  users       User[]
+  submissions Submission[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("education_levels")
+}
+
+model User {
+  id               String         @id @default(cuid())
+  email            String         @unique
+  passwordHash     String
+  fullName         String
+  phone            String?        @default("")
+  institution      String?        @default("มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ")
+  educationLevelId String
+  educationLevel   EducationLevel @relation(fields: [educationLevelId], references: [id])
+  role             Role           @default(CONTESTANT)
+  submissions      Submission[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@map("users")
+}
+
+model Submission {
+  id                        String                   @id @default(cuid())
+  trackingCode              String                   @unique
+  userId                    String
+  user                      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  competitionYearId         String
+  competitionYear           CompetitionYear          @relation(fields: [competitionYearId], references: [id])
+  categoryId                String
+  category                  Category                 @relation(fields: [categoryId], references: [id])
+  competitionYearCategoryId String?
+  competitionYearCategory   CompetitionYearCategory? @relation(fields: [competitionYearCategoryId], references: [id])
+  educationLevelId          String
+  educationLevel            EducationLevel           @relation(fields: [educationLevelId], references: [id])
+  
+  titleTh                   String
+  titleEn                   String?                  @default("")
+  teamName                  String                   @default("ทีมสร้างสรรค์นวัตกรรม")
+  advisorName               String?                  @default("")
+  abstractTh                String                   @db.Text
+  abstractEn                String?                  @db.Text @default("")
+  
+  coverImage                String?                  @default("")
+  videoUrl                  String?                  @default("")
+  documentUrl               String?                  @default("")
+  
+  status                    SubmissionStatus         @default(DRAFT)
+  feedback                  String?                  @db.Text @default("")
+  
+  // Award & Hall of Fame
+  institution               String?                  @default("")
+  awardTier                 AwardTier?
+  awardNameTh               String?                  @default("")
+  awardNameEn               String?                  @default("")
+  awardBadgeText            String?                  @default("")
+  prizeDetails              String?                  @db.Text @default("")
+  image                     String?                  @default("")
+
+  members                   TeamMember[]
+
+  submittedAt               DateTime?
+  createdAt                 DateTime                 @default(now())
+  updatedAt                 DateTime                 @updatedAt
+
+  @@index([categoryId])
+  @@index([educationLevelId])
+  @@index([competitionYearId])
+  @@index([competitionYearCategoryId])
+  @@index([status])
+  @@map("submissions")
+}
+
+model TeamMember {
+  id           String     @id @default(cuid())
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  fullName     String
+  role         String     @default("สมาชิก")
+  orderIndex   Int        @default(0)
+  createdAt    DateTime   @default(now())
+
+  @@map("team_members")
+}
+
+model Announcement {
+  id                String               @id @default(cuid())
+  competitionYearId String
+  competitionYear   CompetitionYear      @relation(fields: [competitionYearId], references: [id])
+  type              AnnouncementType     @default(GENERAL)
+  badgeText         String
+  badgeClass        String?              @default("announcement-badge-general")
+  dateStr           String
+  title             String
+  abstract          String               @db.Text
+  content           String?              @db.Text
+  pdfUrl            String?              @default("#")
+  coverImage        String?              @default("")
+  isPublished       Boolean              @default(true)
+  roster            AnnouncementRoster[]
+  publishedAt       DateTime             @default(now())
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([competitionYearId])
+  @@index([type])
+  @@index([isPublished])
+  @@map("announcements")
+}
+
+model AnnouncementRoster {
+  id             String        @id @default(cuid())
+  announcementId String
+  announcement   Announcement  @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  submissionId   String?
+  code           String
+  title          String
+  team           String
+  institution    String?       @default("")
+  level          String
+  categoryName   String?       @default("")
+  awardTierText  String?       @default("")
+  orderIndex     Int           @default(0)
+
+  @@index([announcementId])
+  @@map("announcement_rosters")
+}
