@@ -400,6 +400,8 @@ export default function App() {
 
   // App Data States
   const [winners, setWinners] = useState([]);
+  const [announcementsList, setAnnouncementsList] = useState(ANNOUNCEMENTS);
+  const [authToken, setAuthToken] = useState(() => localStorage.getItem('innoaward_token') || '');
 
   // Hall of Fame Filters
   const [selectedYear, setSelectedYear] = useState('all');
@@ -414,7 +416,10 @@ export default function App() {
   const [portalTab, setPortalTab] = useState('register'); // 'register' | 'login' | 'submission'
 
   // User & Forms
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('innoaward_user');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [trackingSearch, setTrackingSearch] = useState('');
   const [statusResult, setStatusResult] = useState(null);
   const [statusError, setStatusError] = useState('');
@@ -436,6 +441,7 @@ export default function App() {
     teamName: '',
     advisorName: '',
     abstractTh: '',
+    coverImage: '',
     videoUrl: '',
     documentUrl: ''
   });
@@ -493,6 +499,15 @@ export default function App() {
       .then(res => res.json())
       .then(data => setWinners(data.data || []))
       .catch(err => console.warn('Using local fallback for winners:', err));
+
+    fetch(`${API_BASE}/announcements`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.data && data.data.length > 0) {
+          setAnnouncementsList(data.data);
+        }
+      })
+      .catch(err => console.warn('Using local fallback for announcements:', err));
 
     setTimeLeft(calculateTimeLeft());
     const interval = setInterval(() => {
@@ -580,13 +595,13 @@ export default function App() {
   };
 
   // Filter Announcements
-  const filteredAnnouncements = ANNOUNCEMENTS.filter(a => {
+  const filteredAnnouncements = announcementsList.filter(a => {
     if (annCategory !== 'all' && a.category !== annCategory) return false;
     if (annSearch.trim()) {
       const q = annSearch.toLowerCase();
       const matchTitle = a.title.toLowerCase().includes(q);
       const matchAbstract = a.abstract.toLowerCase().includes(q);
-      const matchRoster = a.roster.some(r => r.team.toLowerCase().includes(q) || r.title.toLowerCase().includes(q) || r.code.toLowerCase().includes(q));
+      const matchRoster = (a.roster || []).some(r => r.team.toLowerCase().includes(q) || r.title.toLowerCase().includes(q) || r.code.toLowerCase().includes(q));
       if (!matchTitle && !matchAbstract && !matchRoster) return false;
     }
     return true;
@@ -622,6 +637,11 @@ export default function App() {
       .then(data => {
         if (data.success) {
           setUser(data.user);
+          if (data.token) {
+            setAuthToken(data.token);
+            localStorage.setItem('innoaward_token', data.token);
+            localStorage.setItem('innoaward_user', JSON.stringify(data.user));
+          }
           setPortalTab('submission');
           confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
         }
@@ -641,12 +661,17 @@ export default function App() {
     fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: regForm.email })
+      body: JSON.stringify({ email: regForm.email, password: regForm.password })
     })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           setUser(data.user);
+          if (data.token) {
+            setAuthToken(data.token);
+            localStorage.setItem('innoaward_token', data.token);
+            localStorage.setItem('innoaward_user', JSON.stringify(data.user));
+          }
           setPortalTab('submission');
         }
       })
@@ -667,7 +692,10 @@ export default function App() {
     setSubmissionLoading(true);
     fetch(`${API_BASE}/submissions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+      },
       body: JSON.stringify({
         ...subForm,
         isDraft,
@@ -2090,7 +2118,7 @@ export default function App() {
                 </div>
 
                 {/* Filter Controls Row */}
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div className="halloffame-filter-controls" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Calendar className="w-4 h-4 text-emerald-400" />
                     <select 
@@ -2585,6 +2613,16 @@ export default function App() {
                         placeholder="https://youtube.com/watch?v=..."
                         value={subForm.videoUrl}
                         onChange={e => setSubForm({...subForm, videoUrl: e.target.value})}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="submission-cover-image" className="form-label">รูปภาพหน้าปกผลงาน / โปสเตอร์ (URL หรือ Path รูปภาพ)</label>
+                      <input 
+                        id="submission-cover-image" type="text"
+                        className="form-input"
+                        placeholder="เช่น /photo_candidates/robotics_engineer.jpg หรือ https://..."
+                        value={subForm.coverImage}
+                        onChange={e => setSubForm({...subForm, coverImage: e.target.value})}
                       />
                     </div>
                     <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
