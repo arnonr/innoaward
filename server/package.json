@@ -3,6 +3,13 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "seed": "bun run prisma/seed.ts",
+    "test": "bun test"
+  },
+  "prisma": {
+    "seed": "bun run prisma/seed.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "prisma": "^6.4.1"
