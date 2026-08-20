@@ -791,7 +791,7 @@ export default function App() {
                       disabled={timeLeft.expired}
                     >
                       <Rocket className="w-5 h-5" />
-                      <span>{timeLeft.expired ? 'ปิดรับสมัครแล้ว' : 'สมัครส่งผลงาน'}</span>
+                      <span>{timeLeft.expired ? 'ปิดรับสมัครแล้ว' : (user ? 'ยื่นผลงาน' : 'สมัครประกวด')}</span>
                     </button>
 
                     <button 
@@ -980,7 +980,7 @@ export default function App() {
                             onClick={() => openSubmissionWithDomain(domain.id)}
                             className="domain-card-btn"
                           >
-                            <span>สมัครในหมวดนี้</span>
+                            <span>สมัครประกวด</span>
                             <ArrowRight className="w-4 h-4" />
                           </button>
                         </div>
@@ -1008,7 +1008,7 @@ export default function App() {
                     className="btn-solid-primary"
                     style={{ background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)', boxShadow: '0 4px 18px rgba(249,115,22,0.35)' }}
                   >
-                    <span>เริ่มกรอกข้อมูลสมัคร</span>
+                    <span>สมัครประกวด</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -1344,7 +1344,7 @@ export default function App() {
                           onClick={() => openSubmissionWithDomain(domain.id)}
                           className="domain-card-btn"
                         >
-                          <span>สมัครในหมวดนี้</span>
+                          <span>สมัครประกวด</span>
                           <ArrowRight className="w-4 h-4" />
                         </button>
                       </div>
@@ -1594,7 +1594,7 @@ export default function App() {
                   style={{ padding: '12px 24px' }}
                 >
                   <Rocket className="w-4 h-4" />
-                  <span>ยื่นสมัครผลงานตอนนี้</span>
+                  <span>{user ? 'ยื่นผลงาน' : 'สมัครประกวด'}</span>
                 </button>
               </div>
 
