@@ -111,10 +111,171 @@ const DOMAINS = [
   }
 ];
 
-// Project Images
+// Project Images for Awarded Works
 const WINNER_IMAGES = {
-  'sub-2025-01': '/winner-robot.jpg',
-  'sub-2025-02': '/winner-eco.jpg'
+  'sub-2025-01': '/photo_candidates/science_lab.jpg',
+  'sub-2025-02': '/photo_candidates/robotics_engineer.jpg',
+  'sub-2025-03': '/domain-food.jpg',
+  'sub-2025-04': '/photo_candidates/young_team_workshop.jpg',
+  'sub-2025-05': '/domain-material.jpg',
+  'sub-2025-06': '/photo_candidates/tech_creators.jpg'
+};
+
+// Official Seed / Fallback Data for Hall of Fame Winners
+const FALLBACK_WINNERS = [
+  {
+    id: 'sub-2025-01',
+    trackingCode: 'KMUTNB-2025-0001',
+    awardTier: 'grand_winner',
+    awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
+    awardNameEn: 'Grand Prize - Royal Trophy',
+    awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
+    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+    titleTh: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก',
+    titleEn: '3D-Printed Titanium Coated with Bioactive Hyaluronic Acid Hydrogel for Orthopedic Applications',
+    category: 'medical_device',
+    educationLevel: 'higher_and_above',
+    teamName: 'OsseBioMix',
+    institution: 'คณะวิทยาศาสตร์ประยุกต์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    advisorName: 'คณะวิทยาศาสตร์ประยุกต์ มจพ.',
+    abstractTh: 'นวัตกรรมวัสดุการแพทย์ขั้นสูง ไทเทเนียมที่ผ่านกระบวนการพิมพ์ 3 มิติร่วมกับการเคลือบไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพ ช่วยเร่งการยึดติดของเซลล์กระดูกและลดการอักเสบติดเชื้อสำหรับการผ่าตัดทางศัลยกรรมกระดูก',
+    videoUrl: 'https://youtube.com'
+  },
+  {
+    id: 'sub-2025-02',
+    trackingCode: 'KMUTNB-2025-0002',
+    awardTier: 'runner_up_1',
+    awardNameTh: 'รางวัลรองชนะเลิศอันดับ 1',
+    awardNameEn: '1st Runner-Up',
+    awardBadgeText: 'รองชนะเลิศอันดับ 1 • ถ้วยคิดเป็น ทำเป็น',
+    prizeDetails: 'ได้รับถ้วยรางวัล "คิดเป็น ทำเป็น" พร้อมเกียรติบัตร และเงินรางวัล 30,000 บาท',
+    titleTh: 'เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบ Butt Fusion',
+    titleEn: 'Automatic HDPE Pipe Butt Fusion Welding Controller and Data Logger',
+    category: 'energy_environment',
+    educationLevel: 'higher_and_above',
+    teamName: 'เขาชื่ออะไร',
+    institution: 'คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    advisorName: 'คณะครุศาสตร์อุตสาหกรรม มจพ.',
+    abstractTh: 'อุปกรณ์ควบคุมและบันทึกข้อมูลการเชื่อมท่อพอลิเอทิลีนความหนาแน่นสูง (HDPE) แบบหลอมชนอัตโนมัติ เพื่อเพิ่มความแม่นยำ มาตรฐานความปลอดภัย และตรวจสอบย้อนกลับของคุณภาพแนวเชื่อมในงานวิศวกรรมระบบท่อ',
+    videoUrl: 'https://youtube.com'
+  },
+  {
+    id: 'sub-2025-03',
+    trackingCode: 'KMUTNB-2025-0003',
+    awardTier: 'runner_up_2',
+    awardNameTh: 'รางวัลรองชนะเลิศอันดับ 2',
+    awardNameEn: '2nd Runner-Up',
+    awardBadgeText: 'รองชนะเลิศอันดับ 2 • ถ้วยคิดเป็น ทำเป็น',
+    prizeDetails: 'ได้รับถ้วยรางวัล "คิดเป็น ทำเป็น" พร้อมเกียรติบัตร และเงินรางวัล 20,000 บาท',
+    titleTh: 'Growell: สารจับใบชีวภาพเพื่อเพิ่มประสิทธิภาพการใช้สารทางเกษตร',
+    titleEn: 'Growell: Bio-Adjuvant for Agricultural Spraying Efficiency Enhancement',
+    category: 'food_agriculture',
+    educationLevel: 'higher_and_above',
+    teamName: 'Lucyne Innovia Lab',
+    institution: 'มหาวิทยาลัยเกษตรศาสตร์',
+    advisorName: 'มหาวิทยาลัยเกษตรศาสตร์',
+    abstractTh: 'นวัตกรรมสารเสริมประสิทธิภาพการฉีดพ่นทางการเกษตร (Bio-adjuvant) จากสารสกัดชีวภาพ ช่วยเพิ่มการกระจายตัว ยึดเกาะ และการดูดซึมสารอาหารบนใบพืช ลดการชะล้างและเป็นมิตรต่อสิ่งแวดล้อม',
+    videoUrl: 'https://youtube.com'
+  },
+  {
+    id: 'sub-2025-04',
+    trackingCode: 'KMUTNB-2025-0004',
+    awardTier: 'honorable_mention',
+    awardNameTh: 'รางวัลชมเชย',
+    awardNameEn: 'Honorable Mention',
+    awardBadgeText: 'รางวัลชมเชย',
+    prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+    titleTh: 'ระบบกล้องติดยานพาหนะและเว็บแอปพลิเคชัน AI สำหรับวิเคราะห์ความเสียหายและประมาณการค่าซ่อมถนนคอนกรีต',
+    titleEn: 'Vehicle-Mounted AI Vision System and Web Application for Concrete Road Damage Detection and Repair Cost Estimation',
+    category: 'social_economy',
+    educationLevel: 'below_higher',
+    teamName: 'ROAD AI',
+    institution: 'โรงเรียนวารีเชียงใหม่',
+    advisorName: 'โรงเรียนวารีเชียงใหม่',
+    abstractTh: 'ระบบตรวจจับและประเมินสภาพความเสียหายของพื้นผิวถนนคอนกรีตแบบอัตโนมัติด้วยกล้องติดยานพาหนะร่วมกับโมเดล Deep Learning พร้อมเว็บแอปพลิเคชันประมาณการงบประมาณค่าซ่อมบำรุงแบบเรียลไทม์',
+    videoUrl: 'https://youtube.com'
+  },
+  {
+    id: 'sub-2025-05',
+    trackingCode: 'KMUTNB-2025-0005',
+    awardTier: 'honorable_mention',
+    awardNameTh: 'รางวัลชมเชย',
+    awardNameEn: 'Honorable Mention',
+    awardBadgeText: 'รางวัลชมเชย',
+    prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+    titleTh: 'แผ่นรองหลังแนวเชื่อมจีโอโพลิเมอร์ทนความร้อนสูงจากวัสดุเหลือทิ้งอุตสาหกรรม',
+    titleEn: 'High-Temperature Resistant Geopolymer Backing Ceramic for Welding from Industrial By-products',
+    category: 'material',
+    educationLevel: 'higher_and_above',
+    teamName: 'GeoWeld',
+    institution: 'วิทยาลัยเทคโนโลยีอุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    advisorName: 'วิทยาลัยเทคโนโลยีอุตสาหกรรม มจพ.',
+    abstractTh: 'นวัตกรรมแผ่นรองหลังแนวเชื่อมทนความร้อนสูงที่พัฒนาจากเถ้าลอยและกากของเสียอุตสาหกรรมด้วยกระบวนการจีโอโพลิเมอร์ ช่วยลดต้นทุนการนำเข้าวัสดุทนไฟจากต่างประเทศ และส่งเสริมเศรษฐกิจหมุนเวียน (Circular Economy)',
+    videoUrl: 'https://youtube.com'
+  },
+  {
+    id: 'sub-2025-06',
+    trackingCode: 'KMUTNB-2025-0006',
+    awardTier: 'honorable_mention',
+    awardNameTh: 'รางวัลชมเชย',
+    awardNameEn: 'Honorable Mention',
+    awardBadgeText: 'รางวัลชมเชย',
+    prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+    titleTh: 'ระบบการตรวจคัดกรองโรคมะเร็งตับผ่านการวิเคราะห์สารประกอบอินทรีย์ระเหยง่ายในลมหายใจด้วยระบบปัญญาประดิษฐ์',
+    titleEn: 'AI-Powered Non-Invasive Liver Cancer Screening System via Breath Volatile Organic Compounds (VOCs) Analysis',
+    category: 'medical_device',
+    educationLevel: 'below_higher',
+    teamName: 'CLARA',
+    institution: 'โรงเรียนปรินส์รอยแยลส์วิทยาลัย',
+    advisorName: 'โรงเรียนปรินส์รอยแยลส์วิทยาลัย',
+    abstractTh: 'เครื่องตรวจคัดกรองความเสี่ยงโรคมะเร็งตับเบื้องต้นแบบไม่เจ็บตัว (Non-invasive) โดยการตรวจจับและวิเคราะห์รูปแบบของสารประกอบอินทรีย์ระเหยง่าย (VOCs) ในลมหายใจด้วยเซนเซอร์และอัลกอริทึม AI ที่แม่นยำสูง',
+    videoUrl: 'https://youtube.com'
+  }
+];
+
+const getCategoryNameTh = (cat) => {
+  switch (cat) {
+    case 'energy_environment': return 'Energy & Environment';
+    case 'food_agriculture': return 'Food & Agriculture';
+    case 'social_economy': return 'Social & Economy';
+    case 'medical_device': return 'Medical Device';
+    case 'material': return 'Material';
+    default: return cat || 'General Innovation';
+  }
+};
+
+const renderAwardBadge = (w) => {
+  const tier = w.awardTier || (w.id === 'sub-2025-01' ? 'grand_winner' : (w.id === 'sub-2025-02' ? 'runner_up_1' : (w.id === 'sub-2025-03' ? 'runner_up_2' : 'honorable_mention')));
+  if (tier === 'grand_winner') {
+    return (
+      <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.95), rgba(180, 83, 9, 0.9))', color: '#FEF3C7', border: '1px solid rgba(251, 191, 36, 0.8)', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)' }}>
+        <Crown className="w-3.5 h-3.5 text-amber-200" />
+        <span>{w.awardBadgeText || 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ'}</span>
+      </span>
+    );
+  }
+  if (tier === 'runner_up_1') {
+    return (
+      <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'linear-gradient(135deg, rgba(14, 116, 144, 0.95), rgba(6, 78, 59, 0.9))', color: '#E0F2FE', border: '1px solid rgba(56, 189, 248, 0.8)' }}>
+        <Medal className="w-3.5 h-3.5 text-cyan-200" />
+        <span>{w.awardBadgeText || 'รองชนะเลิศอันดับ 1 • ถ้วยคิดเป็น ทำเป็น'}</span>
+      </span>
+    );
+  }
+  if (tier === 'runner_up_2') {
+    return (
+      <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'linear-gradient(135deg, rgba(180, 83, 9, 0.95), rgba(120, 53, 15, 0.9))', color: '#FEF3C7', border: '1px solid rgba(245, 158, 11, 0.7)' }}>
+        <Medal className="w-3.5 h-3.5 text-amber-200" />
+        <span>{w.awardBadgeText || 'รองชนะเลิศอันดับ 2 • ถ้วยคิดเป็น ทำเป็น'}</span>
+      </span>
+    );
+  }
+  return (
+    <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'rgba(6, 78, 59, 0.92)', color: '#A7F3D0', border: '1px solid rgba(52, 211, 153, 0.6)' }}>
+      <Award className="w-3.5 h-3.5 text-emerald-300" />
+      <span>{w.awardBadgeText || 'รางวัลชมเชย'}</span>
+    </span>
+  );
 };
 
 // Official Announcements Data
@@ -379,32 +540,7 @@ export default function App() {
   });
 
   // Filter Winners
-  const filteredWinners = (winners.length > 0 ? winners : [
-    {
-      id: 'sub-2025-01',
-      trackingCode: 'KMUTNB-2025-8821',
-      titleTh: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติ',
-      titleEn: 'AI-Powered Disaster Rescue & Reconnaissance Robot',
-      category: 'medical_device',
-      educationLevel: 'higher_and_above',
-      teamName: 'KMUTNB Robotics Lab',
-      advisorName: 'รศ.ดร.สมชาย นวัตกรรม',
-      abstractTh: 'หุ่นยนต์กู้ภัยที่สามารถลุยพื้นที่เสี่ยงภัยพิบัติ มีระบบตรวจจับสัญญาณชีพด้วยเซ็นเซอร์อินฟราเรดและ AI คอมพิวเตอร์วิสัยทัศน์ พร้อมสร้างแผนที่ 3 มิติแบบ Real-time',
-      videoUrl: 'https://youtube.com'
-    },
-    {
-      id: 'sub-2025-02',
-      trackingCode: 'KMUTNB-2025-4109',
-      titleTh: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
-      titleEn: 'Bio-Nanocellulose Enhanced Rice Straw Sustainable Packaging',
-      category: 'food_agriculture',
-      educationLevel: 'below_higher',
-      teamName: 'EcoInno High School Team',
-      advisorName: 'อาจารย์อารีลักษณ์ ปัญญาดี',
-      abstractTh: 'แนวคิดการแปรรูปเศษวัสดุเหลือทิ้งทางการเกษตรเป็นบรรจุภัณฑ์ทนความร้อน ทนน้ำ และย่อยสลายได้ในธรรมชาติภายใน 45 วัน เพื่อแทนที่พลาสติก',
-      videoUrl: 'https://youtube.com'
-    }
-  ]).filter(w => {
+  const filteredWinners = (winners.length > 0 ? winners : FALLBACK_WINNERS).filter(w => {
     if (selectedDomain !== 'all' && w.category !== selectedDomain) return false;
     if (selectedLevel !== 'all' && w.educationLevel !== selectedLevel) return false;
     return true;
@@ -1100,7 +1236,7 @@ export default function App() {
                 <h2 style={{ fontSize: '2rem', marginBottom: '32px' }}>ตัวอย่างผลงานที่เคยได้รับรางวัลชนะเลิศ</h2>
 
                 <div className="winner-grid" style={{ textAlign: 'left' }}>
-                  {filteredWinners.slice(0, 2).map(w => (
+                  {filteredWinners.slice(0, 3).map(w => (
                     <button type="button"
                       key={w.id}
                       onClick={() => setSelectedWinnerModal(w)}
@@ -1108,29 +1244,43 @@ export default function App() {
                     >
                       <div className="winner-card-image-wrap">
                         <img 
-                          src={WINNER_IMAGES[w.id] || '/winner-robot.jpg'} 
+                          src={WINNER_IMAGES[w.id] || w.image || '/winner-robot.jpg'} 
                           alt={w.titleTh} 
                           loading="lazy"
                           decoding="async"
                           className="winner-card-image"
                         />
                         <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-                          <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px' }}>
-                            <Trophy className="w-3 h-3 text-orange-300" />
-                            <span>Grand Prize Winner</span>
-                          </span>
+                          {renderAwardBadge(w)}
+                        </div>
+                        <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(7, 34, 26, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
+                          {w.trackingCode}
                         </div>
                       </div>
 
                       <div className="winner-card-body">
                         <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                            <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
+                              {getCategoryNameTh(w.category)}
+                            </span>
+                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                              {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาขึ้นไป'}
+                            </span>
+                          </div>
                           <h4>{w.titleTh}</h4>
                           <div className="winner-card-en">{w.titleEn}</div>
+                          <div style={{ fontSize: '0.82rem', color: 'var(--emerald-400)', fontWeight: 600, marginTop: '6px', marginBottom: '8px' }}>
+                            ทีม {w.teamName} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>• {w.institution}</span>
+                          </div>
                           <p>{w.abstractTh}</p>
                         </div>
 
                         <div className="winner-card-footer">
-                          <span>ทีม: <strong style={{ color: 'var(--text-primary)' }}>{w.teamName}</strong></span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            {w.awardNameTh || 'ผลงานที่ได้รับรางวัล'}
+                          </span>
                           <span className="winner-cta-link">
                             <span>อ่านสตอรี่ผลงาน</span>
                             <ChevronRight className="w-4 h-4" />
@@ -1877,39 +2027,50 @@ export default function App() {
 
               <div className="winner-grid">
                 {filteredWinners.map(w => (
-                      <button type="button"
-                        key={w.id}
-                        onClick={() => setSelectedWinnerModal(w)}
-                        className="winner-card"
+                  <button type="button"
+                    key={w.id}
+                    onClick={() => setSelectedWinnerModal(w)}
+                    className="winner-card"
                   >
                     <div className="winner-card-image-wrap">
                       <img 
-                        src={WINNER_IMAGES[w.id] || '/winner-robot.jpg'} 
+                        src={WINNER_IMAGES[w.id] || w.image || '/winner-robot.jpg'} 
                         alt={w.titleTh} 
                         loading="lazy"
                         decoding="async"
                         className="winner-card-image"
                       />
                       <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-                        <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px' }}>
-                          <Trophy className="w-3 h-3 text-orange-300" />
-                          <span>Grand Prize Winner</span>
-                        </span>
-                        </div>
-                      <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(11, 21, 40, 0.85)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--cyan-300)' }}>
+                        {renderAwardBadge(w)}
+                      </div>
+                      <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(7, 34, 26, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
                         {w.trackingCode}
                       </div>
                     </div>
 
                     <div className="winner-card-body">
                       <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                          <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
+                            {getCategoryNameTh(w.category)}
+                          </span>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาขึ้นไป'}
+                          </span>
+                        </div>
                         <h4>{w.titleTh}</h4>
                         <div className="winner-card-en">{w.titleEn}</div>
+                        <div style={{ fontSize: '0.82rem', color: 'var(--emerald-400)', fontWeight: 600, marginTop: '6px', marginBottom: '8px' }}>
+                          ทีม {w.teamName} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>• {w.institution}</span>
+                        </div>
                         <p>{w.abstractTh}</p>
                       </div>
 
                       <div className="winner-card-footer">
-                        <span>ทีม: <strong style={{ color: 'var(--text-primary)' }}>{w.teamName}</strong></span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                          {w.awardNameTh || 'ผลงานที่ได้รับรางวัล'}
+                        </span>
                         <span className="winner-cta-link">
                           <span>อ่านสตอรี่ผลงาน</span>
                           <ChevronRight className="w-4 h-4" />
@@ -2362,61 +2523,80 @@ export default function App() {
       {/* --- MODAL 3: WINNER STORYTELLING MODAL --- */}
       {selectedWinnerModal && (
         <div className="modal-overlay" onClick={() => setSelectedWinnerModal(null)}>
-          <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="winner-modal-title" style={{ maxWidth: '680px' }} onClick={e => e.stopPropagation()}>
+          <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="winner-modal-title" style={{ maxWidth: '720px' }} onClick={e => e.stopPropagation()}>
             <button aria-label="ปิดหน้าต่างรายละเอียดผลงาน" className="modal-close-btn" onClick={() => setSelectedWinnerModal(null)}>
               <X className="w-5 h-5" />
             </button>
 
-            <div className="badge-royal" style={{ marginBottom: '14px' }}>
-              <Trophy className="w-3.5 h-3.5" />
-              <span>GRAND PRIZE WINNER STORY</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
+              {renderAwardBadge(selectedWinnerModal)}
+              <span className="badge-category">
+                {getCategoryNameTh(selectedWinnerModal.category)}
+              </span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                {selectedWinnerModal.educationLevel === 'below_higher' ? 'ระดับต่ำกว่าอุดมศึกษา' : 'ระดับอุดมศึกษาขึ้นไป'}
+              </span>
             </div>
 
-            <div style={{ width: '100%', height: '220px', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ width: '100%', height: '230px', borderRadius: '12px', overflow: 'hidden', marginBottom: '18px', border: '1px solid var(--border-subtle)' }}>
               <img 
-                src={WINNER_IMAGES[selectedWinnerModal.id] || '/winner-robot.jpg'} 
+                src={WINNER_IMAGES[selectedWinnerModal.id] || selectedWinnerModal.image || '/winner-robot.jpg'} 
                 alt={selectedWinnerModal.titleTh} 
                 decoding="async"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
 
-            <h2 id="winner-modal-title" style={{ fontSize: '1.6rem', marginBottom: '4px', color: '#0F172A' }}>{selectedWinnerModal.titleTh}</h2>
-            <div style={{ color: '#059669', fontSize: '0.88rem', fontWeight: 600, marginBottom: '20px' }}>
+            <h2 id="winner-modal-title" style={{ fontSize: '1.45rem', lineHeight: 1.4, marginBottom: '6px', color: 'var(--text-primary)' }}>
+              {selectedWinnerModal.titleTh}
+            </h2>
+            <div style={{ color: 'var(--emerald-400)', fontSize: '0.88rem', fontWeight: 600, marginBottom: '16px' }}>
               {selectedWinnerModal.titleEn}
             </div>
 
-            <div style={{ background: '#F8FAFC', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '18px', marginBottom: '20px' }}>
-              <h4 style={{ color: '#059669', fontSize: '0.95rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {selectedWinnerModal.prizeDetails && (
+              <div style={{ background: 'rgba(6, 78, 59, 0.25)', border: '1px solid rgba(52, 211, 153, 0.4)', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Trophy className="w-5 h-5 text-amber-300 flex-shrink-0" />
+                <span style={{ fontSize: '0.85rem', color: '#D1FAE5', lineHeight: 1.5 }}>
+                  <strong style={{ color: '#FDE68A' }}>รางวัลที่ได้รับ: </strong>
+                  {selectedWinnerModal.prizeDetails}
+                </span>
+              </div>
+            )}
+
+            <div style={{ background: 'rgba(7, 34, 26, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+              <h4 style={{ color: 'var(--emerald-300)', fontSize: '0.92rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <BookOpen className="w-4 h-4" />
-                <span>ที่มาและปัญหาของนวัตกรรม (Problem & Solution)</span>
+                <span>รายละเอียดและความโดดเด่นของนวัตกรรม (Problem & Solution)</span>
               </h4>
               <p style={{ fontSize: '0.88rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                 {selectedWinnerModal.abstractTh}
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.84rem', marginBottom: '24px' }}>
-              <div style={{ background: '#F8FAFC', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                <span style={{ color: 'var(--text-muted)', display: 'block' }}>ทีมพัฒนา:</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.84rem', marginBottom: '20px' }}>
+              <div style={{ background: 'rgba(7, 34, 26, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <span style={{ color: 'var(--text-muted)', display: 'block' }}>ทีมผู้พัฒนา:</span>
                 <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.teamName}</strong>
               </div>
-              <div style={{ background: '#F8FAFC', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                <span style={{ color: 'var(--text-muted)', display: 'block' }}>อาจารย์ที่ปรึกษา:</span>
-                <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.advisorName}</strong>
+              <div style={{ background: 'rgba(7, 34, 26, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <span style={{ color: 'var(--text-muted)', display: 'block' }}>สถาบันการศึกษา / หน่วยงาน:</span>
+                <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.institution || selectedWinnerModal.advisorName}</strong>
               </div>
             </div>
 
-            <a 
-              href={selectedWinnerModal.videoUrl} 
-              target="_blank" 
-              rel="noreferrer"
-              className="btn-solid-primary"
-              style={{ width: '100%', textDecoration: 'none' }}
-            >
-              <ExternalLink className="w-4 h-4" />
-              <span>รับชมวิดีโอสาธิตการทำงานของผลงาน</span>
-            </a>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <a 
+                href={selectedWinnerModal.videoUrl || '#'} 
+                target="_blank" 
+                rel="noreferrer"
+                className="btn-solid-primary"
+                style={{ flex: 1, textDecoration: 'none', justifyContent: 'center' }}
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>รับชมวิดีโอสาธิตผลงาน</span>
+              </a>
+            </div>
           </div>
         </div>
       )}

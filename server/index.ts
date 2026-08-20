@@ -30,6 +30,13 @@ interface Submission {
   videoUrl?: string;
   documentUrl?: string;
   status: 'draft' | 'submitted' | 'under_review' | 'passed_first_round' | 'finalist' | 'awarded';
+  institution?: string;
+  awardTier?: string;
+  awardNameTh?: string;
+  awardNameEn?: string;
+  awardBadgeText?: string;
+  prizeDetails?: string;
+  image?: string;
   feedback?: string;
   submittedAt?: string;
   updatedAt: string;
@@ -39,49 +46,161 @@ interface Submission {
 const users = new Map<string, User>();
 const submissions = new Map<string, Submission>();
 
-// Initial Seed Data (5 Domains)
-const sampleWinner1: Submission = {
-  id: 'sub-2025-01',
-  trackingCode: 'KMUTNB-2025-8821',
-  userId: 'user-winner-1',
-  titleTh: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติ',
-  titleEn: 'AI-Powered Disaster Rescue & Reconnaissance Robot',
-  category: 'medical_device',
-  educationLevel: 'higher_and_above',
-  teamName: 'KMUTNB Robotics Lab',
-  advisorName: 'รศ.ดร.สมชาย นวัตกรรม',
-  members: ['นายพิพัทธ์ พัฒนาชัย', 'นางสาวณิชา เทคโนโลยี'],
-  abstractTh: 'หุ่นยนต์กู้ภัยที่สามารถลุยพื้นที่เสี่ยงภัยพิบัติ มีระบบตรวจจับสัญญาณชีพด้วยเซ็นเซอร์อินฟราเรดและ AI คอมพิวเตอร์วิสัยทัศน์ พร้อมสร้างแผนที่ 3 มิติแบบ Real-time',
-  abstractEn: 'An autonomous rescue robot equipped with vital sign detection infrared sensors, AI computer vision, and real-time 3D SLAM mapping for hazardous environments.',
-  status: 'awarded',
-  videoUrl: 'https://youtube.com/watch?v=rescue-robot-demo',
-  documentUrl: 'https://kmutnb-innoaward.com/docs/2025/winner-robotics.pdf',
-  submittedAt: '2025-05-10T10:00:00Z',
-  updatedAt: '2025-06-26T14:30:00Z'
-};
+// Initial Seed Data: ผลการตัดสินรางวัล KMUTNB Innovation Awards (ปีที่ผ่านมา)
+const winnersSeed: Submission[] = [
+  {
+    id: 'sub-2025-01',
+    trackingCode: 'KMUTNB-2025-0001',
+    userId: 'user-winner-1',
+    awardTier: 'grand_winner',
+    awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
+    awardNameEn: 'Grand Prize - Royal Trophy',
+    awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
+    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+    titleTh: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก',
+    titleEn: '3D-Printed Titanium Coated with Bioactive Hyaluronic Acid Hydrogel for Orthopedic Applications',
+    category: 'medical_device',
+    educationLevel: 'higher_and_above',
+    teamName: 'OsseBioMix',
+    institution: 'คณะวิทยาศาสตร์ประยุกต์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    advisorName: 'คณะวิทยาศาสตร์ประยุกต์ มจพ.',
+    members: ['ทีม OsseBioMix'],
+    abstractTh: 'นวัตกรรมวัสดุการแพทย์ขั้นสูง ไทเทเนียมที่ผ่านกระบวนการพิมพ์ 3 มิติร่วมกับการเคลือบไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพ ช่วยเร่งการยึดติดของเซลล์กระดูกและลดการอักเสบติดเชื้อสำหรับการผ่าตัดทางศัลยกรรมกระดูก',
+    abstractEn: 'Advanced biomedical implant utilizing 3D-printed titanium coated with bioactive hyaluronic acid hydrogel to enhance osseointegration and reduce infection risks.',
+    status: 'awarded',
+    image: '/photo_candidates/science_lab.jpg',
+    videoUrl: 'https://youtube.com',
+    submittedAt: '2025-05-10T10:00:00Z',
+    updatedAt: '2025-06-26T14:30:00Z'
+  },
+  {
+    id: 'sub-2025-02',
+    trackingCode: 'KMUTNB-2025-0002',
+    userId: 'user-winner-2',
+    awardTier: 'runner_up_1',
+    awardNameTh: 'รางวัลรองชนะเลิศอันดับ 1',
+    awardNameEn: '1st Runner-Up',
+    awardBadgeText: 'รองชนะเลิศอันดับ 1 • ถ้วยคิดเป็น ทำเป็น',
+    prizeDetails: 'ได้รับถ้วยรางวัล "คิดเป็น ทำเป็น" พร้อมเกียรติบัตร และเงินรางวัล 30,000 บาท',
+    titleTh: 'เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบ Butt Fusion',
+    titleEn: 'Automatic HDPE Pipe Butt Fusion Welding Controller and Data Logger',
+    category: 'energy_environment',
+    educationLevel: 'higher_and_above',
+    teamName: 'เขาชื่ออะไร',
+    institution: 'คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    advisorName: 'คณะครุศาสตร์อุตสาหกรรม มจพ.',
+    members: ['ทีม เขาชื่ออะไร'],
+    abstractTh: 'อุปกรณ์ควบคุมและบันทึกข้อมูลการเชื่อมท่อพอลิเอทิลีนความหนาแน่นสูง (HDPE) แบบหลอมชนอัตโนมัติ เพื่อเพิ่มความแม่นยำ มาตรฐานความปลอดภัย และตรวจสอบย้อนกลับของคุณภาพแนวเชื่อมในงานวิศวกรรมระบบท่อ',
+    abstractEn: 'An automated control and logging system for HDPE butt fusion pipe welding to enhance engineering accuracy, safety, and traceability.',
+    status: 'awarded',
+    image: '/photo_candidates/robotics_engineer.jpg',
+    videoUrl: 'https://youtube.com',
+    submittedAt: '2025-05-12T09:15:00Z',
+    updatedAt: '2025-06-26T15:00:00Z'
+  },
+  {
+    id: 'sub-2025-03',
+    trackingCode: 'KMUTNB-2025-0003',
+    userId: 'user-winner-3',
+    awardTier: 'runner_up_2',
+    awardNameTh: 'รางวัลรองชนะเลิศอันดับ 2',
+    awardNameEn: '2nd Runner-Up',
+    awardBadgeText: 'รองชนะเลิศอันดับ 2 • ถ้วยคิดเป็น ทำเป็น',
+    prizeDetails: 'ได้รับถ้วยรางวัล "คิดเป็น ทำเป็น" พร้อมเกียรติบัตร และเงินรางวัล 20,000 บาท',
+    titleTh: 'Growell: สารจับใบชีวภาพเพื่อเพิ่มประสิทธิภาพการใช้สารทางเกษตร',
+    titleEn: 'Growell: Bio-Adjuvant for Agricultural Spraying Efficiency Enhancement',
+    category: 'food_agriculture',
+    educationLevel: 'higher_and_above',
+    teamName: 'Lucyne Innovia Lab',
+    institution: 'มหาวิทยาลัยเกษตรศาสตร์',
+    advisorName: 'มหาวิทยาลัยเกษตรศาสตร์',
+    members: ['ทีม Lucyne Innovia Lab'],
+    abstractTh: 'นวัตกรรมสารเสริมประสิทธิภาพการฉีดพ่นทางการเกษตร (Bio-adjuvant) จากสารสกัดชีวภาพ ช่วยเพิ่มการกระจายตัว ยึดเกาะ และการดูดซึมสารอาหารบนใบพืช ลดการชะล้างและเป็นมิตรต่อสิ่งแวดล้อม',
+    abstractEn: 'Bio-based agricultural spraying adjuvant formulated to enhance droplet spreading, retention, and nutrient absorption on plant foliage while reducing chemical runoff.',
+    status: 'awarded',
+    image: '/domain-food.jpg',
+    videoUrl: 'https://youtube.com',
+    submittedAt: '2025-05-14T11:00:00Z',
+    updatedAt: '2025-06-26T15:30:00Z'
+  },
+  {
+    id: 'sub-2025-04',
+    trackingCode: 'KMUTNB-2025-0004',
+    userId: 'user-winner-4',
+    awardTier: 'honorable_mention',
+    awardNameTh: 'รางวัลชมเชย',
+    awardNameEn: 'Honorable Mention',
+    awardBadgeText: 'รางวัลชมเชย',
+    prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+    titleTh: 'ระบบกล้องติดยานพาหนะและเว็บแอปพลิเคชัน AI สำหรับวิเคราะห์ความเสียหายและประมาณการค่าซ่อมถนนคอนกรีต',
+    titleEn: 'Vehicle-Mounted AI Vision System and Web Application for Concrete Road Damage Detection and Repair Cost Estimation',
+    category: 'social_economy',
+    educationLevel: 'below_higher',
+    teamName: 'ROAD AI',
+    institution: 'โรงเรียนวารีเชียงใหม่',
+    advisorName: 'โรงเรียนวารีเชียงใหม่',
+    members: ['ทีม ROAD AI'],
+    abstractTh: 'ระบบตรวจจับและประเมินสภาพความเสียหายของพื้นผิวถนนคอนกรีตแบบอัตโนมัติด้วยกล้องติดยานพาหนะร่วมกับโมเดล Deep Learning พร้อมเว็บแอปพลิเคชันประมาณการงบประมาณค่าซ่อมบำรุงแบบเรียลไทม์',
+    abstractEn: 'Vehicle-mounted computer vision system integrated with deep learning models and a web platform for automated road crack detection and real-time maintenance cost budgeting.',
+    status: 'awarded',
+    image: '/photo_candidates/young_team_workshop.jpg',
+    videoUrl: 'https://youtube.com',
+    submittedAt: '2025-05-15T08:30:00Z',
+    updatedAt: '2025-06-26T16:00:00Z'
+  },
+  {
+    id: 'sub-2025-05',
+    trackingCode: 'KMUTNB-2025-0005',
+    userId: 'user-winner-5',
+    awardTier: 'honorable_mention',
+    awardNameTh: 'รางวัลชมเชย',
+    awardNameEn: 'Honorable Mention',
+    awardBadgeText: 'รางวัลชมเชย',
+    prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+    titleTh: 'แผ่นรองหลังแนวเชื่อมจีโอโพลิเมอร์ทนความร้อนสูงจากวัสดุเหลือทิ้งอุตสาหกรรม',
+    titleEn: 'High-Temperature Resistant Geopolymer Backing Ceramic for Welding from Industrial By-products',
+    category: 'material',
+    educationLevel: 'higher_and_above',
+    teamName: 'GeoWeld',
+    institution: 'วิทยาลัยเทคโนโลยีอุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    advisorName: 'วิทยาลัยเทคโนโลยีอุตสาหกรรม มจพ.',
+    members: ['ทีม GeoWeld'],
+    abstractTh: 'นวัตกรรมแผ่นรองหลังแนวเชื่อมทนความร้อนสูงที่พัฒนาจากเถ้าลอยและกากของเสียอุตสาหกรรมด้วยกระบวนการจีโอโพลิเมอร์ ช่วยลดต้นทุนการนำเข้าวัสดุทนไฟจากต่างประเทศ และส่งเสริมเศรษฐกิจหมุนเวียน (Circular Economy)',
+    abstractEn: 'Eco-friendly high-temperature resistant welding backing material developed from industrial fly ash via geopolymerization to substitute imported ceramic backings.',
+    status: 'awarded',
+    image: '/domain-material.jpg',
+    videoUrl: 'https://youtube.com',
+    submittedAt: '2025-05-15T10:20:00Z',
+    updatedAt: '2025-06-26T16:15:00Z'
+  },
+  {
+    id: 'sub-2025-06',
+    trackingCode: 'KMUTNB-2025-0006',
+    userId: 'user-winner-6',
+    awardTier: 'honorable_mention',
+    awardNameTh: 'รางวัลชมเชย',
+    awardNameEn: 'Honorable Mention',
+    awardBadgeText: 'รางวัลชมเชย',
+    prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+    titleTh: 'ระบบการตรวจคัดกรองโรคมะเร็งตับผ่านการวิเคราะห์สารประกอบอินทรีย์ระเหยง่ายในลมหายใจด้วยระบบปัญญาประดิษฐ์',
+    titleEn: 'AI-Powered Non-Invasive Liver Cancer Screening System via Breath Volatile Organic Compounds (VOCs) Analysis',
+    category: 'medical_device',
+    educationLevel: 'below_higher',
+    teamName: 'CLARA',
+    institution: 'โรงเรียนปรินส์รอยแยลส์วิทยาลัย',
+    advisorName: 'โรงเรียนปรินส์รอยแยลส์วิทยาลัย',
+    members: ['ทีม CLARA'],
+    abstractTh: 'เครื่องตรวจคัดกรองความเสี่ยงโรคมะเร็งตับเบื้องต้นแบบไม่เจ็บตัว (Non-invasive) โดยการตรวจจับและวิเคราะห์รูปแบบของสารประกอบอินทรีย์ระเหยง่าย (VOCs) ในลมหายใจด้วยเซนเซอร์และอัลกอริทึม AI ที่แม่นยำสูง',
+    abstractEn: 'Non-invasive breathalyzer screening device for early-stage liver cancer detection utilizing metal-oxide gas sensor array and machine learning VOC pattern recognition.',
+    status: 'awarded',
+    image: '/photo_candidates/tech_creators.jpg',
+    videoUrl: 'https://youtube.com',
+    submittedAt: '2025-05-15T14:45:00Z',
+    updatedAt: '2025-06-26T16:30:00Z'
+  }
+];
 
-const sampleWinner2: Submission = {
-  id: 'sub-2025-02',
-  trackingCode: 'KMUTNB-2025-4109',
-  userId: 'user-winner-2',
-  titleTh: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
-  titleEn: 'Bio-Nanocellulose Enhanced Rice Straw Sustainable Packaging',
-  category: 'food_agriculture',
-  educationLevel: 'below_higher',
-  teamName: 'EcoInno High School Team',
-  advisorName: 'อาจารย์อารีลักษณ์ ปัญญาดี',
-  members: ['นายธนกฤต รักษ์โลก', 'นายกิตติภูมิ นวัตกรรม'],
-  abstractTh: 'แนวคิดการแปรรูปเศษวัสดุเหลือทิ้งทางการเกษตรเป็นบรรจุภัณฑ์ทนความร้อน ทนน้ำ และย่อยสลายได้ในธรรมชาติภายใน 45 วัน เพื่อแทนที่พลาสติก',
-  abstractEn: 'Innovative bio-packaging solution transforming agricultural waste into heat-resistant, waterproof, 100% biodegradable food containers.',
-  status: 'awarded',
-  videoUrl: 'https://youtube.com/watch?v=eco-packaging-demo',
-  documentUrl: 'https://kmutnb-innoaward.com/docs/2025/winner-ecoinno.pdf',
-  submittedAt: '2025-05-12T09:15:00Z',
-  updatedAt: '2025-06-26T15:00:00Z'
-};
-
-submissions.set(sampleWinner1.id, sampleWinner1);
-submissions.set(sampleWinner2.id, sampleWinner2);
+winnersSeed.forEach(w => submissions.set(w.id, w));
 
 // Elysia Application Setup
 const app = new Elysia()
