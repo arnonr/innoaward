@@ -1,7 +1,7 @@
 # KMUTNB Innovation Awards 2026 — PostgreSQL & Prisma Backend Architecture Spec
 
 **Date:** 2026-08-20  
-**Status:** Approved by User (Updated with Normalized Master Tables: Category, EducationLevel, CompetitionYear)  
+**Status:** Approved by User (Updated with Year-Scoped Categories via `CompetitionYearCategory`)  
 **Author:** AI Agent (Antigravity) & Arnon  
 **Target Stack:** Bun, Elysia.js, Prisma ORM, PostgreSQL 18, @elysiajs/jwt, @elysiajs/cors, @elysiajs/swagger
 
@@ -12,14 +12,17 @@
 This specification defines the production-ready backend architecture for the **KMUTNB Innovation Awards 2026** web platform, transitioning from an in-memory mock backend to a fully normalized **PostgreSQL 18** database managed via **Prisma ORM**.
 
 ### Key Objectives
-1. **Fully Normalized Relational Architecture**: 
-   - Separate master tables for **Categories (`Category`)**, **Education Levels (`EducationLevel`)**, and **Competition Editions/Years (`CompetitionYear`)** linked via Foreign Keys and Joins.
-   - Separate transactional tables for **Users (`User`)**, **Submissions (`Submission`)**, **Team Members (`TeamMember`)**, and **Announcements (`Announcement`, `AnnouncementRoster`)**.
+1. **Year-Scoped Categories & Normalized Masters**: 
+   - **`Category`** (Global catalog of innovation domains).
+   - **`CompetitionYear`** (Annual competition editions e.g. 2566–2569).
+   - **`CompetitionYearCategory`** (Junction table binding which categories are active in which competition year, allowing adding/removing categories per year and setting year-specific prize details).
+   - **`EducationLevel`** (Academic level groups e.g. Below Higher, Higher and Above).
+   - **`User`**, **`Submission`**, **`TeamMember`**, and **`Announcement`** tables with strict foreign keys and cascade rules.
 2. **Robust Security & Authentication**: Modern JWT token authentication with Argon2id password hashing via `Bun.password` and Role-Based Access Control (`CONTESTANT`, `JUDGE`, `ADMIN`).
 3. **Modular Codebase**: Restructure `server/` into clean, maintainable domain modules (`auth`, `submissions`, `winners`, `announcements`, `config`, `masters`).
 4. **Seamless Frontend Integration**: Full backward-compatibility with the existing React Vite frontend while exposing new features such as contestant submission management and admin review endpoints.
-5. **Rich Seed & Migration Pipeline**: Seed historical award winners (2566–2568), royal trophy records, official announcements, Master categories, education levels, and default admin/judge accounts out-of-the-box.
-6. **Self-Contained HTML Manual**: Provide an interactive, responsive HTML documentation guide (`docs/backend-guide.html`) detailing the system architecture, normalized ERD, API specifications, and operational workflows.
+5. **Rich Seed & Migration Pipeline**: Seed historical award winners (2566–2568), royal trophy records, official announcements, Master categories per year, education levels, and default admin/judge accounts out-of-the-box.
+6. **Self-Contained HTML Manual**: Provide an interactive, responsive HTML documentation guide (`docs/backend-guide.html`) detailing the system architecture, normalized ERD with year-category bindings, API specifications, and operational workflows.
 
 ---
 
@@ -60,7 +63,7 @@ enum CompetitionStatus {
 }
 ```
 
-### 2.2 Models & Relational Schema (Normalized)
+### 2.2 Models & Relational Schema (With Year-Scoped Categories)
 
 ```prisma
 datasource db {
@@ -73,47 +76,77 @@ generator client {
 }
 
 // ----------------------------------------------------
-// Master Tables
+// Master Tables & Year Bindings
 // ----------------------------------------------------
 
 model CompetitionYear {
-  id               String            @id @default(cuid())
-  year             Int               @unique // 2569, 2568, 2567, 2566
-  yearAd           Int               // 2026, 2025, 2024, 2023
+  id               String                    @id @default(cuid())
+  year             Int                       @unique // 2569, 2568, 2567, 2566
+  yearAd           Int                       // 2026, 2025, 2024, 2023
   titleTh          String
   titleEn          String
-  themeTh          String?           @default("")
-  grandPrize       String?           @default("ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี")
+  themeTh          String?                   @default("")
+  grandPrize       String?                   @default("ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี")
   submissionStart  DateTime?
   submissionEnd    DateTime?
   announcementDate DateTime?
   eventDate        DateTime?
-  isCurrent        Boolean           @default(false)
-  status           CompetitionStatus @default(OPEN_FOR_SUBMISSION)
+  isCurrent        Boolean                   @default(false)
+  status           CompetitionStatus         @default(OPEN_FOR_SUBMISSION)
+  
+  // Relations
+  categories       CompetitionYearCategory[]
   submissions      Submission[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
 
   @@map("competition_years")
 }
 
 model Category {
-  id            String       @id @default(cuid())
-  code          String       @unique // energy_environment, food_agriculture, social_economy, medical_device, material
-  nameTh        String       // พลังงานและสิ่งแวดล้อม
-  nameEn        String       // Energy & Environment
-  descriptionTh String?      @db.Text
-  descriptionEn String?      @db.Text
-  icon          String?      @default("Zap") // Zap, Leaf, Users, Activity, Box
-  color         String?      @default("#059669")
-  bgImage       String?      @default("/domain-energy.jpg")
-  orderIndex    Int          @default(0)
-  isActive      Boolean      @default(true)
-  submissions   Submission[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id             String                    @id @default(cuid())
+  code           String                    @unique // energy_environment, food_agriculture, social_economy, medical_device, material
+  nameTh         String                    // พลังงานและสิ่งแวดล้อม
+  nameEn         String                    // Energy & Environment
+  descriptionTh  String?                   @db.Text
+  descriptionEn  String?                   @db.Text
+  icon           String?                   @default("Zap") // Zap, Leaf, Users, Activity, Box
+  color          String?                   @default("#059669")
+  bgImage        String?                   @default("/domain-energy.jpg")
+  orderIndex     Int                       @default(0)
+  isActive       Boolean                   @default(true)
+  
+  // Relations
+  yearCategories CompetitionYearCategory[]
+  submissions    Submission[]
+  
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
 
   @@map("categories")
+}
+
+model CompetitionYearCategory {
+  id                String          @id @default(cuid())
+  competitionYearId String
+  competitionYear   CompetitionYear @relation(fields: [competitionYearId], references: [id], onDelete: Cascade)
+  categoryId        String
+  category          Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  // Year-specific overrides & prize details
+  customNameTh      String?
+  customDescription String?         @db.Text
+  prizeSummary      String?         @default("เงินรางวัลชนะเลิศ 30,000 - 50,000 บาท พร้อมโล่รางวัลและเกียรติบัตร")
+  isActive          Boolean         @default(true)
+  orderIndex        Int             @default(0)
+  
+  submissions       Submission[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([competitionYearId, categoryId])
+  @@map("competition_year_categories")
 }
 
 model EducationLevel {
@@ -155,47 +188,51 @@ model User {
 }
 
 model Submission {
-  id                String           @id @default(cuid())
-  trackingCode      String           @unique // e.g. KMUTNB-2569-1234
-  userId            String
-  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  competitionYearId String
-  competitionYear   CompetitionYear  @relation(fields: [competitionYearId], references: [id])
-  categoryId        String
-  category          Category         @relation(fields: [categoryId], references: [id])
-  educationLevelId  String
-  educationLevel    EducationLevel   @relation(fields: [educationLevelId], references: [id])
+  id                        String                   @id @default(cuid())
+  trackingCode              String                   @unique // e.g. KMUTNB-2569-1234
+  userId                    String
+  user                      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  titleTh           String
-  titleEn           String?          @default("")
-  teamName          String           @default("ทีมสร้างสรรค์นวัตกรรม")
-  advisorName       String?          @default("")
-  abstractTh        String           @db.Text
-  abstractEn        String?          @db.Text @default("")
-  videoUrl          String?          @default("")
-  documentUrl       String?          @default("")
-  status            SubmissionStatus @default(DRAFT)
-  feedback          String?          @db.Text @default("")
+  competitionYearId         String
+  competitionYear           CompetitionYear          @relation(fields: [competitionYearId], references: [id])
+  categoryId                String
+  category                  Category                 @relation(fields: [categoryId], references: [id])
+  competitionYearCategoryId String?
+  competitionYearCategory   CompetitionYearCategory? @relation(fields: [competitionYearCategoryId], references: [id])
+  educationLevelId          String
+  educationLevel            EducationLevel           @relation(fields: [educationLevelId], references: [id])
+  
+  titleTh                   String
+  titleEn                   String?                  @default("")
+  teamName                  String                   @default("ทีมสร้างสรรค์นวัตกรรม")
+  advisorName               String?                  @default("")
+  abstractTh                String                   @db.Text
+  abstractEn                String?                  @db.Text @default("")
+  videoUrl                  String?                  @default("")
+  documentUrl               String?                  @default("")
+  status                    SubmissionStatus         @default(DRAFT)
+  feedback                  String?                  @db.Text @default("")
   
   // Award & Hall of Fame Data
-  institution       String?          @default("")
-  awardTier         AwardTier?
-  awardNameTh       String?          @default("")
-  awardNameEn       String?          @default("")
-  awardBadgeText    String?          @default("")
-  prizeDetails      String?          @db.Text @default("")
-  image             String?          @default("")
+  institution               String?                  @default("")
+  awardTier                 AwardTier?
+  awardNameTh               String?                  @default("")
+  awardNameEn               String?                  @default("")
+  awardBadgeText            String?                  @default("")
+  prizeDetails              String?                  @db.Text @default("")
+  image                     String?                  @default("")
 
   // Relational Members
-  members           TeamMember[]
+  members                   TeamMember[]
 
-  submittedAt       DateTime?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  submittedAt               DateTime?
+  createdAt                 DateTime                 @default(now())
+  updatedAt                 DateTime                 @updatedAt
 
   @@index([categoryId])
   @@index([educationLevelId])
   @@index([competitionYearId])
+  @@index([competitionYearCategoryId])
   @@index([status])
   @@map("submissions")
 }
@@ -255,9 +292,9 @@ model AnnouncementRoster {
 ```text
 server/
 ├── prisma/
-│   ├── schema.prisma             # Normalized Prisma Schema Definition
+│   ├── schema.prisma             # Normalized Prisma Schema Definition with Year Categories
 │   ├── migrations/               # PostgreSQL Migration History
-│   └── seed.ts                   # Seed Script (Years 2566-2569, Categories, Levels, Admin, Hall of Fame)
+│   └── seed.ts                   # Seed Script (Years, Categories, Year-Category Bindings, Seed Data)
 ├── src/
 │   ├── lib/
 │   │   ├── prisma.ts             # Prisma Client Singleton
@@ -278,7 +315,7 @@ server/
 │   │   ├── announcements/
 │   │   │   ├── announcements.controller.ts
 │   │   │   └── announcements.schema.ts
-│   │   ├── masters/              # Categories, EducationLevels, CompetitionYears
+│   │   ├── masters/              # Years, Categories, YearCategories, EducationLevels
 │   │   │   ├── masters.controller.ts
 │   │   │   └── masters.schema.ts
 │   │   └── config/
@@ -296,47 +333,23 @@ server/
 
 ---
 
-## 4. API Endpoints Specification (With Joins & Masters)
+## 4. API Endpoints Specification (With Year-Scoped Categories)
 
-### 4.1 Authentication (`/api/auth`)
-- `POST /api/auth/register`: รองรับ `educationLevelCode` หรือ `educationLevelId` เชื่อมไปยังตาราง `EducationLevel`.
-- `POST /api/auth/login`: เข้าสู่ระบบและส่งกลับ User Profile พร้อม Join `EducationLevel`.
-- `GET /api/auth/me`: ข้อมูลผู้ใช้ปัจจุบันพร้อม Join `EducationLevel` และประวัติการส่งผลงาน.
+### 4.1 Master Data & Year Categories
+- `GET /api/masters/years`: รายการปีการแข่งขันทั้งหมด (`CompetitionYear`)
+- `GET /api/masters/years/:year/categories`: รายการสาขานวัตกรรมที่เปิดรับสมัครเฉพาะของปีนั้นๆ (ดึงจาก `CompetitionYearCategory`)
+- `GET /api/masters/categories`: แคตตาล็อกสาขานวัตกรรมสากลทั้งหมด (`Category`)
+- `GET /api/masters/education-levels`: รายการระดับการศึกษา (`EducationLevel`)
 
-### 4.2 Submissions & Tracking (`/api/submissions`)
-- `POST /api/submissions`: เชื่อมโยงผลงานเข้ากับ `Category` (ผ่าน `categoryId` หรือ `categoryCode`), `EducationLevel`, และ `CompetitionYear` ปีปัจจุบัน (2569) อัตโนมัติ พร้อมบันทึกสมาชิกในทีม `TeamMember[]`.
-- `GET /api/submissions/status/:trackingCode`: ค้นหาผลงานพร้อม Join `Category`, `EducationLevel`, `CompetitionYear`, และ `TeamMember`.
-- `GET /api/submissions/my`: ดึงรายการผลงานทั้งหมดของฉันพร้อม Join ครบทุกตาราง.
-- `GET /api/admin/submissions`: Admin ดูรายการผลงานพร้อม Filter ตามปี, หมวดหมู่, ระดับการศึกษา.
-- `PATCH /api/admin/submissions/:id/status`: อัปเดตสถานะ, ให้คะแนน/Feedback, และมอบรางวัล.
+### 4.2 Submissions & Tracking
+- `POST /api/submissions`: เชื่อมโยงผลงานเข้ากับ `CompetitionYear` ปีปัจจุบัน และผูกกับ `CompetitionYearCategory` ที่เปิดรับในซีซั่นนั้น
+- `GET /api/submissions/status/:trackingCode`: ค้นหาผลงานพร้อม Join `Category`, `CompetitionYearCategory`, `EducationLevel`, `CompetitionYear`, และ `TeamMember`
+- `GET /api/submissions/my`: ดึงรายการผลงานของฉันพร้อม Join ครบทุกตาราง
+- `GET /api/admin/submissions`: Admin ดูรายการผลงานพร้อม Filter ตามปี, หมวดหมู่ของปีนั้น, และระดับการศึกษา
+- `PATCH /api/admin/submissions/:id/status`: อัปเดตสถานะ, ให้คะแนน/Feedback, และมอบรางวัล
 
-### 4.3 Master Data & Public Endpoints
-- `GET /api/masters/years`: รายการปีการแข่งขันทั้งหมด (`CompetitionYear`) พร้อมสถานะ (`isCurrent`, `status`).
-- `GET /api/masters/categories`: รายการ 5 หมวดหมู่นวัตกรรม (`Category`) พร้อมไอคอน สี และรูปภาพ.
-- `GET /api/masters/education-levels`: รายการระดับการศึกษา (`EducationLevel`) และเกณฑ์คุณสมบัติ.
-- `GET /api/winners`: คลังผลงาน Hall of Fame ที่ Join ข้อมูล `Category`, `EducationLevel`, `CompetitionYear` และ `TeamMember` กรองตาม `year`, `category`, `level`.
-- `GET /api/announcements` (หรือ `/api/news`): ประกาศผลทางการพร้อม Join `AnnouncementRoster`.
-- `GET /api/config`: ข้อมูลรวมการแข่งขันทั้งหมด ดึงตรงจากตาราง Master ในฐานข้อมูล PostgreSQL.
-- `GET /api/health`: Healthcheck พร้อม Ping PostgreSQL DB.
-
----
-
-## 5. Seed Pipeline (`prisma/seed.ts`)
-
-สคริปต์ `prisma/seed.ts` จะสร้างข้อมูล Master Data และประวัติย้อนหลังตามลำดับ:
-1. **Master Competition Years**: 2569 (Current), 2568, 2567, 2566
-2. **Master Categories**: 5 หมวดนวัตกรรม (`energy_environment`, `food_agriculture`, `social_economy`, `medical_device`, `material`)
-3. **Master Education Levels**: 2 ระดับ (`below_higher`, `higher_and_above`)
-4. **Seed Users**:
-   - `admin@kmutnb.ac.th` (Role: `ADMIN`)
-   - `judge@kmutnb.ac.th` (Role: `JUDGE`)
-   - `contestant@kmutnb.ac.th` (Role: `CONTESTANT`)
-5. **Historical Awarded Submissions (Hall of Fame)**:
-   - ผลงานปี 2568 (6 ผลงาน รวมถึงถ้วยพระราชทานฯ, รองชนะเลิศ, ชมเชย)
-   - ผลงานปี 2567 (หุ่นยนต์กู้ภัย AI)
-   - ผลงานปี 2566 (บรรจุภัณฑ์ชีวภาพฟางข้าว)
-   - สมาชิกในทีมของแต่ละผลงาน (`team_members`)
-6. **Official Announcements & Finalist Rosters**:
-   - ข่าวสารเปิดรับสมัครปี 2569
-   - ประกาศผลผู้เข้ารอบ Finalists ปี 2569 พร้อม Roster
-   - ประกาศผลรางวัลชนะเลิศปี 2568 พร้อม Roster
+### 4.3 Public Data & Hall of Fame
+- `GET /api/winners`: คลังผลงาน Hall of Fame ที่ Join `Category`, `EducationLevel`, `CompetitionYear` และ `TeamMember` กรองตาม `year`, `category`, `level`
+- `GET /api/announcements` / `/api/news`: ประกาศผลทางการพร้อม Join `AnnouncementRoster`
+- `GET /api/config`: ข้อมูลรวมการแข่งขันปีปัจจุบัน (5 สาขาของปี 2569, รางวัล, วันเวลาโครงการ)
+- `GET /api/health`: Healthcheck พร้อม Ping PostgreSQL DB

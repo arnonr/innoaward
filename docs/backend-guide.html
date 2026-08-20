@@ -78,12 +78,12 @@
         </div>
         <div>
           <h1 class="font-bold text-slate-100 text-lg leading-tight">KMUTNB Innovation Awards 2026</h1>
-          <p class="text-xs text-orange-400">Normalized PostgreSQL & Prisma Backend Guide</p>
+          <p class="text-xs text-orange-400">Year-Scoped Categories & Normalized PostgreSQL Backend Guide</p>
         </div>
       </div>
       <div class="flex items-center gap-4 text-sm font-medium">
         <a href="#architecture" class="text-slate-400 hover:text-orange-400 transition-colors">สถาปัตยกรรม</a>
-        <a href="#database" class="text-slate-400 hover:text-orange-400 transition-colors">ฐานข้อมูล & Joins</a>
+        <a href="#database" class="text-slate-400 hover:text-orange-400 transition-colors">ฐานข้อมูล & Year Binding</a>
         <a href="#api" class="text-slate-400 hover:text-orange-400 transition-colors">API Reference</a>
         <a href="#setup" class="text-slate-400 hover:text-orange-400 transition-colors">การติดตั้ง & รัน</a>
         <a href="http://localhost:3001/swagger" target="_blank" class="px-3 py-1.5 rounded-lg bg-orange-600/20 text-orange-400 border border-orange-500/30 hover:bg-orange-600 hover:text-white transition-all text-xs flex items-center gap-1.5">
@@ -98,13 +98,13 @@
   <section class="gradient-hero py-16 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-semibold uppercase tracking-wider mb-6">
-        🚀 Fully Normalized PostgreSQL Architecture • Master Tables & Joins
+        🚀 Fully Normalized Architecture • Year-Scoped Categories Binding
       </div>
       <h2 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">
-        คู่มือการออกแบบระบบ <span class="bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">Backend & Database Joins</span>
+        คู่มือการออกแบบระบบ <span class="bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">Backend & Year-Scoped Categories</span>
       </h2>
       <p class="max-w-3xl mx-auto text-base sm:text-lg text-slate-300 mb-8">
-        โครงสร้างฐานข้อมูลแบบแยก Master Data (Category, EducationLevel, CompetitionYear) เชื่อมต่อด้วย Foreign Keys และ Joins ตามหลักฐานข้อมูลเชิงสัมพันธ์ พร้อมคู่มือ API ครบถ้วน
+        สถาปัตยกรรมฐานข้อมูลที่ผูกสาขานวัตกรรมเข้ากับปีการแข่งขันผ่านตาราง <code>CompetitionYearCategory</code> รองรับการเพิ่ม/ลดสาขาในแต่ละปี และกำหนดเงินรางวัลเฉพาะปีได้อย่างอิสระ
       </p>
 
       <!-- Quick Metrics Grid -->
@@ -115,9 +115,9 @@
           <div class="text-[11px] text-orange-400 mt-1">⚡ Modular Architecture</div>
         </div>
         <div class="card-glass p-4 rounded-xl text-left border-l-4 border-amber-500">
-          <div class="text-xs text-slate-400 font-medium">Database Structure</div>
-          <div class="text-xl font-bold text-white mt-1">Master + Joins</div>
-          <div class="text-[11px] text-amber-400 mt-1">💎 Years, Categories, Levels</div>
+          <div class="text-xs text-slate-400 font-medium">Category Binding</div>
+          <div class="text-xl font-bold text-white mt-1">Year-Scoped</div>
+          <div class="text-[11px] text-amber-400 mt-1">💎 Dynamic per Competition Year</div>
         </div>
         <div class="card-glass p-4 rounded-xl text-left border-l-4 border-emerald-500">
           <div class="text-xs text-slate-400 font-medium">Auth & Hashing</div>
@@ -160,7 +160,7 @@ graph TD
         AuthMod["👤 Auth Module (/api/auth)"]
         SubMod["📝 Submissions Module (/api/submissions)"]
         WinMod["🏆 Winners Hall of Fame (/api/winners)"]
-        MasterMod["🗂️ Masters Module (Years, Categories, Levels)"]
+        MasterMod["🗂️ Masters Module (Years, Categories, YearCategories, Levels)"]
         AnnMod["📢 Announcements Module (/api/announcements)"]
         CfgMod["⚙️ Config Module (/api/config)"]
     end
@@ -193,7 +193,7 @@ graph TD
             <div class="pl-9">├── auth/</div>
             <div class="pl-9">├── submissions/</div>
             <div class="pl-9">├── winners/</div>
-            <div class="pl-9">├── masters/ (years, categories, levels)</div>
+            <div class="pl-9">├── masters/ (years, categories, year-categories, levels)</div>
             <div class="pl-9">├── announcements/</div>
             <div class="pl-9">└── config/</div>
             <div class="pl-6">└── index.ts</div>
@@ -202,11 +202,11 @@ graph TD
       </div>
     </section>
 
-    <!-- Section 2: Database Schema & Joins -->
+    <!-- Section 2: Database Schema & Year-Scoped Categories -->
     <section id="database" class="space-y-6">
       <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
         <div class="w-8 h-8 rounded-lg bg-amber-600/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold text-sm">2</div>
-        <h3 class="text-2xl font-bold text-white">โครงสร้างฐานข้อมูลเชิงสัมพันธ์และตาราง Master Data (Normalized ERD)</h3>
+        <h3 class="text-2xl font-bold text-white">โครงสร้างฐานข้อมูลและการผูกสาขากับปีการแข่งขัน (Year-Scoped Categories ERD)</h3>
       </div>
 
       <div class="card-glass p-6 rounded-xl space-y-6">
@@ -214,8 +214,11 @@ graph TD
         <div class="p-4 bg-slate-950/80 rounded-lg border border-slate-800 overflow-x-auto text-xs">
           <pre class="mermaid text-center">
 erDiagram
+    CompetitionYear ||--o{ CompetitionYearCategory : "configures categories (1:N)"
+    Category ||--o{ CompetitionYearCategory : "bound to year (1:N)"
     CompetitionYear ||--o{ Submission : "holds (1:N)"
     Category ||--o{ Submission : "classifies (1:N)"
+    CompetitionYearCategory ||--o{ Submission : "validates in year (1:N)"
     EducationLevel ||--o{ Submission : "requires (1:N)"
     EducationLevel ||--o{ User : "qualifies (1:N)"
     User ||--o{ Submission : "submits (1:N, Cascade)"
@@ -247,6 +250,16 @@ erDiagram
         boolean isActive
     }
 
+    CompetitionYearCategory {
+        string id PK
+        string competitionYearId FK "ปีการแข่งขัน"
+        string categoryId FK "สาขานวัตกรรม"
+        string customNameTh "ชื่อเฉพาะของปีนั้น (ถ้ามี)"
+        string prizeSummary "รายละเอียดเงินรางวัลของสาขานี้ประจำปี"
+        boolean isActive "เปิดรับสมัครในปีนี้หรือไม่"
+        int orderIndex
+    }
+
     EducationLevel {
         string id PK
         string code UK "below_higher, higher_and_above"
@@ -275,6 +288,7 @@ erDiagram
         string userId FK "ผู้ส่งผลงาน"
         string competitionYearId FK "ปีการแข่งขัน"
         string categoryId FK "สาขานวัตกรรม"
+        string competitionYearCategoryId FK "สาขาของปีที่ส่ง"
         string educationLevelId FK "ระดับการศึกษา"
         string titleTh "ชื่อผลงานไทย"
         string titleEn "ชื่อผลงานอังกฤษ"
@@ -325,21 +339,21 @@ erDiagram
         <!-- Master Table Details -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
           <div class="p-4 bg-slate-900/60 rounded-lg border border-slate-800">
-            <h5 class="text-sm font-semibold text-orange-400 mb-2">1. CompetitionYear (ปีการแข่งขัน)</h5>
+            <h5 class="text-sm font-semibold text-orange-400 mb-2">1. Master Category Catalog</h5>
             <p class="text-xs text-slate-300 leading-relaxed">
-              เก็บประวัติรอบการแข่งขันแต่ละปี (2566, 2567, 2568, 2569) พร้อมกำหนดวันเปิด-ปิดรับสมัคร วัน Pitching และสถานะปีปัจจุบัน เพื่อให้ระบบสามารถสลับซีซั่นการแข่งขันได้โดยไม่ต้องแก้โค้ด
+              ตาราง <code>Category</code> เก็บข้อมูลพื้นฐานระดับสากลของแต่ละหมวดนวัตกรรม (เช่น Energy & Environment, Food & Agriculture) พร้อมไอคอน สี และแบนเนอร์
             </p>
           </div>
           <div class="p-4 bg-slate-900/60 rounded-lg border border-slate-800">
-            <h5 class="text-sm font-semibold text-emerald-400 mb-2">2. Category (5 สาขานวัตกรรม)</h5>
+            <h5 class="text-sm font-semibold text-emerald-400 mb-2">2. Year-Category Junction Binding</h5>
             <p class="text-xs text-slate-300 leading-relaxed">
-              ตาราง Master ของ 5 สาขานวัตกรรม (พลังงาน, อาหาร-เกษตร, ดิจิทัล-สังคม, การแพทย์, วัสดุก้าวหน้า) พร้อมจัดเก็บไอคอน สีธีม และภาพแบนเนอร์ เพื่อให้ Backend ส่งต่อให้ Frontend แสดงผลได้ทันที
+              ตาราง <code>CompetitionYearCategory</code> ทำหน้าที่กำหนดว่าปีใดเปิดรับสาขาใดบ้าง ปรับเพิ่ม/ลดสาขาในแต่ละปีได้อิสระ และกำหนดเงินรางวัลเฉพาะสาขาของปีนั้นๆ ได้
             </p>
           </div>
           <div class="p-4 bg-slate-900/60 rounded-lg border border-slate-800">
-            <h5 class="text-sm font-semibold text-cyan-400 mb-2">3. EducationLevel (ระดับการศึกษา)</h5>
+            <h5 class="text-sm font-semibold text-cyan-400 mb-2">3. Historical Data & Forward Compatibility</h5>
             <p class="text-xs text-slate-300 leading-relaxed">
-              ตาราง Master สำหรับแบ่งกลุ่มผู้เข้าแข่งขัน (ต่ำกว่าอุดมศึกษา และ อุดมศึกษาขึ้นไป) ใช้ Join ร่วมกับทั้งตาราง User และ Submission เพื่อจัดหมวดหมู่การประกวดและการตัดสินรางวัล
+              ผลงานในอดีต (ปี 2566–2568) และผลงานปัจจุบัน (ปี 2569) จะผูกเข้ากับหมวดหมู่ของปีนั้นๆ อย่างถูกต้อง ทำให้ย้อนดูสถิติและผลงานในอดีตได้สมบูรณ์แบบ
             </p>
           </div>
         </div>
@@ -371,34 +385,6 @@ erDiagram
               <span class="text-xs text-slate-400 ml-auto">Public</span>
             </div>
             <p class="text-xs text-slate-400">ลงทะเบียนผู้ใช้งานใหม่ แฮชรหัสผ่านด้วย Argon2id ผูกกับ EducationLevel และคืน JWT Token</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-2">
-              <div>
-                <span class="text-slate-400 block mb-1">Request Payload:</span>
-                <pre class="bg-slate-950 p-2.5 rounded border border-slate-800 text-slate-300"><code>{
-  "email": "user@kmutnb.ac.th",
-  "password": "Password123!",
-  "fullName": "สมชาย นวัตกรรม",
-  "phone": "081-234-5678",
-  "institution": "มจพ.",
-  "educationLevel": "higher_and_above"
-}</code></pre>
-              </div>
-              <div>
-                <span class="text-slate-400 block mb-1">Success Response (200):</span>
-                <pre class="bg-slate-950 p-2.5 rounded border border-slate-800 text-emerald-300"><code>{
-  "success": true,
-  "message": "ลงทะเบียนสำเร็จเข้าสู่ระบบเรียบร้อย",
-  "token": "eyJhbGciOiJIUzI1NiIsIn...",
-  "user": {
-    "id": "cuid...",
-    "email": "user@kmutnb.ac.th",
-    "fullName": "สมชาย นวัตกรรม",
-    "role": "contestant",
-    "educationLevel": { "code": "higher_and_above", "nameTh": "ระดับตั้งแต่อุดมศึกษาขึ้นไป" }
-  }
-}</code></pre>
-              </div>
-            </div>
           </div>
 
           <!-- Login -->
@@ -440,41 +426,7 @@ erDiagram
               <span class="font-mono text-sm text-slate-200">/api/submissions</span>
               <span class="text-xs text-slate-400 ml-auto">User / Public</span>
             </div>
-            <p class="text-xs text-slate-400">สร้างหรืออัปเดตผลงาน ผูกกับ Category, EducationLevel, CompetitionYear ปัจจุบัน และบันทึก TeamMember[] อัตโนมัติ</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-2">
-              <div>
-                <span class="text-slate-400 block mb-1">Request Payload:</span>
-                <pre class="bg-slate-950 p-2.5 rounded border border-slate-800 text-slate-300"><code>{
-  "titleTh": "หุ่นยนต์กู้ภัยอัจฉริยะ AI",
-  "titleEn": "Smart Rescue Robot",
-  "category": "energy_environment",
-  "educationLevel": "higher_and_above",
-  "teamName": "KMUTNB Robotics",
-  "advisorName": "รศ.ดร. นวัตกรรม",
-  "members": ["นาย สมชาย", "นาย สมศักดิ์"],
-  "abstractTh": "บทคัดย่อภาษาไทย...",
-  "videoUrl": "https://youtu.be/...",
-  "documentUrl": "https://drive.google.com/...",
-  "isDraft": false
-}</code></pre>
-              </div>
-              <div>
-                <span class="text-slate-400 block mb-1">Success Response (200):</span>
-                <pre class="bg-slate-950 p-2.5 rounded border border-slate-800 text-emerald-300"><code>{
-  "success": true,
-  "message": "ส่งผลงานเข้าประกวดสำเร็จเรียบร้อย!",
-  "data": {
-    "id": "cuid...",
-    "trackingCode": "KMUTNB-2569-8821",
-    "status": "submitted",
-    "year": 2569,
-    "category": { "nameTh": "Energy & Environment" },
-    "educationLevel": { "nameTh": "ระดับตั้งแต่อุดมศึกษาขึ้นไป" },
-    "members": [{ "fullName": "นาย สมชาย" }]
-  }
-}</code></pre>
-              </div>
-            </div>
+            <p class="text-xs text-slate-400">สร้างหรืออัปเดตผลงาน ผูกกับ Category, EducationLevel, CompetitionYearCategory ปัจจุบัน และบันทึก TeamMember[] อัตโนมัติ</p>
           </div>
 
           <!-- Status Check -->
@@ -496,16 +448,6 @@ erDiagram
             </div>
             <p class="text-xs text-slate-400">ดึงรายการผลงานทั้งหมดที่ผู้ใช้งานคนนี้เป็นผู้สร้าง</p>
           </div>
-
-          <!-- Admin Update Status -->
-          <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 space-y-2">
-            <div class="flex items-center gap-2">
-              <span class="badge-method method-patch">PATCH</span>
-              <span class="font-mono text-sm text-slate-200">/api/admin/submissions/:id/status</span>
-              <span class="text-xs text-rose-400 ml-auto">👑 Admin Only</span>
-            </div>
-            <p class="text-xs text-slate-400">กรรมการหรือแอดมินอัปเดตผลการพิจารณา, Feedback, และมอบรางวัล</p>
-          </div>
         </div>
       </div>
 
@@ -523,10 +465,9 @@ erDiagram
           <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 space-y-2">
             <div class="flex items-center gap-2">
               <span class="badge-method method-get">GET</span>
-              <span class="font-mono text-sm text-slate-200">/api/masters/years</span>
-              <span class="font-mono text-sm text-slate-400">, /api/masters/categories, /api/masters/education-levels</span>
+              <span class="font-mono text-sm text-slate-200">/api/masters/years/:year/categories</span>
             </div>
-            <p class="text-xs text-slate-400">ดึงข้อมูล Master Data ทั้งหมดจากฐานข้อมูล (ปีการแข่งขัน, 5 หมวดหมู่นวัตกรรม, ระดับการศึกษา) ไปแสดงผลใน UI</p>
+            <p class="text-xs text-slate-400">ดึงรายการสาขานวัตกรรมที่เปิดรับสมัครเฉพาะของปีนั้นๆ (จากตาราง <code>CompetitionYearCategory</code>)</p>
           </div>
 
           <!-- Winners -->
@@ -537,25 +478,6 @@ erDiagram
               <span class="text-xs text-slate-400 ml-auto">Query: ?year=&category=&level=</span>
             </div>
             <p class="text-xs text-slate-400">ดึงรายชื่อผลงานที่ได้รับรางวัลทั้งหมด (Hall of Fame) ที่ Join ตาราง Category, EducationLevel, CompetitionYear และ TeamMember ครบถ้วน</p>
-          </div>
-
-          <!-- Announcements / News -->
-          <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 space-y-2">
-            <div class="flex items-center gap-2">
-              <span class="badge-method method-get">GET</span>
-              <span class="font-mono text-sm text-slate-200">/api/announcements</span>
-              <span class="font-mono text-sm text-slate-400">or /api/news</span>
-            </div>
-            <p class="text-xs text-slate-400">ดึงข่าวสารและประกาศผลทางการ พร้อมรายชื่อทีมที่ผ่านเข้ารอบ (Finalists Roster) และผู้ชนะเลิศ</p>
-          </div>
-
-          <!-- Config -->
-          <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 space-y-2">
-            <div class="flex items-center gap-2">
-              <span class="badge-method method-get">GET</span>
-              <span class="font-mono text-sm text-slate-200">/api/config</span>
-            </div>
-            <p class="text-xs text-slate-400">ดึงข้อมูลกติกา 5 สาขานวัตกรรม, รางวัล, วันเวลาโครงการ รวมจากฐานข้อมูล</p>
           </div>
         </div>
       </div>
@@ -576,7 +498,6 @@ erDiagram
               <span class="w-6 h-6 rounded-full bg-orange-600/30 text-orange-400 flex items-center justify-center text-xs">1</span>
               <span>สร้างฐานข้อมูลใน PostgreSQL</span>
             </div>
-            <p class="text-xs text-slate-400 pl-8">สร้างฐานข้อมูลสำหรับโครงการ เช่น <code>innoaward_dev</code> ผ่านคำสั่ง psql หรือเครื่องมือจัดการฐานข้อมูล</p>
             <div class="pl-8">
               <pre class="bg-slate-950 p-2.5 rounded text-xs text-slate-300 font-mono"><code>createdb innoaward_dev</code></pre>
             </div>
@@ -588,7 +509,6 @@ erDiagram
               <span class="w-6 h-6 rounded-full bg-orange-600/30 text-orange-400 flex items-center justify-center text-xs">2</span>
               <span>ตั้งค่าไฟล์ .env</span>
             </div>
-            <p class="text-xs text-slate-400 pl-8">กำหนด Connection String ของ PostgreSQL และ JWT Secret ภายในโฟลเดอร์ <code>server/.env</code></p>
             <div class="pl-8">
               <pre class="bg-slate-950 p-2.5 rounded text-xs text-slate-300 font-mono"><code>DATABASE_URL="postgresql://macbook-arnon@localhost:5432/innoaward_dev?schema=public"
 JWT_SECRET="kmutnb_innoaward_super_secret_jwt_key_2026"
@@ -602,10 +522,9 @@ PORT=3001</code></pre>
               <span class="w-6 h-6 rounded-full bg-orange-600/30 text-orange-400 flex items-center justify-center text-xs">3</span>
               <span>รัน Prisma Migration & Database Seeding</span>
             </div>
-            <p class="text-xs text-slate-400 pl-8">สร้างตารางใน PostgreSQL และนำเข้าข้อมูล Master Data (ปี 2566–2569, 5 สาขา, 2 ระดับ), บัญชีผู้ใช้ และประวัติผลงาน Hall of Fame</p>
             <div class="pl-8 space-y-2">
               <pre class="bg-slate-950 p-2.5 rounded text-xs text-slate-300 font-mono"><code>cd server
-bunx prisma migrate dev --name init_innoaward_normalized_schema
+bunx prisma migrate dev --name init_innoaward_year_categories_schema
 bun run prisma/seed.ts</code></pre>
             </div>
           </div>
