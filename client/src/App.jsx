@@ -11,35 +11,43 @@ import {
   Volume2, VolumeX
 } from 'lucide-react';
 
-// Official Brand Logos (Pixel-Perfect High-Precision Vector SVGs)
-const FacebookLogo = ({ size = 22, className = "" }) => (
-  <svg 
+// Official Brand Logos (Direct Official Image Assets)
+const FacebookLogo = ({ size = 24, className = "" }) => (
+  <img 
+    src="/facebook.svg" 
+    alt="Facebook" 
     width={size} 
     height={size} 
-    viewBox="0 0 512 512" 
-    xmlns="http://www.w3.org/2000/svg"
     className={className}
-    aria-hidden="true"
-    style={{ flexShrink: 0, display: 'inline-block', verticalAlign: 'middle' }}
-  >
-    <path fill="#1877F2" d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/>
-    <path fill="#FFFFFF" d="M370.22 327.69l11-71.69h-68.78v-43.52c0-19.61 9.61-38.73 40.41-38.73h31.28v-61s-28.38-4.84-55.52-4.84c-56.67 0-93.67 34.33-93.67 96.48V256h-63v71.69h63V501c13.78 2.16 27.9 3.31 42.25 3.31 14.36 0 28.47-1.15 42.25-3.31V327.69h57.78z"/>
-  </svg>
+    style={{ 
+      width: `${size}px`, 
+      height: `${size}px`, 
+      objectFit: 'contain', 
+      flexShrink: 0, 
+      display: 'inline-block', 
+      verticalAlign: 'middle',
+      borderRadius: '50%'
+    }}
+  />
 );
 
-const LineLogo = ({ size = 22, className = "" }) => (
-  <svg 
+const LineLogo = ({ size = 24, className = "" }) => (
+  <img 
+    src="/line.svg" 
+    alt="LINE" 
     width={size} 
     height={size} 
-    viewBox="0 0 512 512" 
-    xmlns="http://www.w3.org/2000/svg"
     className={className}
-    aria-hidden="true"
-    style={{ flexShrink: 0, display: 'inline-block', verticalAlign: 'middle' }}
-  >
-    <path fill="#06C755" d="M504 256c0 137-111 248-248 248S8 393 8 256 119 8 256 8s248 111 248 248z"/>
-    <path fill="#FFFFFF" d="M411 224c0-75.1-70.1-136-155-136S101 148.9 101 224c0 67.3 59.8 123.8 140.6 134.1 5.5.7 12.9 2.5 14.8 5.7 1.7 2.9 1.1 7.4.5 10.3l-2.4 14.4c-.7 4.4-3.4 17.2 15 9.4 18.5-7.8 99.8-58.8 136.2-100.6 21.7-24.5 31.5-50.7 31.5-73.3zM196.3 260.8h-33.5c-6.2 0-11.2-5-11.2-11.2v-73.9c0-6.2 5-11.2 11.2-11.2s11.2 5 11.2 11.2v62.7h22.3c6.2 0 11.2 5 11.2 11.2s-5 11.2-11.2 11.2zm44.7 0c-6.2 0-11.2-5-11.2-11.2v-73.9c0-6.2 5-11.2 11.2-11.2s11.2 5 11.2 11.2v73.9c0 6.2-5 11.2-11.2 11.2zm93.8 0c0 4.9-3.3 9.3-8.1 10.7-4.8 1.4-9.9-.9-12.1-5.4l-42.1-56.3v48.2c0 6.2-5 11.2-11.2 11.2s-11.2-5-11.2-11.2v-73.9c0-4.9 3.3-9.3 8.1-10.7 4.8-1.4 9.9.9 12.1 5.4l42.1 56.3v-48.2c0-6.2 5-11.2 11.2-11.2s11.2 5 11.2 11.2v73.9zm67-60.3c0 6.2-5 11.2-11.2 11.2h-22.3v15.6h22.3c6.2 0 11.2 5 11.2 11.2s-5 11.2-11.2 11.2h-33.5c-6.2 0-11.2-5-11.2-11.2v-73.9c0-6.2 5-11.2 11.2-11.2h33.5c6.2 0 11.2 5 11.2 11.2s-5 11.2-11.2 11.2h-22.3v13.5h22.3c6.2 0 11.2 5 11.2 11.2z"/>
-  </svg>
+    style={{ 
+      width: `${size}px`, 
+      height: `${size}px`, 
+      objectFit: 'contain', 
+      flexShrink: 0, 
+      display: 'inline-block', 
+      verticalAlign: 'middle',
+      borderRadius: '4px'
+    }}
+  />
 );
 
 const API_BASE = 'http://localhost:3001/api';
