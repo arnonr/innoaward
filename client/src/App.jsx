@@ -11,6 +11,45 @@ import {
   Volume2, VolumeX
 } from 'lucide-react';
 
+// Official Brand Logos (Pixel-Perfect Vector SVGs)
+const FacebookLogo = ({ size = 24, className = "" }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    aria-hidden="true"
+    style={{ flexShrink: 0, display: 'inline-block', verticalAlign: 'middle' }}
+  >
+    <circle cx="12" cy="12" r="12" fill="#1877F2"/>
+    <path 
+      d="M16.671 15.543l.532-3.47h-3.328v-2.25c0-.949.465-1.874 1.956-1.874h1.513V4.996s-1.374-.235-2.686-.235c-2.741 0-4.533 1.662-4.533 4.669v2.643H7.078v3.47h3.047v8.385a12.09 12.09 0 003.75 0v-8.385h2.796z" 
+      fill="#FFFFFF"
+    />
+  </svg>
+);
+
+const LineLogo = ({ size = 24, className = "" }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    aria-hidden="true"
+    style={{ flexShrink: 0, display: 'inline-block', verticalAlign: 'middle' }}
+  >
+    <rect width="24" height="24" rx="12" fill="#06C755"/>
+    <path 
+      d="M19.365 9.893c0-3.793-3.66-6.877-8.165-6.877-4.504 0-8.165 3.084-8.165 6.877 0 3.398 2.906 6.244 6.83 6.786.266.057.628.175.719.403.083.206.054.528.026.736l-.116.699c-.035.213-.166.834.731.455.897-.379 4.845-2.853 6.61-4.885 1.054-1.189 1.53-2.457 1.53-4.194zm-11.458 2.05h-1.63a.543.543 0 01-.543-.543V7.797c0-.3.243-.543.543-.543s.543.243.543.543v3.059h1.087c.3 0 .543.243.543.543s-.243.544-.543.544zm2.174 0a.543.543 0 01-.543-.543V7.797c0-.3.243-.543.543-.543s.543.243.543.543v3.603a.543.543 0 01-.543.543zm4.566 0c0 .243-.16.455-.395.522a.544.544 0 01-.482-.132l-2.046-2.738v2.348c0 .3-.243.543-.543.543s-.543-.243-.543-.543V7.797a.543.543 0 01.977-.326l2.046 2.739V7.797c0-.3.243-.543.543-.543s.543.243.543.543v4.146zm3.261-2.934a.543.543 0 01-.543.543h-1.087v.76h1.087c.3 0 .543.244.543.544s-.243.544-.543.544h-1.63a.543.543 0 01-.543-.543V7.797c0-.3.243-.543.543-.543h1.63c.3 0 .543.243.543.543s-.243.543-.543.543h-1.087v.76h1.087c.3 0 .543.244.543.544z" 
+      fill="#FFFFFF"
+    />
+  </svg>
+);
+
 const API_BASE = 'http://localhost:3001/api';
 
 // Domain Definitions with Custom Background Images
@@ -1974,7 +2013,7 @@ export default function App() {
                       className="contact-info-card" 
                       style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', textDecoration: 'none' }}
                     >
-                      <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#06C755', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.65rem', fontWeight: 800 }}>LINE</span>
+                      <LineLogo size={26} />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>LINE Official Account:</div>
                         <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>@KMUTNB.inno.award (คลิกเพื่อเพิ่มเพื่อน)</div>
@@ -1988,7 +2027,7 @@ export default function App() {
                       className="contact-info-card" 
                       style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', textDecoration: 'none' }}
                     >
-                      <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.75rem', fontWeight: 800 }}>f</span>
+                      <FacebookLogo size={26} />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Facebook Fanpage:</div>
                         <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>KMUTNB Innovation Awards (คลิกเพื่อเข้าชม)</div>
@@ -2025,11 +2064,11 @@ export default function App() {
         <div className="pro-container">
           <div className="site-footer-contact">
             <a href="https://www.facebook.com/profile.php?id=61580844579823" target="_blank" rel="noreferrer" aria-label="Facebook: KMUTNB Innovation Award" className="site-footer-contact-item">
-              <span className="site-footer-social-icon site-footer-facebook" aria-hidden="true">f</span>
+              <FacebookLogo size={26} />
               <span>KMUTNB Innovation Award</span>
             </a>
             <a href="https://lin.ee/M4J1KKs" target="_blank" rel="noreferrer" aria-label="LINE: KMUTNB Innovation Award" className="site-footer-contact-item">
-              <span className="site-footer-social-icon site-footer-line" aria-hidden="true">LINE</span>
+              <LineLogo size={26} />
               <span>@KMUTNB.inno.award</span>
             </a>
             <a href="tel:+6625552000" className="site-footer-contact-item">
