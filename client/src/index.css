@@ -2508,19 +2508,30 @@ button:disabled {
 }
 
 .filter-select {
-  background: var(--bg-surface-raised);
-  border: 1px solid var(--border-medium);
+  background: rgba(7, 34, 26, 0.75);
+  border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   font-family: var(--font-th);
   font-size: 0.88rem;
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
   outline: none;
   cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.filter-select:hover {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(10, 44, 34, 0.85);
 }
 
 .filter-select:focus {
   border-color: var(--emerald-400);
+  background: rgba(14, 56, 44, 0.95);
+  box-shadow: 0 0 0 3px rgba(0, 245, 160, 0.15), 0 4px 16px rgba(0, 245, 160, 0.1);
 }
 
 .winner-grid {
@@ -3177,25 +3188,42 @@ button:disabled {
 /* ============================================================
    ANNOUNCEMENTS & RESULTS HUB
    ============================================================ */
+.search-input-wrap,
 .announcement-search-bar {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-medium);
+  background: rgba(7, 34, 26, 0.75);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 10px 16px;
-  margin-bottom: 24px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
+.search-input-wrap:focus-within,
+.announcement-search-bar:focus-within {
+  border-color: var(--emerald-400);
+  background: rgba(14, 56, 44, 0.9);
+  box-shadow: 0 0 0 3px rgba(0, 245, 160, 0.15), 0 4px 16px rgba(0, 245, 160, 0.1);
+}
+
+.search-input,
 .announcement-search-input {
   background: transparent;
   border: none;
   color: var(--text-primary);
   font-family: var(--font-th);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   width: 100%;
   outline: none;
+}
+
+.search-input::placeholder,
+.announcement-search-input::placeholder {
+  color: var(--text-muted);
 }
 
 .announcement-card {
