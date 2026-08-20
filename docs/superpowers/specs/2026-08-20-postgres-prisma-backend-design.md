@@ -1,7 +1,7 @@
 # KMUTNB Innovation Awards 2026 — PostgreSQL & Prisma Backend Architecture Spec
 
 **Date:** 2026-08-20  
-**Status:** Approved by User (Updated with Year-Scoped Categories via `CompetitionYearCategory`)  
+**Status:** Approved by User (Updated with Year-Scoped Categories and `coverImage` field in Submissions)  
 **Author:** AI Agent (Antigravity) & Arnon  
 **Target Stack:** Bun, Elysia.js, Prisma ORM, PostgreSQL 18, @elysiajs/jwt, @elysiajs/cors, @elysiajs/swagger
 
@@ -17,10 +17,10 @@ This specification defines the production-ready backend architecture for the **K
    - **`CompetitionYear`** (Annual competition editions e.g. 2566–2569).
    - **`CompetitionYearCategory`** (Junction table binding which categories are active in which competition year, allowing adding/removing categories per year and setting year-specific prize details).
    - **`EducationLevel`** (Academic level groups e.g. Below Higher, Higher and Above).
-   - **`User`**, **`Submission`**, **`TeamMember`**, and **`Announcement`** tables with strict foreign keys and cascade rules.
+   - **`User`**, **`Submission`** (including `coverImage` for project showcase), **`TeamMember`**, and **`Announcement`** tables with strict foreign keys and cascade rules.
 2. **Robust Security & Authentication**: Modern JWT token authentication with Argon2id password hashing via `Bun.password` and Role-Based Access Control (`CONTESTANT`, `JUDGE`, `ADMIN`).
 3. **Modular Codebase**: Restructure `server/` into clean, maintainable domain modules (`auth`, `submissions`, `winners`, `announcements`, `config`, `masters`).
-4. **Seamless Frontend Integration**: Full backward-compatibility with the existing React Vite frontend while exposing new features such as contestant submission management and admin review endpoints.
+4. **Seamless Frontend Integration**: Full backward-compatibility with the existing React Vite frontend while exposing new features such as contestant submission management, cover image attachments, and admin review endpoints.
 5. **Rich Seed & Migration Pipeline**: Seed historical award winners (2566–2568), royal trophy records, official announcements, Master categories per year, education levels, and default admin/judge accounts out-of-the-box.
 6. **Self-Contained HTML Manual**: Provide an interactive, responsive HTML documentation guide (`docs/backend-guide.html`) detailing the system architecture, normalized ERD with year-category bindings, API specifications, and operational workflows.
 
@@ -63,7 +63,7 @@ enum CompetitionStatus {
 }
 ```
 
-### 2.2 Models & Relational Schema (With Year-Scoped Categories)
+### 2.2 Models & Relational Schema (With Year-Scoped Categories & Cover Image)
 
 ```prisma
 datasource db {
@@ -208,8 +208,12 @@ model Submission {
   advisorName               String?                  @default("")
   abstractTh                String                   @db.Text
   abstractEn                String?                  @db.Text @default("")
-  videoUrl                  String?                  @default("")
-  documentUrl               String?                  @default("")
+  
+  // Media & Attachments
+  coverImage                String?                  @default("") // รูปภาพหน้าปกผลงาน / โปสเตอร์ผลงาน
+  videoUrl                  String?                  @default("") // ลิงก์คลิปวิดีโอนำเสนอ 2-3 นาที
+  documentUrl               String?                  @default("") // ลิงก์เอกสารข้อเสนอโครงการ PDF (Google Drive/OneDrive)
+  
   status                    SubmissionStatus         @default(DRAFT)
   feedback                  String?                  @db.Text @default("")
   
@@ -220,7 +224,7 @@ model Submission {
   awardNameEn               String?                  @default("")
   awardBadgeText            String?                  @default("")
   prizeDetails              String?                  @db.Text @default("")
-  image                     String?                  @default("")
+  image                     String?                  @default("") // Alias / รูปภาพในคลังรางวัล Hall of Fame
 
   // Relational Members
   members                   TeamMember[]
@@ -292,7 +296,7 @@ model AnnouncementRoster {
 ```text
 server/
 ├── prisma/
-│   ├── schema.prisma             # Normalized Prisma Schema Definition with Year Categories
+│   ├── schema.prisma             # Normalized Prisma Schema Definition with Year Categories & Cover Image
 │   ├── migrations/               # PostgreSQL Migration History
 │   └── seed.ts                   # Seed Script (Years, Categories, Year-Category Bindings, Seed Data)
 ├── src/
@@ -333,23 +337,32 @@ server/
 
 ---
 
-## 4. API Endpoints Specification (With Year-Scoped Categories)
+## 4. API Endpoints Specification (With `coverImage`)
 
-### 4.1 Master Data & Year Categories
-- `GET /api/masters/years`: รายการปีการแข่งขันทั้งหมด (`CompetitionYear`)
-- `GET /api/masters/years/:year/categories`: รายการสาขานวัตกรรมที่เปิดรับสมัครเฉพาะของปีนั้นๆ (ดึงจาก `CompetitionYearCategory`)
-- `GET /api/masters/categories`: แคตตาล็อกสาขานวัตกรรมสากลทั้งหมด (`Category`)
-- `GET /api/masters/education-levels`: รายการระดับการศึกษา (`EducationLevel`)
+### 4.1 Submissions API
+#### `POST /api/submissions`
+- **Request Body**:
+  ```json
+  {
+    "titleTh": "หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะ AI",
+    "titleEn": "Autonomous AI Search & Rescue Robot",
+    "category": "energy_environment",
+    "educationLevel": "higher_and_above",
+    "teamName": "KMUTNB Robotics Lab",
+    "advisorName": "รศ.ดร. นวัตกรรม พระจอมเกล้า",
+    "members": ["นาย สมชาย นวัตกรรม", "นาย สมศักดิ์ เทคโนโลยี"],
+    "abstractTh": "รายละเอียดบทคัดย่อภาษาไทย...",
+    "abstractEn": "English abstract details...",
+    "coverImage": "/photo_candidates/robotics_engineer.jpg",
+    "videoUrl": "https://youtu.be/example",
+    "documentUrl": "https://drive.google.com/example-proposal.pdf",
+    "isDraft": false
+  }
+  ```
+- **Response (200)**: ส่งผลงานสำเร็จ พร้อมคืนข้อมูล `coverImage`, `trackingCode`, และข้อมูลที่ Join กับ Master Tables
 
-### 4.2 Submissions & Tracking
-- `POST /api/submissions`: เชื่อมโยงผลงานเข้ากับ `CompetitionYear` ปีปัจจุบัน และผูกกับ `CompetitionYearCategory` ที่เปิดรับในซีซั่นนั้น
-- `GET /api/submissions/status/:trackingCode`: ค้นหาผลงานพร้อม Join `Category`, `CompetitionYearCategory`, `EducationLevel`, `CompetitionYear`, และ `TeamMember`
-- `GET /api/submissions/my`: ดึงรายการผลงานของฉันพร้อม Join ครบทุกตาราง
-- `GET /api/admin/submissions`: Admin ดูรายการผลงานพร้อม Filter ตามปี, หมวดหมู่ของปีนั้น, และระดับการศึกษา
-- `PATCH /api/admin/submissions/:id/status`: อัปเดตสถานะ, ให้คะแนน/Feedback, และมอบรางวัล
+---
 
-### 4.3 Public Data & Hall of Fame
-- `GET /api/winners`: คลังผลงาน Hall of Fame ที่ Join `Category`, `EducationLevel`, `CompetitionYear` และ `TeamMember` กรองตาม `year`, `category`, `level`
-- `GET /api/announcements` / `/api/news`: ประกาศผลทางการพร้อม Join `AnnouncementRoster`
-- `GET /api/config`: ข้อมูลรวมการแข่งขันปีปัจจุบัน (5 สาขาของปี 2569, รางวัล, วันเวลาโครงการ)
-- `GET /api/health`: Healthcheck พร้อม Ping PostgreSQL DB
+## 5. Seed Pipeline (`prisma/seed.ts`)
+
+สคริปต์ `prisma/seed.ts` นำเข้าข้อมูลรูปภาพหน้าปก (`coverImage`) และรูปผลงาน (`image`) ของผู้ได้รับรางวัลปี 2568, 2567, 2566 ครบถ้วน เพื่อให้ Hall of Fame และหน้ารายละเอียดแสดงภาพได้อย่างสมบูรณ์
