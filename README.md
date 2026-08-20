@@ -56,4 +56,4 @@ npm run dev
 
 ## 📄 License & Copyright
 
-© 2026 สำนักวิจัยวิทยาศาสตร์และเทคโนโลยี มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ (KMUTNB). All Rights Reserved.
+© 2026 อุทยานเทคโนโลยี มจพ. All Rights Reserved.

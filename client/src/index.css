@@ -1618,7 +1618,7 @@ button:disabled {
   left: 36%;
   width: 64%;
   opacity: 0.9;
-  filter: saturate(0.8) contrast(1.06) brightness(0.95);
+  filter: saturate(0.9) contrast(1.1) brightness(0.95);
   object-fit: cover;
   height: 100%;
 }
@@ -1763,7 +1763,7 @@ button:disabled {
     width: 100%;
     height: 100%;
     opacity: 0.65;
-    filter: saturate(0.8) contrast(1.06) brightness(0.92);
+    filter: saturate(0.9) contrast(1.08) brightness(0.92);
   }
 
   .hero-video-stage .hero-youtube-background {

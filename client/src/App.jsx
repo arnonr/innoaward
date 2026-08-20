@@ -1054,7 +1054,7 @@ export default function App() {
 
               {/* Hall of Fame Teaser */}
               <div style={{ marginTop: '56px', textAlign: 'center' }}>
-                <div className="badge-tag" style={{ justifyContent: 'center' }}>
+                <div className="badge-tag" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5em' }}>
                   <Trophy className="w-4 h-4" />
                   <span>PAST GRAND PRIZE WINNERS</span>
                 </div>
@@ -1909,7 +1909,7 @@ export default function App() {
                 
                 {/* Download Docs */}
                 <div>
-                  <div className="badge-tag">
+                  <div className="badge-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5em' }}>
                     <Download className="w-4 h-4" />
                     <span>DOWNLOAD CENTER</span>
                   </div>
@@ -1945,39 +1945,55 @@ export default function App() {
 
                 {/* Contact & Location */}
                 <div>
-                  <div className="badge-tag">
+                  <div className="badge-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5em' }}>
                     <MapPin className="w-4 h-4" />
                     <span>ORGANIZER DIRECTORY</span>
                   </div>
-                  <h3 style={{ fontSize: '1.4rem', marginBottom: '14px' }}>สำนักวิจัยวิทยาศาสตร์และเทคโนโลยี</h3>
+                  <h3 style={{ fontSize: '1.4rem', marginBottom: '14px' }}>อุทยานเทคโนโลยี มจพ.</h3>
                   <p style={{ fontSize: '0.88rem', marginBottom: '20px', color: 'var(--text-secondary)' }}>
                     อาคารอุทยานเทคโนโลยี มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ (KMUTNB Techno Park)
                   </p>
 
                   <div className="contact-info-list">
-                    <div className="contact-info-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                    <a 
+                      href="tel:+6625552000" 
+                      className="contact-info-card" 
+                      style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', textDecoration: 'none' }}
+                    >
                       <Phone className="w-5 h-5 text-emerald-400" />
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>เบอร์โทรศัพท์ติดต่อและสายด่วน:</div>
-                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>095-461-4261 / 02-555-2000 ต่อ 1508, 1509</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>+66 2 555-2000 ต่อ 1789, 1765</div>
                       </div>
-                    </div>
+                    </a>
 
-                    <div className="contact-info-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                    <a 
+                      href="https://lin.ee/M4J1KKs" 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="contact-info-card" 
+                      style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', textDecoration: 'none' }}
+                    >
                       <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#06C755', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.65rem', fontWeight: 800 }}>LINE</span>
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>LINE Official Account:</div>
-                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>@KMUTNB.inno.award</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>@KMUTNB.inno.award (คลิกเพื่อเพิ่มเพื่อน)</div>
                       </div>
-                    </div>
+                    </a>
 
-                    <div className="contact-info-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                    <a 
+                      href="https://www.facebook.com/profile.php?id=61580844579823" 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="contact-info-card" 
+                      style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', textDecoration: 'none' }}
+                    >
                       <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.75rem', fontWeight: 800 }}>f</span>
                       <div>
                         <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Facebook Fanpage:</div>
-                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>KMUTNB Innovation Award</div>
+                        <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>KMUTNB Innovation Awards (คลิกเพื่อเข้าชม)</div>
                       </div>
-                    </div>
+                    </a>
 
                     <div className="contact-info-card" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-card)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                       <Mail className="w-5 h-5 text-emerald-400" />
@@ -2008,17 +2024,17 @@ export default function App() {
       <footer className="site-footer">
         <div className="pro-container">
           <div className="site-footer-contact">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook: KMUTNB Innovation Award" className="site-footer-contact-item">
+            <a href="https://www.facebook.com/profile.php?id=61580844579823" target="_blank" rel="noreferrer" aria-label="Facebook: KMUTNB Innovation Award" className="site-footer-contact-item">
               <span className="site-footer-social-icon site-footer-facebook" aria-hidden="true">f</span>
               <span>KMUTNB Innovation Award</span>
             </a>
-            <a href="https://line.me" target="_blank" rel="noreferrer" aria-label="LINE: KMUTNB Innovation Award" className="site-footer-contact-item">
+            <a href="https://lin.ee/M4J1KKs" target="_blank" rel="noreferrer" aria-label="LINE: KMUTNB Innovation Award" className="site-footer-contact-item">
               <span className="site-footer-social-icon site-footer-line" aria-hidden="true">LINE</span>
               <span>@KMUTNB.inno.award</span>
             </a>
-            <a href="tel:0954614261" className="site-footer-contact-item">
+            <a href="tel:+6625552000" className="site-footer-contact-item">
               <Phone className="w-4 h-4 text-emerald-400" />
-              <span>095-461-4261 / 02-555-2000 ต่อ 1508</span>
+              <span>+66 2 555-2000 ต่อ 1789, 1765</span>
             </a>
             <div className="footer-visitor-chip" aria-label="ยอดเข้าชมเว็บไซต์">
               <Eye className="footer-visitor-icon" aria-hidden="true" />
