@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KMUTNB Innovation Awards 2026 — คู่มือสถาปัตยกรรมและการออกแบบ Frontend (UI/UX Manual)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Anuphan', 'sans-serif'],
+            display: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          },
+          colors: {
+            cyber: {
+              base: '#030712',
+              card: '#0B132B',
+              surface: '#111E38',
+              border: '#1E293B',
+              cyan: '#00F0FF',
+              cyanDark: '#0891B2',
+              gold: '#F59E0B',
+              goldLight: '#FCD34D',
+              emerald: '#10B981',
+              rose: '#F43F5E',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Anuphan', sans-serif;
+      background-color: #030712;
+      color: #E2E8F0;
+      scroll-behavior: smooth;
+    }
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .gradient-hero {
+      background: radial-gradient(circle at 50% -20%, rgba(6, 182, 212, 0.22), transparent 70%),
+                  radial-gradient(circle at 10% 30%, rgba(245, 158, 11, 0.15), transparent 50%),
+                  #030712;
+    }
+    .card-glass {
+      background: rgba(11, 19, 43, 0.75);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .card-glass-glow {
+      background: rgba(17, 30, 56, 0.65);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      box-shadow: 0 8px 32px 0 rgba(0, 240, 255, 0.08);
+    }
+    .color-swatch {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .color-swatch:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    .badge-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="sticky top-0 z-50 card-glass border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-sky-600 to-amber-400 flex items-center justify-center font-extrabold text-slate-950 shadow-lg shadow-cyan-500/20">
+          UI
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-slate-100 text-lg leading-tight">KMUTNB Innovation Awards 2026</h1>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">FRONTEND DOCS</span>
+          </div>
+          <p class="text-xs text-slate-400">Interactive Architecture, UI/UX Design System & Client Handbook</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-sm font-medium">
+        <a href="#tokens" class="text-slate-400 hover:text-cyan-400 transition-colors hidden md:block">Design Tokens</a>
+        <a href="#diagrams" class="text-slate-400 hover:text-cyan-400 transition-colors hidden md:block">ผังโครงสร้าง</a>
+        <a href="#views" class="text-slate-400 hover:text-cyan-400 transition-colors hidden md:block">หน้าจอ (Views)</a>
+        <a href="#modals" class="text-slate-400 hover:text-cyan-400 transition-colors hidden md:block">Modals</a>
+        <a href="#engines" class="text-slate-400 hover:text-cyan-400 transition-colors hidden md:block">State & Engines</a>
+        <a href="#api-sync" class="text-slate-400 hover:text-cyan-400 transition-colors hidden md:block">API Integration</a>
+        
+        <div class="flex items-center gap-2 border-l border-slate-700 pl-4">
+          <a href="backend-guide.html" class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-orange-400 border border-orange-500/30 hover:bg-orange-600 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5">
+            <span>🐘 คู่มือ Backend</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+          <a href="http://localhost:5173" target="_blank" class="px-3 py-1.5 rounded-lg bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-600 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5">
+            <span>🚀 เปิดเว็บจริง (Port 5173)</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="gradient-hero py-16 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-mono font-medium mb-6 backdrop-blur-md">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        React 19 • Vite 8 • Tailwind CSS • Lucide Icons • Canvas Confetti
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mb-4 font-display">
+        คู่มือสถาปัตยกรรมและการออกแบบ <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-400 bg-clip-text text-transparent">Frontend</span>
+      </h2>
+      <p class="max-w-3xl mx-auto text-slate-300 text-base sm:text-lg leading-relaxed mb-8">
+        เอกสารสรุปมาตรฐานการออกแบบระบบผู้ใช้งาน (UI/UX), โครงสร้างคอมโพเนนต์, ระบบ Routing & State Engine, ตลอดจนสัญญาการเชื่อมต่อกับ Elysia.js + PostgreSQL Backend
+      </p>
+
+      <!-- Key Metrics Banner -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+        <div class="card-glass-glow rounded-xl p-4">
+          <div class="text-xs font-mono text-cyan-400 mb-1">Architecture</div>
+          <div class="text-lg font-bold text-white">Single-Page App</div>
+          <div class="text-xs text-slate-400 mt-1">Hash Router (#/) with Deep Links</div>
+        </div>
+        <div class="card-glass-glow rounded-xl p-4">
+          <div class="text-xs font-mono text-amber-400 mb-1">Design System</div>
+          <div class="text-lg font-bold text-white">Cyber Glassmorphism</div>
+          <div class="text-xs text-slate-400 mt-1">Deep Navy + Cyan Neon + Royal Gold</div>
+        </div>
+        <div class="card-glass-glow rounded-xl p-4">
+          <div class="text-xs font-mono text-emerald-400 mb-1">Key Features</div>
+          <div class="text-lg font-bold text-white">4 Views + 3 Modals</div>
+          <div class="text-xs text-slate-400 mt-1">Countdown, Filters, PDF Rosters</div>
+        </div>
+        <div class="card-glass-glow rounded-xl p-4">
+          <div class="text-xs font-mono text-purple-400 mb-1">Backend Handshake</div>
+          <div class="text-lg font-bold text-white">RESTful + JWT</div>
+          <div class="text-xs text-slate-400 mt-1">Full PostgreSQL Integration</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+    <!-- Section 1: Design Tokens & Styling System -->
+    <section id="tokens" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-mono font-bold">01</div>
+        <div>
+          <h3 class="text-2xl font-bold text-white">ระบบ Design System & Tokens</h3>
+          <p class="text-sm text-slate-400">ชุดสี ตัวพิมพ์ และเอฟเฟกต์ภาพสำหรับหน้าเว็บทางการ KMUTNB Innovation Awards 2026</p>
+        </div>
+      </div>
+
+      <!-- Color Palette Cards -->
+      <div class="card-glass rounded-2xl p-6 sm:p-8 space-y-6">
+        <h4 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-cyan-400"></span>
+          <span>Color Palette & Brand Identity</span>
+        </h4>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+          <!-- Primary Cyan -->
+          <div class="color-swatch rounded-xl p-4 bg-slate-900 border border-slate-700">
+            <div class="h-16 rounded-lg bg-[#00F0FF] mb-3 flex items-center justify-center font-mono font-bold text-slate-950 text-xs shadow-lg shadow-cyan-500/30">#00F0FF</div>
+            <div class="text-sm font-bold text-white">Cyber Cyan</div>
+            <div class="text-xs text-slate-400 mt-0.5">Primary Accent / CTAs</div>
+            <div class="text-[11px] font-mono text-cyan-400 mt-2">var(--cyan-400)</div>
+          </div>
+          <!-- Royal Gold -->
+          <div class="color-swatch rounded-xl p-4 bg-slate-900 border border-slate-700">
+            <div class="h-16 rounded-lg bg-[#F59E0B] mb-3 flex items-center justify-center font-mono font-bold text-slate-950 text-xs shadow-lg shadow-amber-500/30">#F59E0B</div>
+            <div class="text-sm font-bold text-white">Royal Gold</div>
+            <div class="text-xs text-slate-400 mt-0.5">Grand Prize / Badges</div>
+            <div class="text-[11px] font-mono text-amber-400 mt-2">var(--gold-400)</div>
+          </div>
+          <!-- Deep Navy Canvas -->
+          <div class="color-swatch rounded-xl p-4 bg-slate-900 border border-slate-700">
+            <div class="h-16 rounded-lg bg-[#030712] mb-3 border border-slate-700 flex items-center justify-center font-mono font-bold text-slate-300 text-xs">#030712</div>
+            <div class="text-sm font-bold text-white">Deep Navy Canvas</div>
+            <div class="text-xs text-slate-400 mt-0.5">Base Background</div>
+            <div class="text-[11px] font-mono text-slate-400 mt-2">var(--bg-base)</div>
+          </div>
+          <!-- Emerald Success -->
+          <div class="color-swatch rounded-xl p-4 bg-slate-900 border border-slate-700">
+            <div class="h-16 rounded-lg bg-[#10B981] mb-3 flex items-center justify-center font-mono font-bold text-slate-950 text-xs shadow-lg shadow-emerald-500/30">#10B981</div>
+            <div class="text-sm font-bold text-white">Emerald Green</div>
+            <div class="text-xs text-slate-400 mt-0.5">Success / Approved</div>
+            <div class="text-[11px] font-mono text-emerald-400 mt-2">var(--emerald-500)</div>
+          </div>
+          <!-- Crimson Rose -->
+          <div class="color-swatch rounded-xl p-4 bg-slate-900 border border-slate-700">
+            <div class="h-16 rounded-lg bg-[#F43F5E] mb-3 flex items-center justify-center font-mono font-bold text-white text-xs shadow-lg shadow-rose-500/30">#F43F5E</div>
+            <div class="text-sm font-bold text-white">Crimson Rose</div>
+            <div class="text-xs text-slate-400 mt-0.5">Medical / Deadlines</div>
+            <div class="text-[11px] font-mono text-rose-400 mt-2">var(--rose-500)</div>
+          </div>
+        </div>
+
+        <!-- Typography & Micro-interactions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+          <div>
+            <h5 class="font-bold text-white text-sm mb-3">ชุดฟอนต์ (Typography Hierarchy)</h5>
+            <div class="space-y-3 font-mono text-xs">
+              <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
+                <div class="text-slate-400">Headings & Hero Display:</div>
+                <div class="text-sm font-bold text-cyan-300 font-display mt-0.5">Inter, Anuphan (Weights: 700, 800, 900)</div>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
+                <div class="text-slate-400">Thai Body & Interface:</div>
+                <div class="text-sm font-sans text-slate-200 mt-0.5">Anuphan (Weights: 400, 500, 600)</div>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
+                <div class="text-slate-400">Tracking Code & Timers:</div>
+                <div class="text-sm font-mono text-amber-300 mt-0.5">JetBrains Mono, Fira Code (Weights: 600, 700)</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h5 class="font-bold text-white text-sm mb-3">คลาส CSS พิเศษ (Micro-Interactions)</h5>
+            <div class="space-y-2 text-xs font-mono">
+              <div class="p-2.5 rounded bg-slate-900/90 border border-slate-800 text-slate-300">
+                <span class="text-cyan-400 font-bold">.card-glass</span> : พื้นหลังโปร่งแสงพร้อม Blur (14px)
+              </div>
+              <div class="p-2.5 rounded bg-slate-900/90 border border-slate-800 text-slate-300">
+                <span class="text-cyan-400 font-bold">.btn-solid-primary</span> : ปุ่มสีฟ้า Cyber Cyan เรืองแสง
+              </div>
+              <div class="p-2.5 rounded bg-slate-900/90 border border-slate-800 text-slate-300">
+                <span class="text-amber-400 font-bold">.subnav-tab-btn</span> : แท็บสวิตช์หมวดหมู่แบบ Interactive Active Pill
+              </div>
+              <div class="p-2.5 rounded bg-slate-900/90 border border-slate-800 text-slate-300">
+                <span class="text-emerald-400 font-bold">.announcement-badge</span> : ป้ายระบุประเภทข่าวสาร (General / Finalists / Winners)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Architecture & Component Diagrams -->
+    <section id="diagrams" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-mono font-bold">02</div>
+        <div>
+          <h3 class="text-2xl font-bold text-white">ผังโครงสร้างสถาปัตยกรรมและ Component Hierarchy</h3>
+          <p class="text-sm text-slate-400">Mermaid Diagrams แสดงความสัมพันธ์ของ Component, Routing, และ User Journey</p>
+        </div>
+      </div>
+
+      <div class="space-y-8">
+        <!-- Diagram 1: Component Tree & Routing -->
+        <div class="card-glass rounded-2xl p-6 sm:p-8">
+          <h4 class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 text-xs font-mono">DIAGRAM 1</span>
+            <span>Component & View Routing Architecture</span>
+          </h4>
+          <p class="text-xs text-slate-400 mb-6">ความสัมพันธ์ระหว่าง Root Application, Hash Router, 4 Views หลัก และ Modal Layers</p>
+          <div class="mermaid bg-slate-950/80 p-6 rounded-xl border border-slate-800">
+graph TD
+  App["App Root (client/src/App.jsx)"] --> Header["Global Navigation Header & Quick Status Search"]
+  App --> Router["Hash Router Engine (#/, #/guidelines, #/winners, #/announcements)"]
+  
+  Router --> HomeView["View 1: Home (#/)<br/>Hero + Countdown + 5 Domains + Roadmap"]
+  Router --> GuidelinesView["View 2: Guidelines (#/guidelines)<br/>Sticky Subnav + Criteria + Prizes + Standards"]
+  Router --> WinnersView["View 3: Hall of Fame (#/winners)<br/>Filters (Year/Domain/Level) + Modal Detail"]
+  Router --> AnnouncementsView["View 4: Announcements (#/announcements)<br/>Tabs + Roster Tables + PDF Downloads"]
+  
+  App --> Modals["Global Modal Layer"]
+  Modals --> PortalModal["Contestant Portal Modal<br/>(Register / Login / New Submission)"]
+  Modals --> StatusModal["Status Tracking Modal<br/>(Lookup KMUTNB-XXXX)"]
+  Modals --> WinnerDetailModal["Winner Project Detail Modal"]
+  
+  App --> Footer["Global Footer (KMUTNB Tech Park Info & Links)"]
+          </div>
+        </div>
+
+        <!-- Diagram 2: User Submission Journey Flowchart -->
+        <div class="card-glass rounded-2xl p-6 sm:p-8">
+          <h4 class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-xs font-mono">DIAGRAM 2</span>
+            <span>User Submission & Lifecycle Flowchart</span>
+          </h4>
+          <p class="text-xs text-slate-400 mb-6">ลำดับขั้นตอนการสมัครสมาชิก การส่งผลงาน และการตรวจสอบสถานะ</p>
+          <div class="mermaid bg-slate-950/80 p-6 rounded-xl border border-slate-800">
+flowchart TD
+  Start(["ผู้เข้าแข่งขันเปิดเว็บไซต์"]) --> ChooseAction{"เลือกดำเนินการ"}
+  
+  ChooseAction -->|"ยื่นผลงานใหม่"| OpenPortal["เปิด Portal Modal"]
+  ChooseAction -->|"ตรวจสอบสถานะ"| OpenStatus["เปิด Status Check Modal"]
+  ChooseAction -->|"ดูทำเนียบรางวัล"| ViewWinners["เข้าหน้า #/winners"]
+  
+  OpenPortal --> HasAccount{"มีบัญชีผู้ใช้หรือยัง?"}
+  HasAccount -->|"ยังไม่มี"| Register["กรอกข้อมูลสมัครสมาชิก -> POST /api/auth/register"]
+  HasAccount -->|"มีแล้ว"| Login["เข้าสู่ระบบ -> POST /api/auth/login"]
+  
+  Register --> SaveToken["บันทึก JWT Token ใน localStorage"]
+  Login --> SaveToken
+  
+  SaveToken --> FillForm["กรอกข้อมูลผลงาน (ชื่อ, สาขา, ระดับ, ลิงก์คลิป, รูปหน้าปก coverImage)"]
+  FillForm --> SubmitChoice{"เลือกบันทึก"}
+  
+  SubmitChoice -->|"บันทึกแบบร่าง (Draft)"| SaveDraft["POST /api/submissions (isDraft=true)"]
+  SubmitChoice -->|"ส่งฉบับสมบูรณ์ (Submit)"| SendFinal["POST /api/submissions (isDraft=false)"]
+  
+  SendFinal --> ConfettiEffect["🎉 จุดพลุ Confetti + ออกรหัส KMUTNB-2569-XXXX"]
+  SaveDraft --> ShowCode["ออกรหัสติดตามสำหรับแก้ไขภายหลัง"]
+  
+  OpenStatus --> EnterCode["กรอกรหัส KMUTNB-XXXX"]
+  EnterCode --> FetchStatus["GET /api/submissions/status/:code"]
+  FetchStatus --> RenderStatus["แสดง Timeline สถานะ, สมาชิกในทีม และ Feedback คณะกรรมการ"]
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Screen & View Breakdown -->
+    <section id="views" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-mono font-bold">03</div>
+        <div>
+          <h3 class="text-2xl font-bold text-white">รายละเอียดหน้าจอหลัก (View-by-View Breakdown)</h3>
+          <p class="text-sm text-slate-400">โครงสร้างภายในและองค์ประกอบสำคัญของแต่ละ View</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- View 1: Home -->
+        <div class="card-glass rounded-xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="badge-tag bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">VIEW 1 • #/</span>
+            <span class="text-xs text-slate-400 font-mono">Home View</span>
+          </div>
+          <h4 class="text-lg font-bold text-white">หน้าแรก (Home Landing Page)</h4>
+          <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside">
+            <li><strong>Hero Section:</strong> วิดีโอพื้นหลังไฮเทค, โลโก้ KMUTNB Innovation Awards 2026, หัวข้อธีม "นวัตกรรมขับเคลื่อนเศรษฐกิจและสังคมที่ยั่งยืน"</li>
+            <li><strong>Live Countdown Timer:</strong> นาฬิกานับถอยหลังสู่เส้นตายรับสมัคร (15 พ.ย. 2569) แสดงวัน/ชั่วโมง/นาที/วินาที แบบ Real-time</li>
+            <li><strong>5 Target Domains Grid:</strong> การ์ดแสดง 5 สาขานวัตกรรมเป้าหมาย พร้อมไอคอน สีเฉพาะ และแบนเนอร์ภาพ</li>
+            <li><strong>Competition Timeline:</strong> ผังไทม์ไลน์บันได 4 ขั้น (เปิดรับสมัคร ➔ ประกาศผล Finalists ➔ วัน Pitching & พิธีมอบรางวัล 26 ม.ค. 2570)</li>
+            <li><strong>Key Awards Highlights:</strong> ไฮไลท์ถ้วยพระราชทานฯ และเงินรางวัลรวมกว่า 300,000 บาท</li>
+          </ul>
+        </div>
+
+        <!-- View 2: Guidelines -->
+        <div class="card-glass rounded-xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="badge-tag bg-amber-500/20 text-amber-400 border border-amber-500/30">VIEW 2 • #/guidelines</span>
+            <span class="text-xs text-slate-400 font-mono">Guidelines Hub</span>
+          </div>
+          <h4 class="text-lg font-bold text-white">คู่มือและเกณฑ์การประกวด (Guidelines Hub)</h4>
+          <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside">
+            <li><strong>Sticky Subnavigation:</strong> แถบเมนูลอยติดด้านบน รองรับ Scroll-spy สลับแท็บอัตโนมัติตามตำแหน่งหน้าจอ</li>
+            <li><strong>Subsections Deep-link:</strong>
+              <code class="text-cyan-300">#eligibility</code> (คุณสมบัติผู้เข้าประกวด 2 ระดับ),
+              <code class="text-cyan-300">#domains</code> (ขอบเขต 5 สาขา),
+              <code class="text-cyan-300">#prizes</code> (โครงสร้างรางวัลและเงินรางวัล),
+              <code class="text-cyan-300">#standards</code> (เกณฑ์ TRL และความพร้อมด้านเทคโนโลยี),
+              <code class="text-cyan-300">#criteria</code> (เกณฑ์การให้คะแนน 100 คะแนน)
+            </li>
+            <li><strong>Download Guidelines PDF:</strong> ปุ่มดาวน์โหลดประกาศฉบับเต็มของมหาวิทยาลัย</li>
+          </ul>
+        </div>
+
+        <!-- View 3: Winners Hub -->
+        <div class="card-glass rounded-xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="badge-tag bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">VIEW 3 • #/winners</span>
+            <span class="text-xs text-slate-400 font-mono">Hall of Fame</span>
+          </div>
+          <h4 class="text-lg font-bold text-white">ทำเนียบผู้ได้รับรางวัล (Hall of Fame)</h4>
+          <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside">
+            <li><strong>Multi-Dimensional Filters:</strong> กรองผลงานตามปีการศึกษา (2568, 2567, 2566), สาขานวัตกรรม 5 ด้าน, ระดับการศึกษา 2 ระดับ, และช่องค้นหา Keyword</li>
+            <li><strong>Winner Showcase Card:</strong> แสดงรูปปกผลงาน, ป้ายระดับรางวัล (Grand Prize, รองชนะเลิศ, ชมเชย), ชื่อผลงาน 2 ภาษา, ชื่อทีม, และสถาบัน</li>
+            <li><strong>Interactive Project Modal:</strong> คลิกดูรายละเอียดผลงานฉบับเต็ม, บทคัดย่อ, รายชื่อสมาชิกในทีม, อาจารย์ที่ปรึกษา, และลิงก์วิดีโอ YouTube</li>
+          </ul>
+        </div>
+
+        <!-- View 4: Announcements Hub -->
+        <div class="card-glass rounded-xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="badge-tag bg-purple-500/20 text-purple-400 border border-purple-500/30">VIEW 4 • #/announcements</span>
+            <span class="text-xs text-slate-400 font-mono">Official Hub</span>
+          </div>
+          <h4 class="text-lg font-bold text-white">ประกาศผลและข่าวสาร (Announcements Hub)</h4>
+          <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside">
+            <li><strong>Category Subnav Tabs:</strong> ทั้งหมด, ผู้ผ่านเข้ารอบสุดท้าย Finalists, ผลรางวัลชนะเลิศ Winners, และข่าวสารโครงการ</li>
+            <li><strong>Roster Data Table:</strong> ตารางแสดงรายชื่อผลงานที่ผ่านการคัดเลือก พร้อมรหัสติดตาม (Code), ชื่อผลงาน, ทีม, และระดับการศึกษา</li>
+            <li><strong>Official PDF Link:</strong> ปุ่มดาวน์โหลดเอกสารประกาศทางการพร้อมตราครุฑ</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Modals & Accessibility (a11y) -->
+    <section id="modals" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-mono font-bold">04</div>
+        <div>
+          <h3 class="text-2xl font-bold text-white">ระบบ Modals & มาตรฐาน Accessibility (a11y)</h3>
+          <p class="text-sm text-slate-400">การจัดการหน้าต่างป๊อปอัปและระบบควบคุมการเข้าถึงด้วยคีย์บอร์ด</p>
+        </div>
+      </div>
+
+      <div class="card-glass rounded-2xl p-6 sm:p-8 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-5 rounded-xl bg-slate-900/90 border border-slate-800">
+            <div class="text-xs font-mono text-cyan-400 mb-1">MODAL 1</div>
+            <h5 class="font-bold text-white mb-2">Contestant Portal Modal</h5>
+            <p class="text-xs text-slate-400 mb-3">หน้าต่างสมัครสมาชิก, เข้าสู่ระบบ และฟอร์มยื่นผลงานพร้อมฟิลด์กรอกรูปหน้าปก (<code class="text-cyan-300">coverImage</code>)</p>
+            <div class="text-[11px] font-mono text-slate-500">State: showPortalModal, portalTab</div>
+          </div>
+          <div class="p-5 rounded-xl bg-slate-900/90 border border-slate-800">
+            <div class="text-xs font-mono text-amber-400 mb-1">MODAL 2</div>
+            <h5 class="font-bold text-white mb-2">Status Tracking Modal</h5>
+            <p class="text-xs text-slate-400 mb-3">หน้าต่างค้นหาและติดตามสถานะการพิจารณาผลงานจากรหัสติดตาม KMUTNB-XXXX-XXXX</p>
+            <div class="text-[11px] font-mono text-slate-500">State: showStatusModal, trackingSearch</div>
+          </div>
+          <div class="p-5 rounded-xl bg-slate-900/90 border border-slate-800">
+            <div class="text-xs font-mono text-emerald-400 mb-1">MODAL 3</div>
+            <h5 class="font-bold text-white mb-2">Winner Project Modal</h5>
+            <p class="text-xs text-slate-400 mb-3">หน้าต่างแสดงรายละเอียดโครงงานที่ได้รับรางวัลชนะเลิศ บทคัดย่อ และข้อมูลทีมแบบเจาะลึก</p>
+            <div class="text-[11px] font-mono text-slate-500">State: selectedWinnerModal</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2">
+          <div class="font-bold text-cyan-400 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>กฎการควบคุม Focus Trapping & Keyboard Accessibility:</span>
+          </div>
+          <p>1. เมื่อเปิด Modal ใดๆ ระบบจะ Focus ไปยังปุ่มหรือ Input แรกโดยอัตโนมัติ</p>
+          <p>2. การกดปุ่ม <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-200">Tab</kbd> หรือ <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-200">Shift + Tab</kbd> จะวนลูปเฉพาะ Element ที่อยู่ใน Modal เท่านั้น</p>
+          <p>3. การกดปุ่ม <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-200">Escape</kbd> จะปิด Modal ทันทีและคืน Focus กลับสู่หน้าจอเดิม</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: State Engines & Lifecycle -->
+    <section id="engines" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-mono font-bold">05</div>
+        <div>
+          <h3 class="text-2xl font-bold text-white">กลไก State Management & Live Engines</h3>
+          <p class="text-sm text-slate-400">ระบบประมวลผลแบบ Real-time ภายใน Client</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card-glass rounded-xl p-6 space-y-3">
+          <div class="text-xs font-mono text-cyan-400 font-bold">ENGINE 1</div>
+          <h4 class="font-bold text-white">URL Hash Router</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            ดักฟัง Event <code class="text-cyan-300">window.onhashchange</code> เพื่อสลับ State <code class="text-cyan-300">currentView</code> ทันทีโดยไม่ต้อง Reload หน้าเว็บ รองรับ Deep Linking ทุกหมวดหมู่
+          </p>
+        </div>
+
+        <div class="card-glass rounded-xl p-6 space-y-3">
+          <div class="text-xs font-mono text-amber-400 font-bold">ENGINE 2</div>
+          <h4 class="font-bold text-white">Countdown Engine</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            คำนวณส่วนต่างเวลากับ Target Deadline ทุก 1,000ms แจ้งเตือนสถานะหมดเขต (<code class="text-rose-400">timeLeft.expired = true</code>) และปิดปุ่มส่งผลงานอัตโนมัติ
+          </p>
+        </div>
+
+        <div class="card-glass rounded-xl p-6 space-y-3">
+          <div class="text-xs font-mono text-purple-400 font-bold">ENGINE 3</div>
+          <h4 class="font-bold text-white">Confetti Celebration</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            เรียกใช้ไลบรารี <code class="text-purple-300">canvas-confetti</code> เมื่อผู้ใช้ยื่นผลงานสำเร็จ เพื่อสร้าง Micro-reward และประสบการณ์ที่น่าประทับใจ
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: API Integration & Data Handshake -->
+    <section id="api-sync" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-mono font-bold">06</div>
+        <div>
+          <h3 class="text-2xl font-bold text-white">ตารางการเชื่อมต่อกับ Backend API (Elysia.js + PostgreSQL)</h3>
+          <p class="text-sm text-slate-400">แมปปิ้ง Request Payload, Response Format และ Storage</p>
+        </div>
+      </div>
+
+      <div class="card-glass rounded-2xl overflow-hidden border border-slate-800">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs font-sans">
+            <thead class="bg-slate-900/90 text-slate-400 font-mono uppercase text-[11px] border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">ฟังก์ชันการทำงาน</th>
+                <th class="py-3 px-4">Method</th>
+                <th class="py-3 px-4">Endpoint</th>
+                <th class="py-3 px-4">Payload / Headers</th>
+                <th class="py-3 px-4">Storage & ผลลัพธ์</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 font-mono text-slate-300">
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="py-3 px-4 font-sans font-medium text-white">ดึงทำเนียบรางวัล</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">GET</span></td>
+                <td class="py-3 px-4 text-cyan-300">/api/winners</td>
+                <td class="py-3 px-4 text-slate-400">None (?year=&category=&level=)</td>
+                <td class="py-3 px-4 font-sans text-slate-300">บันทึกลง state <code class="text-cyan-300">winners</code></td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="py-3 px-4 font-sans font-medium text-white">ดึงข่าวสาร & ประกาศผล</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">GET</span></td>
+                <td class="py-3 px-4 text-cyan-300">/api/announcements</td>
+                <td class="py-3 px-4 text-slate-400">None (?type=&year=)</td>
+                <td class="py-3 px-4 font-sans text-slate-300">บันทึกลง state <code class="text-cyan-300">announcementsList</code></td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="py-3 px-4 font-sans font-medium text-white">สมัครสมาชิกผู้เข้าแข่งขัน</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">POST</span></td>
+                <td class="py-3 px-4 text-cyan-300">/api/auth/register</td>
+                <td class="py-3 px-4 text-slate-400">{ email, fullName, phone, institution, educationLevel }</td>
+                <td class="py-3 px-4 font-sans text-slate-300">บันทึก <code class="text-amber-300">innoaward_token</code> ลง localStorage</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="py-3 px-4 font-sans font-medium text-white">เข้าสู่ระบบ</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">POST</span></td>
+                <td class="py-3 px-4 text-cyan-300">/api/auth/login</td>
+                <td class="py-3 px-4 text-slate-400">{ email, password }</td>
+                <td class="py-3 px-4 font-sans text-slate-300">บันทึก <code class="text-amber-300">innoaward_token</code> ลง localStorage</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="py-3 px-4 font-sans font-medium text-white">ยื่นผลงาน / บันทึกร่าง</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">POST</span></td>
+                <td class="py-3 px-4 text-cyan-300">/api/submissions</td>
+                <td class="py-3 px-4 text-slate-400">{ titleTh, category, educationLevel, coverImage, ... }, Bearer Token</td>
+                <td class="py-3 px-4 font-sans text-slate-300">ได้รับรหัส <code class="text-cyan-300">KMUTNB-2569-XXXX</code></td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="py-3 px-4 font-sans font-medium text-white">ตรวจสอบสถานะผลงาน</td>
+                <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">GET</span></td>
+                <td class="py-3 px-4 text-cyan-300">/api/submissions/status/:code</td>
+                <td class="py-3 px-4 text-slate-400">Tracking Code ใน URL</td>
+                <td class="py-3 px-4 font-sans text-slate-300">แสดงผลใน Status Modal</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="border-t border-slate-800/80 bg-[#02050E] py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-amber-400 flex items-center justify-center font-bold text-slate-950">
+          KM
+        </div>
+        <div>
+          <p class="text-slate-300 font-bold">KMUTNB Innovation Awards 2026</p>
+          <p>อุทยานเทคโนโลยี มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-6 font-mono text-slate-400">
+        <a href="backend-guide.html" class="hover:text-orange-400 transition-colors">🐘 Backend Guide</a>
+        <a href="http://localhost:3001/swagger" target="_blank" class="hover:text-cyan-400 transition-colors">📑 Swagger API</a>
+        <a href="http://localhost:5173" target="_blank" class="hover:text-cyan-400 transition-colors">🌐 Live Web Platform</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
