@@ -78,12 +78,12 @@
         </div>
         <div>
           <h1 class="font-bold text-slate-100 text-lg leading-tight">KMUTNB Innovation Awards 2026</h1>
-          <p class="text-xs text-orange-400">Backend Architecture & API Specification Guide</p>
+          <p class="text-xs text-orange-400">Normalized PostgreSQL & Prisma Backend Guide</p>
         </div>
       </div>
       <div class="flex items-center gap-4 text-sm font-medium">
         <a href="#architecture" class="text-slate-400 hover:text-orange-400 transition-colors">สถาปัตยกรรม</a>
-        <a href="#database" class="text-slate-400 hover:text-orange-400 transition-colors">ฐานข้อมูล (Schema)</a>
+        <a href="#database" class="text-slate-400 hover:text-orange-400 transition-colors">ฐานข้อมูล & Joins</a>
         <a href="#api" class="text-slate-400 hover:text-orange-400 transition-colors">API Reference</a>
         <a href="#setup" class="text-slate-400 hover:text-orange-400 transition-colors">การติดตั้ง & รัน</a>
         <a href="http://localhost:3001/swagger" target="_blank" class="px-3 py-1.5 rounded-lg bg-orange-600/20 text-orange-400 border border-orange-500/30 hover:bg-orange-600 hover:text-white transition-all text-xs flex items-center gap-1.5">
@@ -98,13 +98,13 @@
   <section class="gradient-hero py-16 border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-xs font-semibold uppercase tracking-wider mb-6">
-        🚀 Production-Ready Spec • Bun + Elysia + PostgreSQL + Prisma
+        🚀 Fully Normalized PostgreSQL Architecture • Master Tables & Joins
       </div>
       <h2 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-4">
-        คู่มือการออกแบบและเชื่อมต่อระบบ <span class="bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">Backend Engine</span>
+        คู่มือการออกแบบระบบ <span class="bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">Backend & Database Joins</span>
       </h2>
       <p class="max-w-3xl mx-auto text-base sm:text-lg text-slate-300 mb-8">
-        เอกสารอธิบายการออกแบบสถาปัตยกรรม ฐานข้อมูล PostgreSQL โมเดลความสัมพันธ์ (ERD) ระบบยืนยันตัวตน JWT (Argon2id) และข้อกำหนด API ครบทุกฟังก์ชัน
+        โครงสร้างฐานข้อมูลแบบแยก Master Data (Category, EducationLevel, CompetitionYear) เชื่อมต่อด้วย Foreign Keys และ Joins ตามหลักฐานข้อมูลเชิงสัมพันธ์ พร้อมคู่มือ API ครบถ้วน
       </p>
 
       <!-- Quick Metrics Grid -->
@@ -112,12 +112,12 @@
         <div class="card-glass p-4 rounded-xl text-left border-l-4 border-orange-500">
           <div class="text-xs text-slate-400 font-medium">Runtime & Server</div>
           <div class="text-xl font-bold text-white mt-1">Bun + Elysia.js</div>
-          <div class="text-[11px] text-orange-400 mt-1">⚡ Superfast TypeScript Engine</div>
+          <div class="text-[11px] text-orange-400 mt-1">⚡ Modular Architecture</div>
         </div>
         <div class="card-glass p-4 rounded-xl text-left border-l-4 border-amber-500">
-          <div class="text-xs text-slate-400 font-medium">Database & ORM</div>
-          <div class="text-xl font-bold text-white mt-1">PostgreSQL 18</div>
-          <div class="text-[11px] text-amber-400 mt-1">💎 Prisma Client & Migrations</div>
+          <div class="text-xs text-slate-400 font-medium">Database Structure</div>
+          <div class="text-xl font-bold text-white mt-1">Master + Joins</div>
+          <div class="text-[11px] text-amber-400 mt-1">💎 Years, Categories, Levels</div>
         </div>
         <div class="card-glass p-4 rounded-xl text-left border-l-4 border-emerald-500">
           <div class="text-xs text-slate-400 font-medium">Auth & Hashing</div>
@@ -125,7 +125,7 @@
           <div class="text-[11px] text-emerald-400 mt-1">🔒 Native Bun.password</div>
         </div>
         <div class="card-glass p-4 rounded-xl text-left border-l-4 border-cyan-500">
-          <div class="text-xs text-slate-400 font-medium">Data Consistency</div>
+          <div class="text-xs text-slate-400 font-medium">Data Integrity</div>
           <div class="text-xl font-bold text-white mt-1">Cascade & Index</div>
           <div class="text-[11px] text-cyan-400 mt-1">⚡ O(1) Unique Tracking Code</div>
         </div>
@@ -153,19 +153,20 @@
 graph TD
     Client["🌐 React Vite Frontend (Client)"]
     Gateway["🚀 Elysia.js Server (Port 3001)"]
-    Cors["🛡️ CORS & Swagger"]
-    AuthMW["🔐 Auth Middleware (JWT & Roles)"]
+    Cors["🛡️ CORS & Swagger Plugin"]
+    AuthMW["🔐 Auth Middleware (JWT & Role Guards)"]
     
-    subgraph Modules ["Domain Modules"]
+    subgraph Modules ["Domain & Master Modules"]
         AuthMod["👤 Auth Module (/api/auth)"]
         SubMod["📝 Submissions Module (/api/submissions)"]
-        WinMod["🏆 Winners Module (/api/winners)"]
+        WinMod["🏆 Winners Hall of Fame (/api/winners)"]
+        MasterMod["🗂️ Masters Module (Years, Categories, Levels)"]
         AnnMod["📢 Announcements Module (/api/announcements)"]
         CfgMod["⚙️ Config Module (/api/config)"]
     end
 
     PrismaClient["💎 Prisma ORM Client"]
-    PostgresDB[("🐘 PostgreSQL 18 Database")]
+    PostgresDB[("🐘 PostgreSQL 18 (innoaward_dev)")]
 
     Client -->|HTTP/REST| Gateway
     Gateway --> Cors
@@ -179,10 +180,12 @@ graph TD
 
         <div class="card-glass p-6 rounded-xl space-y-4">
           <h4 class="font-semibold text-slate-200 text-base">โครงสร้างโฟลเดอร์โมดูล</h4>
-          <p class="text-xs text-slate-400">จัดเก็บแยกตาม Feature-Driven Modules เพื่อความง่ายในการขยายและทดสอบ</p>
+          <p class="text-xs text-slate-400">แยกโมดูลตาม Business Domain พร้อมตาราง Master Data สำหรับการจัดการข้อมูล</p>
           <div class="bg-slate-950 p-4 rounded-lg font-mono text-xs text-slate-300 border border-slate-800 space-y-1">
             <div class="text-orange-400 font-bold">server/</div>
-            <div class="pl-3">├── <span class="text-amber-300">prisma/</span> (schema, migrations, seed)</div>
+            <div class="pl-3">├── <span class="text-amber-300">prisma/</span></div>
+            <div class="pl-6">├── schema.prisma</div>
+            <div class="pl-6">└── seed.ts</div>
             <div class="pl-3">└── <span class="text-amber-300">src/</span></div>
             <div class="pl-6">├── <span class="text-cyan-300">lib/</span> (prisma, auth, tracking)</div>
             <div class="pl-6">├── <span class="text-cyan-300">middlewares/</span> (auth.guard)</div>
@@ -190,6 +193,7 @@ graph TD
             <div class="pl-9">├── auth/</div>
             <div class="pl-9">├── submissions/</div>
             <div class="pl-9">├── winners/</div>
+            <div class="pl-9">├── masters/ (years, categories, levels)</div>
             <div class="pl-9">├── announcements/</div>
             <div class="pl-9">└── config/</div>
             <div class="pl-6">└── index.ts</div>
@@ -198,11 +202,11 @@ graph TD
       </div>
     </section>
 
-    <!-- Section 2: Database Schema -->
+    <!-- Section 2: Database Schema & Joins -->
     <section id="database" class="space-y-6">
       <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
         <div class="w-8 h-8 rounded-lg bg-amber-600/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold text-sm">2</div>
-        <h3 class="text-2xl font-bold text-white">โครงสร้างฐานข้อมูลและโมเดลความสัมพันธ์ (Database Schema)</h3>
+        <h3 class="text-2xl font-bold text-white">โครงสร้างฐานข้อมูลเชิงสัมพันธ์และตาราง Master Data (Normalized ERD)</h3>
       </div>
 
       <div class="card-glass p-6 rounded-xl space-y-6">
@@ -210,47 +214,82 @@ graph TD
         <div class="p-4 bg-slate-950/80 rounded-lg border border-slate-800 overflow-x-auto text-xs">
           <pre class="mermaid text-center">
 erDiagram
-    User ||--o{ Submission : "creates (1:N)"
+    CompetitionYear ||--o{ Submission : "holds (1:N)"
+    Category ||--o{ Submission : "classifies (1:N)"
+    EducationLevel ||--o{ Submission : "requires (1:N)"
+    EducationLevel ||--o{ User : "qualifies (1:N)"
+    User ||--o{ Submission : "submits (1:N, Cascade)"
     Submission ||--|{ TeamMember : "has members (1:N, Cascade)"
     Announcement ||--o{ AnnouncementRoster : "contains (1:N, Cascade)"
+
+    CompetitionYear {
+        string id PK
+        int year UK "ปี พ.ศ. เช่น 2569, 2568"
+        int yearAd "ปี ค.ศ. เช่น 2026, 2025"
+        string titleTh "หัวข้อโครงการประจำปี"
+        string titleEn "Theme Name"
+        datetime submissionStart "วันเปิดรับสมัคร"
+        datetime submissionEnd "วันปิดรับสมัคร"
+        datetime eventDate "วันจัดงานและ Pitching"
+        boolean isCurrent "ปีปัจจุบันที่เปิดรับ"
+        string status "OPEN_FOR_SUBMISSION, etc."
+    }
+
+    Category {
+        string id PK
+        string code UK "energy_environment, etc."
+        string nameTh "ชื่อสาขานวัตกรรมไทย"
+        string nameEn "Category Name EN"
+        string icon "Lucide Icon Name (Zap, Leaf)"
+        string color "Hex Color (#059669)"
+        string bgImage "Path to background banner"
+        int orderIndex
+        boolean isActive
+    }
+
+    EducationLevel {
+        string id PK
+        string code UK "below_higher, higher_and_above"
+        string nameTh "ระดับต่ำกว่าอุดมศึกษา / อุดมศึกษาขึ้นไป"
+        string nameEn "Below Higher / Higher and Above"
+        text eligibleTh "เกณฑ์คุณสมบัติผู้สมัคร"
+        int orderIndex
+        boolean isActive
+    }
 
     User {
         string id PK "cuid"
         string email UK "unique"
         string passwordHash "Argon2id"
         string fullName "ชื่อ-นามสกุล"
-        string phone "เบอร์โทรศัพท์"
-        string institution "สถาบันการศึกษา / หน่วยงาน"
-        EducationLevel educationLevel "ต่ำกว่า / ตั้งแต่อุดมศึกษา"
+        string phone "เบอร์โทร"
+        string institution "สถานศึกษา / หน่วยงาน"
+        string educationLevelId FK "ระดับการศึกษา"
         Role role "CONTESTANT / JUDGE / ADMIN"
         datetime createdAt
-        datetime updatedAt
     }
 
     Submission {
         string id PK "cuid"
         string trackingCode UK "KMUTNB-YYYY-XXXX"
-        string userId FK
-        string titleTh "ชื่อผลงานภาษาไทย"
-        string titleEn "ชื่อผลงานภาษาอังกฤษ"
-        Category category "5 สาขานวัตกรรม"
-        EducationLevel educationLevel
+        string userId FK "ผู้ส่งผลงาน"
+        string competitionYearId FK "ปีการแข่งขัน"
+        string categoryId FK "สาขานวัตกรรม"
+        string educationLevelId FK "ระดับการศึกษา"
+        string titleTh "ชื่อผลงานไทย"
+        string titleEn "ชื่อผลงานอังกฤษ"
         string teamName "ชื่อทีม"
         string advisorName "อาจารย์ที่ปรึกษา"
-        text abstractTh "บทคัดย่อไทย"
-        text abstractEn "บทคัดย่ออังกฤษ"
-        string videoUrl "ลิงก์คลิปวิดีโอ"
-        string documentUrl "ลิงก์เอกสารข้อเสนอ"
-        SubmissionStatus status "DRAFT, SUBMITTED, etc."
-        text feedback "ความคิดเห็นคณะกรรมการ"
-        int year "ปีการประกวด เช่น 2569"
+        text abstractTh "บทคัดย่อ"
+        string videoUrl "ลิงก์วิดีโอ YouTube"
+        string documentUrl "ลิงก์เอกสาร Google Drive"
+        SubmissionStatus status "DRAFT / SUBMITTED / AWARDED"
+        text feedback "ความคิดเห็นกรรมการ"
         AwardTier awardTier "GRAND_WINNER, etc."
         string awardNameTh "ชื่อรางวัล"
-        text prizeDetails "รายละเอียดเงินรางวัล/โล่"
-        string image "รูปถ่ายผลงาน"
+        text prizeDetails "รายละเอียดเงินรางวัล"
+        string image "รูปผลงาน"
         datetime submittedAt
-        datetime createdAt
-        datetime updatedAt
     }
 
     TeamMember {
@@ -264,13 +303,12 @@ erDiagram
     Announcement {
         string id PK
         string category "general / finalists / winners"
-        string badgeText "ข้อความป้ายกำกับ"
+        string badgeText "ป้ายกำกับ"
         string dateStr "วันที่ประกาศ"
         string title "หัวข้อประกาศ"
         text abstract "เนื้อความย่อ"
-        string pdfUrl "ลิงก์เอกสาร PDF"
+        string pdfUrl "ลิงก์ PDF"
         boolean isPublished
-        datetime publishedAt
     }
 
     AnnouncementRoster {
@@ -279,32 +317,30 @@ erDiagram
         string code "รหัสผลงาน"
         string title "ชื่อผลงาน"
         string team "ชื่อทีม"
-        string level "ระดับการแข่งขัน"
-        int orderIndex
+        string level "ระดับ"
     }
           </pre>
         </div>
 
-        <!-- Enums Reference Table -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+        <!-- Master Table Details -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
           <div class="p-4 bg-slate-900/60 rounded-lg border border-slate-800">
-            <h5 class="text-sm font-semibold text-orange-400 mb-2">Category (5 สาขานวัตกรรม)</h5>
-            <ul class="text-xs space-y-1.5 text-slate-300">
-              <li><code class="text-emerald-400">ENERGY_ENVIRONMENT</code> : พลังงานและสิ่งแวดล้อม</li>
-              <li><code class="text-emerald-400">FOOD_AGRICULTURE</code> : เกษตรและอาหารแปรรูป</li>
-              <li><code class="text-emerald-400">SOCIAL_ECONOMY</code> : เศรษฐกิจและสังคมดิจิทัล</li>
-              <li><code class="text-emerald-400">MEDICAL_DEVICE</code> : เครื่องมือแพทย์และสาธารณสุข</li>
-              <li><code class="text-emerald-400">MATERIAL</code> : วัสดุศาสตร์และเทคโนโลยีก้าวหน้า</li>
-            </ul>
+            <h5 class="text-sm font-semibold text-orange-400 mb-2">1. CompetitionYear (ปีการแข่งขัน)</h5>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              เก็บประวัติรอบการแข่งขันแต่ละปี (2566, 2567, 2568, 2569) พร้อมกำหนดวันเปิด-ปิดรับสมัคร วัน Pitching และสถานะปีปัจจุบัน เพื่อให้ระบบสามารถสลับซีซั่นการแข่งขันได้โดยไม่ต้องแก้โค้ด
+            </p>
           </div>
           <div class="p-4 bg-slate-900/60 rounded-lg border border-slate-800">
-            <h5 class="text-sm font-semibold text-amber-400 mb-2">SubmissionStatus & AwardTier</h5>
-            <ul class="text-xs space-y-1.5 text-slate-300">
-              <li><code class="text-yellow-400">DRAFT / SUBMITTED</code> : ฉบับร่าง / ยื่นผลงานแล้ว</li>
-              <li><code class="text-yellow-400">UNDER_REVIEW / FINALIST</code> : กำลังตรวจ / เข้ารอบสุดท้าย</li>
-              <li><code class="text-yellow-400">AWARDED</code> : ได้รับรางวัล (แสดงใน Hall of Fame)</li>
-              <li><code class="text-yellow-400">GRAND_WINNER</code> : ชนะเลิศ ถ้วยพระราชทานฯ</li>
-            </ul>
+            <h5 class="text-sm font-semibold text-emerald-400 mb-2">2. Category (5 สาขานวัตกรรม)</h5>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              ตาราง Master ของ 5 สาขานวัตกรรม (พลังงาน, อาหาร-เกษตร, ดิจิทัล-สังคม, การแพทย์, วัสดุก้าวหน้า) พร้อมจัดเก็บไอคอน สีธีม และภาพแบนเนอร์ เพื่อให้ Backend ส่งต่อให้ Frontend แสดงผลได้ทันที
+            </p>
+          </div>
+          <div class="p-4 bg-slate-900/60 rounded-lg border border-slate-800">
+            <h5 class="text-sm font-semibold text-cyan-400 mb-2">3. EducationLevel (ระดับการศึกษา)</h5>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              ตาราง Master สำหรับแบ่งกลุ่มผู้เข้าแข่งขัน (ต่ำกว่าอุดมศึกษา และ อุดมศึกษาขึ้นไป) ใช้ Join ร่วมกับทั้งตาราง User และ Submission เพื่อจัดหมวดหมู่การประกวดและการตัดสินรางวัล
+            </p>
           </div>
         </div>
       </div>
@@ -334,7 +370,7 @@ erDiagram
               <span class="font-mono text-sm text-slate-200">/api/auth/register</span>
               <span class="text-xs text-slate-400 ml-auto">Public</span>
             </div>
-            <p class="text-xs text-slate-400">ลงทะเบียนผู้ใช้งานใหม่ แฮชรหัสผ่านด้วย Argon2id และคืน JWT Token</p>
+            <p class="text-xs text-slate-400">ลงทะเบียนผู้ใช้งานใหม่ แฮชรหัสผ่านด้วย Argon2id ผูกกับ EducationLevel และคืน JWT Token</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-2">
               <div>
                 <span class="text-slate-400 block mb-1">Request Payload:</span>
@@ -353,7 +389,13 @@ erDiagram
   "success": true,
   "message": "ลงทะเบียนสำเร็จเข้าสู่ระบบเรียบร้อย",
   "token": "eyJhbGciOiJIUzI1NiIsIn...",
-  "user": { "id": "...", "email": "...", "role": "contestant" }
+  "user": {
+    "id": "cuid...",
+    "email": "user@kmutnb.ac.th",
+    "fullName": "สมชาย นวัตกรรม",
+    "role": "contestant",
+    "educationLevel": { "code": "higher_and_above", "nameTh": "ระดับตั้งแต่อุดมศึกษาขึ้นไป" }
+  }
 }</code></pre>
               </div>
             </div>
@@ -366,7 +408,7 @@ erDiagram
               <span class="font-mono text-sm text-slate-200">/api/auth/login</span>
               <span class="text-xs text-slate-400 ml-auto">Public</span>
             </div>
-            <p class="text-xs text-slate-400">เข้าสู่ระบบด้วยอีเมลและรหัสผ่าน รับ JWT Token สำหรับเรียก API อื่น</p>
+            <p class="text-xs text-slate-400">เข้าสู่ระบบด้วยอีเมลและรหัสผ่าน รับ JWT Token พร้อมข้อมูลโปรไฟล์ที่ Join กับระดับการศึกษา</p>
           </div>
 
           <!-- Me -->
@@ -376,7 +418,7 @@ erDiagram
               <span class="font-mono text-sm text-slate-200">/api/auth/me</span>
               <span class="text-xs text-emerald-400 ml-auto flex items-center gap-1">🔒 Bearer Token</span>
             </div>
-            <p class="text-xs text-slate-400">ดึงข้อมูลโปรไฟล์ของผู้ใช้ที่ล็อกอินอยู่ในปัจจุบัน</p>
+            <p class="text-xs text-slate-400">ดึงข้อมูลโปรไฟล์ของผู้ใช้ปัจจุบันพร้อมความสัมพันธ์ทั้งหมด</p>
           </div>
         </div>
       </div>
@@ -398,7 +440,7 @@ erDiagram
               <span class="font-mono text-sm text-slate-200">/api/submissions</span>
               <span class="text-xs text-slate-400 ml-auto">User / Public</span>
             </div>
-            <p class="text-xs text-slate-400">สร้างหรืออัปเดตผลงาน (รองรับทั้งบันทึกฉบับร่าง <code>isDraft: true</code> และส่งฉบับสมบูรณ์)</p>
+            <p class="text-xs text-slate-400">สร้างหรืออัปเดตผลงาน ผูกกับ Category, EducationLevel, CompetitionYear ปัจจุบัน และบันทึก TeamMember[] อัตโนมัติ</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs pt-2">
               <div>
                 <span class="text-slate-400 block mb-1">Request Payload:</span>
@@ -425,7 +467,10 @@ erDiagram
     "id": "cuid...",
     "trackingCode": "KMUTNB-2569-8821",
     "status": "submitted",
-    "submittedAt": "2026-08-20T10:00:00.000Z"
+    "year": 2569,
+    "category": { "nameTh": "Energy & Environment" },
+    "educationLevel": { "nameTh": "ระดับตั้งแต่อุดมศึกษาขึ้นไป" },
+    "members": [{ "fullName": "นาย สมชาย" }]
   }
 }</code></pre>
               </div>
@@ -439,7 +484,7 @@ erDiagram
               <span class="font-mono text-sm text-slate-200">/api/submissions/status/:trackingCode</span>
               <span class="text-xs text-slate-400 ml-auto">Public</span>
             </div>
-            <p class="text-xs text-slate-400">ค้นหาสถานะผลงานแบบ Real-time ด้วย Tracking Code (เช่น <code>KMUTNB-2569-8821</code>)</p>
+            <p class="text-xs text-slate-400">ค้นหาสถานะผลงานแบบ Real-time ด้วย Tracking Code พร้อม Join ข้อมูลหมวดหมู่และระดับการศึกษา</p>
           </div>
 
           <!-- My Submissions -->
@@ -464,16 +509,26 @@ erDiagram
         </div>
       </div>
 
-      <!-- Group 3: Hall of Fame & Announcements -->
+      <!-- Group 3: Master Data & Hall of Fame -->
       <div class="card-glass p-6 rounded-xl space-y-6">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
           <h4 class="text-lg font-bold text-white flex items-center gap-2">
-            <span class="text-yellow-400">🏆</span> คลังผลงานและประกาศข่าวสาร (Public Data & Hall of Fame)
+            <span class="text-yellow-400">🏆</span> Master Data และคลังผลงาน (Masters & Hall of Fame)
           </h4>
-          <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-400">Base: /api/winners, /api/announcements</span>
+          <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-400">Base: /api/masters, /api/winners, /api/announcements</span>
         </div>
 
         <div class="space-y-4">
+          <!-- Master Endpoints -->
+          <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="badge-method method-get">GET</span>
+              <span class="font-mono text-sm text-slate-200">/api/masters/years</span>
+              <span class="font-mono text-sm text-slate-400">, /api/masters/categories, /api/masters/education-levels</span>
+            </div>
+            <p class="text-xs text-slate-400">ดึงข้อมูล Master Data ทั้งหมดจากฐานข้อมูล (ปีการแข่งขัน, 5 หมวดหมู่นวัตกรรม, ระดับการศึกษา) ไปแสดงผลใน UI</p>
+          </div>
+
           <!-- Winners -->
           <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 space-y-2">
             <div class="flex items-center gap-2">
@@ -481,15 +536,15 @@ erDiagram
               <span class="font-mono text-sm text-slate-200">/api/winners</span>
               <span class="text-xs text-slate-400 ml-auto">Query: ?year=&category=&level=</span>
             </div>
-            <p class="text-xs text-slate-400">ดึงรายชื่อผลงานที่ได้รับรางวัลทั้งหมด (Hall of Fame) พร้อมรองรับตัวกรองปีการประกวด, สาขานวัตกรรม, และระดับการศึกษา</p>
+            <p class="text-xs text-slate-400">ดึงรายชื่อผลงานที่ได้รับรางวัลทั้งหมด (Hall of Fame) ที่ Join ตาราง Category, EducationLevel, CompetitionYear และ TeamMember ครบถ้วน</p>
           </div>
 
           <!-- Announcements / News -->
           <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 space-y-2">
             <div class="flex items-center gap-2">
               <span class="badge-method method-get">GET</span>
-              <span class="font-mono text-sm text-slate-200">/api/news</span>
-              <span class="font-mono text-sm text-slate-400">or /api/announcements</span>
+              <span class="font-mono text-sm text-slate-200">/api/announcements</span>
+              <span class="font-mono text-sm text-slate-400">or /api/news</span>
             </div>
             <p class="text-xs text-slate-400">ดึงข่าวสารและประกาศผลทางการ พร้อมรายชื่อทีมที่ผ่านเข้ารอบ (Finalists Roster) และผู้ชนะเลิศ</p>
           </div>
@@ -500,7 +555,7 @@ erDiagram
               <span class="badge-method method-get">GET</span>
               <span class="font-mono text-sm text-slate-200">/api/config</span>
             </div>
-            <p class="text-xs text-slate-400">ดึงข้อมูล 5 สาขานวัตกรรม, เกณฑ์การตัดสิน, เงินรางวัล, และกำหนดการกิจกรรม</p>
+            <p class="text-xs text-slate-400">ดึงข้อมูลกติกา 5 สาขานวัตกรรม, รางวัล, วันเวลาโครงการ รวมจากฐานข้อมูล</p>
           </div>
         </div>
       </div>
@@ -547,10 +602,10 @@ PORT=3001</code></pre>
               <span class="w-6 h-6 rounded-full bg-orange-600/30 text-orange-400 flex items-center justify-center text-xs">3</span>
               <span>รัน Prisma Migration & Database Seeding</span>
             </div>
-            <p class="text-xs text-slate-400 pl-8">สร้างตารางใน PostgreSQL และนำเข้าข้อมูลประวัติผลงานปี 2566–2568, ผู้ชนะรางวัล, และข่าวสารโครงการ</p>
+            <p class="text-xs text-slate-400 pl-8">สร้างตารางใน PostgreSQL และนำเข้าข้อมูล Master Data (ปี 2566–2569, 5 สาขา, 2 ระดับ), บัญชีผู้ใช้ และประวัติผลงาน Hall of Fame</p>
             <div class="pl-8 space-y-2">
               <pre class="bg-slate-950 p-2.5 rounded text-xs text-slate-300 font-mono"><code>cd server
-bunx prisma migrate dev --name init_innoaward_schema
+bunx prisma migrate dev --name init_innoaward_normalized_schema
 bun run prisma/seed.ts</code></pre>
             </div>
           </div>
