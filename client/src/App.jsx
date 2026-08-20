@@ -118,14 +118,18 @@ const WINNER_IMAGES = {
   'sub-2025-03': '/domain-food.jpg',
   'sub-2025-04': '/photo_candidates/young_team_workshop.jpg',
   'sub-2025-05': '/domain-material.jpg',
-  'sub-2025-06': '/photo_candidates/tech_creators.jpg'
+  'sub-2025-06': '/photo_candidates/tech_creators.jpg',
+  'sub-2024-01': '/winner-robot.jpg',
+  'sub-2023-01': '/winner-eco.jpg'
 };
 
 // Official Seed / Fallback Data for Hall of Fame Winners
 const FALLBACK_WINNERS = [
+  // --- ประจำปี 2568 (2025) ---
   {
     id: 'sub-2025-01',
-    trackingCode: 'KMUTNB-2025-0001',
+    trackingCode: 'KMUTNB-2568-0001',
+    year: 2568,
     awardTier: 'grand_winner',
     awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
     awardNameEn: 'Grand Prize - Royal Trophy',
@@ -143,7 +147,8 @@ const FALLBACK_WINNERS = [
   },
   {
     id: 'sub-2025-02',
-    trackingCode: 'KMUTNB-2025-0002',
+    trackingCode: 'KMUTNB-2568-0002',
+    year: 2568,
     awardTier: 'runner_up_1',
     awardNameTh: 'รางวัลรองชนะเลิศอันดับ 1',
     awardNameEn: '1st Runner-Up',
@@ -161,7 +166,8 @@ const FALLBACK_WINNERS = [
   },
   {
     id: 'sub-2025-03',
-    trackingCode: 'KMUTNB-2025-0003',
+    trackingCode: 'KMUTNB-2568-0003',
+    year: 2568,
     awardTier: 'runner_up_2',
     awardNameTh: 'รางวัลรองชนะเลิศอันดับ 2',
     awardNameEn: '2nd Runner-Up',
@@ -179,7 +185,8 @@ const FALLBACK_WINNERS = [
   },
   {
     id: 'sub-2025-04',
-    trackingCode: 'KMUTNB-2025-0004',
+    trackingCode: 'KMUTNB-2568-0004',
+    year: 2568,
     awardTier: 'honorable_mention',
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
@@ -197,7 +204,8 @@ const FALLBACK_WINNERS = [
   },
   {
     id: 'sub-2025-05',
-    trackingCode: 'KMUTNB-2025-0005',
+    trackingCode: 'KMUTNB-2568-0005',
+    year: 2568,
     awardTier: 'honorable_mention',
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
@@ -215,7 +223,8 @@ const FALLBACK_WINNERS = [
   },
   {
     id: 'sub-2025-06',
-    trackingCode: 'KMUTNB-2025-0006',
+    trackingCode: 'KMUTNB-2568-0006',
+    year: 2568,
     awardTier: 'honorable_mention',
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
@@ -229,6 +238,48 @@ const FALLBACK_WINNERS = [
     institution: 'โรงเรียนปรินส์รอยแยลส์วิทยาลัย',
     advisorName: 'โรงเรียนปรินส์รอยแยลส์วิทยาลัย',
     abstractTh: 'เครื่องตรวจคัดกรองความเสี่ยงโรคมะเร็งตับเบื้องต้นแบบไม่เจ็บตัว (Non-invasive) โดยการตรวจจับและวิเคราะห์รูปแบบของสารประกอบอินทรีย์ระเหยง่าย (VOCs) ในลมหายใจด้วยเซนเซอร์และอัลกอริทึม AI ที่แม่นยำสูง',
+    videoUrl: 'https://youtube.com'
+  },
+
+  // --- ประจำปี 2567 (2024) ---
+  {
+    id: 'sub-2024-01',
+    trackingCode: 'KMUTNB-2567-0001',
+    year: 2567,
+    awardTier: 'grand_winner',
+    awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
+    awardNameEn: 'Grand Prize - Royal Trophy',
+    awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
+    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+    titleTh: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติขั้นวิกฤต',
+    titleEn: 'Autonomous AI-Powered Rescue & Search Robot for Extreme Disaster Zones',
+    category: 'energy_environment',
+    educationLevel: 'higher_and_above',
+    teamName: 'KMUTNB Robotics Lab',
+    institution: 'คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    advisorName: 'คณะวิศวกรรมศาสตร์ มจพ.',
+    abstractTh: 'หุ่นยนต์กู้ภัยที่สามารถเคลื่อนที่ในพื้นที่ซากปรักหักพัง มีระบบตรวจจับสัญญาณชีพด้วยอินฟราเรดและ AI คอมพิวเตอร์วิสัยทัศน์ พร้อมสร้างแผนที่ 3 มิติแบบเรียลไทม์',
+    videoUrl: 'https://youtube.com'
+  },
+
+  // --- ประจำปี 2566 (2023) ---
+  {
+    id: 'sub-2023-01',
+    trackingCode: 'KMUTNB-2566-0001',
+    year: 2566,
+    awardTier: 'grand_winner',
+    awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
+    awardNameEn: 'Grand Prize - Royal Trophy',
+    awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
+    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+    titleTh: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
+    titleEn: 'Bio-Nanocellulose Enhanced Rice Straw Sustainable Packaging',
+    category: 'food_agriculture',
+    educationLevel: 'below_higher',
+    teamName: 'EcoInno High School Team',
+    institution: 'โรงเรียนสาธิต มจพ.',
+    advisorName: 'อาจารย์ที่ปรึกษา สาธิต มจพ.',
+    abstractTh: 'แนวคิดการแปรรูปเศษวัสดุเหลือทิ้งทางการเกษตรเป็นบรรจุภัณฑ์ทนความร้อน ทนน้ำ และย่อยสลายได้ในธรรมชาติภายใน 45 วัน เพื่อทดแทนพลาสติก',
     videoUrl: 'https://youtube.com'
   }
 ];
@@ -351,8 +402,10 @@ export default function App() {
   const [winners, setWinners] = useState([]);
 
   // Hall of Fame Filters
+  const [selectedYear, setSelectedYear] = useState('all');
   const [selectedDomain, setSelectedDomain] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
+  const [winnerSearch, setWinnerSearch] = useState('');
   
   // Modals
   const [selectedWinnerModal, setSelectedWinnerModal] = useState(null);
@@ -541,8 +594,18 @@ export default function App() {
 
   // Filter Winners
   const filteredWinners = (winners.length > 0 ? winners : FALLBACK_WINNERS).filter(w => {
+    if (selectedYear !== 'all' && String(w.year) !== String(selectedYear)) return false;
     if (selectedDomain !== 'all' && w.category !== selectedDomain) return false;
     if (selectedLevel !== 'all' && w.educationLevel !== selectedLevel) return false;
+    if (winnerSearch.trim()) {
+      const q = winnerSearch.toLowerCase();
+      const matchTitleTh = (w.titleTh || '').toLowerCase().includes(q);
+      const matchTitleEn = (w.titleEn || '').toLowerCase().includes(q);
+      const matchTeam = (w.teamName || '').toLowerCase().includes(q);
+      const matchInst = (w.institution || '').toLowerCase().includes(q);
+      const matchCode = (w.trackingCode || '').toLowerCase().includes(q);
+      if (!matchTitleTh && !matchTitleEn && !matchTeam && !matchInst && !matchCode) return false;
+    }
     return true;
   });
 
@@ -1261,6 +1324,9 @@ export default function App() {
                       <div className="winner-card-body">
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                            <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px', background: 'rgba(16, 185, 129, 0.18)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
+                              ปี {w.year || '2568'}
+                            </span>
                             <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
                               {getCategoryNameTh(w.category)}
                             </span>
@@ -1990,95 +2056,171 @@ export default function App() {
           <section className="section-wrapper">
             <div className="pro-container">
               
-              <div className="filter-bar">
-                <div>
-                  <div className="badge-tag">
-                    <Trophy className="w-4 h-4" />
-                    <span>HALL OF FAME & INSPIRATION</span>
+              <div className="filter-bar" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                  <div>
+                    <div className="badge-tag">
+                      <Trophy className="w-4 h-4" />
+                      <span>HALL OF FAME & INSPIRATION</span>
+                    </div>
+                    <h2 style={{ fontSize: '2rem' }}>คลังผลงานที่เคยได้รับรางวัล</h2>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginTop: '4px' }}>
+                      สืบค้นผลงานนวัตกรรมและสิ่งประดิษฐ์ที่ได้รับรางวัลเกียรติยศในแต่ละปีการประกวด
+                    </p>
                   </div>
-                  <h2 style={{ fontSize: '2rem' }}>คลังผลงานที่เคยได้รับรางวัล</h2>
+
+                  {/* Search Input */}
+                  <div style={{ minWidth: '260px', flex: '1 1 260px', maxWidth: '380px' }}>
+                    <div className="search-input-wrap">
+                      <Search className="w-4 h-4 text-emerald-400" />
+                      <input 
+                        type="text"
+                        placeholder="ค้นหาชื่อผลงาน, ทีม, สถาบัน..."
+                        value={winnerSearch}
+                        onChange={e => setWinnerSearch(e.target.value)}
+                        className="search-input"
+                      />
+                      {winnerSearch && (
+                        <button type="button" onClick={() => setWinnerSearch('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <select 
-                    value={selectedDomain} 
-                    onChange={e => setSelectedDomain(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="all">ทุกหมวดหมู่นวัตกรรม</option>
-                    <option value="energy_environment">Energy & Environment</option>
-                    <option value="food_agriculture">Food & Agriculture</option>
-                    <option value="social_economy">Social & Economy</option>
-                    <option value="medical_device">Medical Device</option>
-                    <option value="material">Material</option>
-                  </select>
+                {/* Filter Controls Row */}
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Calendar className="w-4 h-4 text-emerald-400" />
+                    <select 
+                      value={selectedYear} 
+                      onChange={e => setSelectedYear(e.target.value)}
+                      className="filter-select"
+                      style={{ minWidth: '170px' }}
+                    >
+                      <option value="all">ทุกปีการประกวด</option>
+                      <option value="2568">ประจำปี 2568 (2025)</option>
+                      <option value="2567">ประจำปี 2567 (2024)</option>
+                      <option value="2566">ประจำปี 2566 (2023)</option>
+                    </select>
+                  </div>
 
-                  <select 
-                    value={selectedLevel} 
-                    onChange={e => setSelectedLevel(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="all">ทุกระดับการศึกษา</option>
-                    <option value="below_higher">ต่ำกว่าอุดมศึกษา</option>
-                    <option value="higher_and_above">ตั้งแต่อุดมศึกษาขึ้นไป</option>
-                  </select>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <select 
+                      value={selectedDomain} 
+                      onChange={e => setSelectedDomain(e.target.value)}
+                      className="filter-select"
+                      style={{ minWidth: '180px' }}
+                    >
+                      <option value="all">ทุกหมวดหมู่นวัตกรรม</option>
+                      <option value="energy_environment">Energy & Environment</option>
+                      <option value="food_agriculture">Food & Agriculture</option>
+                      <option value="social_economy">Social & Economy</option>
+                      <option value="medical_device">Medical Device</option>
+                      <option value="material">Material</option>
+                    </select>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <select 
+                      value={selectedLevel} 
+                      onChange={e => setSelectedLevel(e.target.value)}
+                      className="filter-select"
+                      style={{ minWidth: '180px' }}
+                    >
+                      <option value="all">ทุกระดับการศึกษา</option>
+                      <option value="below_higher">ต่ำกว่าอุดมศึกษา</option>
+                      <option value="higher_and_above">ตั้งแต่อุดมศึกษาขึ้นไป</option>
+                    </select>
+                  </div>
+
+                  {(selectedYear !== 'all' || selectedDomain !== 'all' || selectedLevel !== 'all' || winnerSearch) && (
+                    <button 
+                      onClick={() => { setSelectedYear('all'); setSelectedDomain('all'); setSelectedLevel('all'); setWinnerSearch(''); }}
+                      className="btn-text"
+                      style={{ fontSize: '0.82rem', color: 'var(--emerald-400)', textDecoration: 'underline', padding: '6px 12px', background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                      ล้างตัวกรองทั้งหมด
+                    </button>
+                  )}
                 </div>
               </div>
 
               <div className="winner-grid">
-                {filteredWinners.map(w => (
-                  <button type="button"
-                    key={w.id}
-                    onClick={() => setSelectedWinnerModal(w)}
-                    className="winner-card"
-                  >
-                    <div className="winner-card-image-wrap">
-                      <img 
-                        src={WINNER_IMAGES[w.id] || w.image || '/winner-robot.jpg'} 
-                        alt={w.titleTh} 
-                        loading="lazy"
-                        decoding="async"
-                        className="winner-card-image"
-                      />
-                      <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-                        {renderAwardBadge(w)}
-                      </div>
-                      <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(7, 34, 26, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
-                        {w.trackingCode}
-                      </div>
-                    </div>
-
-                    <div className="winner-card-body">
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
-                          <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
-                            {getCategoryNameTh(w.category)}
-                          </span>
-                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                            {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาขึ้นไป'}
-                          </span>
+                {filteredWinners.length === 0 ? (
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '48px 24px', background: 'rgba(7, 34, 26, 0.5)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+                    <Trophy className="w-12 h-12 text-emerald-500/50" style={{ margin: '0 auto 16px' }} />
+                    <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>ไม่พบผลงานตามเงื่อนไขที่ค้นหา</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '16px' }}>
+                      ลองปรับเปลี่ยนตัวเลือกปีการประกวด หมวดหมู่ หรือคำค้นหาใหม่อีกครั้ง
+                    </p>
+                    <button 
+                      onClick={() => { setSelectedYear('all'); setSelectedDomain('all'); setSelectedLevel('all'); setWinnerSearch(''); }}
+                      className="btn-outline-cyan"
+                      style={{ padding: '8px 20px' }}
+                    >
+                      แสดงผลงานทั้งหมด
+                    </button>
+                  </div>
+                ) : (
+                  filteredWinners.map(w => (
+                    <button type="button"
+                      key={w.id}
+                      onClick={() => setSelectedWinnerModal(w)}
+                      className="winner-card"
+                    >
+                      <div className="winner-card-image-wrap">
+                        <img 
+                          src={WINNER_IMAGES[w.id] || w.image || '/winner-robot.jpg'} 
+                          alt={w.titleTh} 
+                          loading="lazy"
+                          decoding="async"
+                          className="winner-card-image"
+                        />
+                        <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
+                          {renderAwardBadge(w)}
                         </div>
-                        <h4>{w.titleTh}</h4>
-                        <div className="winner-card-en">{w.titleEn}</div>
-                        <div style={{ fontSize: '0.82rem', color: 'var(--emerald-400)', fontWeight: 600, marginTop: '6px', marginBottom: '8px' }}>
-                          ทีม {w.teamName} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>• {w.institution}</span>
+                        <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(7, 34, 26, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
+                          {w.trackingCode}
                         </div>
-                        <p>{w.abstractTh}</p>
                       </div>
 
-                      <div className="winner-card-footer">
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                          {w.awardNameTh || 'ผลงานที่ได้รับรางวัล'}
-                        </span>
-                        <span className="winner-cta-link">
-                          <span>อ่านสตอรี่ผลงาน</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </span>
+                      <div className="winner-card-body">
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                            <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px', background: 'rgba(16, 185, 129, 0.18)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
+                              ปี {w.year || '2568'}
+                            </span>
+                            <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
+                              {getCategoryNameTh(w.category)}
+                            </span>
+                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                              {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาขึ้นไป'}
+                            </span>
+                          </div>
+                          <h4>{w.titleTh}</h4>
+                          <div className="winner-card-en">{w.titleEn}</div>
+                          <div style={{ fontSize: '0.82rem', color: 'var(--emerald-400)', fontWeight: 600, marginTop: '6px', marginBottom: '8px' }}>
+                            ทีม {w.teamName} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>• {w.institution}</span>
+                          </div>
+                          <p>{w.abstractTh}</p>
+                        </div>
+
+                        <div className="winner-card-footer">
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            {w.awardNameTh || 'ผลงานที่ได้รับรางวัล'}
+                          </span>
+                          <span className="winner-cta-link">
+                            <span>อ่านสตอรี่ผลงาน</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))
+                )}
               </div>
 
             </div>
@@ -2530,6 +2672,9 @@ export default function App() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
               {renderAwardBadge(selectedWinnerModal)}
+              <span className="badge-category" style={{ background: 'rgba(16, 185, 129, 0.2)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
+                ปีการประกวด {selectedWinnerModal.year || '2568'}
+              </span>
               <span className="badge-category">
                 {getCategoryNameTh(selectedWinnerModal.category)}
               </span>

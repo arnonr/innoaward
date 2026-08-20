@@ -30,6 +30,7 @@ interface Submission {
   videoUrl?: string;
   documentUrl?: string;
   status: 'draft' | 'submitted' | 'under_review' | 'passed_first_round' | 'finalist' | 'awarded';
+  year?: number | string;
   institution?: string;
   awardTier?: string;
   awardNameTh?: string;
@@ -46,12 +47,14 @@ interface Submission {
 const users = new Map<string, User>();
 const submissions = new Map<string, Submission>();
 
-// Initial Seed Data: ผลการตัดสินรางวัล KMUTNB Innovation Awards (ปีที่ผ่านมา)
+// Initial Seed Data: ผลการตัดสินรางวัล KMUTNB Innovation Awards (ปี 2568, 2567, 2566)
 const winnersSeed: Submission[] = [
+  // --- ปี 2568 (2025) ---
   {
     id: 'sub-2025-01',
-    trackingCode: 'KMUTNB-2025-0001',
+    trackingCode: 'KMUTNB-2568-0001',
     userId: 'user-winner-1',
+    year: 2568,
     awardTier: 'grand_winner',
     awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
     awardNameEn: 'Grand Prize - Royal Trophy',
@@ -75,8 +78,9 @@ const winnersSeed: Submission[] = [
   },
   {
     id: 'sub-2025-02',
-    trackingCode: 'KMUTNB-2025-0002',
+    trackingCode: 'KMUTNB-2568-0002',
     userId: 'user-winner-2',
+    year: 2568,
     awardTier: 'runner_up_1',
     awardNameTh: 'รางวัลรองชนะเลิศอันดับ 1',
     awardNameEn: '1st Runner-Up',
@@ -100,8 +104,9 @@ const winnersSeed: Submission[] = [
   },
   {
     id: 'sub-2025-03',
-    trackingCode: 'KMUTNB-2025-0003',
+    trackingCode: 'KMUTNB-2568-0003',
     userId: 'user-winner-3',
+    year: 2568,
     awardTier: 'runner_up_2',
     awardNameTh: 'รางวัลรองชนะเลิศอันดับ 2',
     awardNameEn: '2nd Runner-Up',
@@ -125,8 +130,9 @@ const winnersSeed: Submission[] = [
   },
   {
     id: 'sub-2025-04',
-    trackingCode: 'KMUTNB-2025-0004',
+    trackingCode: 'KMUTNB-2568-0004',
     userId: 'user-winner-4',
+    year: 2568,
     awardTier: 'honorable_mention',
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
@@ -150,8 +156,9 @@ const winnersSeed: Submission[] = [
   },
   {
     id: 'sub-2025-05',
-    trackingCode: 'KMUTNB-2025-0005',
+    trackingCode: 'KMUTNB-2568-0005',
     userId: 'user-winner-5',
+    year: 2568,
     awardTier: 'honorable_mention',
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
@@ -175,8 +182,9 @@ const winnersSeed: Submission[] = [
   },
   {
     id: 'sub-2025-06',
-    trackingCode: 'KMUTNB-2025-0006',
+    trackingCode: 'KMUTNB-2568-0006',
     userId: 'user-winner-6',
+    year: 2568,
     awardTier: 'honorable_mention',
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
@@ -197,6 +205,62 @@ const winnersSeed: Submission[] = [
     videoUrl: 'https://youtube.com',
     submittedAt: '2025-05-15T14:45:00Z',
     updatedAt: '2025-06-26T16:30:00Z'
+  },
+
+  // --- ปี 2567 (2024) ---
+  {
+    id: 'sub-2024-01',
+    trackingCode: 'KMUTNB-2567-0001',
+    userId: 'user-winner-2024-1',
+    year: 2567,
+    awardTier: 'grand_winner',
+    awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
+    awardNameEn: 'Grand Prize - Royal Trophy',
+    awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
+    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+    titleTh: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติขั้นวิกฤต',
+    titleEn: 'Autonomous AI-Powered Rescue & Search Robot for Extreme Disaster Zones',
+    category: 'energy_environment',
+    educationLevel: 'higher_and_above',
+    teamName: 'KMUTNB Robotics Lab',
+    institution: 'คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    advisorName: 'คณะวิศวกรรมศาสตร์ มจพ.',
+    members: ['ทีม KMUTNB Robotics Lab'],
+    abstractTh: 'หุ่นยนต์กู้ภัยที่สามารถเคลื่อนที่ในพื้นที่ซากปรักหักพัง มีระบบตรวจจับสัญญาณชีพด้วยอินฟราเรดและ AI คอมพิวเตอร์วิสัยทัศน์ พร้อมสร้างแผนที่ 3 มิติแบบเรียลไทม์',
+    abstractEn: 'High-mobility rescue robot equipped with infrared vital sign sensors and AI mapping technology for hazardous disaster response.',
+    status: 'awarded',
+    image: '/winner-robot.jpg',
+    videoUrl: 'https://youtube.com',
+    submittedAt: '2024-05-10T10:00:00Z',
+    updatedAt: '2024-06-28T14:30:00Z'
+  },
+
+  // --- ปี 2566 (2023) ---
+  {
+    id: 'sub-2023-01',
+    trackingCode: 'KMUTNB-2566-0001',
+    userId: 'user-winner-2023-1',
+    year: 2566,
+    awardTier: 'grand_winner',
+    awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
+    awardNameEn: 'Grand Prize - Royal Trophy',
+    awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
+    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+    titleTh: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
+    titleEn: 'Bio-Nanocellulose Enhanced Rice Straw Sustainable Packaging',
+    category: 'food_agriculture',
+    educationLevel: 'below_higher',
+    teamName: 'EcoInno High School Team',
+    institution: 'โรงเรียนสาธิต มจพ.',
+    advisorName: 'อาจารย์ที่ปรึกษา สาธิต มจพ.',
+    members: ['ทีม EcoInno'],
+    abstractTh: 'แนวคิดการแปรรูปเศษวัสดุเหลือทิ้งทางการเกษตรเป็นบรรจุภัณฑ์ทนความร้อน ทนน้ำ และย่อยสลายได้ในธรรมชาติภายใน 45 วัน เพื่อทดแทนพลาสติก',
+    abstractEn: 'Innovative eco-friendly biodegradable packaging synthesized from agricultural rice straw waste.',
+    status: 'awarded',
+    image: '/winner-eco.jpg',
+    videoUrl: 'https://youtube.com',
+    submittedAt: '2023-05-12T09:15:00Z',
+    updatedAt: '2023-06-25T15:00:00Z'
   }
 ];
 
@@ -298,9 +362,13 @@ const app = new Elysia()
   .get('/api/winners', ({ query }) => {
     const category = query.category;
     const level = query.level;
+    const year = query.year;
 
     let result = Array.from(submissions.values()).filter(s => s.status === 'awarded');
 
+    if (year && year !== 'all') {
+      result = result.filter(s => String(s.year) === String(year));
+    }
     if (category && category !== 'all') {
       result = result.filter(s => s.category === category);
     }
