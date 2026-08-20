@@ -3081,11 +3081,14 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .criteria-header h5 {
   font-size: 1.05rem;
   color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
 }
 
 .criteria-score-badge {
@@ -3095,8 +3098,11 @@ button:disabled {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   font-weight: 800;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-block;
 }
 
 .criteria-progress-bg {
