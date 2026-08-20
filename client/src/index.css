@@ -2004,16 +2004,22 @@ button:disabled {
   margin: 0 auto 48px;
 }
 
+.badge-tag,
 .section-header .badge-tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--emerald-400);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 10px;
+}
+
+.badge-tag svg,
+.section-header .badge-tag svg {
+  flex-shrink: 0;
 }
 
 .section-header h2 {
