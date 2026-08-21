@@ -18,10 +18,22 @@ export const getAssetUrl = (path) => {
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:') || path.startsWith('blob:')) {
     return path;
   }
+  const rawBase = import.meta.env.BASE_URL || '/';
+  const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+  
+  // If path already starts with base (e.g. /innoawards/...), return as is
+  if (base !== '/' && path.startsWith(base)) {
+    return path;
+  }
+  
+  // Also check if path without leading slash starts with base without leading slash (e.g. innoawards/...)
+  const baseNoSlash = base.replace(/^\/+|\/+$/g, '');
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  const base = (import.meta.env.BASE_URL || '/').endsWith('/')
-    ? (import.meta.env.BASE_URL || '/')
-    : `${import.meta.env.BASE_URL}/`;
+  
+  if (baseNoSlash && cleanPath.startsWith(baseNoSlash + '/')) {
+    return `/${cleanPath}`;
+  }
+  
   return `${base}${cleanPath}`;
 };
 
@@ -77,7 +89,7 @@ const DOMAINS = [
     desc: 'นวัตกรรมด้านพลังงานทดแทน การจัดการสิ่งแวดล้อม เทคโนโลยีสีเขียว และการลดการปล่อยคาร์บอน',
     icon: Zap,
     color: '#059669',
-    bgImage: getAssetUrl('/domain-energy.jpg')
+    bgImage: '/domain-energy.jpg'
   },
   {
     id: 'food_agriculture',
@@ -88,7 +100,7 @@ const DOMAINS = [
     desc: 'นวัตกรรมเกษตรอัจฉริยะ (AgriTech) อาหารแห่งอนาคต การแปรรูปผลิตผล และความมั่นคงทางอาหาร',
     icon: Leaf,
     color: '#16A34A',
-    bgImage: getAssetUrl('/domain-food.jpg')
+    bgImage: '/domain-food.jpg'
   },
   {
     id: 'social_economy',
@@ -99,7 +111,7 @@ const DOMAINS = [
     desc: 'นวัตกรรมเพื่อการพัฒนาสังคม เศรษฐกิจดิจิทัล เทคโนโลยีการศึกษา และการยกระดับคุณภาพชีวิตชุมชน',
     icon: Users,
     color: '#06B6D4',
-    bgImage: getAssetUrl('/domain-social.jpg')
+    bgImage: '/domain-social.jpg'
   },
   {
     id: 'medical_device',
@@ -110,7 +122,7 @@ const DOMAINS = [
     desc: 'อุปกรณ์และเครื่องมือทางการแพทย์ เทคโนโลยีสุขภาพ (HealthTech) ชีวการแพทย์ และอุปกรณ์ช่วยดูแลสุขภาพ',
     icon: Activity,
     color: '#E11D48',
-    bgImage: getAssetUrl('/domain-medical.jpg')
+    bgImage: '/domain-medical.jpg'
   },
   {
     id: 'material',
@@ -121,20 +133,20 @@ const DOMAINS = [
     desc: 'นวัตกรรมด้านวัสดุศาสตร์ คอมโพสิต โพลีเมอร์ สารเคลือบผิว นาโนเทคโนโลยี และวัสดุก้าวหน้า',
     icon: Box,
     color: '#D97706',
-    bgImage: getAssetUrl('/domain-material.jpg')
+    bgImage: '/domain-material.jpg'
   }
 ];
 
 // Project Images for Awarded Works
 const WINNER_IMAGES = {
-  'sub-2025-01': getAssetUrl('/photo_candidates/science_lab.jpg'),
-  'sub-2025-02': getAssetUrl('/photo_candidates/robotics_engineer.jpg'),
-  'sub-2025-03': getAssetUrl('/domain-food.jpg'),
-  'sub-2025-04': getAssetUrl('/photo_candidates/young_team_workshop.jpg'),
-  'sub-2025-05': getAssetUrl('/domain-material.jpg'),
-  'sub-2025-06': getAssetUrl('/photo_candidates/tech_creators.jpg'),
-  'sub-2024-01': getAssetUrl('/winner-robot.jpg'),
-  'sub-2023-01': getAssetUrl('/winner-eco.jpg')
+  'sub-2025-01': '/photo_candidates/science_lab.jpg',
+  'sub-2025-02': '/photo_candidates/robotics_engineer.jpg',
+  'sub-2025-03': '/domain-food.jpg',
+  'sub-2025-04': '/photo_candidates/young_team_workshop.jpg',
+  'sub-2025-05': '/domain-material.jpg',
+  'sub-2025-06': '/photo_candidates/tech_creators.jpg',
+  'sub-2024-01': '/winner-robot.jpg',
+  'sub-2023-01': '/winner-eco.jpg'
 };
 
 // Official Seed / Fallback Data for Hall of Fame Winners
@@ -395,6 +407,9 @@ export default function App() {
   const parseRoute = () => {
     const route = window.location.hash.replace(/^#\//, '');
     const [view] = route.split('#');
+    if (view === 'winners' || view === 'halloffame') {
+      return 'halloffame';
+    }
     if (['guidelines', 'schedule', 'announcements', 'halloffame', 'contact'].includes(view)) {
       return view;
     }
@@ -1245,7 +1260,7 @@ export default function App() {
                       <div key={domain.id} className="domain-card">
                         <div 
                           className="domain-card-bg" 
-                          style={{ backgroundImage: `url(${domain.bgImage})` }} 
+                          style={{ backgroundImage: `url(${getAssetUrl(domain.bgImage)})` }} 
                         />
                         <div className="domain-card-overlay" />
                         <div>
@@ -1627,7 +1642,7 @@ export default function App() {
                   const IconComp = domain.icon;
                   return (
                     <div key={domain.id} className="domain-card">
-                      <img className="domain-card-bg" src={domain.bgImage} alt="" loading="lazy" decoding="async" />
+                      <img className="domain-card-bg" src={getAssetUrl(domain.bgImage)} alt="" loading="lazy" decoding="async" />
                       <div className="domain-card-overlay" />
                       <div>
                         <div className="domain-icon-wrap" style={{ borderColor: `${domain.color}90`, color: domain.color }}>
