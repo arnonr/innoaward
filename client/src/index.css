@@ -3543,6 +3543,40 @@ button:disabled {
     gap: 20px;
   }
 
+  .halloffame-filter-controls {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 12px !important;
+    width: 100%;
+  }
+
+  .halloffame-filter-controls > div {
+    width: 100%;
+  }
+
+  .halloffame-filter-controls > div:first-child {
+    position: relative;
+  }
+
+  .halloffame-filter-controls > div:first-child > svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    z-index: 1;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .halloffame-filter-controls .filter-select {
+    width: 100%;
+    min-width: 0 !important;
+    min-height: 52px;
+  }
+
+  .halloffame-filter-controls > div:first-child .filter-select {
+    padding-left: 52px;
+  }
+
   .contact-layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 32px;
