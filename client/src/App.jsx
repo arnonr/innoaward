@@ -11,10 +11,26 @@ import {
   Volume2, VolumeX
 } from 'lucide-react';
 
+
+// Helper for public asset paths considering Vite BASE_URL (e.g. /innoawards/ on production)
+export const getAssetUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:') || path.startsWith('blob:')) {
+    return path;
+  }
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  const base = (import.meta.env.BASE_URL || '/').endsWith('/')
+    ? (import.meta.env.BASE_URL || '/')
+    : `${import.meta.env.BASE_URL}/`;
+  return `${base}${cleanPath}`;
+};
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001/api';
+
 // Official Brand Logos (Direct Official Image Assets)
 const FacebookLogo = ({ size = 24, className = "" }) => (
   <img 
-    src="/facebook.svg" 
+    src={getAssetUrl('/facebook.svg')} 
     alt="Facebook" 
     width={size} 
     height={size} 
@@ -33,7 +49,7 @@ const FacebookLogo = ({ size = 24, className = "" }) => (
 
 const LineLogo = ({ size = 24, className = "" }) => (
   <img 
-    src="/line.svg" 
+    src={getAssetUrl('/line.svg')} 
     alt="LINE" 
     width={size} 
     height={size} 
@@ -50,8 +66,6 @@ const LineLogo = ({ size = 24, className = "" }) => (
   />
 );
 
-const API_BASE = 'http://localhost:3001/api';
-
 // Domain Definitions with Custom Background Images
 const DOMAINS = [
   {
@@ -63,7 +77,7 @@ const DOMAINS = [
     desc: 'นวัตกรรมด้านพลังงานทดแทน การจัดการสิ่งแวดล้อม เทคโนโลยีสีเขียว และการลดการปล่อยคาร์บอน',
     icon: Zap,
     color: '#059669',
-    bgImage: '/domain-energy.jpg'
+    bgImage: getAssetUrl('/domain-energy.jpg')
   },
   {
     id: 'food_agriculture',
@@ -74,7 +88,7 @@ const DOMAINS = [
     desc: 'นวัตกรรมเกษตรอัจฉริยะ (AgriTech) อาหารแห่งอนาคต การแปรรูปผลิตผล และความมั่นคงทางอาหาร',
     icon: Leaf,
     color: '#16A34A',
-    bgImage: '/domain-food.jpg'
+    bgImage: getAssetUrl('/domain-food.jpg')
   },
   {
     id: 'social_economy',
@@ -85,7 +99,7 @@ const DOMAINS = [
     desc: 'นวัตกรรมเพื่อการพัฒนาสังคม เศรษฐกิจดิจิทัล เทคโนโลยีการศึกษา และการยกระดับคุณภาพชีวิตชุมชน',
     icon: Users,
     color: '#06B6D4',
-    bgImage: '/domain-social.jpg'
+    bgImage: getAssetUrl('/domain-social.jpg')
   },
   {
     id: 'medical_device',
@@ -96,7 +110,7 @@ const DOMAINS = [
     desc: 'อุปกรณ์และเครื่องมือทางการแพทย์ เทคโนโลยีสุขภาพ (HealthTech) ชีวการแพทย์ และอุปกรณ์ช่วยดูแลสุขภาพ',
     icon: Activity,
     color: '#E11D48',
-    bgImage: '/domain-medical.jpg'
+    bgImage: getAssetUrl('/domain-medical.jpg')
   },
   {
     id: 'material',
@@ -107,20 +121,20 @@ const DOMAINS = [
     desc: 'นวัตกรรมด้านวัสดุศาสตร์ คอมโพสิต โพลีเมอร์ สารเคลือบผิว นาโนเทคโนโลยี และวัสดุก้าวหน้า',
     icon: Box,
     color: '#D97706',
-    bgImage: '/domain-material.jpg'
+    bgImage: getAssetUrl('/domain-material.jpg')
   }
 ];
 
 // Project Images for Awarded Works
 const WINNER_IMAGES = {
-  'sub-2025-01': '/photo_candidates/science_lab.jpg',
-  'sub-2025-02': '/photo_candidates/robotics_engineer.jpg',
-  'sub-2025-03': '/domain-food.jpg',
-  'sub-2025-04': '/photo_candidates/young_team_workshop.jpg',
-  'sub-2025-05': '/domain-material.jpg',
-  'sub-2025-06': '/photo_candidates/tech_creators.jpg',
-  'sub-2024-01': '/winner-robot.jpg',
-  'sub-2023-01': '/winner-eco.jpg'
+  'sub-2025-01': getAssetUrl('/photo_candidates/science_lab.jpg'),
+  'sub-2025-02': getAssetUrl('/photo_candidates/robotics_engineer.jpg'),
+  'sub-2025-03': getAssetUrl('/domain-food.jpg'),
+  'sub-2025-04': getAssetUrl('/photo_candidates/young_team_workshop.jpg'),
+  'sub-2025-05': getAssetUrl('/domain-material.jpg'),
+  'sub-2025-06': getAssetUrl('/photo_candidates/tech_creators.jpg'),
+  'sub-2024-01': getAssetUrl('/winner-robot.jpg'),
+  'sub-2023-01': getAssetUrl('/winner-eco.jpg')
 };
 
 // Official Seed / Fallback Data for Hall of Fame Winners
@@ -771,7 +785,7 @@ export default function App() {
             
             {/* Brand Logo & University Badges */}
             <button type="button" onClick={() => navigateTo('home')} className="pro-brand">
-              <img className="pro-brand-logo" src="/logo-68.png" alt="KMUTNB Techno Park" />
+              <img className="pro-brand-logo" src={getAssetUrl('/logo-68.png')} alt="KMUTNB Techno Park" />
             </button>
 
             {/* Streamlined Menu Links */}
@@ -956,7 +970,7 @@ export default function App() {
             <video
               ref={heroVideoRef}
               className="hero-background-video hero-youtube-background"
-              src="/hero-highlight-2025.mp4"
+              src={getAssetUrl('/hero-highlight-2025.mp4')}
               autoPlay
               muted={heroVideoMuted}
               loop
@@ -1335,7 +1349,7 @@ export default function App() {
                     >
                       <div className="winner-card-image-wrap">
                         <img 
-                          src={WINNER_IMAGES[w.id] || w.image || '/winner-robot.jpg'} 
+                          src={getAssetUrl(WINNER_IMAGES[w.id] || w.coverImage || w.image || '/winner-robot.jpg')} 
                           alt={w.titleTh} 
                           loading="lazy"
                           decoding="async"
@@ -2200,7 +2214,7 @@ export default function App() {
                     >
                       <div className="winner-card-image-wrap">
                         <img 
-                          src={WINNER_IMAGES[w.id] || w.image || '/winner-robot.jpg'} 
+                          src={getAssetUrl(WINNER_IMAGES[w.id] || w.coverImage || w.image || '/winner-robot.jpg')} 
                           alt={w.titleTh} 
                           loading="lazy"
                           decoding="async"
@@ -2723,7 +2737,7 @@ export default function App() {
 
             <div style={{ width: '100%', height: '230px', borderRadius: '12px', overflow: 'hidden', marginBottom: '18px', border: '1px solid var(--border-subtle)' }}>
               <img 
-                src={WINNER_IMAGES[selectedWinnerModal.id] || selectedWinnerModal.image || '/winner-robot.jpg'} 
+                src={getAssetUrl(WINNER_IMAGES[selectedWinnerModal.id] || selectedWinnerModal.coverImage || selectedWinnerModal.image || '/winner-robot.jpg')} 
                 alt={selectedWinnerModal.titleTh} 
                 decoding="async"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
