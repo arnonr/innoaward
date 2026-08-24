@@ -2339,6 +2339,22 @@ export default function App() {
                       </div>
                         <Download className="w-4 h-4 text-orange-400" />
                     </a>
+
+                    <a
+                      href={getAssetUrl('/Full paper_Template.docx')}
+                      download="Full paper_Template.docx"
+                      className="bento-tier-row contact-download-item"
+                      style={{ textDecoration: 'none', padding: '16px', background: 'rgba(7, 34, 26, 0.85)', border: '1px solid var(--border-medium)' }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <FileText className="w-5 h-5 text-cyan-400" />
+                        <div>
+                          <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Full paper Template.docx</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร Word • 33.6 KB</div>
+                        </div>
+                      </div>
+                      <Download className="w-4 h-4 text-cyan-400" />
+                    </a>
                   </div>
                 </div>
 
