@@ -985,11 +985,13 @@ export default function App() {
             <video
               ref={heroVideoRef}
               className="hero-background-video hero-youtube-background"
+              poster={getAssetUrl('/hero-poster.jpg')}
               src={getAssetUrl('/hero-highlight-2025.mp4')}
               autoPlay
               muted={heroVideoMuted}
               loop
               playsInline
+              preload="metadata"
               aria-hidden="true"
             />
             <button
