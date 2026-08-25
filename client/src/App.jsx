@@ -986,7 +986,7 @@ export default function App() {
               ref={heroVideoRef}
               className="hero-background-video hero-youtube-background"
               poster={getAssetUrl('/hero-poster.jpg')}
-              src={getAssetUrl('/hero-highlight-2025-opt.mp4')}
+              src={getAssetUrl('/hero-highlight-2025.mp4')}
               autoPlay
               muted={heroVideoMuted}
               loop
