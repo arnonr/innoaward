@@ -1,19 +1,19 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { 
+import {
   Trophy, Award, Rocket, Search, CheckCircle2,
-  FileText, Download, UserCheck, ShieldCheck, ChevronRight, 
+  FileText, Download, UserCheck, ShieldCheck, ChevronRight,
   ExternalLink, X, LogIn, UserPlus, Send, Save,
   BookOpen, Layers, Calendar, MapPin, Phone, Mail, Globe,
   Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
   CheckCircle, User, Video, ClipboardList, CheckSquare,
-  BarChart3, FileCheck, Bell, Megaphone, Crown, Medal, Eye, Menu,
-  Volume2, VolumeX
+  BarChart3, FileCheck, Bell, Megaphone, Crown, Medal, Eye, Menu
 } from 'lucide-react';
+import HeroThreeStage from './components/HeroThreeStage';
 
 
 // Helper for public asset paths considering Vite BASE_URL (e.g. /innoawards/ on production)
-export const getAssetUrl = (path) => {
+const getAssetUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:') || path.startsWith('blob:')) {
     return path;
@@ -515,8 +515,7 @@ export default function App() {
   };
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-  const heroVideoRef = useRef(null);
-  const [heroVideoMuted, setHeroVideoMuted] = useState(true);
+  const [hoveredDomainIndex, setHoveredDomainIndex] = useState(null);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -982,32 +981,7 @@ export default function App() {
         <main>
           {/* Hero Section */}
           <section className="hero-section hero-video-stage">
-            <video
-              ref={heroVideoRef}
-              className="hero-background-video hero-youtube-background"
-              poster={getAssetUrl('/hero-poster.jpg')}
-              src={getAssetUrl('/hero-highlight-2025.mp4')}
-              autoPlay
-              muted={heroVideoMuted}
-              loop
-              playsInline
-              preload="metadata"
-              aria-hidden="true"
-            />
-            <button
-              type="button"
-              className="hero-video-sound-toggle"
-              aria-label={heroVideoMuted ? 'เปิดเสียงวิดีโอ' : 'ปิดเสียงวิดีโอ'}
-              title={heroVideoMuted ? 'เปิดเสียงวิดีโอ' : 'ปิดเสียงวิดีโอ'}
-              onClick={() => {
-                const nextMuted = !heroVideoMuted;
-                if (heroVideoRef.current) heroVideoRef.current.muted = nextMuted;
-                setHeroVideoMuted(nextMuted);
-              }}
-            >
-              {heroVideoMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              <span>{heroVideoMuted ? 'เปิดเสียง' : 'ปิดเสียง'}</span>
-            </button>
+            <HeroThreeStage activeDomainIndex={hoveredDomainIndex} />
             <div className="hero-side-lockup" aria-hidden="true">
               <span className="hero-side-lockup-kicker">KMUTNB // 2026</span>
             </div>
@@ -1146,15 +1120,26 @@ export default function App() {
                           setSelectedDomain(domain);
                           setShowDomainDetail(true);
                         }}
+                        onMouseEnter={() => setHoveredDomainIndex(idx)}
+                        onMouseLeave={() => setHoveredDomainIndex(null)}
+                        onFocus={() => setHoveredDomainIndex(idx)}
+                        onBlur={() => setHoveredDomainIndex(null)}
                         className="editorial-category-item"
                       >
                         <span className="editorial-category-index">0{idx + 1}</span>
                         <IconComponent className="w-4 h-4" />
                         <span>{domain.titleEn}</span>
-                        </button>
+                      </button>
                     );
                   })}
-                  <button onClick={() => openSubmissionWithDomain('others')} className="editorial-category-item editorial-category-item-other">
+                  <button
+                    onClick={() => openSubmissionWithDomain('others')}
+                    onMouseEnter={() => setHoveredDomainIndex(null)}
+                    onMouseLeave={() => setHoveredDomainIndex(null)}
+                    onFocus={() => setHoveredDomainIndex(null)}
+                    onBlur={() => setHoveredDomainIndex(null)}
+                    className="editorial-category-item editorial-category-item-other"
+                  >
                     <span className="editorial-category-index">06</span>
                     <Globe className="w-4 h-4" />
                     <span>Others</span>
