@@ -10,6 +10,7 @@ import {
   BarChart3, FileCheck, Bell, Megaphone, Crown, Medal, Eye, Menu
 } from 'lucide-react';
 import HeroThreeStage from './components/HeroThreeStage';
+import { DOMAIN_CATALOG, getDomainSampleWinners } from './components/domainCatalog';
 
 
 // Helper for public asset paths considering Vite BASE_URL (e.g. /innoawards/ on production)
@@ -78,64 +79,19 @@ const LineLogo = ({ size = 24, className = "" }) => (
   />
 );
 
-// Domain Definitions with Custom Background Images
-const DOMAINS = [
-  {
-    id: 'energy_environment',
-    nameTh: 'Energy & Environment',
-    nameEn: 'Energy & Environment',
-    titleTh: 'พลังงานและสิ่งแวดล้อม',
-    titleEn: 'Energy & Environment',
-    desc: 'นวัตกรรมด้านพลังงานทดแทน การจัดการสิ่งแวดล้อม เทคโนโลยีสีเขียว และการลดการปล่อยคาร์บอน',
-    icon: Zap,
-    color: '#059669',
-    bgImage: '/domain-energy.jpg'
-  },
-  {
-    id: 'food_agriculture',
-    nameTh: 'Food & Agriculture',
-    nameEn: 'Food & Agriculture',
-    titleTh: 'เกษตรและอาหารแปรรูป',
-    titleEn: 'Food & Agriculture',
-    desc: 'นวัตกรรมเกษตรอัจฉริยะ (AgriTech) อาหารแห่งอนาคต การแปรรูปผลิตผล และความมั่นคงทางอาหาร',
-    icon: Leaf,
-    color: '#16A34A',
-    bgImage: '/domain-food.jpg'
-  },
-  {
-    id: 'social_economy',
-    nameTh: 'Social & Economy',
-    nameEn: 'Social & Economy',
-    titleTh: 'เศรษฐกิจและสังคมดิจิทัล',
-    titleEn: 'Social & Economy',
-    desc: 'นวัตกรรมเพื่อการพัฒนาสังคม เศรษฐกิจดิจิทัล เทคโนโลยีการศึกษา และการยกระดับคุณภาพชีวิตชุมชน',
-    icon: Users,
-    color: '#06B6D4',
-    bgImage: '/domain-social.jpg'
-  },
-  {
-    id: 'medical_device',
-    nameTh: 'Medical Device',
-    nameEn: 'Medical Device',
-    titleTh: 'เครื่องมือแพทย์และสาธารณสุข',
-    titleEn: 'Medical Device',
-    desc: 'อุปกรณ์และเครื่องมือทางการแพทย์ เทคโนโลยีสุขภาพ (HealthTech) ชีวการแพทย์ และอุปกรณ์ช่วยดูแลสุขภาพ',
-    icon: Activity,
-    color: '#E11D48',
-    bgImage: '/domain-medical.jpg'
-  },
-  {
-    id: 'material',
-    nameTh: 'Material',
-    nameEn: 'Material',
-    titleTh: 'วัสดุศาสตร์และเทคโนโลยีก้าวหน้า',
-    titleEn: 'Material',
-    desc: 'นวัตกรรมด้านวัสดุศาสตร์ คอมโพสิต โพลีเมอร์ สารเคลือบผิว นาโนเทคโนโลยี และวัสดุก้าวหน้า',
-    icon: Box,
-    color: '#D97706',
-    bgImage: '/domain-material.jpg'
-  }
-];
+// Domain Definitions with Custom Background Images & Detailed Scope/Criteria
+const DOMAIN_ICONS = {
+  energy_environment: Zap,
+  food_agriculture: Leaf,
+  social_economy: Users,
+  medical_device: Activity,
+  material: Box,
+};
+
+const DOMAINS = DOMAIN_CATALOG.map((domain) => ({
+  ...domain,
+  icon: DOMAIN_ICONS[domain.id] || Box,
+}));
 
 // Project Images for Awarded Works
 const WINNER_IMAGES = {
@@ -1253,7 +1209,12 @@ export default function App() {
                   {DOMAINS.map(domain => {
                     const IconComp = domain.icon;
                     return (
-                      <div key={domain.id} className="domain-card">
+                      <div
+                        key={domain.id}
+                        className="domain-card"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setDetailDomainModal(domain)}
+                      >
                         <div 
                           className="domain-card-bg" 
                           style={{ backgroundImage: `url(${getAssetUrl(domain.bgImage)})` }} 
@@ -1268,10 +1229,14 @@ export default function App() {
                           <h4>{domain.nameTh}</h4>
                           <p>{domain.desc}</p>
                           <button 
-                            onClick={() => openSubmissionWithDomain(domain.id)}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDetailDomainModal(domain);
+                            }}
                             className="domain-card-btn"
                           >
-                            <span>สมัครประกวด</span>
+                            <span>ดูรายละเอียดและสมัคร</span>
                             <ArrowRight className="w-4 h-4" />
                           </button>
                         </div>
@@ -1637,7 +1602,12 @@ export default function App() {
                 {DOMAINS.map(domain => {
                   const IconComp = domain.icon;
                   return (
-                    <div key={domain.id} className="domain-card">
+                    <div
+                      key={domain.id}
+                      className="domain-card"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => setDetailDomainModal(domain)}
+                    >
                       <img className="domain-card-bg" src={getAssetUrl(domain.bgImage)} alt="" loading="lazy" decoding="async" />
                       <div className="domain-card-overlay" />
                       <div>
@@ -1649,10 +1619,14 @@ export default function App() {
                         <h4>{domain.nameTh}</h4>
                         <p>{domain.desc}</p>
                         <button 
-                          onClick={() => openSubmissionWithDomain(domain.id)}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDetailDomainModal(domain);
+                          }}
                           className="domain-card-btn"
                         >
-                          <span>สมัครประกวด</span>
+                          <span>ดูรายละเอียดและสมัคร</span>
                           <ArrowRight className="w-4 h-4" />
                         </button>
                       </div>
@@ -2892,81 +2866,168 @@ export default function App() {
         </div>
       )}
 
-      {/* --- MODAL 4: DOMAIN DETAIL MODAL (FROM HERO CATEGORY STRIP) --- */}
-      {detailDomainModal && (
-        <div className="modal-overlay" onClick={() => setDetailDomainModal(null)}>
-          <div
-            className="modal-box"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="domain-modal-title"
-            style={{ maxWidth: '640px' }}
-            onClick={e => e.stopPropagation()}
-          >
-            <button
-              aria-label="ปิดหน้าต่างรายละเอียดประเภทการแข่งขัน"
-              className="modal-close-btn"
-              onClick={() => setDetailDomainModal(null)}
+      {/* --- MODAL 4: DOMAIN DETAIL MODAL (FROM HERO CATEGORY STRIP & DOMAIN CARDS) --- */}
+      {detailDomainModal && (() => {
+        const domainWinners = getDomainSampleWinners(
+          detailDomainModal.id,
+          winners.length > 0 ? winners : FALLBACK_WINNERS,
+          2
+        );
+        return (
+          <div className="modal-overlay" onClick={() => setDetailDomainModal(null)}>
+            <div
+              className="modal-box"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="domain-modal-title"
+              style={{ maxWidth: '720px' }}
+              onClick={e => e.stopPropagation()}
             >
-              <X className="w-5 h-5" />
-            </button>
+              <button
+                aria-label="ปิดหน้าต่างรายละเอียดประเภทการแข่งขัน"
+                className="modal-close-btn"
+                onClick={() => setDetailDomainModal(null)}
+              >
+                <X className="w-5 h-5" />
+              </button>
 
-            <div style={{ width: '100%', height: '210px', borderRadius: '14px', overflow: 'hidden', marginBottom: '18px', border: '1px solid var(--border-subtle)', position: 'relative' }}>
-              <img
-                src={getAssetUrl(detailDomainModal.bgImage)}
-                alt={detailDomainModal.titleTh}
-                decoding="async"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(15,32,56,0.1) 0%, rgba(15,32,56,0.82) 100%)' }} />
-              <div style={{ position: 'absolute', bottom: '14px', left: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span className="badge-category" style={{ background: 'rgba(24, 52, 88, 0.9)', borderColor: 'var(--border-cyan)', color: 'var(--emerald-300)' }}>
-                  INNOVATION DOMAIN
-                </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-                  {detailDomainModal.titleEn}
-                </span>
+              <div style={{ width: '100%', height: '200px', borderRadius: '14px', overflow: 'hidden', marginBottom: '18px', border: '1px solid var(--border-subtle)', position: 'relative' }}>
+                <img
+                  src={getAssetUrl(detailDomainModal.bgImage)}
+                  alt={detailDomainModal.titleTh}
+                  decoding="async"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(15,32,56,0.12) 0%, rgba(15,32,56,0.88) 100%)' }} />
+                <div style={{ position: 'absolute', bottom: '14px', left: '16px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <span className="badge-category" style={{ background: 'rgba(24, 52, 88, 0.92)', borderColor: 'var(--border-cyan)', color: 'var(--emerald-300)' }}>
+                    {detailDomainModal.indexLabel || 'INNOVATION DOMAIN'}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.84rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                    {detailDomainModal.titleEn}
+                  </span>
+                </div>
+              </div>
+
+              <h2 id="domain-modal-title" style={{ fontSize: '1.45rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                {detailDomainModal.titleTh}
+              </h2>
+              <p style={{ fontSize: '0.92rem', lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: '18px' }}>
+                {detailDomainModal.overview || detailDomainModal.desc}
+              </p>
+
+              {/* Scope & Sub-Topics */}
+              {Array.isArray(detailDomainModal.subTopics) && detailDomainModal.subTopics.length > 0 && (
+                <div style={{ background: 'rgba(24, 52, 88, 0.58)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', marginBottom: '14px' }}>
+                  <h4 style={{ color: 'var(--emerald-300)', fontSize: '0.94rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Layers className="w-4 h-4 text-emerald-400" />
+                    <span>ขอบเขตและด้านที่เกี่ยวข้อง (Scope & Sub-Topics)</span>
+                  </h4>
+                  <ul style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.86rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
+                    {detailDomainModal.subTopics.map((topic, idx) => (
+                      <li key={idx}>
+                        <strong style={{ color: 'var(--text-primary)' }}>{topic.title}: </strong>
+                        <span>{topic.detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Initial Criteria */}
+              {Array.isArray(detailDomainModal.initialCriteria) && detailDomainModal.initialCriteria.length > 0 && (
+                <div style={{ background: 'rgba(24, 52, 88, 0.58)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', marginBottom: '14px' }}>
+                  <h4 style={{ color: 'var(--cyan-300)', fontSize: '0.94rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+                    <span>เกณฑ์เบื้องต้นของผลงานในหมวดนี้ (Initial Criteria)</span>
+                  </h4>
+                  <ul style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.86rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
+                    {detailDomainModal.initialCriteria.map((criterion, idx) => (
+                      <li key={idx}>
+                        <strong style={{ color: 'var(--text-primary)' }}>{criterion.title}: </strong>
+                        <span>{criterion.detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Sample Past Winners in this Domain */}
+              {domainWinners.length > 0 && (
+                <div style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px dashed rgba(251, 191, 36, 0.45)', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }}>
+                  <div style={{ fontSize: '0.84rem', color: 'var(--gold-300)', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Trophy className="w-4 h-4 text-amber-300" />
+                    <span>ตัวอย่างผลงานที่เคยได้รับรางวัลในหมวดนี้</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {domainWinners.map((w) => (
+                      <button
+                        key={w.id || w.trackingCode}
+                        type="button"
+                        onClick={() => {
+                          setDetailDomainModal(null);
+                          setSelectedWinnerModal(w);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '12px',
+                          textAlign: 'left',
+                          width: '100%',
+                          padding: '10px 12px',
+                          borderRadius: '8px',
+                          background: 'rgba(15, 32, 56, 0.72)',
+                          border: '1px solid var(--border-subtle)',
+                          color: 'var(--text-primary)',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <div style={{ fontSize: '0.84rem', lineHeight: 1.45 }}>
+                          <div style={{ fontWeight: 600 }}>{w.titleTh}</div>
+                          <div style={{ fontSize: '0.76rem', color: 'var(--emerald-300)', marginTop: '2px' }}>
+                            {w.awardNameTh || 'รางวัลเกียรติยศ'} • ปี {w.year || '2568'}
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-emerald-400" style={{ flexShrink: 0 }} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn-solid-primary"
+                  style={{ flex: 1.2 }}
+                  disabled={timeLeft.expired}
+                  onClick={() => {
+                    const targetId = detailDomainModal.id;
+                    setDetailDomainModal(null);
+                    openSubmissionWithDomain(targetId);
+                  }}
+                >
+                  <Rocket className="w-4 h-4" />
+                  <span>{timeLeft.expired ? 'ปิดรับสมัครแล้ว' : 'สมัครประกวดในหมวดนี้'}</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn-outline-cyan"
+                  style={{ flex: 1 }}
+                  onClick={() => {
+                    setDetailDomainModal(null);
+                    navigateTo('guidelines', 'domains');
+                  }}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>ดูกติกาฉบับเต็ม</span>
+                </button>
               </div>
             </div>
-
-            <h2 id="domain-modal-title" style={{ fontSize: '1.45rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
-              {detailDomainModal.titleTh}
-            </h2>
-            <p style={{ fontSize: '0.94rem', lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: '22px' }}>
-              {detailDomainModal.desc}
-            </p>
-
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="btn-solid-primary"
-                style={{ flex: 1 }}
-                disabled={timeLeft.expired}
-                onClick={() => {
-                  const targetId = detailDomainModal.id;
-                  setDetailDomainModal(null);
-                  openSubmissionWithDomain(targetId);
-                }}
-              >
-                <Rocket className="w-4 h-4" />
-                <span>{timeLeft.expired ? 'ปิดรับสมัครแล้ว' : 'สมัครประกวดในหมวดนี้'}</span>
-              </button>
-              <button
-                type="button"
-                className="btn-outline-cyan"
-                style={{ flex: 1 }}
-                onClick={() => {
-                  setDetailDomainModal(null);
-                  navigateTo('guidelines', 'domains');
-                }}
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>ดูเกณฑ์การแข่งขัน</span>
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
     </div>
   );
