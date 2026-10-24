@@ -516,6 +516,9 @@ export default function App() {
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
   const [hoveredDomainIndex, setHoveredDomainIndex] = useState(null);
+  const [displayedDomainIndex, setDisplayedDomainIndex] = useState(0);
+  const [detailDomainModal, setDetailDomainModal] = useState(null);
+  const [subError, setSubError] = useState('');
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -549,7 +552,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const hasOpenModal = showPortalModal || showStatusModal || selectedWinnerModal;
+    const hasOpenModal = showPortalModal || showStatusModal || selectedWinnerModal || detailDomainModal;
     if (!hasOpenModal) return undefined;
 
     const modal = document.querySelector('[role="dialog"]');
@@ -563,6 +566,7 @@ export default function App() {
         setShowPortalModal(false);
         setShowStatusModal(false);
         setSelectedWinnerModal(null);
+        setDetailDomainModal(null);
         return;
       }
 
@@ -580,7 +584,7 @@ export default function App() {
 
     document.addEventListener('keydown', handleModalKeyDown);
     return () => document.removeEventListener('keydown', handleModalKeyDown);
-  }, [showPortalModal, showStatusModal, selectedWinnerModal]);
+  }, [showPortalModal, showStatusModal, selectedWinnerModal, detailDomainModal]);
 
   useEffect(() => {
     if (currentView !== 'guidelines') return undefined;
@@ -712,11 +716,12 @@ export default function App() {
 
   const handleSubmission = (isDraft = false) => {
     if (submissionLoading) return;
-    if (!subForm.titleTh) {
-      alert('กรุณากรอกชื่อผลงาน (ภาษาไทย)');
+    if (!subForm.titleTh.trim()) {
+      setSubError('กรุณาระบุชื่อผลงานสิ่งประดิษฐ์/นวัตกรรม (ภาษาไทย) ก่อนดำเนินการ');
       return;
     }
 
+    setSubError('');
     setSubmissionLoading(true);
     fetch(`${API_BASE}/submissions`, {
       method: 'POST',
@@ -981,7 +986,10 @@ export default function App() {
         <main>
           {/* Hero Section */}
           <section className="hero-section hero-video-stage">
-            <HeroThreeStage activeDomainIndex={hoveredDomainIndex} />
+            <HeroThreeStage
+              activeDomainIndex={hoveredDomainIndex}
+              onDomainChange={setDisplayedDomainIndex}
+            />
             <div className="hero-side-lockup" aria-hidden="true">
               <span className="hero-side-lockup-kicker">KMUTNB // 2026</span>
             </div>
@@ -1113,18 +1121,18 @@ export default function App() {
                 <div className="editorial-category-list">
                   {DOMAINS.map((domain, idx) => {
                     const IconComponent = domain.icon;
+                    const isDomainActive = (hoveredDomainIndex ?? displayedDomainIndex) === idx;
                     return (
                       <button
                         key={domain.id}
-                        onClick={() => {
-                          setSelectedDomain(domain);
-                          setShowDomainDetail(true);
-                        }}
+                        type="button"
+                        onClick={() => setDetailDomainModal(domain)}
                         onMouseEnter={() => setHoveredDomainIndex(idx)}
                         onMouseLeave={() => setHoveredDomainIndex(null)}
                         onFocus={() => setHoveredDomainIndex(idx)}
                         onBlur={() => setHoveredDomainIndex(null)}
-                        className="editorial-category-item"
+                        aria-current={isDomainActive ? 'true' : undefined}
+                        className={`editorial-category-item ${isDomainActive ? 'active' : ''}`}
                       >
                         <span className="editorial-category-index">0{idx + 1}</span>
                         <IconComponent className="w-4 h-4" />
@@ -1133,6 +1141,7 @@ export default function App() {
                     );
                   })}
                   <button
+                    type="button"
                     onClick={() => openSubmissionWithDomain('others')}
                     onMouseEnter={() => setHoveredDomainIndex(null)}
                     onMouseLeave={() => setHoveredDomainIndex(null)}
@@ -1342,7 +1351,7 @@ export default function App() {
                 </div>
                 <h2 style={{ fontSize: '2rem', marginBottom: '32px' }}>ตัวอย่างผลงานที่เคยได้รับรางวัลชนะเลิศ</h2>
 
-                <div className="winner-grid" style={{ textAlign: 'left' }}>
+                <div className="winner-grid home-winner-grid" style={{ textAlign: 'left' }}>
                   {filteredWinners.slice(0, 3).map(w => (
                     <button type="button"
                       key={w.id}
@@ -1706,7 +1715,7 @@ export default function App() {
                   </h4>
                   <div className="prizes-tier-grid">
                     <div className="prize-card" style={{ borderColor: 'var(--border-cyan)' }}>
-                      <div className="prize-medal-icon">🥇</div>
+                      <div className="prize-medal-icon" aria-hidden="true"><Crown /></div>
                       <h5>ชนะเลิศ First Place</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>30,000 ฿</div>
                       <span>ถ้วยเกียรติยศ + โล่ + เกียรติบัตร</span>
@@ -2305,26 +2314,36 @@ export default function App() {
                   </p>
 
                   <div className="contact-download-list">
-                    <a href="#" className="bento-tier-row contact-download-item" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(24, 52, 88, 0.85)', border: '1px solid var(--border-medium)' }}>
+                    <a
+                      href="#/guidelines"
+                      onClick={(e) => { e.preventDefault(); navigateTo('guidelines'); }}
+                      className="bento-tier-row contact-download-item"
+                      style={{ textDecoration: 'none', padding: '16px', background: 'rgba(24, 52, 88, 0.85)', border: '1px solid var(--border-medium)' }}
+                    >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <FileText className="w-5 h-5 text-emerald-400" />
                         <div>
                           <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>ประกาศเกณฑ์การประกวดฉบับทางการ 2569.pdf</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร PDF • 2.4 MB</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร PDF • 2.4 MB • คลิกเพื่อดูเกณฑ์การแข่งขัน</div>
                         </div>
                       </div>
                       <Download className="w-4 h-4 text-emerald-400" />
                     </a>
 
-                    <a href="#" className="bento-tier-row contact-download-item" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(24, 52, 88, 0.85)', border: '1px solid var(--border-medium)' }}>
+                    <a
+                      href="#/guidelines#standards"
+                      onClick={(e) => { e.preventDefault(); navigateTo('guidelines', 'standards'); }}
+                      className="bento-tier-row contact-download-item"
+                      style={{ textDecoration: 'none', padding: '16px', background: 'rgba(24, 52, 88, 0.85)', border: '1px solid var(--border-medium)' }}
+                    >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <FileText className="w-5 h-5 text-orange-400" />
                         <div>
                           <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>แบบฟอร์มข้อเสนอโครงการ (Proposal Template).docx</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร Word • 512 KB</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร Word • 512 KB • คลิกเพื่อดูมาตรฐานเอกสาร</div>
                         </div>
                       </div>
-                        <Download className="w-4 h-4 text-orange-400" />
+                      <Download className="w-4 h-4 text-orange-400" />
                     </a>
                   </div>
                 </div>
@@ -2564,6 +2583,24 @@ export default function App() {
                   </div>
                 ) : (
                   <div>
+                    {subError && (
+                      <div
+                        role="alert"
+                        aria-live="assertive"
+                        style={{
+                          padding: '12px 16px',
+                          marginBottom: '16px',
+                          borderRadius: '10px',
+                          background: 'rgba(225, 29, 72, 0.16)',
+                          border: '1px solid rgba(251, 113, 133, 0.5)',
+                          color: '#FDA4AF',
+                          fontSize: '0.85rem',
+                          fontWeight: 500
+                        }}
+                      >
+                        {subError}
+                      </div>
+                    )}
                     <div className="form-group">
                       <label htmlFor="submission-title-th" className="form-label">ชื่อผลงานสิ่งประดิษฐ์/นวัตกรรม (ภาษาไทย) *</label>
                       <input 
@@ -2571,7 +2608,10 @@ export default function App() {
                         className="form-input"
                         placeholder="เช่น หุ่นยนต์สำรวจภัยพิบัติอัจฉริยะ"
                         value={subForm.titleTh}
-                        onChange={e => setSubForm({...subForm, titleTh: e.target.value})}
+                        onChange={e => {
+                          if (subError) setSubError('');
+                          setSubForm({...subForm, titleTh: e.target.value});
+                        }}
                       />
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -2632,14 +2672,38 @@ export default function App() {
                       />
                     </div>
                     <div className="form-group">
-                      <label htmlFor="submission-cover-image" className="form-label">รูปภาพหน้าปกผลงาน / โปสเตอร์ (URL หรือ Path รูปภาพ)</label>
+                      <label htmlFor="submission-cover-image" className="form-label">ลิงก์รูปภาพหน้าปกผลงาน / โปสเตอร์ (URL รูปภาพ หรือเลือกภาพตัวอย่าง)</label>
                       <input 
                         id="submission-cover-image" type="text"
                         className="form-input"
-                        placeholder="เช่น /photo_candidates/robotics_engineer.jpg หรือ https://..."
+                        placeholder="วางลิงก์รูปภาพ https://... หรือเลือกภาพด้านล่าง"
                         value={subForm.coverImage}
                         onChange={e => setSubForm({...subForm, coverImage: e.target.value})}
                       />
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                        {[
+                          { label: 'ภาพหุ่นยนต์/AI', path: '/photo_candidates/robotics_engineer.jpg' },
+                          { label: 'ภาพห้องปฏิบัติการ', path: '/photo_candidates/science_lab.jpg' },
+                          { label: 'ภาพทีมวิจัย', path: '/photo_candidates/tech_creators.jpg' }
+                        ].map((preset) => (
+                          <button
+                            key={preset.path}
+                            type="button"
+                            onClick={() => setSubForm({ ...subForm, coverImage: preset.path })}
+                            style={{
+                              padding: '4px 10px',
+                              borderRadius: '999px',
+                              fontSize: '0.75rem',
+                              background: subForm.coverImage === preset.path ? 'rgba(0, 245, 160, 0.22)' : 'rgba(24, 52, 88, 0.72)',
+                              border: `1px solid ${subForm.coverImage === preset.path ? 'var(--emerald-400)' : 'var(--border-subtle)'}`,
+                              color: subForm.coverImage === preset.path ? 'var(--emerald-300)' : 'var(--text-secondary)',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            + {preset.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
                       <button type="button" disabled={submissionLoading} onClick={() => handleSubmission(true)} className="btn-outline-cyan" style={{ flex: 1 }}>
@@ -2693,21 +2757,49 @@ export default function App() {
             {statusLoading && <div role="status" aria-live="polite" style={{ textAlign: 'center', color: 'var(--cyan-300)', fontSize: '0.88rem', padding: '16px' }}>กำลังค้นหาข้อมูล...</div>}
 
             {statusError && (
-              <div role="alert" aria-live="assertive" style={{ padding: '12px 16px', borderRadius: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', fontSize: '0.85rem', textAlign: 'center' }}>
+              <div
+                role="alert"
+                aria-live="assertive"
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  background: 'rgba(225, 29, 72, 0.16)',
+                  border: '1px solid rgba(251, 113, 133, 0.5)',
+                  color: '#FDA4AF',
+                  fontSize: '0.85rem',
+                  textAlign: 'center'
+                }}
+              >
                 {statusError}
               </div>
             )}
 
             {statusResult && (
-              <div style={{ background: '#F0FDF4', border: '1px solid #A7F3D0', borderRadius: '12px', padding: '18px', fontSize: '0.85rem' }}>
+              <div
+                style={{
+                  background: 'rgba(24, 52, 88, 0.82)',
+                  border: '1px solid var(--border-cyan)',
+                  borderRadius: '14px',
+                  padding: '18px',
+                  fontSize: '0.85rem',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15)'
+                }}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', color: '#059669', fontWeight: 700 }}>{statusResult.trackingCode}</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--emerald-300)', fontWeight: 700 }}>{statusResult.trackingCode}</span>
                   <span className="badge-category">{statusResult.status}</span>
                 </div>
-                <div style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px', color: '#0F172A' }}>{statusResult.titleTh}</div>
+                <div style={{ fontSize: '1.02rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>{statusResult.titleTh}</div>
                 <div style={{ color: 'var(--text-secondary)', marginBottom: '12px' }}>ทีม: {statusResult.teamName}</div>
-                <div style={{ background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                  <strong style={{ color: '#059669', display: 'block', marginBottom: '4px' }}>ข้อความจากคณะกรรมการ:</strong>
+                <div
+                  style={{
+                    background: 'rgba(15, 32, 56, 0.78)',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-subtle)'
+                  }}
+                >
+                  <strong style={{ color: 'var(--emerald-300)', display: 'block', marginBottom: '4px' }}>ข้อความจากคณะกรรมการ:</strong>
                   <span style={{ color: 'var(--text-primary)' }}>{statusResult.feedback}</span>
                 </div>
               </div>
@@ -2795,6 +2887,82 @@ export default function App() {
                 <ExternalLink className="w-4 h-4" />
                 <span>รับชมวิดีโอสาธิตผลงาน</span>
               </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL 4: DOMAIN DETAIL MODAL (FROM HERO CATEGORY STRIP) --- */}
+      {detailDomainModal && (
+        <div className="modal-overlay" onClick={() => setDetailDomainModal(null)}>
+          <div
+            className="modal-box"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="domain-modal-title"
+            style={{ maxWidth: '640px' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              aria-label="ปิดหน้าต่างรายละเอียดประเภทการแข่งขัน"
+              className="modal-close-btn"
+              onClick={() => setDetailDomainModal(null)}
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div style={{ width: '100%', height: '210px', borderRadius: '14px', overflow: 'hidden', marginBottom: '18px', border: '1px solid var(--border-subtle)', position: 'relative' }}>
+              <img
+                src={getAssetUrl(detailDomainModal.bgImage)}
+                alt={detailDomainModal.titleTh}
+                decoding="async"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(15,32,56,0.1) 0%, rgba(15,32,56,0.82) 100%)' }} />
+              <div style={{ position: 'absolute', bottom: '14px', left: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span className="badge-category" style={{ background: 'rgba(24, 52, 88, 0.9)', borderColor: 'var(--border-cyan)', color: 'var(--emerald-300)' }}>
+                  INNOVATION DOMAIN
+                </span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                  {detailDomainModal.titleEn}
+                </span>
+              </div>
+            </div>
+
+            <h2 id="domain-modal-title" style={{ fontSize: '1.45rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+              {detailDomainModal.titleTh}
+            </h2>
+            <p style={{ fontSize: '0.94rem', lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: '22px' }}>
+              {detailDomainModal.desc}
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="btn-solid-primary"
+                style={{ flex: 1 }}
+                disabled={timeLeft.expired}
+                onClick={() => {
+                  const targetId = detailDomainModal.id;
+                  setDetailDomainModal(null);
+                  openSubmissionWithDomain(targetId);
+                }}
+              >
+                <Rocket className="w-4 h-4" />
+                <span>{timeLeft.expired ? 'ปิดรับสมัครแล้ว' : 'สมัครประกวดในหมวดนี้'}</span>
+              </button>
+              <button
+                type="button"
+                className="btn-outline-cyan"
+                style={{ flex: 1 }}
+                onClick={() => {
+                  setDetailDomainModal(null);
+                  navigateTo('guidelines', 'domains');
+                }}
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>ดูเกณฑ์การแข่งขัน</span>
+              </button>
             </div>
           </div>
         </div>

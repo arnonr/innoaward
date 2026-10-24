@@ -11,13 +11,18 @@ import {
   getMotionFactor,
 } from './heroThreeStageConfig.js';
 
-export default function HeroThreeStage({ activeDomainIndex = null }) {
+export default function HeroThreeStage({ activeDomainIndex = null, onDomainChange }) {
   const containerRef = useRef(null);
   const activeDomainRef = useRef(activeDomainIndex);
+  const onDomainChangeRef = useRef(onDomainChange);
 
   useEffect(() => {
     activeDomainRef.current = activeDomainIndex;
   }, [activeDomainIndex]);
+
+  useEffect(() => {
+    onDomainChangeRef.current = onDomainChange;
+  }, [onDomainChange]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -90,6 +95,7 @@ export default function HeroThreeStage({ activeDomainIndex = null }) {
       transitioning: false,
       cycleTimer: 0,
     };
+    let lastReportedDomain = 0;
 
     const pointer = { x: 0, y: 0 };
     const smoothedPointer = { x: 0, y: 0 };
@@ -134,6 +140,10 @@ export default function HeroThreeStage({ activeDomainIndex = null }) {
       const activeAccentIdx = transitionState.transitioning
         ? transitionState.nextIndex
         : transitionState.currentIndex;
+      if (activeAccentIdx !== lastReportedDomain) {
+        lastReportedDomain = activeAccentIdx;
+        onDomainChangeRef.current?.(activeAccentIdx);
+      }
       targetAccent.copy(domainColors[activeAccentIdx] || domainColors[0]);
       uniforms.uAccent.value.lerp(targetAccent, 0.08);
 

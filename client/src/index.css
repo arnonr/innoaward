@@ -113,10 +113,18 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text-primary);
+  text-wrap: balance;
 }
 
 p {
   color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.hud-num,
+.prize-cash-amount,
+.editorial-spotlight-stats strong {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Container Structure */
@@ -1343,6 +1351,17 @@ button:disabled {
   color: var(--gold-300);
 }
 
+.editorial-category-item.active {
+  background: rgba(56, 189, 248, 0.16);
+  color: #FFFFFF;
+  box-shadow: inset 0 2px 0 var(--emerald-400);
+}
+
+.editorial-category-item.active .editorial-category-index {
+  color: var(--emerald-300);
+  font-weight: 700;
+}
+
 .editorial-category-item svg { flex: 0 0 auto; color: var(--emerald-300); }
 
 .editorial-category-index {
@@ -2306,8 +2325,17 @@ button:disabled {
    ============================================================ */
 .domains-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 22px;
+}
+
+.domains-grid .domain-card:nth-child(1),
+.domains-grid .domain-card:nth-child(2) {
+  grid-column: span 3;
+}
+
+.domains-grid .domain-card:nth-child(n + 3) {
+  grid-column: span 2;
 }
 
 .domain-card {
@@ -2544,6 +2572,10 @@ button:disabled {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 28px;
+}
+
+.winner-grid.home-winner-grid {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .winner-card {
@@ -3368,6 +3400,18 @@ button:disabled {
   .domains-grid {
     grid-template-columns: 1fr 1fr;
   }
+  .domains-grid .domain-card:nth-child(n) {
+    grid-column: span 1;
+  }
+  .domains-grid .domain-card:last-child {
+    grid-column: 1 / -1;
+  }
+  .winner-grid.home-winner-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .winner-grid.home-winner-grid .winner-card:first-child {
+    grid-column: 1 / -1;
+  }
   .stepper-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -3531,6 +3575,9 @@ button:disabled {
   .domains-grid {
     grid-template-columns: 1fr;
   }
+  .domains-grid .domain-card:nth-child(n) {
+    grid-column: span 1;
+  }
   .stepper-grid {
     grid-template-columns: 1fr;
   }
@@ -3544,9 +3591,13 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .winner-grid {
+  .winner-grid,
+  .winner-grid.home-winner-grid {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+  .winner-grid.home-winner-grid .winner-card:first-child {
+    grid-column: span 1;
   }
 
   .halloffame-filter-controls {
