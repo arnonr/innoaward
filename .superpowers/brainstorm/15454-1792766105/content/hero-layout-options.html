@@ -1,0 +1,380 @@
+<h2>การจัดวาง Layout และลูกเล่นของฉาก 3D "The Royal Innovation Core & 5 Orbits"</h2>
+<p class="subtitle">เปรียบเทียบ 2 การจัดวางบนหน้า Hero จริง (ลองเอาเมาส์ชี้หมวดหมู่ในแบบที่ 1 หรือขยับเมาส์บนฉาก 3D ได้เลยครับ)</p>
+
+<style>
+  .layout-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  .layout-option {
+    background: #061712;
+    border: 2px solid rgba(0, 245, 160, 0.25);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    color: #f8fafc;
+  }
+  .layout-option:hover {
+    border-color: #00F5A0;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 24px rgba(0, 245, 160, 0.18);
+  }
+  .layout-option.selected {
+    border-color: #FB923C;
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.35), 0 16px 40px rgba(0, 0, 0, 0.55);
+  }
+  .layout-option-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.25rem;
+    background: rgba(11, 49, 38, 0.65);
+    border-bottom: 1px solid rgba(0, 245, 160, 0.2);
+  }
+  .layout-option-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .layout-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(0, 245, 160, 0.18);
+    border: 1px solid #00F5A0;
+    color: #00F5A0;
+    font-weight: 800;
+    font-size: 12px;
+  }
+  .layout-option.selected .layout-badge {
+    background: #FB923C;
+    border-color: #FB923C;
+    color: #04130E;
+  }
+  .layout-option-title h3 {
+    color: #fff;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .layout-rec {
+    font-size: 12px;
+    color: #FDBA74;
+    background: rgba(249, 115, 22, 0.16);
+    border: 1px solid rgba(249, 115, 22, 0.45);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .hero-full-mock {
+    position: relative;
+    min-height: 340px;
+    background: radial-gradient(circle at 72% 45%, #0c3529 0%, #04130e 70%);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 28px 32px 22px;
+  }
+  .hero-full-mock canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none;
+  }
+  .mock-content-left {
+    position: relative;
+    z-index: 2;
+    max-width: 52%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .mock-eyebrow {
+    font-size: 12px;
+    color: #FB923C;
+    font-weight: 700;
+  }
+  .mock-h1 {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 0.95;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .mock-h1 span {
+    color: #FB923C;
+    display: block;
+    font-size: 21px;
+    margin-top: 2px;
+  }
+  .mock-desc {
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+  .mock-hud-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 14px;
+    border-top: 1px solid rgba(216, 181, 104, 0.5);
+    border-bottom: 1px solid rgba(216, 181, 104, 0.5);
+    background: rgba(4, 19, 14, 0.65);
+    width: fit-content;
+    font-family: monospace;
+    font-size: 13px;
+    color: #fff;
+  }
+  .mock-hud-bar strong {
+    color: #00F5A0;
+  }
+  .mock-cta-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .mock-btn-primary {
+    background: linear-gradient(135deg, #00F5A0, #00D9F5);
+    color: #04130E;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 7px 14px;
+    border-radius: 8px;
+  }
+  .mock-btn-secondary {
+    background: rgba(4, 19, 14, 0.7);
+    border: 1px solid rgba(0, 217, 245, 0.45);
+    color: #E2FDF2;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 8px;
+  }
+  .mock-domain-strip {
+    position: relative;
+    z-index: 3;
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(4, 19, 14, 0.72);
+    backdrop-filter: blur(8px);
+  }
+  .mock-domain-pill {
+    padding: 10px 8px;
+    font-size: 11px;
+    color: #e2fdf2;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+    text-align: center;
+    transition: all 0.2s ease;
+    font-weight: 600;
+  }
+  .mock-domain-pill:first-child {
+    border-left: none;
+  }
+  .mock-domain-pill:hover {
+    background: rgba(251, 146, 60, 0.18);
+    color: #FDBA74;
+  }
+  .layout-desc-box {
+    padding: 1rem 1.25rem;
+    background: #071913;
+    border-top: 1px solid rgba(0, 245, 160, 0.15);
+    font-size: 0.88rem;
+    color: #cbd5e1;
+  }
+</style>
+
+<div class="options layout-stack">
+  <!-- Layout 1 -->
+  <div class="option layout-option" data-choice="layout-1-interactive-strip" onclick="toggleSelect(this)">
+    <div class="layout-option-bar">
+      <div class="layout-option-title">
+        <span class="layout-badge">แบบที่ 1</span>
+        <h3>3D Royal Core + แถบ 5 สาขานวัตกรรมเชื่อมกับวงโคจร 3D</h3>
+      </div>
+      <span class="layout-rec">⭐ แนะนำ (เชื่อมเนื้อหาเว็บกับ 3D)</span>
+    </div>
+    <div class="hero-full-mock" id="stage-l1">
+      <div class="mock-content-left">
+        <div class="mock-eyebrow">👑 ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ</div>
+        <div class="mock-h1">KMUTNB INNOVATION<span>AWARDS 2026</span></div>
+        <div class="mock-desc">เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ชิงถ้วยพระราชทานฯ และเงินรางวัลรวมกว่า 300,000+ บาท</div>
+        <div class="mock-hud-bar">
+          <span><strong>● LIVE</strong></span>
+          <span>206 DAYS : 14 HRS : 32 MINS : 09 SECS</span>
+        </div>
+        <div class="mock-cta-row">
+          <span class="mock-btn-primary">🚀 สมัครประกวด</span>
+          <span class="mock-btn-secondary">📖 ดูรายละเอียดการแข่งขัน</span>
+        </div>
+      </div>
+      <div class="mock-domain-strip" id="domain-strip-l1">
+        <div class="mock-domain-pill" data-idx="0">01 Energy & Env</div>
+        <div class="mock-domain-pill" data-idx="1">02 Food & Agri</div>
+        <div class="mock-domain-pill" data-idx="2">03 Social & Econ</div>
+        <div class="mock-domain-pill" data-idx="3">04 Medical Device</div>
+        <div class="mock-domain-pill" data-idx="4">05 Material</div>
+      </div>
+    </div>
+    <div class="layout-desc-box">
+      <strong>จุดเด่น:</strong> นำแถบ 5 หมวดนวัตกรรมด้านล่าง Hero กลับมาแสดง เมื่อผู้ชมเอาเมาส์ชี้หมวดไหน วงโคจรและดาวของหมวดนั้นในฉาก 3D จะสว่างวาบและเร่งความเร็วขึ้น (คลิกเพื่อเปิดดูรายละเอียดหมวดนั้นได้ทันที)
+    </div>
+  </div>
+
+  <!-- Layout 2 -->
+  <div class="option layout-option" data-choice="layout-2-clean-split" onclick="toggleSelect(this)">
+    <div class="layout-option-bar">
+      <div class="layout-option-title">
+        <span class="layout-badge">แบบที่ 2</span>
+        <h3>3D Royal Core แบบคลีนเต็มเวที (ไม่แสดงแถบหมวดด้านล่าง)</h3>
+      </div>
+    </div>
+    <div class="hero-full-mock" id="stage-l2" style="justify-content: center;">
+      <div class="mock-content-left">
+        <div class="mock-eyebrow">👑 ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ</div>
+        <div class="mock-h1">KMUTNB INNOVATION<span>AWARDS 2026</span></div>
+        <div class="mock-desc">เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ชิงถ้วยพระราชทานฯ และเงินรางวัลรวมกว่า 300,000+ บาท</div>
+        <div class="mock-hud-bar">
+          <span><strong>● LIVE</strong></span>
+          <span>206 DAYS : 14 HRS : 32 MINS : 09 SECS</span>
+        </div>
+        <div class="mock-cta-row">
+          <span class="mock-btn-primary">🚀 สมัครประกวด</span>
+          <span class="mock-btn-secondary">📖 ดูรายละเอียดการแข่งขัน</span>
+        </div>
+      </div>
+    </div>
+    <div class="layout-desc-box">
+      <strong>จุดเด่น:</strong> คงโครงสร้างมินิมอลเหมือนตอนใช้วิดีโอเป๊ะๆ โฟกัสเฉพาะชื่อโครงการ นับถอยหลัง ปุ่มสมัคร และฉาก 3D แกนพลังงานทองคำฝั่งขวาที่ขยับตามเมาส์อย่างเดียว
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+  function buildRoyalStage(containerId, stripId) {
+    const container = document.getElementById(containerId);
+    if (!container || !window.THREE) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(-1.35, 0.25, 5.4);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.insertBefore(renderer.domElement, container.firstChild);
+
+    const group = new THREE.Group();
+    group.position.set(0.65, 0.1, 0);
+    scene.add(group);
+
+    // Inner Golden Crystal Trophy Core
+    const coreGeo = new THREE.OctahedronGeometry(0.82, 1);
+    const coreMat = new THREE.MeshStandardMaterial({
+      color: 0xFB923C,
+      emissive: 0xEA580C,
+      emissiveIntensity: 0.5,
+      metalness: 0.85,
+      roughness: 0.18,
+      flatShading: true
+    });
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    group.add(coreMesh);
+
+    const cageGeo = new THREE.IcosahedronGeometry(1.12, 1);
+    const cageMat = new THREE.MeshBasicMaterial({ color: 0xFDBA74, wireframe: true, transparent: true, opacity: 0.32 });
+    const cageMesh = new THREE.Mesh(cageGeo, cageMat);
+    group.add(cageMesh);
+
+    const domainColors = [0x00F5A0, 0x22C55E, 0x00D9F5, 0xFB7185, 0xF59E0B];
+    const orbits = [];
+
+    domainColors.forEach((col, i) => {
+      const radius = 1.4 + i * 0.23;
+      const ringGeo = new THREE.TorusGeometry(radius, 0.014, 10, 72);
+      const ringMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.35 });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = Math.PI / 2.5 + (i * 0.18);
+      ring.rotation.y = i * 0.38;
+      group.add(ring);
+
+      const satGeo = new THREE.SphereGeometry(0.09, 16, 16);
+      const satMat = new THREE.MeshBasicMaterial({ color: col });
+      const sat = new THREE.Mesh(satGeo, satMat);
+      ring.add(sat);
+
+      orbits.push({ ring, ringMat, sat, radius, speed: 0.75 + i * 0.18, angle: i * 1.25 });
+    });
+
+    const pLight1 = new THREE.PointLight(0xFB923C, 2.2, 12);
+    pLight1.position.set(2, 2.5, 3);
+    scene.add(pLight1);
+    const pLight2 = new THREE.PointLight(0x00F5A0, 1.6, 12);
+    pLight2.position.set(-2, -2, 2);
+    scene.add(pLight2);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+
+    let activeIdx = -1;
+    if (stripId) {
+      const strip = document.getElementById(stripId);
+      if (strip) {
+        strip.querySelectorAll('.mock-domain-pill').forEach(pill => {
+          pill.addEventListener('mouseenter', () => {
+            activeIdx = parseInt(pill.dataset.idx, 10);
+          });
+          pill.addEventListener('mouseleave', () => {
+            activeIdx = -1;
+          });
+        });
+      }
+    }
+
+    let tx = 0, ty = 0;
+    container.addEventListener('mousemove', (e) => {
+      const r = container.getBoundingClientRect();
+      tx = ((e.clientX - r.left) / r.width - 0.5) * 0.9;
+      ty = ((e.clientY - r.top) / r.height - 0.5) * 0.9;
+    });
+
+    function animate(t) {
+      requestAnimationFrame(animate);
+      const time = t * 0.001;
+      coreMesh.rotation.y = time * 0.55;
+      coreMesh.rotation.x = Math.sin(time * 0.5) * 0.25;
+      cageMesh.rotation.y = -time * 0.28;
+
+      orbits.forEach((o, idx) => {
+        const isHot = activeIdx === idx;
+        const targetOpacity = activeIdx === -1 ? 0.35 : (isHot ? 0.95 : 0.12);
+        o.ringMat.opacity += (targetOpacity - o.ringMat.opacity) * 0.12;
+        const targetScale = isHot ? 1.8 : 1.0;
+        o.sat.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.15);
+
+        const a = time * (isHot ? o.speed * 2.2 : o.speed) + o.angle;
+        o.sat.position.set(Math.cos(a) * o.radius, Math.sin(a) * o.radius, 0);
+      });
+
+      group.rotation.y += (tx - group.rotation.y) * 0.06;
+      group.rotation.x += (ty - group.rotation.x) * 0.06;
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(animate);
+  }
+
+  function boot() {
+    if (!window.THREE) {
+      setTimeout(boot, 100);
+      return;
+    }
+    buildRoyalStage('stage-l1', 'domain-strip-l1');
+    buildRoyalStage('stage-l2', null);
+  }
+  boot();
+})();
+</script>

@@ -1,0 +1,459 @@
+<h2>เลือกแนวทางฉาก 3D (Three.js) สำหรับหน้าแรก KMUTNB Innovation Awards 2026</h2>
+<p class="subtitle">ตัวอย่างด้านล่างรันด้วย Three.js จริง (ลองขยับเมาส์บนภาพตัวอย่างแต่ละแบบเพื่อดูการโต้ตอบ แล้วคลิกเลือกแบบที่ชอบได้เลยครับ)</p>
+
+<style>
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+  .concept-card {
+    background: #071913;
+    border: 2px solid rgba(0, 245, 160, 0.25);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    display: flex;
+    flex-direction: column;
+    color: #f8fafc;
+  }
+  .concept-card:hover {
+    border-color: #00F5A0;
+    transform: translateY(-4px);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), 0 0 24px rgba(0, 245, 160, 0.22);
+  }
+  .concept-card.selected {
+    border-color: #FB923C;
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.35), 0 16px 40px rgba(0, 0, 0, 0.55);
+  }
+  .stage-preview {
+    position: relative;
+    height: 250px;
+    background: radial-gradient(circle at 70% 50%, #0b3126 0%, #04130e 75%);
+    overflow: hidden;
+    border-bottom: 1px solid rgba(0, 245, 160, 0.18);
+  }
+  .stage-preview canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+  .hero-mini-overlay {
+    position: absolute;
+    inset: 0;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(4,19,14,0.92) 0%, rgba(4,19,14,0.68) 42%, transparent 82%);
+    z-index: 2;
+  }
+  .mini-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #FB923C;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .mini-title {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .mini-title span {
+    display: block;
+    color: #FB923C;
+    font-size: 12px;
+  }
+  .mini-hud {
+    display: inline-flex;
+    gap: 6px;
+    background: rgba(4, 19, 14, 0.75);
+    border-top: 1px solid rgba(251, 146, 60, 0.45);
+    border-bottom: 1px solid rgba(251, 146, 60, 0.45);
+    padding: 4px 8px;
+    width: fit-content;
+    font-family: monospace;
+    font-size: 11px;
+    color: #00F5A0;
+    margin-bottom: 8px;
+  }
+  .mini-cta {
+    display: inline-block;
+    background: linear-gradient(135deg, #00F5A0, #00D9F5);
+    color: #04130E;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    width: fit-content;
+  }
+  .concept-body {
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    flex: 1;
+  }
+  .concept-header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+  .concept-letter {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(0, 245, 160, 0.16);
+    border: 1px solid #00F5A0;
+    color: #00F5A0;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .concept-card.selected .concept-letter {
+    background: #FB923C;
+    border-color: #FB923C;
+    color: #04130E;
+  }
+  .concept-body h3 {
+    color: #ffffff;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .concept-body p {
+    color: #cbd5e1;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+  .concept-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+  .concept-tag {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.07);
+    color: #86EFAC;
+    border: 1px solid rgba(134, 239, 172, 0.25);
+  }
+</style>
+
+<div class="options concept-grid">
+  <!-- Option A -->
+  <div class="option concept-card" data-choice="a-royal-orbital" onclick="toggleSelect(this)">
+    <div class="stage-preview" id="preview-a">
+      <div class="hero-mini-overlay">
+        <div class="mini-badge">👑 ชิงถ้วยพระราชทานฯ</div>
+        <div class="mini-title">KMUTNB<br>INNOVATION<span>AWARDS 2026</span></div>
+        <div class="mini-hud">LIVE // 206 : 14 : 32 : 09</div>
+        <div class="mini-cta">🚀 สมัครประกวด</div>
+      </div>
+    </div>
+    <div class="concept-body">
+      <div class="concept-header">
+        <div class="concept-letter">A</div>
+        <h3>The Royal Innovation Core & 5 Orbits</h3>
+      </div>
+      <p>
+        <strong>แกนพลังงานทองคำ + วงโคจร 5 สาขานวัตกรรม:</strong> ตรงกลางฝั่งขวาเป็นประติมากรรม 3D เรืองแสงสีทองส้ม (สื่อถึงรางวัลถ้วยพระราชทานฯ) ล้อมรอบด้วยวงแหวนและดวงดาว 5 สีตาม 5 หมวดการแข่งขัน หมุนตามการขยับเมาส์อย่างสง่างาม
+      </p>
+      <div class="concept-tags">
+        <span class="concept-tag">✨ สง่างามสมเกียรติรางวัล</span>
+        <span class="concept-tag">🎯 สื่อถึง 5 หมวดชัดเจน</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="option concept-card" data-choice="b-neural-wave" onclick="toggleSelect(this)">
+    <div class="stage-preview" id="preview-b">
+      <div class="hero-mini-overlay">
+        <div class="mini-badge">👑 ชิงถ้วยพระราชทานฯ</div>
+        <div class="mini-title">KMUTNB<br>INNOVATION<span>AWARDS 2026</span></div>
+        <div class="mini-hud">LIVE // 206 : 14 : 32 : 09</div>
+        <div class="mini-cta">🚀 สมัครประกวด</div>
+      </div>
+    </div>
+    <div class="concept-body">
+      <div class="concept-header">
+        <div class="concept-letter">B</div>
+        <h3>Cyber-Emerald Innovation Wave & Plexus</h3>
+      </div>
+      <p>
+        <strong>คลื่นพลังงานและโครงข่ายอัจฉริยะ (Tech Landscape):</strong> พื้นหลังเป็นคลื่นอนุภาค 3D และเส้นเชื่อมโยง (Neural Network) โทนสีเขียวมรกต-ไซแอนตัดประกายทอง พลิ้วไหวและกระเพื่อมตามตำแหน่งเมาส์ทั่วทั้ง Hero อ่านตัวหนังสือได้คมชัดที่สุด
+      </p>
+      <div class="concept-tags">
+        <span class="concept-tag">🌊 กลมกลืนเป็นพื้นหลัง</span>
+        <span class="concept-tag">⚡ ล้ำสมัย & อ่านข้อความง่าย</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="option concept-card" data-choice="c-domain-morph" onclick="toggleSelect(this)">
+    <div class="stage-preview" id="preview-c">
+      <div class="hero-mini-overlay">
+        <div class="mini-badge">👑 ชิงถ้วยพระราชทานฯ</div>
+        <div class="mini-title">KMUTNB<br>INNOVATION<span>AWARDS 2026</span></div>
+        <div class="mini-hud">LIVE // 206 : 14 : 32 : 09</div>
+        <div class="mini-cta">🚀 สมัครประกวด</div>
+      </div>
+    </div>
+    <div class="concept-body">
+      <div class="concept-header">
+        <div class="concept-letter">C</div>
+        <h3>Interactive Domain Prism Stage</h3>
+      </div>
+      <p>
+        <strong>แท่นโฮโลแกรมเปลี่ยนรูปทรงตามหมวดหมู่:</strong> แสดงรูปทรงเรขาคณิตโฮโลแกรม 3D บนแท่นแสงพร้อมแถบปุ่ม 5 สาขานวัตกรรมด้านล่าง เมื่อเอาเมาส์ชี้แต่ละสาขา รูปทรงและสีของ 3D จะเปลี่ยนตามสาขานั้นทันที
+      </p>
+      <div class="concept-tags">
+        <span class="concept-tag">🎮 ลูกเล่น Interactive สูง</span>
+        <span class="concept-tag">🔄 เปลี่ยนสี/ทรงตามหมวด</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+  function initScenes() {
+    if (!window.THREE) {
+      setTimeout(initScenes, 100);
+      return;
+    }
+
+    // --- SCENE A: Royal Innovation Core & 5 Orbits ---
+    (function() {
+      const container = document.getElementById('preview-a');
+      if (!container) return;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+      camera.position.set(-0.9, 0.4, 5.2);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      const group = new THREE.Group();
+      group.position.x = 0.75;
+      scene.add(group);
+
+      // Golden Core (Octahedron + Wireframe cage)
+      const coreGeo = new THREE.OctahedronGeometry(0.75, 1);
+      const coreMat = new THREE.MeshStandardMaterial({
+        color: 0xFB923C,
+        emissive: 0xEA580C,
+        emissiveIntensity: 0.45,
+        metalness: 0.8,
+        roughness: 0.2,
+        flatShading: true
+      });
+      const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+      group.add(coreMesh);
+
+      const cageGeo = new THREE.IcosahedronGeometry(1.05, 1);
+      const cageMat = new THREE.MeshBasicMaterial({ color: 0xFDBA74, wireframe: true, transparent: true, opacity: 0.35 });
+      const cageMesh = new THREE.Mesh(cageGeo, cageMat);
+      group.add(cageMesh);
+
+      // 5 Domain Orbits
+      const domainColors = [0x00F5A0, 0x22C55E, 0x00D9F5, 0xFB7185, 0xF59E0B];
+      const satellites = [];
+      domainColors.forEach((col, i) => {
+        const radius = 1.35 + i * 0.22;
+        const ringGeo = new THREE.TorusGeometry(radius, 0.012, 8, 64);
+        const ringMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.32 });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.PI / 2.6 + (i * 0.18);
+        ring.rotation.y = i * 0.35;
+        group.add(ring);
+
+        const satGeo = new THREE.SphereGeometry(0.08, 16, 16);
+        const satMat = new THREE.MeshBasicMaterial({ color: col });
+        const sat = new THREE.Mesh(satGeo, satMat);
+        ring.add(sat);
+        satellites.push({ sat, radius, speed: 0.8 + i * 0.2, angle: i * 1.2 });
+      });
+
+      const light1 = new THREE.PointLight(0xFB923C, 2, 10);
+      light1.position.set(2, 2, 3);
+      scene.add(light1);
+      const light2 = new THREE.PointLight(0x00F5A0, 1.5, 10);
+      light2.position.set(-2, -2, 2);
+      scene.add(light2);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+      let targetX = 0, targetY = 0;
+      container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        targetX = ((e.clientX - rect.left) / rect.width - 0.5) * 1.2;
+        targetY = ((e.clientY - rect.top) / rect.height - 0.5) * 1.2;
+      });
+
+      function animate(t) {
+        requestAnimationFrame(animate);
+        const time = t * 0.001;
+        coreMesh.rotation.y = time * 0.6;
+        coreMesh.rotation.x = Math.sin(time * 0.5) * 0.3;
+        cageMesh.rotation.y = -time * 0.3;
+        satellites.forEach(s => {
+          const a = time * s.speed + s.angle;
+          s.sat.position.set(Math.cos(a) * s.radius, Math.sin(a) * s.radius, 0);
+        });
+        group.rotation.y += (targetX - group.rotation.y) * 0.06;
+        group.rotation.x += (targetY - group.rotation.x) * 0.06;
+        renderer.render(scene, camera);
+      }
+      requestAnimationFrame(animate);
+    })();
+
+    // --- SCENE B: Cyber-Emerald Wave & Plexus ---
+    (function() {
+      const container = document.getElementById('preview-b');
+      if (!container) return;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+      camera.position.set(0, 1.8, 4.5);
+      camera.lookAt(0.5, 0, 0);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      const cols = 28, rows = 18;
+      const count = cols * rows;
+      const positions = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          const idx = (i * rows + j) * 3;
+          positions[idx] = (i - cols / 2) * 0.28 + 0.6;
+          positions[idx + 1] = 0;
+          positions[idx + 2] = (j - rows / 2) * 0.28;
+
+          const mix = i / cols;
+          // Emerald to Cyan to Gold accent
+          colors[idx] = mix > 0.8 ? 0.98 : 0.0;
+          colors[idx + 1] = mix > 0.8 ? 0.57 : 0.96;
+          colors[idx + 2] = mix > 0.8 ? 0.23 : (0.62 + mix * 0.35);
+        }
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      const mat = new THREE.PointsMaterial({ size: 0.075, vertexColors: true, transparent: true, opacity: 0.9 });
+      const points = new THREE.Points(geo, mat);
+      scene.add(points);
+
+      // Subtle wireframe plane underneath
+      const planeGeo = new THREE.PlaneGeometry(7.5, 4.5, 24, 14);
+      planeGeo.rotateX(-Math.PI / 2);
+      const planeMat = new THREE.MeshBasicMaterial({ color: 0x00F5A0, wireframe: true, transparent: true, opacity: 0.12 });
+      const plane = new THREE.Mesh(planeGeo, planeMat);
+      plane.position.x = 0.6;
+      scene.add(plane);
+
+      let mouseX = 0, mouseY = 0;
+      container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+        mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+      });
+
+      function animate(t) {
+        requestAnimationFrame(animate);
+        const time = t * 0.0018;
+        const pos = geo.attributes.position.array;
+        for (let i = 0; i < cols; i++) {
+          for (let j = 0; j < rows; j++) {
+            const idx = (i * rows + j) * 3;
+            const x = pos[idx];
+            const z = pos[idx + 2];
+            pos[idx + 1] = Math.sin(x * 1.1 + time + mouseX) * 0.32 + Math.cos(z * 1.3 + time + mouseY) * 0.25;
+          }
+        }
+        geo.attributes.position.needsUpdate = true;
+        plane.rotation.y = mouseX * 0.15;
+        renderer.render(scene, camera);
+      }
+      requestAnimationFrame(animate);
+    })();
+
+    // --- SCENE C: Interactive Domain Prism Stage ---
+    (function() {
+      const container = document.getElementById('preview-c');
+      if (!container) return;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+      camera.position.set(-0.8, 0.6, 5.0);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      const stageGroup = new THREE.Group();
+      stageGroup.position.set(0.85, -0.1, 0);
+      scene.add(stageGroup);
+
+      // Pedestal rings
+      for (let i = 0; i < 3; i++) {
+        const rGeo = new THREE.RingGeometry(0.9 + i * 0.25, 0.93 + i * 0.25, 32);
+        rGeo.rotateX(-Math.PI / 2);
+        const rMat = new THREE.MeshBasicMaterial({ color: i === 0 ? 0xFB923C : 0x00D9F5, side: THREE.DoubleSide, transparent: true, opacity: 0.45 - i * 0.1 });
+        const rMesh = new THREE.Mesh(rGeo, rMat);
+        rMesh.position.y = -1.05 - i * 0.08;
+        stageGroup.add(rMesh);
+      }
+
+      // Morphing / Rotating Hologram TorusKnot
+      const knotGeo = new THREE.TorusKnotGeometry(0.62, 0.18, 90, 16);
+      const knotMat = new THREE.MeshNormalMaterial({ wireframe: true });
+      const knot = new THREE.Mesh(knotGeo, knotMat);
+      knot.position.y = 0.15;
+      stageGroup.add(knot);
+
+      let mx = 0, my = 0;
+      container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        mx = ((e.clientX - rect.left) / rect.width - 0.5) * 1.5;
+        my = ((e.clientY - rect.top) / rect.height - 0.5) * 1.5;
+      });
+
+      function animate(t) {
+        requestAnimationFrame(animate);
+        const time = t * 0.0012;
+        knot.rotation.y = time + mx;
+        knot.rotation.x = time * 0.7 + my;
+        knot.position.y = 0.15 + Math.sin(time * 2) * 0.1;
+        renderer.render(scene, camera);
+      }
+      requestAnimationFrame(animate);
+    })();
+  }
+  initScenes();
+})();
+</script>

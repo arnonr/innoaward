@@ -1,0 +1,509 @@
+<h2>อัปเกรดแบบ A: Living Photo 2.5D + แสงวิ่งตามเส้นเครือข่าย/จุดเรืองแสงในภาพจริง</h2>
+<p class="subtitle">ตอนนี้ตั้งต้นที่หมวด <strong>03 Social & Digital</strong> ให้เห็นแสงวิ่งตามเส้นเครือข่ายและถนนในภาพจริง ลองกดสลับดูหมวด <strong>01–05</strong> ด้านล่างว่าแต่ละภาพมีชีวิตชีวาขึ้นแบบที่คิดไว้ไหมครับ</p>
+
+<style>
+  .preview-shell {
+    background: #05130e !important;
+    border: 2px solid #00F5A0 !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 32px rgba(0, 245, 160, 0.18) !important;
+    margin-top: 0.75rem !important;
+  }
+  .stage-hero {
+    position: relative !important;
+    width: 100% !important;
+    height: 460px !important;
+    background: #030b08 url('/files/domain-social.jpg') center/cover no-repeat;
+    overflow: hidden !important;
+  }
+  .stage-hero canvas {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    z-index: 1 !important;
+  }
+  .hero-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    padding: 32px 36px 76px 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    pointer-events: none !important;
+    background: linear-gradient(90deg, rgba(3, 12, 9, 0.92) 0%, rgba(3, 12, 9, 0.72) 34%, rgba(3, 12, 9, 0.08) 65%, rgba(3, 12, 9, 0.22) 100%) !important;
+    z-index: 2 !important;
+  }
+  .hero-left {
+    max-width: 400px !important;
+  }
+  .mini-badge {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #FDBA74 !important;
+    letter-spacing: 0.08em !important;
+    margin-bottom: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+  .mini-title {
+    font-size: 30px !important;
+    font-weight: 900 !important;
+    line-height: 1.03 !important;
+    color: #ffffff !important;
+    margin-bottom: 10px !important;
+    letter-spacing: -0.02em !important;
+  }
+  .mini-title .cyan {
+    color: #00F5A0 !important;
+    display: block !important;
+  }
+  .mini-title .gold {
+    color: #FB923C !important;
+    display: block !important;
+    font-size: 20px !important;
+    margin-top: 2px !important;
+  }
+  .mini-desc {
+    font-size: 13px !important;
+    color: #cbd5e1 !important;
+    line-height: 1.5 !important;
+    margin-bottom: 14px !important;
+  }
+  .mini-hud {
+    display: inline-flex !important;
+    gap: 10px !important;
+    background: rgba(4, 19, 14, 0.85) !important;
+    border-top: 1px solid rgba(251, 146, 60, 0.55) !important;
+    border-bottom: 1px solid rgba(251, 146, 60, 0.55) !important;
+    padding: 6px 12px !important;
+    font-family: monospace !important;
+    font-size: 12px !important;
+    color: #00F5A0 !important;
+    margin-bottom: 14px !important;
+  }
+  .mini-cta {
+    display: inline-block !important;
+    background: linear-gradient(135deg, #00F5A0, #00D9F5) !important;
+    color: #04130E !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    padding: 8px 18px !important;
+    border-radius: 8px !important;
+  }
+  .effect-caption-badge {
+    position: absolute !important;
+    top: 18px !important;
+    right: 20px !important;
+    z-index: 4 !important;
+    background: rgba(4, 18, 13, 0.85) !important;
+    border: 1px solid rgba(0, 245, 160, 0.45) !important;
+    backdrop-filter: blur(8px) !important;
+    color: #ecfdf5 !important;
+    font-size: 12px !important;
+    padding: 7px 14px !important;
+    border-radius: 999px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .pulse-dot {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background: #00D9F5 !important;
+    box-shadow: 0 0 10px #00D9F5 !important;
+  }
+  .domain-bar {
+    position: absolute !important;
+    left: 20px !important;
+    right: 20px !important;
+    bottom: 16px !important;
+    z-index: 4 !important;
+    display: flex !important;
+    gap: 8px !important;
+    background: rgba(4, 16, 12, 0.88) !important;
+    backdrop-filter: blur(12px) !important;
+    padding: 7px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  }
+  .domain-pill {
+    flex: 1 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #cbd5e1 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    padding: 9px 10px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    text-align: center !important;
+    transition: all 0.18s ease !important;
+  }
+  .domain-pill:hover,
+  .domain-pill.active {
+    background: rgba(0, 245, 160, 0.22) !important;
+    border-color: #00F5A0 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 16px rgba(0, 245, 160, 0.25) !important;
+  }
+  .effect-breakdown {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
+    gap: 0.85rem !important;
+    padding: 1.25rem 1.5rem !important;
+    background: #061711 !important;
+    border-top: 1px solid rgba(0, 245, 160, 0.15) !important;
+  }
+  .effect-item {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
+    padding: 0.75rem 0.9rem !important;
+  }
+  .effect-item strong {
+    display: block !important;
+    font-size: 0.82rem !important;
+    color: #00F5A0 !important;
+    margin-bottom: 3px !important;
+  }
+  .effect-item span {
+    font-size: 0.78rem !important;
+    color: #cbd5e1 !important;
+    line-height: 1.4 !important;
+    display: block !important;
+  }
+</style>
+
+<div class="preview-shell">
+  <div class="stage-hero" id="living-stage">
+    <div class="effect-caption-badge">
+      <span class="pulse-dot" id="caption-dot"></span>
+      <span id="caption-text">03 Social & Digital: แสง Data Packet วิ่งตามเส้นโครงข่ายตึกและถนนอัจฉริยะ</span>
+    </div>
+
+    <div class="hero-overlay">
+      <div class="hero-left">
+        <div class="mini-badge">👑 ชิงถ้วยพระราชทานฯ</div>
+        <div class="mini-title">KMUTNB<span class="cyan">INNOVATION</span><span class="gold">AWARDS 2026</span></div>
+        <div class="mini-desc">เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ เพื่อค้นหาแนวคิดที่จะขับเคลื่อนอนาคต ชิงถ้วยพระราชทานฯ และเงินรางวัลรวมกว่า 300,000+ บาท</div>
+        <div class="mini-hud">LIVE // 206 : 14 : 32 : 09</div>
+        <div><span class="mini-cta">🚀 สมัครประกวด</span></div>
+      </div>
+    </div>
+
+    <div class="domain-bar">
+      <button class="domain-pill" data-domain="0">01 Energy & Env</button>
+      <button class="domain-pill" data-domain="1">02 Food & Agri</button>
+      <button class="domain-pill active" data-domain="2">03 Social & Digital</button>
+      <button class="domain-pill" data-domain="3">04 Medical Device</button>
+      <button class="domain-pill" data-domain="4">05 Material</button>
+    </div>
+  </div>
+
+  <div class="effect-breakdown">
+    <div class="effect-item">
+      <strong>01 Energy & Env</strong>
+      <span>กระแสพลังงานสีเขียวมรกตวิ่งตามเส้นโครงข่ายโซลาร์เซลล์กลางทะเลเข้าสู่เมือง + น้ำทะเลระยิบ</span>
+    </div>
+    <div class="effect-item">
+      <strong>02 Food & Agri</strong>
+      <span>เส้นเลเซอร์สีเขียวสแกนชั้นปลูกพืชแนวตั้ง + แสงไฟชีวภาพและหน้าจอข้อมูลกระพริบทำงาน</span>
+    </div>
+    <div class="effect-item">
+      <strong>03 Social & Digital</strong>
+      <span>ลำแสงข้อมูล (Light Packets) วิ่งตามเส้นเครือข่ายเชื่อมยอดตึกและสายไฟถนนอัจฉริยะ</span>
+    </div>
+    <div class="effect-item">
+      <strong>04 Medical Device</strong>
+      <span>คลื่นชีพจร ECG วิ่งบนจอโฮโลแกรม + จุดเลเซอร์ผ่าตัดและข้อต่อแขนกลเรืองแสงเป็นจังหวะ</span>
+    </div>
+    <div class="effect-item">
+      <strong>05 Material</strong>
+      <span>ประจุแสงทอง-ไซแอนวิ่งตามพันธะหกเหลี่ยมของโครงสร้างกราฟีนและท่อนาโนคาร์บอน</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+  const IMAGE_URLS = [
+    '/files/domain-energy.jpg',
+    '/files/domain-food.jpg',
+    '/files/domain-social.jpg',
+    '/files/domain-medical.jpg',
+    '/files/domain-material.jpg'
+  ];
+
+  const CAPTIONS = [
+    '01 Energy & Env: กระแสพลังงานวิ่งตามสายส่งโซลาร์เซลล์และกังหันลมกลางทะเลเข้าสู่เมือง',
+    '02 Food & Agri: ลำแสงไบโอเลเซอร์สแกนชั้นปลูกพืชแนวตั้งและหน้าจอสถานะทำงาน',
+    '03 Social & Digital: แสง Data Packet วิ่งตามเส้นโครงข่ายเชื่อมยอดตึกและถนนอัจฉริยะ',
+    '04 Medical Device: คลื่นสัญญาณชีพจรวิ่งบนจอโฮโลแกรมและเลเซอร์หุ่นยนต์ผ่าตัดเรืองแสง',
+    '05 Material: ประจุพลังงานวิ่งตามโครงตาข่ายกราฟีนหกเหลี่ยมและท่อนาโนคาร์บอน'
+  ];
+
+  const DOT_HEX = ['#00F5A0', '#22C55E', '#00D9F5', '#FB7185', '#F59E0B'];
+
+  function initStage() {
+    if (!window.THREE) {
+      setTimeout(initStage, 80);
+      return;
+    }
+
+    const container = document.getElementById('living-stage');
+    if (!container) return;
+
+    const DOMAIN_COLORS = [
+      new THREE.Color(0x00F5A0),
+      new THREE.Color(0x22C55E),
+      new THREE.Color(0x00D9F5),
+      new THREE.Color(0xFB7185),
+      new THREE.Color(0xF59E0B)
+    ];
+
+    const getSize = () => ({
+      w: Math.max(container.clientWidth || container.offsetWidth || 900, 320),
+      h: Math.max(container.clientHeight || container.offsetHeight || 460, 280)
+    });
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
+    camera.position.z = 1;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const initial = getSize();
+    renderer.setSize(initial.w, initial.h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    container.appendChild(renderer.domElement);
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => {
+        const s = getSize();
+        renderer.setSize(s.w, s.h);
+      }).observe(container);
+    }
+
+    const loader = new THREE.TextureLoader();
+    const textures = IMAGE_URLS.map((url) => {
+      const t = loader.load(url);
+      t.minFilter = THREE.LinearFilter;
+      t.magFilter = THREE.LinearFilter;
+      return t;
+    });
+
+    // Start at index 2 (03 Social & Digital) so user immediately sees network light pulses
+    let currentIdx = 2;
+    let nextIdx = 2;
+    let transitioning = false;
+    let mixProgress = 0;
+
+    const uniforms = {
+      uTexCurrent: { value: textures[2] },
+      uTexNext: { value: textures[2] },
+      uDomainCurrent: { value: 2.0 },
+      uDomainNext: { value: 2.0 },
+      uMix: { value: 0.0 },
+      uMouse: { value: new THREE.Vector2(0, 0) },
+      uTime: { value: 0 },
+      uAccent: { value: DOMAIN_COLORS[2].clone() }
+    };
+
+    const mat = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexCurrent;
+        uniform sampler2D uTexNext;
+        uniform float uDomainCurrent;
+        uniform float uDomainNext;
+        uniform float uMix;
+        uniform vec2 uMouse;
+        uniform float uTime;
+        uniform vec3 uAccent;
+        varying vec2 vUv;
+
+        // Domain-specific living micro-animation computed directly on the real photo pixels
+        vec3 applyLivingPhotoEffect(vec3 col, vec2 uv, float domainId, float time) {
+          float lum = dot(col, vec3(0.299, 0.587, 0.114));
+          vec3 boost = vec3(0.0);
+
+          if (abs(domainId - 0.0) < 0.4) {
+            // 01 ENERGY & ENV: Emerald/cyan ocean grid lines & solar hexagons sending pulses toward city
+            float greenCyanMask = smoothstep(0.12, 0.45, max(col.g, col.b) - col.r * 0.85) * smoothstep(0.25, 0.75, lum);
+            float gridPulse1 = pow(0.5 + 0.5 * sin((uv.x * 16.0 + uv.y * 8.0) - time * 4.2), 10.0);
+            float gridPulse2 = pow(0.5 + 0.5 * sin((uv.x * 12.0 - uv.y * 10.0) - time * 3.4), 12.0);
+            // Shimmering ocean water in lower half
+            float waterShimmer = smoothstep(0.55, 0.1, uv.y) * pow(0.5 + 0.5 * sin(uv.x * 40.0 + sin(uv.y * 25.0 + time * 2.0) * 3.0 - time * 3.0), 8.0) * 0.25;
+            boost = vec3(0.0, 1.0, 0.72) * greenCyanMask * (gridPulse1 + gridPulse2) * 1.45
+                  + vec3(0.2, 1.0, 0.8) * waterShimmer * greenCyanMask;
+
+          } else if (abs(domainId - 1.0) < 0.4) {
+            // 02 FOOD & AGRI: Bioluminescent vertical laser scan over plant racks + glowing HUD monitors
+            float plantZone = smoothstep(0.35, 0.48, uv.x);
+            float scanY = fract(time * 0.22);
+            float scanBeam = exp(-pow((uv.y - scanY) * 28.0, 2.0)) * plantZone;
+            float greenLeafMask = smoothstep(0.08, 0.35, col.g - max(col.r, col.b) * 0.65);
+            // Left holographic screens pulsing
+            float hudZone = (1.0 - smoothstep(0.12, 0.38, uv.x)) * smoothstep(0.25, 0.65, col.g);
+            float hudPulse = pow(0.5 + 0.5 * sin(uv.x * 35.0 - time * 5.0), 8.0);
+            boost = vec3(0.15, 1.0, 0.45) * scanBeam * (0.45 + greenLeafMask * 0.9)
+                  + vec3(0.0, 1.0, 0.65) * hudZone * hudPulse * 0.9;
+
+          } else if (abs(domainId - 2.0) < 0.4) {
+            // 03 SOCIAL & DIGITAL: Sharp light packets racing along the cyan sky-network lines & purple/blue highways
+            float cyanLineMask = smoothstep(0.14, 0.48, col.b - col.r * 0.55) * smoothstep(0.32, 0.82, lum);
+            float highwayMask = smoothstep(0.15, 0.50, max(col.b, col.r) - col.g * 0.3) * smoothstep(0.38, 0.85, lum);
+            float networkMask = max(cyanLineMask, highwayMask * 0.85);
+
+            // Narrow high-speed data packets traveling along 3 network angles
+            float packetA = pow(0.5 + 0.5 * sin((uv.x * 18.0 + uv.y * 9.0) - time * 5.2), 14.0);
+            float packetB = pow(0.5 + 0.5 * sin((uv.x * -15.0 + uv.y * 11.0) - time * 4.4), 14.0);
+            float packetC = pow(0.5 + 0.5 * sin((uv.x * 10.0 - uv.y * 16.0) - time * 3.8), 16.0);
+
+            float totalPackets = (packetA + packetB + packetC);
+            boost = mix(vec3(0.0, 0.88, 1.0), vec3(1.0, 0.92, 0.65), 0.35) * networkMask * totalPackets * 1.65;
+
+          } else if (abs(domainId - 3.0) < 0.4) {
+            // 04 MEDICAL DEVICE: Live ECG sweep across the left holographic HUD + surgical laser & robot ring pulse
+            float hudScreenMask = smoothstep(0.06, 0.12, uv.x) * (1.0 - smoothstep(0.46, 0.52, uv.x)) * smoothstep(0.22, 0.88, uv.y);
+            float ecgSweepX = mix(0.08, 0.48, fract(time * 0.45));
+            float ecgWave = exp(-pow((uv.x - ecgSweepX) * 32.0, 2.0)) * hudScreenMask * smoothstep(0.25, 0.7, lum);
+
+            // Surgical laser focal point & robotic arm glowing blue rings
+            float ringMask = smoothstep(0.18, 0.48, col.b - col.r * 0.5) * smoothstep(0.45, 0.9, lum);
+            float ringPulse = 0.5 + 0.5 * sin(time * 4.5 - uv.y * 8.0);
+            boost = vec3(0.2, 0.95, 1.0) * ecgWave * 1.5
+                  + vec3(1.0, 0.35, 0.55) * ringMask * ringPulse * 0.75;
+
+          } else {
+            // 05 MATERIAL: Golden-cyan atomic current racing through the hexagonal graphene lattice & nanotubes
+            float latticeMask = smoothstep(0.32, 0.82, lum) * smoothstep(0.08, 0.42, max(col.b, col.r) - col.g * 0.2);
+            float hexStream1 = pow(0.5 + 0.5 * sin((uv.x * 20.0 + uv.y * 14.0) - time * 4.6), 12.0);
+            float hexStream2 = pow(0.5 + 0.5 * sin((uv.x * -16.0 + uv.y * 18.0) - time * 3.9), 12.0);
+            boost = mix(vec3(1.0, 0.68, 0.15), vec3(0.0, 0.92, 1.0), 0.45) * latticeMask * (hexStream1 + hexStream2) * 1.35;
+          }
+
+          return col + boost;
+        }
+
+        void main() {
+          // Subtle zoom so mouse depth parallax never exposes image borders
+          vec2 uv = (vUv - 0.5) * 0.91 + 0.5;
+
+          vec4 baseSample = texture2D(uTexCurrent, uv);
+          float depth = dot(baseSample.rgb, vec3(0.299, 0.587, 0.114));
+
+          // Gentle breathing motion + mouse 2.5D depth parallax (camera stays 100% locked!)
+          vec2 autoBreath = vec2(sin(uTime * 0.55), cos(uTime * 0.45)) * 0.004;
+          vec2 parallaxOffset = (uMouse * 0.018 + autoBreath) * (0.35 + depth * 0.95);
+
+          float wave = sin(uv.y * 10.0 + uTime * 2.5) * 0.016 * sin(uMix * 3.14159);
+          vec2 uvCurr = uv + parallaxOffset + vec2(uMix * 0.05 + wave, 0.0);
+          vec2 uvNext = uv + parallaxOffset - vec2((1.0 - uMix) * 0.05 - wave, 0.0);
+
+          vec3 colCurr = texture2D(uTexCurrent, uvCurr).rgb;
+          vec3 colNext = texture2D(uTexNext, uvNext).rgb;
+
+          colCurr = applyLivingPhotoEffect(colCurr, uvCurr, uDomainCurrent, uTime);
+          colNext = applyLivingPhotoEffect(colNext, uvNext, uDomainNext, uTime);
+
+          float mask = smoothstep(0.0, 1.0, uMix + (vUv.x - 0.5) * 0.25 * sin(uMix * 3.14159));
+          vec3 col = mix(colCurr, colNext, mask);
+
+          // Transition wave flash
+          float ripple = exp(-pow((vUv.x - uMix) * 7.5, 2.0)) * sin(uMix * 3.14159);
+          col += uAccent * ripple * 0.5;
+
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `
+    });
+
+    const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+    scene.add(quad);
+
+    let targetMouseX = 0, targetMouseY = 0;
+    let targetAccent = DOMAIN_COLORS[2].clone();
+
+    container.addEventListener('mousemove', (e) => {
+      const rect = container.getBoundingClientRect();
+      targetMouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+      targetMouseY = -((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    });
+    container.addEventListener('mouseleave', () => {
+      targetMouseX = 0;
+      targetMouseY = 0;
+    });
+
+    const pills = container.querySelectorAll('.domain-pill');
+    const captionText = document.getElementById('caption-text');
+    const captionDot = document.getElementById('caption-dot');
+
+    pills.forEach((pill) => {
+      const idx = Number(pill.getAttribute('data-domain'));
+      const activate = () => {
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        if (captionText) captionText.textContent = CAPTIONS[idx];
+        if (captionDot) {
+          captionDot.style.background = DOT_HEX[idx];
+          captionDot.style.boxShadow = '0 0 10px ' + DOT_HEX[idx];
+        }
+
+        if (idx === currentIdx && !transitioning) return;
+        uniforms.uTexCurrent.value = textures[currentIdx];
+        uniforms.uDomainCurrent.value = currentIdx;
+        uniforms.uTexNext.value = textures[idx];
+        uniforms.uDomainNext.value = idx;
+        uniforms.uMix.value = 0;
+        mixProgress = 0;
+        currentIdx = idx;
+        nextIdx = idx;
+        transitioning = true;
+        targetAccent.copy(DOMAIN_COLORS[idx]);
+      };
+      pill.addEventListener('mouseenter', activate);
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activate();
+      });
+    });
+
+    function animate(t) {
+      requestAnimationFrame(animate);
+      const time = t * 0.001;
+      uniforms.uTime.value = time;
+      uniforms.uMouse.value.x += (targetMouseX - uniforms.uMouse.value.x) * 0.07;
+      uniforms.uMouse.value.y += (targetMouseY - uniforms.uMouse.value.y) * 0.07;
+      uniforms.uAccent.value.lerp(targetAccent, 0.08);
+
+      if (transitioning) {
+        mixProgress = Math.min(1, mixProgress + 0.045);
+        uniforms.uMix.value = mixProgress;
+        if (mixProgress >= 1) {
+          uniforms.uTexCurrent.value = uniforms.uTexNext.value;
+          uniforms.uDomainCurrent.value = uniforms.uDomainNext.value;
+          uniforms.uMix.value = 0;
+          transitioning = false;
+        }
+      }
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(animate);
+  }
+
+  initStage();
+})();
+</script>
