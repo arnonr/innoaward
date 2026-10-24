@@ -206,20 +206,37 @@ export function resolveTargetDomainIndex(elapsedSeconds, activeDomainIndex) {
 
 export function advanceTransitionState(
   state,
-  targetDomainIndex,
+  activeDomainIndex,
   deltaSeconds,
   transitionSpeed = 1.1
 ) {
   const count = DOMAIN_PHOTO_URLS.length;
-  const safeTarget =
-    typeof targetDomainIndex === 'number' &&
-    Number.isInteger(targetDomainIndex) &&
-    targetDomainIndex >= 0 &&
-    targetDomainIndex < count
-      ? targetDomainIndex
-      : 0;
   const safeDelta = Number.isFinite(deltaSeconds) && deltaSeconds > 0 ? deltaSeconds : 0;
   const safeSpeed = Number.isFinite(transitionSpeed) && transitionSpeed > 0 ? transitionSpeed : 1.1;
+
+  const isHoveredValid =
+    typeof activeDomainIndex === 'number' &&
+    Number.isInteger(activeDomainIndex) &&
+    activeDomainIndex >= 0 &&
+    activeDomainIndex < count;
+
+  let safeTarget;
+  if (isHoveredValid) {
+    safeTarget = activeDomainIndex;
+    state.cycleTimer = 0;
+  } else if (state.transitioning) {
+    // Finish the in-progress transition to nextIndex instead of snapping back to old image
+    safeTarget = state.nextIndex;
+    state.cycleTimer = 0;
+  } else {
+    state.cycleTimer = (Number.isFinite(state.cycleTimer) ? state.cycleTimer : 0) + safeDelta;
+    if (state.cycleTimer >= DOMAIN_CYCLE_SECONDS) {
+      state.cycleTimer %= DOMAIN_CYCLE_SECONDS;
+      safeTarget = (state.currentIndex + 1) % count;
+    } else {
+      safeTarget = state.currentIndex;
+    }
+  }
 
   if (!state.transitioning) {
     if (safeTarget !== state.currentIndex) {

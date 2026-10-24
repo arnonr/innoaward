@@ -6,7 +6,6 @@ import {
   LIVING_PHOTO_VERTEX_SHADER,
   LIVING_PHOTO_FRAGMENT_SHADER,
   resolveDomainPhotoUrl,
-  resolveTargetDomainIndex,
   advanceTransitionState,
   getStageResponsiveConfig,
   getMotionFactor,
@@ -89,6 +88,7 @@ export default function HeroThreeStage({ activeDomainIndex = null }) {
       nextIndex: 0,
       mixProgress: 0,
       transitioning: false,
+      cycleTimer: 0,
     };
 
     const pointer = { x: 0, y: 0 };
@@ -122,8 +122,7 @@ export default function HeroThreeStage({ activeDomainIndex = null }) {
       const elapsed = timer.getElapsed();
       const { speedFactor, parallaxFactor, breathFactor } = getMotionFactor(prefersReducedMotion);
 
-      const { domainIndex } = resolveTargetDomainIndex(elapsed, activeDomainRef.current);
-      advanceTransitionState(transitionState, domainIndex, delta);
+      advanceTransitionState(transitionState, activeDomainRef.current, delta);
 
       uniforms.uTexCurrent.value = textures[transitionState.currentIndex];
       uniforms.uTexNext.value = textures[transitionState.nextIndex];

@@ -75,34 +75,54 @@ test('resolveTargetDomainIndex auto-cycles every 14s when unhovered or out of ra
   assert.deepEqual(resolveTargetDomainIndex(1.2, 3), { mode: 'hover', domainIndex: 3 });
 });
 
-test('advanceTransitionState interpolates mixProgress to 1, settles on target, and handles mid-transition retargeting', () => {
-  const state = { currentIndex: 0, nextIndex: 0, mixProgress: 0, transitioning: false };
+test('advanceTransitionState keeps hovered domain when mouse leaves and continues auto-cycling forward from there', () => {
+  const state = {
+    currentIndex: 0,
+    nextIndex: 0,
+    mixProgress: 0,
+    transitioning: false,
+    cycleTimer: 0,
+  };
 
+  // 1. User hovers domain 2 ("03 Social & Economy") briefly (0.25s)
   advanceTransitionState(state, 2, 0.25, 2.0);
   assert.equal(state.transitioning, true);
   assert.equal(state.currentIndex, 0);
   assert.equal(state.nextIndex, 2);
   assert.equal(state.mixProgress, 0.5);
 
-  // Mid-transition retarget to domain 4 before previous transition finishes
-  advanceTransitionState(state, 4, 0.1, 2.0);
-  assert.equal(state.transitioning, true);
-  assert.equal(state.nextIndex, 4);
-  assert.equal(state.mixProgress > 0 && state.mixProgress < 1, true);
-
-  // Finish transition
-  advanceTransitionState(state, 4, 1.0, 2.0);
+  // 2. User moves mouse away (activeDomainIndex = null) BEFORE transition finishes:
+  // Must NOT revert to 0 — must finish transitioning to 2!
+  advanceTransitionState(state, null, 0.25, 2.0);
   assert.equal(state.transitioning, false);
-  assert.equal(state.currentIndex, 4);
-  assert.equal(state.nextIndex, 4);
+  assert.equal(state.currentIndex, 2);
+  assert.equal(state.nextIndex, 2);
   assert.equal(state.mixProgress, 0);
 
-  // Bouncing back to currentIndex before mixProgress >= 0.5 cancels redundant self-transition
-  advanceTransitionState(state, 1, 0.1, 2.0); // mixProgress = 0.2 (< 0.5), currentIndex = 4, nextIndex = 1
-  advanceTransitionState(state, 4, 0.1, 2.0); // retarget back to 4
+  // 3. Mouse remains unhovered for 13.9s (< 14s): stays on domain 2
+  advanceTransitionState(state, null, 13.9, 2.0);
   assert.equal(state.transitioning, false);
-  assert.equal(state.currentIndex, 4);
-  assert.equal(state.nextIndex, 4);
+  assert.equal(state.currentIndex, 2);
+  assert.equal(state.nextIndex, 2);
+
+  // 4. At 14.0s of idle time: auto-cycles forward from 2 -> 3 (not back to 0!)
+  advanceTransitionState(state, null, 0.2, 2.0);
+  assert.equal(state.transitioning, true);
+  assert.equal(state.currentIndex, 2);
+  assert.equal(state.nextIndex, 3);
+
+  // Finish transition to 3
+  advanceTransitionState(state, null, 1.0, 2.0);
+  assert.equal(state.transitioning, false);
+  assert.equal(state.currentIndex, 3);
+  assert.equal(state.nextIndex, 3);
+
+  // 5. Mid-transition retarget when user hovers domain 4, then bounces back to 3 before mixProgress >= 0.5
+  advanceTransitionState(state, 4, 0.1, 2.0); // mixProgress = 0.2 (< 0.5), currentIndex = 3, nextIndex = 4
+  advanceTransitionState(state, 3, 0.1, 2.0); // user hovers back on 3
+  assert.equal(state.transitioning, false);
+  assert.equal(state.currentIndex, 3);
+  assert.equal(state.nextIndex, 3);
   assert.equal(state.mixProgress, 0);
 });
 
