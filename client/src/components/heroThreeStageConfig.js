@@ -120,13 +120,15 @@ export const LIVING_PHOTO_FRAGMENT_SHADER = `
     float mask = smoothstep(0.0, 1.0, uMix);
     vec3 col = mix(colCurr, colNext, mask);
 
-    // Left-side editorial scrim & top/bottom vignette so hero typography & HUD are always crisp and readable
-    float leftScrim = 1.0 - smoothstep(0.15, 0.65, vUv.x);
-    float topBottomVignette = (1.0 - smoothstep(0.0, 0.22, vUv.y)) * 0.45
-                            + smoothstep(0.80, 1.0, vUv.y) * 0.28;
-    vec3 darkBase = vec3(0.016, 0.051, 0.039);
-    float scrimAlpha = clamp(leftScrim * 0.52 + topBottomVignette, 0.0, 0.72);
-    col = mix(col, darkBase, scrimAlpha);
+    // Gentle tone-mapping on the left so the full photo remains visible (never black/cut-off)
+    // while taming blinding white hotspots behind the typography
+    float leftScrim = 1.0 - smoothstep(0.08, 0.62, vUv.x);
+    vec3 highlightCompressed = col / (1.0 + col * leftScrim * 0.75);
+    col = mix(col, highlightCompressed * 0.86, leftScrim);
+
+    // Subtle bottom vignette only behind the bottom category bar
+    float bottomVignette = (1.0 - smoothstep(0.0, 0.16, vUv.y)) * 0.35;
+    col = mix(col, vec3(0.016, 0.051, 0.039), bottomVignette);
 
     gl_FragColor = vec4(col, 1.0);
   }

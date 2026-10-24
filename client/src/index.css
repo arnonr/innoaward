@@ -1625,8 +1625,8 @@ button:disabled {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(4, 15, 12, 0.92) 0%, rgba(4, 15, 12, 0.82) 32%, rgba(4, 15, 12, 0.48) 52%, rgba(4, 15, 12, 0.12) 74%, transparent 100%),
-    linear-gradient(180deg, rgba(4, 15, 12, 0.32) 0%, rgba(4, 15, 12, 0.08) 45%, rgba(4, 15, 12, 0.68) 100%);
+    radial-gradient(ellipse 52% 68% at 26% 42%, rgba(4, 18, 14, 0.38) 0%, rgba(4, 18, 14, 0.14) 62%, transparent 100%),
+    linear-gradient(180deg, rgba(4, 15, 12, 0.18) 0%, transparent 38%, rgba(4, 15, 12, 0.48) 100%);
   animation: none;
 }
 
@@ -1679,6 +1679,13 @@ button:disabled {
 .hero-video-stage .hero-editorial-eyebrow {
   justify-content: flex-start;
   text-align: left;
+  background: rgba(4, 19, 14, 0.48);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(249, 115, 22, 0.34);
+  border-radius: 14px;
+  padding: 10px 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
 }
 
 .hero-video-stage .hero-editorial-title {
@@ -1686,6 +1693,7 @@ button:disabled {
   font-size: clamp(3.2rem, 5.4vw, 5.8rem);
   line-height: 0.9;
   text-align: left;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 8px 28px rgba(0, 0, 0, 0.88), 0 0 42px rgba(4, 19, 14, 0.92);
 }
 
 .hero-video-stage .hero-editorial-desc {
@@ -1693,18 +1701,25 @@ button:disabled {
   max-width: 540px;
   color: #FFFFFF;
   font-weight: 500;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95), 0 0 28px rgba(0, 0, 0, 0.85);
+  background: rgba(4, 19, 14, 0.46);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-left: 3px solid rgba(0, 245, 160, 0.75);
+  border-radius: 0 12px 12px 0;
+  padding: 12px 18px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
 .hero-video-stage .hero-editorial-hud {
   width: min(580px, 100%);
-  background: rgba(4, 19, 14, 0.68);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(4, 19, 14, 0.54);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(216, 181, 104, 0.42);
   border-radius: 12px;
   padding: 16px 22px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38);
 }
 
 .hero-video-stage .hero-editorial-hud .hud-title-label,
