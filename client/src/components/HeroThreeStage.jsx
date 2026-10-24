@@ -41,7 +41,7 @@ export default function HeroThreeStage({ activeDomainIndex = null, onDomainChang
 
     let config = getStageResponsiveConfig(container.clientWidth, container.clientHeight);
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 3));
     renderer.setSize(config.safeWidth, config.safeHeight);
     renderer.toneMapping = THREE.NoToneMapping;
     container.appendChild(renderer.domElement);
@@ -52,10 +52,13 @@ export default function HeroThreeStage({ activeDomainIndex = null, onDomainChang
 
     const baseUrl = import.meta.env?.BASE_URL || '/';
     const textureLoader = new THREE.TextureLoader();
+    const maxAnisotropy = renderer.capabilities?.getMaxAnisotropy?.() || 1;
     const textures = DOMAIN_PHOTO_URLS.map((url) => {
       const tex = textureLoader.load(resolveDomainPhotoUrl(url, baseUrl));
+      tex.generateMipmaps = false;
       tex.minFilter = THREE.LinearFilter;
       tex.magFilter = THREE.LinearFilter;
+      tex.anisotropy = maxAnisotropy;
       tex.wrapS = THREE.ClampToEdgeWrapping;
       tex.wrapT = THREE.ClampToEdgeWrapping;
       return tex;

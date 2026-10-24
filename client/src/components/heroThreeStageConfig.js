@@ -43,6 +43,18 @@ export const LIVING_PHOTO_FRAGMENT_SHADER = `
     return v * v;
   }
 
+  vec3 sampleSharpTexture(sampler2D tex, vec2 uv) {
+    vec2 stepUv = vec2(1.0 / 2752.0, 1.0 / 1536.0);
+    vec3 center = texture2D(tex, uv).rgb;
+    vec3 north  = texture2D(tex, clamp(uv + vec2(0.0, stepUv.y), 0.002, 0.998)).rgb;
+    vec3 south  = texture2D(tex, clamp(uv - vec2(0.0, stepUv.y), 0.002, 0.998)).rgb;
+    vec3 east   = texture2D(tex, clamp(uv + vec2(stepUv.x, 0.0), 0.002, 0.998)).rgb;
+    vec3 west   = texture2D(tex, clamp(uv - vec2(stepUv.x, 0.0), 0.002, 0.998)).rgb;
+    vec3 neighborAvg = (north + south + east + west) * 0.25;
+    vec3 sharpened = center + (center - neighborAvg) * 0.38;
+    return clamp(sharpened, 0.0, 1.0);
+  }
+
   vec3 applyLivingPhotoEffect(vec3 col, vec2 uv, float domainId, float time) {
     float lum = dot(col, vec3(0.299, 0.587, 0.114));
     vec3 boost = vec3(0.0);
@@ -105,14 +117,14 @@ export const LIVING_PHOTO_FRAGMENT_SHADER = `
     vec2 parallaxOffset = uMouse * uParallaxStrength * spatialDepth;
 
     // Gentle zoom-breath during transition instead of liquid wave distortion
-    float scaleCurr = 0.94 - uMix * 0.015;
-    float scaleNext = 0.955 - uMix * 0.015;
+    float scaleCurr = 0.972 - uMix * 0.010;
+    float scaleNext = 0.982 - uMix * 0.010;
 
     vec2 uvCurr = clamp((vUv - 0.5) * uUvScale * scaleCurr + 0.5 + parallaxOffset, 0.002, 0.998);
     vec2 uvNext = clamp((vUv - 0.5) * uUvScale * scaleNext + 0.5 + parallaxOffset, 0.002, 0.998);
 
-    vec3 colCurr = texture2D(uTexCurrent, uvCurr).rgb;
-    vec3 colNext = texture2D(uTexNext, uvNext).rgb;
+    vec3 colCurr = sampleSharpTexture(uTexCurrent, uvCurr);
+    vec3 colNext = sampleSharpTexture(uTexNext, uvNext);
 
     colCurr = applyLivingPhotoEffect(colCurr, uvCurr, uDomainCurrent, uTime);
     colNext = applyLivingPhotoEffect(colNext, uvNext, uDomainNext, uTime);
@@ -120,14 +132,14 @@ export const LIVING_PHOTO_FRAGMENT_SHADER = `
     float mask = smoothstep(0.0, 1.0, uMix);
     vec3 col = mix(colCurr, colNext, mask);
 
-    // Gentle tone-mapping on the left so the full photo remains visible (never black/cut-off)
+    // Gentle tone-mapping on the left so the full photo remains crisp and visible
     // while taming blinding white hotspots behind the typography
-    float leftScrim = 1.0 - smoothstep(0.08, 0.62, vUv.x);
-    vec3 highlightCompressed = col / (1.0 + col * leftScrim * 0.75);
-    col = mix(col, highlightCompressed * 0.86, leftScrim);
+    float leftScrim = 1.0 - smoothstep(0.06, 0.54, vUv.x);
+    vec3 highlightCompressed = col / (1.0 + col * leftScrim * 0.45);
+    col = mix(col, highlightCompressed * 0.92, leftScrim);
 
     // Subtle bottom vignette only behind the bottom category bar (matches Bright Midnight #11243E)
-    float bottomVignette = (1.0 - smoothstep(0.0, 0.16, vUv.y)) * 0.35;
+    float bottomVignette = (1.0 - smoothstep(0.0, 0.14, vUv.y)) * 0.28;
     col = mix(col, vec3(0.067, 0.141, 0.243), bottomVignette);
 
     gl_FragColor = vec4(col, 1.0);

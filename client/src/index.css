@@ -1663,8 +1663,8 @@ button:disabled {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 52% 68% at 26% 42%, rgba(15, 32, 56, 0.38) 0%, rgba(15, 32, 56, 0.14) 62%, transparent 100%),
-    linear-gradient(180deg, rgba(15, 32, 56, 0.18) 0%, transparent 38%, rgba(15, 32, 56, 0.48) 100%);
+    radial-gradient(ellipse 48% 64% at 24% 42%, rgba(15, 32, 56, 0.24) 0%, rgba(15, 32, 56, 0.08) 60%, transparent 100%),
+    linear-gradient(180deg, rgba(15, 32, 56, 0.12) 0%, transparent 34%, rgba(15, 32, 56, 0.36) 100%);
   animation: none;
 }
 

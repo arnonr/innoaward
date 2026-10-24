@@ -32,9 +32,10 @@ test('resolveDomainPhotoUrl prefixes Vite BASE_URL without double slashes', () =
   assert.equal(resolveDomainPhotoUrl('domain-energy.jpg', '/innoawards/'), '/innoawards/domain-energy.jpg');
 });
 
-test('LIVING_PHOTO_FRAGMENT_SHADER avoids negative-base pow(), avoids per-pixel luminance UV tearing, and includes leftScrim', () => {
+test('LIVING_PHOTO_FRAGMENT_SHADER avoids negative-base pow(), avoids per-pixel luminance UV tearing, includes sampleSharpTexture unsharp mask, and includes leftScrim', () => {
   assert.equal(typeof LIVING_PHOTO_FRAGMENT_SHADER, 'string');
   assert.equal(LIVING_PHOTO_FRAGMENT_SHADER.includes('float sq(float v)'), true);
+  assert.equal(LIVING_PHOTO_FRAGMENT_SHADER.includes('vec3 sampleSharpTexture('), true);
   // Must not use pow(..., 2.0) on signed differences like (uv.y - scanY), (uv.x - ecgSweepX), or (vUv.x - uMix)
   assert.equal(LIVING_PHOTO_FRAGMENT_SHADER.includes(', 2.0)'), false);
   // Must not tear pixels by using raw texture luminance as a UV offset
