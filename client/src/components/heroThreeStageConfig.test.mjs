@@ -22,7 +22,7 @@ test('DOMAIN_ORBIT_COLORS and DOMAIN_PHOTO_URLS define 5 real domain photos and 
     '/domain-medical.jpg',
     '/domain-material.jpg',
   ]);
-  assert.equal(DOMAIN_CYCLE_SECONDS, 6);
+  assert.equal(DOMAIN_CYCLE_SECONDS, 14);
 });
 
 test('resolveDomainPhotoUrl prefixes Vite BASE_URL without double slashes', () => {
@@ -32,11 +32,15 @@ test('resolveDomainPhotoUrl prefixes Vite BASE_URL without double slashes', () =
   assert.equal(resolveDomainPhotoUrl('domain-energy.jpg', '/innoawards/'), '/innoawards/domain-energy.jpg');
 });
 
-test('LIVING_PHOTO_FRAGMENT_SHADER avoids negative-base pow() undefined behavior in GLSL ES', () => {
+test('LIVING_PHOTO_FRAGMENT_SHADER avoids negative-base pow(), avoids per-pixel luminance UV tearing, and includes leftScrim', () => {
   assert.equal(typeof LIVING_PHOTO_FRAGMENT_SHADER, 'string');
   assert.equal(LIVING_PHOTO_FRAGMENT_SHADER.includes('float sq(float v)'), true);
   // Must not use pow(..., 2.0) on signed differences like (uv.y - scanY), (uv.x - ecgSweepX), or (vUv.x - uMix)
   assert.equal(LIVING_PHOTO_FRAGMENT_SHADER.includes(', 2.0)'), false);
+  // Must not tear pixels by using raw texture luminance as a UV offset
+  assert.equal(LIVING_PHOTO_FRAGMENT_SHADER.includes('0.35 + depth * 0.95'), false);
+  // Must include left-side editorial scrim so hero text is easy to read
+  assert.equal(LIVING_PHOTO_FRAGMENT_SHADER.includes('leftScrim'), true);
   // Every remaining pow( must clamp its base with max(0.0,
   const powMatches = LIVING_PHOTO_FRAGMENT_SHADER.match(/pow\([^,]+/g) || [];
   assert.equal(powMatches.length > 0, true);
@@ -61,10 +65,10 @@ test('getCoverUvScale preserves aspect ratio without stretching and handles zero
   assert.equal(tall.scaleY, 1);
 });
 
-test('resolveTargetDomainIndex auto-cycles every 6s when unhovered or out of range and locks when hovered (0..4)', () => {
+test('resolveTargetDomainIndex auto-cycles every 14s when unhovered or out of range and locks when hovered (0..4)', () => {
   assert.deepEqual(resolveTargetDomainIndex(0.5, null), { mode: 'auto', domainIndex: 0 });
-  assert.deepEqual(resolveTargetDomainIndex(6.1, null), { mode: 'auto', domainIndex: 1 });
-  assert.deepEqual(resolveTargetDomainIndex(13.0, 5), { mode: 'auto', domainIndex: 2 }); // 5 = Others
+  assert.deepEqual(resolveTargetDomainIndex(14.1, null), { mode: 'auto', domainIndex: 1 });
+  assert.deepEqual(resolveTargetDomainIndex(29.0, 5), { mode: 'auto', domainIndex: 2 }); // 5 = Others
   assert.deepEqual(resolveTargetDomainIndex(-2.0, undefined), { mode: 'auto', domainIndex: 4 });
   assert.deepEqual(resolveTargetDomainIndex(Number.NaN, null), { mode: 'auto', domainIndex: 0 });
 

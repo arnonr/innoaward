@@ -14,7 +14,7 @@ export const DOMAIN_PHOTO_URLS = Object.freeze([
   '/domain-material.jpg',
 ]);
 
-export const DOMAIN_CYCLE_SECONDS = 6;
+export const DOMAIN_CYCLE_SECONDS = 14;
 
 export const DEFAULT_IMAGE_ASPECT = 16 / 9;
 
@@ -48,72 +48,68 @@ export const LIVING_PHOTO_FRAGMENT_SHADER = `
     vec3 boost = vec3(0.0);
 
     if (abs(domainId - 0.0) < 0.4) {
-      // 01 ENERGY & ENV: Emerald/cyan ocean grid lines & solar hexagons sending pulses toward city
-      float greenCyanMask = smoothstep(0.12, 0.45, max(col.g, col.b) - col.r * 0.85) * smoothstep(0.25, 0.75, lum);
-      float gridPulse1 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 16.0 + uv.y * 8.0) - time * 4.2)), 10.0);
-      float gridPulse2 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 12.0 - uv.y * 10.0) - time * 3.4)), 12.0);
-      float waterShimmer = smoothstep(0.55, 0.1, uv.y) * pow(max(0.0, 0.5 + 0.5 * sin(uv.x * 40.0 + sin(uv.y * 25.0 + time * 2.0) * 3.0 - time * 3.0)), 8.0) * 0.25;
-      boost = vec3(0.0, 1.0, 0.72) * greenCyanMask * (gridPulse1 + gridPulse2) * 1.45
-            + vec3(0.2, 1.0, 0.8) * waterShimmer * greenCyanMask;
+      // 01 ENERGY & ENV: Subtle emerald/cyan pulses along the solar & ocean grid lines
+      float greenCyanMask = smoothstep(0.16, 0.48, max(col.g, col.b) - col.r * 0.85) * smoothstep(0.30, 0.78, lum);
+      float gridPulse1 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 16.0 + uv.y * 8.0) - time * 2.8)), 14.0);
+      float gridPulse2 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 12.0 - uv.y * 10.0) - time * 2.2)), 16.0);
+      boost = vec3(0.0, 0.95, 0.68) * greenCyanMask * (gridPulse1 + gridPulse2) * 0.52;
 
     } else if (abs(domainId - 1.0) < 0.4) {
-      // 02 FOOD & AGRI: Bioluminescent vertical laser scan over plant racks + glowing HUD monitors
-      float plantZone = smoothstep(0.35, 0.48, uv.x);
-      float scanY = fract(time * 0.22);
-      float scanBeam = exp(-sq((uv.y - scanY) * 28.0)) * plantZone;
-      float greenLeafMask = smoothstep(0.08, 0.35, col.g - max(col.r, col.b) * 0.65);
-      float hudZone = (1.0 - smoothstep(0.12, 0.38, uv.x)) * smoothstep(0.25, 0.65, col.g);
-      float hudPulse = pow(max(0.0, 0.5 + 0.5 * sin(uv.x * 35.0 - time * 5.0)), 8.0);
-      boost = vec3(0.15, 1.0, 0.45) * scanBeam * (0.45 + greenLeafMask * 0.9)
-            + vec3(0.0, 1.0, 0.65) * hudZone * hudPulse * 0.9;
+      // 02 FOOD & AGRI: Gentle bioluminescent scan over vertical plant racks
+      float plantZone = smoothstep(0.38, 0.52, uv.x);
+      float scanY = fract(time * 0.14);
+      float scanBeam = exp(-sq((uv.y - scanY) * 32.0)) * plantZone;
+      float greenLeafMask = smoothstep(0.10, 0.38, col.g - max(col.r, col.b) * 0.65);
+      float hudZone = (1.0 - smoothstep(0.12, 0.38, uv.x)) * smoothstep(0.30, 0.68, col.g);
+      float hudPulse = pow(max(0.0, 0.5 + 0.5 * sin(uv.x * 30.0 - time * 3.2)), 10.0);
+      boost = vec3(0.15, 0.95, 0.45) * scanBeam * (0.22 + greenLeafMask * 0.42)
+            + vec3(0.0, 0.95, 0.62) * hudZone * hudPulse * 0.38;
 
     } else if (abs(domainId - 2.0) < 0.4) {
-      // 03 SOCIAL & DIGITAL: Sharp light packets racing along the cyan sky-network lines & highways
-      float cyanLineMask = smoothstep(0.14, 0.48, col.b - col.r * 0.55) * smoothstep(0.32, 0.82, lum);
-      float highwayMask = smoothstep(0.15, 0.50, max(col.b, col.r) - col.g * 0.3) * smoothstep(0.38, 0.85, lum);
-      float networkMask = max(cyanLineMask, highwayMask * 0.85);
+      // 03 SOCIAL & DIGITAL: Clean light packets racing along the cyan sky-network lines
+      float cyanLineMask = smoothstep(0.18, 0.52, col.b - col.r * 0.60) * smoothstep(0.36, 0.85, lum);
+      float highwayMask = smoothstep(0.20, 0.55, max(col.b, col.r) - col.g * 0.35) * smoothstep(0.42, 0.88, lum);
+      float networkMask = max(cyanLineMask, highwayMask * 0.65);
 
-      float packetA = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 18.0 + uv.y * 9.0) - time * 5.2)), 14.0);
-      float packetB = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * -15.0 + uv.y * 11.0) - time * 4.4)), 14.0);
-      float packetC = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 10.0 - uv.y * 16.0) - time * 3.8)), 16.0);
+      float packetA = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 18.0 + uv.y * 9.0) - time * 3.6)), 16.0);
+      float packetB = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * -15.0 + uv.y * 11.0) - time * 3.0)), 16.0);
 
-      float totalPackets = packetA + packetB + packetC;
-      boost = mix(vec3(0.0, 0.88, 1.0), vec3(1.0, 0.92, 0.65), 0.35) * networkMask * totalPackets * 1.65;
+      float totalPackets = packetA + packetB;
+      boost = mix(vec3(0.0, 0.88, 1.0), vec3(1.0, 0.92, 0.65), 0.3) * networkMask * totalPackets * 0.58;
 
     } else if (abs(domainId - 3.0) < 0.4) {
-      // 04 MEDICAL DEVICE: Live ECG sweep across the left holographic HUD + surgical laser & robot ring pulse
+      // 04 MEDICAL DEVICE: Clean ECG sweep across the holographic HUD + subtle ring pulse
       float hudScreenMask = smoothstep(0.06, 0.12, uv.x) * (1.0 - smoothstep(0.46, 0.52, uv.x)) * smoothstep(0.22, 0.88, uv.y);
-      float ecgSweepX = mix(0.08, 0.48, fract(time * 0.45));
-      float ecgWave = exp(-sq((uv.x - ecgSweepX) * 32.0)) * hudScreenMask * smoothstep(0.25, 0.7, lum);
+      float ecgSweepX = mix(0.08, 0.48, fract(time * 0.28));
+      float ecgWave = exp(-sq((uv.x - ecgSweepX) * 36.0)) * hudScreenMask * smoothstep(0.30, 0.75, lum);
 
-      float ringMask = smoothstep(0.18, 0.48, col.b - col.r * 0.5) * smoothstep(0.45, 0.9, lum);
-      float ringPulse = 0.5 + 0.5 * sin(time * 4.5 - uv.y * 8.0);
-      boost = vec3(0.2, 0.95, 1.0) * ecgWave * 1.5
-            + vec3(1.0, 0.35, 0.55) * ringMask * ringPulse * 0.75;
+      float ringMask = smoothstep(0.22, 0.52, col.b - col.r * 0.55) * smoothstep(0.48, 0.92, lum);
+      float ringPulse = 0.5 + 0.5 * sin(time * 3.0 - uv.y * 8.0);
+      boost = vec3(0.2, 0.95, 1.0) * ecgWave * 0.65
+            + vec3(1.0, 0.38, 0.58) * ringMask * ringPulse * 0.32;
 
     } else {
-      // 05 MATERIAL: Golden-cyan atomic current racing through the hexagonal graphene lattice & nanotubes
-      float latticeMask = smoothstep(0.32, 0.82, lum) * smoothstep(0.08, 0.42, max(col.b, col.r) - col.g * 0.2);
-      float hexStream1 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 20.0 + uv.y * 14.0) - time * 4.6)), 12.0);
-      float hexStream2 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * -16.0 + uv.y * 18.0) - time * 3.9)), 12.0);
-      boost = mix(vec3(1.0, 0.68, 0.15), vec3(0.0, 0.92, 1.0), 0.45) * latticeMask * (hexStream1 + hexStream2) * 1.35;
+      // 05 MATERIAL: Subtle golden-cyan current along the hexagonal graphene lattice
+      float latticeMask = smoothstep(0.38, 0.85, lum) * smoothstep(0.12, 0.46, max(col.b, col.r) - col.g * 0.25);
+      float hexStream1 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 20.0 + uv.y * 14.0) - time * 3.2)), 14.0);
+      float hexStream2 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * -16.0 + uv.y * 18.0) - time * 2.6)), 14.0);
+      boost = mix(vec3(1.0, 0.68, 0.15), vec3(0.0, 0.92, 1.0), 0.45) * latticeMask * (hexStream1 + hexStream2) * 0.48;
     }
 
-    return col + boost;
+    return clamp(col + boost, 0.0, 1.0);
   }
 
   void main() {
-    // Aspect-preserving cover UV with 0.91 overscan margin so 2.5D parallax never exposes edges
-    vec2 uv = (vUv - 0.5) * uUvScale * 0.91 + 0.5;
+    // Smooth spatial depth (no per-pixel luminance UV offset, keeping photos 100% sharp)
+    float spatialDepth = 0.55 + 0.45 * (1.0 - vUv.y);
+    vec2 parallaxOffset = uMouse * uParallaxStrength * spatialDepth;
 
-    vec4 baseSample = texture2D(uTexCurrent, uv);
-    float depth = dot(baseSample.rgb, vec3(0.299, 0.587, 0.114));
+    // Gentle zoom-breath during transition instead of liquid wave distortion
+    float scaleCurr = 0.94 - uMix * 0.015;
+    float scaleNext = 0.955 - uMix * 0.015;
 
-    vec2 parallaxOffset = uMouse * uParallaxStrength * (0.35 + depth * 0.95);
-    float wave = sin(uv.y * 10.0 + uTime * 2.5) * 0.016 * sin(uMix * 3.14159);
-
-    vec2 uvCurr = clamp(uv + parallaxOffset + vec2(uMix * 0.05 + wave, 0.0), 0.002, 0.998);
-    vec2 uvNext = clamp(uv + parallaxOffset - vec2((1.0 - uMix) * 0.05 - wave, 0.0), 0.002, 0.998);
+    vec2 uvCurr = clamp((vUv - 0.5) * uUvScale * scaleCurr + 0.5 + parallaxOffset, 0.002, 0.998);
+    vec2 uvNext = clamp((vUv - 0.5) * uUvScale * scaleNext + 0.5 + parallaxOffset, 0.002, 0.998);
 
     vec3 colCurr = texture2D(uTexCurrent, uvCurr).rgb;
     vec3 colNext = texture2D(uTexNext, uvNext).rgb;
@@ -121,11 +117,16 @@ export const LIVING_PHOTO_FRAGMENT_SHADER = `
     colCurr = applyLivingPhotoEffect(colCurr, uvCurr, uDomainCurrent, uTime);
     colNext = applyLivingPhotoEffect(colNext, uvNext, uDomainNext, uTime);
 
-    float mask = smoothstep(0.0, 1.0, uMix + (vUv.x - 0.5) * 0.25 * sin(uMix * 3.14159));
+    float mask = smoothstep(0.0, 1.0, uMix);
     vec3 col = mix(colCurr, colNext, mask);
 
-    float ripple = exp(-sq((vUv.x - uMix) * 7.5)) * sin(uMix * 3.14159);
-    col += uAccent * ripple * 0.5;
+    // Left-side editorial scrim & top/bottom vignette so hero typography & HUD are always crisp and readable
+    float leftScrim = 1.0 - smoothstep(0.15, 0.65, vUv.x);
+    float topBottomVignette = (1.0 - smoothstep(0.0, 0.22, vUv.y)) * 0.45
+                            + smoothstep(0.80, 1.0, vUv.y) * 0.28;
+    vec3 darkBase = vec3(0.016, 0.051, 0.039);
+    float scrimAlpha = clamp(leftScrim * 0.52 + topBottomVignette, 0.0, 0.72);
+    col = mix(col, darkBase, scrimAlpha);
 
     gl_FragColor = vec4(col, 1.0);
   }
@@ -205,7 +206,7 @@ export function advanceTransitionState(
   state,
   targetDomainIndex,
   deltaSeconds,
-  transitionSpeed = 1.8
+  transitionSpeed = 1.1
 ) {
   const count = DOMAIN_PHOTO_URLS.length;
   const safeTarget =
@@ -216,7 +217,7 @@ export function advanceTransitionState(
       ? targetDomainIndex
       : 0;
   const safeDelta = Number.isFinite(deltaSeconds) && deltaSeconds > 0 ? deltaSeconds : 0;
-  const safeSpeed = Number.isFinite(transitionSpeed) && transitionSpeed > 0 ? transitionSpeed : 1.8;
+  const safeSpeed = Number.isFinite(transitionSpeed) && transitionSpeed > 0 ? transitionSpeed : 1.1;
 
   if (!state.transitioning) {
     if (safeTarget !== state.currentIndex) {
@@ -262,7 +263,7 @@ export function getStageResponsiveConfig(width, height) {
       aspect,
       uvScaleX,
       uvScaleY,
-      parallaxStrength: 0.01,
+      parallaxStrength: 0.006,
     };
   }
 
@@ -273,7 +274,7 @@ export function getStageResponsiveConfig(width, height) {
       aspect,
       uvScaleX,
       uvScaleY,
-      parallaxStrength: 0.015,
+      parallaxStrength: 0.009,
     };
   }
 
@@ -283,7 +284,7 @@ export function getStageResponsiveConfig(width, height) {
     aspect,
     uvScaleX,
     uvScaleY,
-    parallaxStrength: 0.02,
+    parallaxStrength: 0.012,
   };
 }
 
