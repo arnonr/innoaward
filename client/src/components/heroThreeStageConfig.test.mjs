@@ -2,83 +2,90 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   DOMAIN_ORBIT_COLORS,
-  CITY_TOUR_DURATION,
-  DISTRICT_LAYOUTS,
-  getTourStoryState,
-  getDistrictTargetState,
+  DOMAIN_PHOTO_URLS,
+  DOMAIN_CYCLE_SECONDS,
+  getCoverUvScale,
+  resolveTargetDomainIndex,
+  advanceTransitionState,
   getStageResponsiveConfig,
   getMotionFactor,
 } from './heroThreeStageConfig.js';
 
-test('DOMAIN_ORBIT_COLORS and DISTRICT_LAYOUTS define 5 innovation districts with matching colors and coordinates', () => {
+test('DOMAIN_ORBIT_COLORS and DOMAIN_PHOTO_URLS define 5 real domain photos and accent colors', () => {
   assert.deepEqual(DOMAIN_ORBIT_COLORS, [0x00F5A0, 0x22C55E, 0x00D9F5, 0xFB7185, 0xF59E0B]);
-  assert.equal(CITY_TOUR_DURATION, 20);
-  assert.equal(DISTRICT_LAYOUTS.length, 5);
-  DISTRICT_LAYOUTS.forEach((d, idx) => {
-    assert.equal(d.index, idx);
-    assert.equal(d.color, DOMAIN_ORBIT_COLORS[idx]);
-    assert.equal(d.position.length, 3);
-    assert.equal(d.cameraOffset.length, 3);
-    assert.equal(d.lookAtOffset.length, 3);
-  });
+  assert.deepEqual(DOMAIN_PHOTO_URLS, [
+    '/domain-energy.jpg',
+    '/domain-food.jpg',
+    '/domain-social.jpg',
+    '/domain-medical.jpg',
+    '/domain-material.jpg',
+  ]);
+  assert.equal(DOMAIN_CYCLE_SECONDS, 6);
 });
 
-test('getTourStoryState transitions through 5 districts in glide mode (0..15s) and enters surge climax (15..20s)', () => {
-  const d0 = getTourStoryState(1.5, null);
-  assert.equal(d0.mode, 'glide');
-  assert.equal(d0.activeDistrictIndex, 0);
-  assert.equal(d0.surgeProgress, 0);
+test('getCoverUvScale preserves aspect ratio without stretching and handles zero/negative dimensions', () => {
+  const zero = getCoverUvScale(0, -20);
+  assert.equal(Number.isFinite(zero.scaleX) && zero.scaleX > 0 && zero.scaleX <= 1, true);
+  assert.equal(Number.isFinite(zero.scaleY) && zero.scaleY > 0 && zero.scaleY <= 1, true);
 
-  const d3 = getTourStoryState(10.2, 5); // 5 ("Others") is out of range -> stays in auto tour
-  assert.equal(d3.mode, 'glide');
-  assert.equal(d3.activeDistrictIndex, 3);
+  // Wide container (wider than 16:9) crops vertically (scaleY < 1, scaleX === 1)
+  const wide = getCoverUvScale(1920, 600, 16 / 9);
+  assert.equal(wide.scaleX, 1);
+  assert.equal(wide.scaleY < 1, true);
 
-  const surge = getTourStoryState(17.5, null);
-  assert.equal(surge.mode, 'surge');
-  assert.equal(surge.activeDistrictIndex, -1);
-  assert.equal(surge.surgeProgress, 0.5);
+  // Tall mobile container (narrower than 16:9) crops horizontally (scaleX < 1, scaleY === 1)
+  const tall = getCoverUvScale(390, 720, 16 / 9);
+  assert.equal(tall.scaleX < 1, true);
+  assert.equal(tall.scaleY, 1);
 });
 
-test('getTourStoryState switches to dive mode when activeDomainIndex is 0..4', () => {
-  const dive = getTourStoryState(4.0, 2);
-  assert.equal(dive.mode, 'dive');
-  assert.equal(dive.activeDistrictIndex, 2);
-  assert.equal(dive.surgeProgress, 0);
+test('resolveTargetDomainIndex auto-cycles every 6s when unhovered or out of range and locks when hovered (0..4)', () => {
+  assert.deepEqual(resolveTargetDomainIndex(0.5, null), { mode: 'auto', domainIndex: 0 });
+  assert.deepEqual(resolveTargetDomainIndex(6.1, null), { mode: 'auto', domainIndex: 1 });
+  assert.deepEqual(resolveTargetDomainIndex(13.0, 5), { mode: 'auto', domainIndex: 2 }); // 5 = Others
+  assert.deepEqual(resolveTargetDomainIndex(-2.0, undefined), { mode: 'auto', domainIndex: 4 });
+  assert.deepEqual(resolveTargetDomainIndex(Number.NaN, null), { mode: 'auto', domainIndex: 0 });
+
+  assert.deepEqual(resolveTargetDomainIndex(1.2, 3), { mode: 'hover', domainIndex: 3 });
 });
 
-test('getDistrictTargetState boosts active district in glide/dive and boosts all districts in surge', () => {
-  const glideState = getTourStoryState(1.0, null); // district 0 active
-  const activeGlide = getDistrictTargetState(0, glideState);
-  const idleGlide = getDistrictTargetState(2, glideState);
-  assert.equal(activeGlide.activityMultiplier > idleGlide.activityMultiplier, true);
-  assert.equal(activeGlide.conduitPulseIntensity > idleGlide.conduitPulseIntensity, true);
+test('advanceTransitionState interpolates mixProgress to 1, settles on target, and handles mid-transition retargeting', () => {
+  const state = { currentIndex: 0, nextIndex: 0, mixProgress: 0, transitioning: false };
 
-  const diveState = getTourStoryState(1.0, 4); // dive into district 4
-  const activeDive = getDistrictTargetState(4, diveState);
-  const dimmedDive = getDistrictTargetState(1, diveState);
-  assert.equal(activeDive.activityMultiplier, 2.4);
-  assert.equal(dimmedDive.activityMultiplier, 0.45);
+  advanceTransitionState(state, 2, 0.25, 2.0);
+  assert.equal(state.transitioning, true);
+  assert.equal(state.currentIndex, 0);
+  assert.equal(state.nextIndex, 2);
+  assert.equal(state.mixProgress, 0.5);
 
-  const surgeState = getTourStoryState(18.0, null);
-  assert.deepEqual(getDistrictTargetState(0, surgeState), getDistrictTargetState(3, surgeState));
-  assert.equal(getDistrictTargetState(0, surgeState).conduitPulseIntensity, 1);
+  // Mid-transition retarget to domain 4 before previous transition finishes
+  advanceTransitionState(state, 4, 0.1, 2.0);
+  assert.equal(state.transitioning, true);
+  assert.equal(state.nextIndex, 4);
+  assert.equal(state.mixProgress > 0 && state.mixProgress < 1, true);
+
+  // Finish transition
+  advanceTransitionState(state, 4, 1.0, 2.0);
+  assert.equal(state.transitioning, false);
+  assert.equal(state.currentIndex, 4);
+  assert.equal(state.nextIndex, 4);
+  assert.equal(state.mixProgress, 0);
 });
 
-test('getStageResponsiveConfig clamps zero dimensions and getMotionFactor returns frozen objects', () => {
-  const zero = getStageResponsiveConfig(0, 0);
-  assert.equal(zero.safeWidth, 1);
-  assert.equal(zero.safeHeight, 1);
-  assert.equal(Number.isFinite(zero.aspect), true);
-
+test('getStageResponsiveConfig and getMotionFactor handle mobile/desktop and reduced motion', () => {
   const mobile = getStageResponsiveConfig(390, 700);
-  assert.equal(mobile.particleCount, 50);
-  assert.equal(mobile.cityOffsetX, 0);
+  const desktop = getStageResponsiveConfig(1440, 760);
+  assert.equal(mobile.parallaxStrength < desktop.parallaxStrength, true);
+  assert.equal(mobile.uvScaleX < 1, true);
 
-  const desktop = getStageResponsiveConfig(1280, 720);
-  assert.equal(desktop.particleCount, 120);
-  assert.equal(desktop.cityOffsetX > 0.8, true);
-
-  assert.deepEqual(getMotionFactor(true), { speedFactor: 0.15, parallaxFactor: 0 });
-  assert.deepEqual(getMotionFactor(false), { speedFactor: 1, parallaxFactor: 1 });
-  assert.equal(getMotionFactor(true), getMotionFactor(true));
+  assert.deepEqual(getMotionFactor(true), {
+    speedFactor: 0.25,
+    parallaxFactor: 0,
+    breathFactor: 0,
+  });
+  assert.deepEqual(getMotionFactor(false), {
+    speedFactor: 1,
+    parallaxFactor: 1,
+    breathFactor: 1,
+  });
 });

@@ -1,145 +1,143 @@
-export const DOMAIN_ORBIT_COLORS = [
+export const DOMAIN_ORBIT_COLORS = Object.freeze([
   0x00F5A0, // Energy, Environment & BCG Economy
   0x22C55E, // Food & Agriculture
   0x00D9F5, // Social & Economy
   0xFB7185, // Medical Device
   0xF59E0B, // Material
-];
+]);
 
-export const CITY_TOUR_DURATION = 20;
+export const DOMAIN_PHOTO_URLS = Object.freeze([
+  '/domain-energy.jpg',
+  '/domain-food.jpg',
+  '/domain-social.jpg',
+  '/domain-medical.jpg',
+  '/domain-material.jpg',
+]);
 
-const DISTRICT_RADIUS = 2.35;
+export const DOMAIN_CYCLE_SECONDS = 6;
 
-export const DISTRICT_LAYOUTS = DOMAIN_ORBIT_COLORS.map((color, index) => {
-  const angle = (index * Math.PI * 2) / DOMAIN_ORBIT_COLORS.length;
-  const x = Number((Math.cos(angle) * DISTRICT_RADIUS).toFixed(3));
-  const z = Number((Math.sin(angle) * DISTRICT_RADIUS).toFixed(3));
-
-  return Object.freeze({
-    index,
-    color,
-    position: Object.freeze([x, 0, z]),
-    cameraOffset: Object.freeze([
-      Number((Math.cos(angle) * 0.85).toFixed(3)),
-      1.05,
-      Number((Math.sin(angle) * 0.85 + 1.35).toFixed(3)),
-    ]),
-    lookAtOffset: Object.freeze([0, 0.35, 0]),
-  });
-});
-
-const DISTRICT_STATE_DIVE_ACTIVE = Object.freeze({
-  activityMultiplier: 2.4,
-  conduitPulseIntensity: 1.0,
-  emissiveBoost: 1.1,
-});
-
-const DISTRICT_STATE_DIVE_DIMMED = Object.freeze({
-  activityMultiplier: 0.45,
-  conduitPulseIntensity: 0.18,
-  emissiveBoost: 0.25,
-});
-
-const DISTRICT_STATE_SURGE = Object.freeze({
-  activityMultiplier: 2.0,
-  conduitPulseIntensity: 1.0,
-  emissiveBoost: 0.95,
-});
-
-const DISTRICT_STATE_GLIDE_ACTIVE = Object.freeze({
-  activityMultiplier: 2.1,
-  conduitPulseIntensity: 0.95,
-  emissiveBoost: 0.9,
-});
-
-const DISTRICT_STATE_GLIDE_IDLE = Object.freeze({
-  activityMultiplier: 0.75,
-  conduitPulseIntensity: 0.3,
-  emissiveBoost: 0.4,
-});
+export const DEFAULT_IMAGE_ASPECT = 16 / 9;
 
 const REDUCED_MOTION_FACTOR = Object.freeze({
-  speedFactor: 0.15,
+  speedFactor: 0.25,
   parallaxFactor: 0,
+  breathFactor: 0,
 });
 
 const FULL_MOTION_FACTOR = Object.freeze({
   speedFactor: 1,
   parallaxFactor: 1,
+  breathFactor: 1,
 });
 
-export function getTourStoryState(elapsedSeconds, activeDomainIndex) {
-  const safeElapsed = Number.isFinite(elapsedSeconds) ? elapsedSeconds : 0;
-  const cycleTime =
-    ((safeElapsed % CITY_TOUR_DURATION) + CITY_TOUR_DURATION) % CITY_TOUR_DURATION;
-  const tourProgress = cycleTime / CITY_TOUR_DURATION;
+export function getCoverUvScale(
+  containerWidth,
+  containerHeight,
+  imageAspect = DEFAULT_IMAGE_ASPECT
+) {
+  const safeWidth = Math.max(1, Number.isFinite(containerWidth) ? containerWidth : 1);
+  const safeHeight = Math.max(1, Number.isFinite(containerHeight) ? containerHeight : 1);
+  const safeImageAspect =
+    Number.isFinite(imageAspect) && imageAspect > 0 ? imageAspect : DEFAULT_IMAGE_ASPECT;
+  const containerAspect = safeWidth / safeHeight;
 
-  if (
-    typeof activeDomainIndex === 'number' &&
-    activeDomainIndex >= 0 &&
-    activeDomainIndex < DOMAIN_ORBIT_COLORS.length
-  ) {
+  if (containerAspect > safeImageAspect) {
     return {
-      mode: 'dive',
-      activeDistrictIndex: activeDomainIndex,
-      tourProgress,
-      districtProgress: 0,
-      surgeProgress: 0,
+      scaleX: 1,
+      scaleY: safeImageAspect / containerAspect,
     };
   }
 
-  if (cycleTime < 15) {
-    const activeDistrictIndex = Math.min(4, Math.floor(cycleTime / 3));
-    const districtProgress = (cycleTime % 3) / 3;
-    return {
-      mode: 'glide',
-      activeDistrictIndex,
-      tourProgress,
-      districtProgress,
-      surgeProgress: 0,
-    };
-  }
-
-  const surgeProgress = (cycleTime - 15) / 5;
   return {
-    mode: 'surge',
-    activeDistrictIndex: -1,
-    tourProgress,
-    districtProgress: 1,
-    surgeProgress,
+    scaleX: containerAspect / safeImageAspect,
+    scaleY: 1,
   };
 }
 
-export function getDistrictTargetState(districtIndex, storyState) {
-  if (storyState?.mode === 'dive') {
-    return districtIndex === storyState.activeDistrictIndex
-      ? DISTRICT_STATE_DIVE_ACTIVE
-      : DISTRICT_STATE_DIVE_DIMMED;
+export function resolveTargetDomainIndex(elapsedSeconds, activeDomainIndex) {
+  const count = DOMAIN_PHOTO_URLS.length;
+
+  if (
+    typeof activeDomainIndex === 'number' &&
+    Number.isInteger(activeDomainIndex) &&
+    activeDomainIndex >= 0 &&
+    activeDomainIndex < count
+  ) {
+    return {
+      mode: 'hover',
+      domainIndex: activeDomainIndex,
+    };
   }
 
-  if (storyState?.mode === 'surge') {
-    return DISTRICT_STATE_SURGE;
+  const safeElapsed = Number.isFinite(elapsedSeconds) ? elapsedSeconds : 0;
+  const totalCycle = count * DOMAIN_CYCLE_SECONDS;
+  const wrapped = ((safeElapsed % totalCycle) + totalCycle) % totalCycle;
+  const domainIndex = Math.min(count - 1, Math.floor(wrapped / DOMAIN_CYCLE_SECONDS));
+
+  return {
+    mode: 'auto',
+    domainIndex,
+  };
+}
+
+export function advanceTransitionState(
+  state,
+  targetDomainIndex,
+  deltaSeconds,
+  transitionSpeed = 1.8
+) {
+  const count = DOMAIN_PHOTO_URLS.length;
+  const safeTarget =
+    typeof targetDomainIndex === 'number' &&
+    Number.isInteger(targetDomainIndex) &&
+    targetDomainIndex >= 0 &&
+    targetDomainIndex < count
+      ? targetDomainIndex
+      : 0;
+  const safeDelta = Number.isFinite(deltaSeconds) && deltaSeconds > 0 ? deltaSeconds : 0;
+  const safeSpeed = Number.isFinite(transitionSpeed) && transitionSpeed > 0 ? transitionSpeed : 1.8;
+
+  if (!state.transitioning) {
+    if (safeTarget !== state.currentIndex) {
+      state.nextIndex = safeTarget;
+      state.mixProgress = 0;
+      state.transitioning = true;
+    } else {
+      state.nextIndex = state.currentIndex;
+      state.mixProgress = 0;
+      return state;
+    }
+  } else if (safeTarget !== state.nextIndex) {
+    state.currentIndex = state.mixProgress >= 0.5 ? state.nextIndex : state.currentIndex;
+    state.nextIndex = safeTarget;
+    state.mixProgress = 0;
   }
 
-  return districtIndex === storyState?.activeDistrictIndex
-    ? DISTRICT_STATE_GLIDE_ACTIVE
-    : DISTRICT_STATE_GLIDE_IDLE;
+  state.mixProgress = Math.min(1, state.mixProgress + safeDelta * safeSpeed);
+
+  if (state.mixProgress >= 1) {
+    state.currentIndex = state.nextIndex;
+    state.mixProgress = 0;
+    state.transitioning = false;
+  }
+
+  return state;
 }
 
 export function getStageResponsiveConfig(width, height) {
-  const safeWidth = Math.max(1, width || 0);
-  const safeHeight = Math.max(1, height || 0);
+  const safeWidth = Math.max(1, Number.isFinite(width) ? width : 0);
+  const safeHeight = Math.max(1, Number.isFinite(height) ? height : 0);
   const aspect = safeWidth / safeHeight;
+  const { scaleX: uvScaleX, scaleY: uvScaleY } = getCoverUvScale(safeWidth, safeHeight);
 
   if (safeWidth <= 768) {
     return {
       safeWidth,
       safeHeight,
       aspect,
-      particleCount: 50,
-      cityOffsetX: 0,
-      cityOffsetY: -0.25,
-      distanceScale: 1.18,
+      uvScaleX,
+      uvScaleY,
+      parallaxStrength: 0.01,
     };
   }
 
@@ -148,10 +146,9 @@ export function getStageResponsiveConfig(width, height) {
       safeWidth,
       safeHeight,
       aspect,
-      particleCount: 80,
-      cityOffsetX: 0.65,
-      cityOffsetY: -0.3,
-      distanceScale: 1.06,
+      uvScaleX,
+      uvScaleY,
+      parallaxStrength: 0.015,
     };
   }
 
@@ -159,10 +156,9 @@ export function getStageResponsiveConfig(width, height) {
     safeWidth,
     safeHeight,
     aspect,
-    particleCount: 120,
-    cityOffsetX: 1.15,
-    cityOffsetY: -0.32,
-    distanceScale: 1.0,
+    uvScaleX,
+    uvScaleY,
+    parallaxStrength: 0.02,
   };
 }
 
