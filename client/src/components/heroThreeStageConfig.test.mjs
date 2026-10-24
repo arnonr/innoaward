@@ -14,6 +14,10 @@ import {
   advanceTransitionState,
   getStageResponsiveConfig,
   getMotionFactor,
+  SHOWREEL_CYCLE_SECONDS,
+  HOLO_GLASS_FRAGMENT_SHADER,
+  getShowreelTimelineState,
+  getDomainOrbitPose,
 } from './heroThreeStageConfig.js';
 
 test('DOMAIN_ORBIT_COLORS and DOMAIN_PHOTO_URLS define 5 real domain photos and accent colors', () => {
@@ -180,3 +184,64 @@ test('DOMAIN_CARD_FRAGMENT_SHADER includes sampleSharpTexture, applyLivingPhotoE
     assert.equal(snippet.startsWith('pow(max(0.0'), true, `Unclamped pow base: ${snippet}`);
   });
 });
+
+test('getShowreelTimelineState sequences overview -> breakthrough -> orbit across SHOWREEL_CYCLE_SECONDS and supports interactive overrides', () => {
+  assert.equal(SHOWREEL_CYCLE_SECONDS, 32);
+
+  // Act 1: Overview (0..6.5s)
+  const act1 = getShowreelTimelineState(3.0, null);
+  assert.equal(act1.act, 'overview');
+  assert.equal(act1.activeCardIndex, -1);
+  assert.equal(act1.portalOpen, 0);
+  assert.equal(act1.cameraTargetPos.z > 4, true);
+
+  // Act 2: Breakthrough fly-through & reading hold (6.5..10.2s)
+  const act2 = getShowreelTimelineState(8.2, null);
+  assert.equal(act2.act, 'breakthrough');
+  assert.equal(act2.activeCardIndex, -1);
+  assert.equal(act2.portalOpen > 0.2, true);
+  assert.equal(act2.cameraTargetPos.z < act1.cameraTargetPos.z, true);
+
+  // Act 3: Orbiting 5 domains (10.2..29.7s, 3.9s per domain)
+  const act3Domain0 = getShowreelTimelineState(11.5, null);
+  assert.equal(act3Domain0.act, 'orbit');
+  assert.equal(act3Domain0.activeCardIndex, 0);
+
+  const act3Domain3 = getShowreelTimelineState(23.0, null);
+  assert.equal(act3Domain3.act, 'orbit');
+  assert.equal(act3Domain3.activeCardIndex, 3);
+
+  // Interactive override: lock onto Overview ('overview' or -1)
+  const lockedOverview = getShowreelTimelineState(18.0, 'overview');
+  assert.equal(lockedOverview.act, 'overview');
+  assert.equal(lockedOverview.activeCardIndex, -1);
+  assert.equal(lockedOverview.portalOpen, 0);
+
+  // Interactive override: lock onto specific Domain (0..4)
+  const lockedDomain2 = getShowreelTimelineState(1.5, 2);
+  assert.equal(lockedDomain2.act, 'orbit');
+  assert.equal(lockedDomain2.activeCardIndex, 2);
+  assert.equal(lockedDomain2.portalOpen, 1);
+});
+
+test('getDomainOrbitPose positions the active front domain closest to the camera with frontness = 1', () => {
+  const stateForDomain2 = getShowreelTimelineState(0, 2);
+  const pose2 = getDomainOrbitPose(2, stateForDomain2.orbitAngle);
+  const pose0 = getDomainOrbitPose(0, stateForDomain2.orbitAngle);
+
+  assert.equal(pose2.z > pose0.z, true);
+  assert.equal(pose2.frontness > 0.98, true);
+  assert.equal(Math.abs(pose2.x) < 0.05, true);
+});
+
+test('HOLO_GLASS_FRAGMENT_SHADER includes electric border plasma, portal split ring, and clamped pow()', () => {
+  assert.equal(typeof HOLO_GLASS_FRAGMENT_SHADER, 'string');
+  assert.equal(HOLO_GLASS_FRAGMENT_SHADER.includes('uniform float uElectricIntensity;'), true);
+  assert.equal(HOLO_GLASS_FRAGMENT_SHADER.includes('uniform float uPortalOpen;'), true);
+  const powMatches = HOLO_GLASS_FRAGMENT_SHADER.match(/pow\([^,]+/g) || [];
+  assert.equal(powMatches.length > 0, true);
+  powMatches.forEach((snippet) => {
+    assert.equal(snippet.startsWith('pow(max(0.0'), true, `Unclamped pow base: ${snippet}`);
+  });
+});
+

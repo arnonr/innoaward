@@ -23,6 +23,7 @@ export const DOMAIN_PHOTO_URLS = Object.freeze([
 ]);
 
 export const DOMAIN_CYCLE_SECONDS = 14;
+export const SHOWREEL_CYCLE_SECONDS = 32;
 
 export const DEFAULT_IMAGE_ASPECT = 16 / 9;
 
@@ -373,4 +374,298 @@ export function getStageResponsiveConfig(width, height) {
 
 export function getMotionFactor(prefersReducedMotion) {
   return prefersReducedMotion ? REDUCED_MOTION_FACTOR : FULL_MOTION_FACTOR;
+}
+
+export const HOLO_GLASS_VERTEX_SHADER = `
+  varying vec2 vUv;
+  varying vec3 vWorldPos;
+  void main() {
+    vUv = uv;
+    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+    vWorldPos = worldPosition.xyz;
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
+  }
+`;
+
+export const HOLO_GLASS_FRAGMENT_SHADER = `
+  uniform sampler2D uPanelTex;
+  uniform sampler2D uPhotoTex;
+  uniform float uHasPhoto;
+  uniform float uDomainId;
+  uniform vec3 uAccentColor;
+  uniform float uTime;
+  uniform float uElectricIntensity;
+  uniform float uPortalOpen;
+  uniform float uOpacity;
+  uniform float uHover;
+  varying vec2 vUv;
+${LIVING_PHOTO_GLSL_HELPERS}
+
+  float sdRoundedBox(vec2 p, vec2 b, float r) {
+    vec2 q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r;
+  }
+
+  void main() {
+    vec2 centered = (vUv - 0.5) * 2.0;
+    vec2 aspectCorrected = vec2(centered.x * 1.777, centered.y);
+
+    // Rounded glass panel SDF
+    float dBox = sdRoundedBox(aspectCorrected, vec2(1.72, 0.96), 0.075);
+    float panelMask = 1.0 - smoothstep(-0.008, 0.012, dBox);
+    if (panelMask <= 0.001) discard;
+
+    // Sample HUD canvas texture
+    vec4 hudSample = texture2D(uPanelTex, vUv);
+
+    // Base glass color + optional living domain photography inside the card
+    vec3 glassBase = vec3(0.025, 0.068, 0.138);
+    float glassAlpha = 0.96;
+
+    if (uHasPhoto > 0.5) {
+      vec2 photoUv = clamp((vUv - 0.5) * (0.96 - uHover * 0.03) + 0.5, 0.002, 0.998);
+      vec3 rawPhoto = sampleSharpTexture(uPhotoTex, photoUv);
+      vec3 livingPhoto = applyLivingPhotoEffect(rawPhoto, photoUv, uDomainId, uTime);
+      // Darken bottom and top slightly so HUD telemetry & titles pop with crystal clarity
+      float hudScrim = smoothstep(0.0, 0.36, vUv.y) * (1.0 - smoothstep(0.76, 0.98, vUv.y));
+      vec3 tonedPhoto = livingPhoto * (0.52 + 0.48 * hudScrim);
+      glassBase = mix(glassBase, tonedPhoto, 0.88);
+      glassAlpha = 0.92;
+    }
+
+    // Diagonal holographic glass sheen
+    float sheenCoord = vUv.x * 0.85 + vUv.y * 0.55;
+    float sweep = exp(-sq((sheenCoord - fract(uTime * 0.11) * 1.8 + 0.2) * 5.5)) * 0.14;
+    float staticSheen = pow(max(0.0, 1.0 - abs(sheenCoord - 0.68)), 4.0) * 0.09;
+    vec3 sheenCol = mix(uAccentColor, vec3(1.0, 0.95, 0.85), 0.5) * (sweep + staticSheen);
+
+    // Composite HUD canvas texture over glass/photo
+    vec3 col = mix(glassBase + sheenCol, hudSample.rgb, hudSample.a);
+    float alpha = max(glassAlpha, hudSample.a);
+
+    // Electric plasma / lightning border around the perimeter of the 3D glass screen
+    float borderDist = abs(dBox + 0.012);
+    float angle = atan(aspectCorrected.y, aspectCorrected.x);
+    float jitter = sin(angle * 18.0 + uTime * 9.5) * 0.0055
+                 + cos(angle * 31.0 - uTime * 14.0) * 0.0035;
+    float arcDist = abs(dBox + 0.012 + jitter);
+
+    float coreWire = exp(-sq(borderDist * 145.0));
+    float lightningArc = exp(-sq(arcDist * 210.0));
+    float outerHalo = exp(-sq(borderDist * 36.0)) * 0.48;
+
+    float travelPulse1 = pow(max(0.0, 0.5 + 0.5 * sin(angle * 2.0 - uTime * 3.4)), 4.0);
+    float travelPulse2 = pow(max(0.0, 0.5 + 0.5 * cos(angle * 3.0 + uTime * 2.7)), 6.0);
+    float sparkIntensity = (0.45 + 0.55 * max(travelPulse1, travelPulse2)) * (uElectricIntensity + uHover * 0.35);
+
+    vec3 electricCyan = mix(uAccentColor, vec3(0.35, 0.92, 1.0), 0.45);
+    vec3 electricGold = vec3(1.0, 0.76, 0.28);
+    vec3 plasmaCol = mix(electricCyan, electricGold, travelPulse2 * 0.45);
+
+    vec3 borderGlow = plasmaCol * (coreWire * 0.95 + lightningArc * 1.35 * sparkIntensity + outerHalo * sparkIntensity);
+    col += borderGlow;
+    alpha = clamp(alpha + (coreWire + lightningArc * 0.8) * 0.6, 0.0, 1.0);
+
+    // Holographic Layer Split & Portal Fly-Through Ring (uPortalOpen: 0 -> 1)
+    if (uPortalOpen > 0.001) {
+      float radialDist = length(aspectCorrected * vec2(0.72, 1.0));
+      float portalRadius = uPortalOpen * 1.65;
+      float holeMask = smoothstep(portalRadius - 0.14, portalRadius + 0.04, radialDist);
+      float portalRing = exp(-sq((radialDist - portalRadius) * 14.0));
+      vec3 ringCol = mix(vec3(0.0, 0.92, 1.0), vec3(1.0, 0.72, 0.2), 0.5 + 0.5 * sin(angle * 4.0 + uTime * 5.0));
+      col += ringCol * portalRing * 2.1;
+      alpha *= holeMask;
+    }
+
+    gl_FragColor = vec4(clamp(col, 0.0, 1.0), alpha * panelMask * uOpacity);
+  }
+`;
+
+export function getDomainOrbitPose(
+  domainIndex,
+  orbitAngle = 0,
+  radiusX = 4.6,
+  radiusZ = 3.5,
+  centerZ = -10.8
+) {
+  const count = DOMAIN_IDS.length;
+  const safeIndex = ((domainIndex % count) + count) % count;
+  const stepAngle = (Math.PI * 2) / count;
+  const rawAngle = safeIndex * stepAngle + (Number.isFinite(orbitAngle) ? orbitAngle : 0);
+
+  // Normalize angle to [-PI, PI] where 0 is front-center closest to the camera
+  const normAngle = Math.atan2(Math.sin(rawAngle), Math.cos(rawAngle));
+  const x = Math.sin(normAngle) * radiusX;
+  const z = centerZ + Math.cos(normAngle) * radiusZ;
+  const y = 0.54 + Math.sin(normAngle * 2.0) * 0.14;
+
+  // Frontness: 1 when at front center (normAngle = 0), 0 when at back (|normAngle| = PI)
+  const frontness = 0.5 + 0.5 * Math.cos(normAngle);
+
+  // Cards face outward/toward the camera when in front, with subtle banking
+  const rotY = -normAngle * 0.58;
+
+  return {
+    x,
+    y,
+    z,
+    rotY,
+    frontness,
+    normAngle,
+  };
+}
+
+function smoothstep01(t) {
+  const clamped = Math.max(0, Math.min(1, t));
+  return clamped * clamped * (3 - 2 * clamped);
+}
+
+export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
+  const count = DOMAIN_IDS.length;
+  const stepAngle = (Math.PI * 2) / count;
+
+  // 1. Interactive Override: Lock onto Overview ('overview' or -1)
+  if (activeTarget === 'overview' || activeTarget === -1) {
+    return {
+      mode: 'interactive',
+      act: 'overview',
+      activeCardIndex: -1,
+      portalOpen: 0,
+      electricIntensity: 1.0,
+      orbitAngle: 0,
+      cameraTargetPos: { x: 0, y: 0.24, z: 7.35 },
+      cameraLookAt: { x: 0, y: -0.16, z: 0 },
+    };
+  }
+
+  // 2. Interactive Override: Lock onto specific Domain (0..4)
+  if (
+    typeof activeTarget === 'number' &&
+    Number.isInteger(activeTarget) &&
+    activeTarget >= 0 &&
+    activeTarget < count
+  ) {
+    const targetOrbitAngle = -activeTarget * stepAngle;
+    return {
+      mode: 'interactive',
+      act: 'orbit',
+      activeCardIndex: activeTarget,
+      portalOpen: 1,
+      electricIntensity: 1.0,
+      orbitAngle: targetOrbitAngle,
+      cameraTargetPos: { x: 0, y: 0.24, z: -1.65 },
+      cameraLookAt: { x: 0, y: -0.12, z: -7.5 },
+    };
+  }
+
+  // 3. Automatic 3-Act Showreel Loop (32s cycle: energetic tempo + clear reading holds)
+  const safeElapsed = Number.isFinite(elapsedSeconds) ? elapsedSeconds : 0;
+  const t = ((safeElapsed % SHOWREEL_CYCLE_SECONDS) + SHOWREEL_CYCLE_SECONDS) % SHOWREEL_CYCLE_SECONDS;
+
+  // Act 1: 0.0s .. 6.5s (6.5s energetic hold) — Main Holographic Glass Frame (KMUTNB INNOVATION AWARDS 2027)
+  if (t < 6.5) {
+    const progress = t / 6.5;
+    const swayX = Math.sin(progress * Math.PI * 2) * 0.32;
+    const zoomZ = 7.55 - smoothstep01(progress) * 0.5;
+    return {
+      mode: 'auto',
+      act: 'overview',
+      activeCardIndex: -1,
+      portalOpen: 0,
+      electricIntensity: 1.0,
+      orbitAngle: 0,
+      cameraTargetPos: { x: swayX, y: 0.24, z: zoomZ },
+      cameraLookAt: { x: 0, y: -0.16, z: 0 },
+    };
+  }
+
+  // Act 2: 6.5s .. 10.2s (3.7s) — Fast Portal Split, 1.9s Kinetic Push-in on Breakthrough Headline, then Burst into Orbit
+  if (t < 10.2) {
+    const btElapsed = t - 6.5;
+    const p = btElapsed / 3.7;
+    const portalOpen = smoothstep01(Math.min(1, btElapsed / 0.95));
+
+    let camZ;
+    let lookZ;
+    let breakthroughPortal = 0;
+
+    if (btElapsed < 0.9) {
+      // Phase 2A (0..0.9s): Fast fly-through Main Glass Portal up to Breakthrough Hologram (z = +1.45 looking at -4.2)
+      const pA = smoothstep01(btElapsed / 0.9);
+      camZ = 7.05 - pA * 5.6; // 7.05 -> 1.45
+      lookZ = 0.0 - pA * 4.2;
+    } else if (btElapsed < 2.8) {
+      // Phase 2B (0.9..2.8s): 1.9s kinetic push-in hold on Breakthrough Headline
+      const pB = (btElapsed - 0.9) / 1.9;
+      camZ = 1.45 - pB * 0.7; // Continuous push-in 1.45 -> 0.75 while reading
+      lookZ = -4.2;
+    } else {
+      // Phase 2C (2.8..3.7s): Fast portal burst through Breakthrough Hologram into Orbital Chamber
+      const pC = smoothstep01((btElapsed - 2.8) / 0.9);
+      camZ = 0.75 - pC * 2.4; // 0.75 -> -1.65
+      lookZ = -4.2 - pC * 3.6; // -4.2 -> -7.8
+      breakthroughPortal = smoothstep01(Math.min(1, (btElapsed - 2.7) / 0.65));
+    }
+
+    return {
+      mode: 'auto',
+      act: 'breakthrough',
+      activeCardIndex: -1,
+      portalOpen,
+      breakthroughPortal,
+      electricIntensity: 1.22,
+      orbitAngle: 0,
+      cameraTargetPos: { x: Math.sin(p * Math.PI * 2) * 0.16, y: 0.24 + Math.sin(p * Math.PI) * 0.1, z: camZ },
+      cameraLookAt: { x: 0, y: -0.15, z: lookZ },
+    };
+  }
+
+  // Act 3: 10.2s .. 29.7s (19.5s = 3.9s per domain) — Orbiting 5 Innovation Domain Glass Panels
+  if (t < 29.7) {
+    const orbitElapsed = t - 10.2;
+    const orbitDuration = 19.5; // 3.9s per domain (~2.9s reading hold + ~1.0s snappy whip-rotation)
+    const domainFloat = (orbitElapsed / orbitDuration) * count;
+    const activeCardIndex = Math.min(count - 1, Math.floor(domainFloat));
+    const localProgress = domainFloat - activeCardIndex;
+
+    // Hold for 74% of the slot (~2.9s) so user can read, then snappy 26% (~1.0s) whip-rotation
+    const rotationPhase = Math.max(0, (localProgress - 0.74) / 0.26);
+    const steppedIndex = activeCardIndex + smoothstep01(rotationPhase);
+    const orbitAngle = -steppedIndex * stepAngle;
+
+    // Boost electric plasma intensity during the snappy rotation for extra excitement
+    const rotationBurst = Math.sin(rotationPhase * Math.PI) * 0.42;
+
+    return {
+      mode: 'auto',
+      act: 'orbit',
+      activeCardIndex,
+      portalOpen: 1,
+      breakthroughPortal: 1,
+      electricIntensity: 0.96 + rotationBurst,
+      orbitAngle,
+      cameraTargetPos: {
+        x: Math.sin(orbitElapsed * 0.85) * 0.24,
+        y: 0.24,
+        z: -1.65,
+      },
+      cameraLookAt: { x: 0, y: -0.12, z: -7.8 },
+    };
+  }
+
+  // Return Transition: 29.7s .. 32.0s (2.3s) — Snappy warp back to Main Holographic Stage
+  const retP = smoothstep01((t - 29.7) / 2.3);
+  const camZ = -1.65 + retP * 9.2;
+  const lookZ = -7.8 + retP * 7.8;
+  return {
+    mode: 'auto',
+    act: 'overview',
+    activeCardIndex: -1,
+    portalOpen: 1 - retP,
+    breakthroughPortal: 1 - retP,
+    electricIntensity: 1.08,
+    orbitAngle: -count * stepAngle,
+    cameraTargetPos: { x: 0, y: 0.24, z: camZ },
+    cameraLookAt: { x: 0, y: -0.16, z: lookZ },
+  };
 }

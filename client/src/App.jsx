@@ -320,7 +320,7 @@ const ANNOUNCEMENTS = [
     badgeText: 'ข่าวสารโครงการ',
     badgeClass: 'announcement-badge-general',
     date: '1 กันยายน 2569',
-    title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2026 ชิงถ้วยพระราชทานฯ',
+    title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) ชิงถ้วยพระราชทานฯ',
     abstract: 'ขอเชิญชวนนักเรียน นักศึกษา นักวิจัย และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมเข้าร่วมประกวด 5 สาขาเป้าหมาย ชิงเงินรางวัลรวมกว่า 300,000 บาท หมดเขต 15 พ.ย. 2569',
     pdfUrl: '#',
     roster: []
@@ -473,7 +473,7 @@ export default function App() {
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
   const [hoveredDomainIndex, setHoveredDomainIndex] = useState(null);
-  const [displayedDomainIndex, setDisplayedDomainIndex] = useState(0);
+  const [displayedDomainIndex, setDisplayedDomainIndex] = useState(-1);
   const [detailDomainModal, setDetailDomainModal] = useState(null);
   const [subError, setSubError] = useState('');
 
@@ -941,84 +941,82 @@ export default function App() {
           ============================================================ */}
       {currentView === 'home' && (
         <main>
-          {/* Hero Section */}
-          <section className="hero-section hero-video-stage">
+          {/* Hero Section: 3D Holographic Cinema Stage + Bottom Control Dock */}
+          <section className="hero-section hero-video-stage hero-hologram-cinema">
             <HeroThreeStage
               activeDomainIndex={hoveredDomainIndex}
               onDomainChange={setDisplayedDomainIndex}
+              onSelectDomain={(idx) => {
+                if (DOMAINS[idx]) {
+                  setDetailDomainModal(DOMAINS[idx]);
+                }
+              }}
+              onSelectOverview={() => {
+                setShowPortalModal(true);
+                if (user) setPortalTab('submission');
+              }}
             />
-            <div className="hero-side-lockup" aria-hidden="true">
-              <span className="hero-side-lockup-kicker">KMUTNB // 2026</span>
+
+            {/* Screen-reader accessible title & summary (visual text lives inside 3D Holographic Stage) */}
+            <div className="sr-only">
+              <h1>KMUTNB INNOVATION AWARDS 2027 (ประจำปี 2570) ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</h1>
+              <p>เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ชิงถ้วยพระราชทานฯ และเงินรางวัลรวมกว่า 300,000+ บาท</p>
             </div>
-            <div className="pro-container">
-              <div className="hero-grid hero-cinematic-grid">
-                
-                {/* Left: Brand & Core Mission Content */}
-                <div className="hero-text-content">
-                  <div>
-                    <div className="badge-royal hero-editorial-eyebrow hero-royal-honor">
-                      <Crown className="w-4 h-4 text-orange-300 animate-pulse" />
-                      <span>
-                        <strong>ชิงถ้วยพระราชทาน</strong>
-                        <span className="hero-royal-recipient">
-                          สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ<br />
-                          สยามบรมราชกุมารี
-                        </span>
-                      </span>
-                    </div>
-                  </div>
 
-                  <h1 className="hero-title hero-editorial-title">
-                    <span className="hero-brand-lead">KMUTNB</span>
-                    <span className="hero-title-cyan">INNOVATION</span>
-                    <span className="hero-title-gold">AWARDS 2026</span>
-                  </h1>
+            <div className="pro-container hero-hologram-container">
+              {/* Unobstructed 3D Stage Viewport Area */}
+              <div className="hero-hologram-viewport-space" aria-hidden="true">
+                <div className="hero-stage-camera-pill">
+                  <span className="hud-dot" />
+                  <span>
+                    {hoveredDomainIndex === 'overview' || (hoveredDomainIndex ?? displayedDomainIndex) === -1
+                      ? 'SCENE 00 // KMUTNB INNOVATION AWARDS 2027'
+                      : `SCENE 0${(hoveredDomainIndex ?? displayedDomainIndex) + 1} // ${DOMAINS[hoveredDomainIndex ?? displayedDomainIndex]?.titleEn?.toUpperCase() || 'INNOVATION DOMAIN'}`}
+                  </span>
+                  <span className="hero-stage-camera-hint">• คลิกที่จอกระจก 3D เพื่อโต้ตอบ</span>
+                </div>
+              </div>
 
-                  <p className="hero-desc hero-editorial-desc">
-                    เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ เพื่อค้นหาแนวคิดที่จะขับเคลื่อนอนาคต<br />
-                    ชิงถ้วยพระราชทานฯ และเงินรางวัลรวมกว่า 300,000+ บาท
-                  </p>
-
-                  {/* Countdown Bar (Mission Launch Glass HUD) */}
-                  <div className="hero-mission-hud hero-editorial-hud" aria-live="polite">
-                    <div className="hud-header">
-                      <div className="hud-status-chip">
-                        <span className="hud-dot" />
-                        <span>LIVE // OPEN FOR SUBMISSIONS</span>
-                      </div>
-                      <span className="hud-title-label">T-MINUS TO DEADLINE</span>
+              {/* Sleek Bottom Control Dock (Countdown + CTAs + 00..06 Scene Selector) */}
+              <div className="hero-control-dock">
+                <div className="hero-dock-topbar">
+                  {/* Compact Countdown HUD */}
+                  <div className="hero-dock-countdown" aria-live="polite">
+                    <div className="hero-dock-status">
+                      <span className="hud-dot" />
+                      <span className="hero-dock-status-live">LIVE // T-MINUS TO DEADLINE</span>
                     </div>
 
                     {timeLeft.expired ? (
                       <div className="deadline-expired-message">ปิดรับสมัครแล้ว</div>
                     ) : (
-                    <div className="hud-digits-row">
-                      <div className="hud-digit-block">
-                        <span className="hud-num">{timeLeft.days}</span>
-                        <span className="hud-unit">DAYS</span>
+                      <div className="hero-dock-digits">
+                        <div className="hero-dock-digit">
+                          <span className="hud-num">{timeLeft.days}</span>
+                          <span className="hud-unit">DAYS</span>
+                        </div>
+                        <span className="hud-sep">:</span>
+                        <div className="hero-dock-digit">
+                          <span className="hud-num">{timeLeft.hours}</span>
+                          <span className="hud-unit">HRS</span>
+                        </div>
+                        <span className="hud-sep">:</span>
+                        <div className="hero-dock-digit">
+                          <span className="hud-num">{timeLeft.minutes}</span>
+                          <span className="hud-unit">MINS</span>
+                        </div>
+                        <span className="hud-sep">:</span>
+                        <div className="hero-dock-digit accent">
+                          <span className="hud-num">{timeLeft.seconds}</span>
+                          <span className="hud-unit">SECS</span>
+                        </div>
                       </div>
-                      <span className="hud-sep">:</span>
-                      <div className="hud-digit-block">
-                        <span className="hud-num">{timeLeft.hours}</span>
-                        <span className="hud-unit">HOURS</span>
-                      </div>
-                      <span className="hud-sep">:</span>
-                      <div className="hud-digit-block">
-                        <span className="hud-num">{timeLeft.minutes}</span>
-                        <span className="hud-unit">MINS</span>
-                      </div>
-                      <span className="hud-sep">:</span>
-                      <div className="hud-digit-block accent">
-                        <span className="hud-num">{timeLeft.seconds}</span>
-                        <span className="hud-unit">SECS</span>
-                      </div>
-                    </div>
                     )}
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="hero-actions">
-                    <button 
+                  {/* Primary Action Buttons */}
+                  <div className="hero-dock-actions">
+                    <button
                       onClick={() => {
                         setShowPortalModal(true);
                         if (user) setPortalTab('submission');
@@ -1030,7 +1028,7 @@ export default function App() {
                       <span>{timeLeft.expired ? 'ปิดรับสมัครแล้ว' : (user ? 'ยื่นผลงาน' : 'สมัครประกวด')}</span>
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => navigateTo('guidelines')}
                       className="btn-outline-cyan hero-sub-cta"
                     >
@@ -1040,76 +1038,64 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right: Editorial Award Spotlight */}
-                <div className="hero-showcase-column">
-                  <div className="editorial-award-spotlight">
-                    <div className="editorial-spotlight-orbit editorial-orbit-one" />
-                    <div className="editorial-spotlight-orbit editorial-orbit-two" />
-                    <div className="editorial-spotlight-crown">
-                      <Crown className="w-12 h-12 text-orange-300" />
-                    </div>
-                    <span className="editorial-spotlight-kicker">THE ROYAL INNOVATION AWARD</span>
-                    <h2>เวทีแห่งความคิด<br /><em>ที่เปลี่ยนอนาคต</em></h2>
-                    <div className="editorial-spotlight-rule" />
-                    <div className="editorial-spotlight-stats">
-                      <div>
-                        <span className="editorial-stat-label">TOTAL PRIZE</span>
-                        <strong>300,000<span>+</span></strong>
-                        <small>บาท</small>
-                      </div>
-                      <div>
-                        <span className="editorial-stat-label">DEADLINE</span>
-                        <strong>15.11</strong>
-                        <small>2569</small>
-                      </div>
-                    </div>
-                    <div className="editorial-spotlight-footer">
-                      <Crown className="w-4 h-4 text-orange-300" />
-                      <span>ชิงถ้วยพระราชทานฯ</span>
-                    </div>
+                {/* Scene & Domain Navigation Strip (00 Overview + 01..05 Domains + 06 Others) */}
+                <div className="editorial-category-strip hero-dock-category-strip">
+                  <div className="editorial-category-strip-label">HOLOGRAM<br />STAGE</div>
+                  <div className="editorial-category-list hero-dock-category-list">
+                    <button
+                      type="button"
+                      onClick={() => setHoveredDomainIndex((prev) => (prev === 'overview' ? null : 'overview'))}
+                      onMouseEnter={() => setHoveredDomainIndex('overview')}
+                      onMouseLeave={() => setHoveredDomainIndex(null)}
+                      onFocus={() => setHoveredDomainIndex('overview')}
+                      onBlur={() => setHoveredDomainIndex(null)}
+                      aria-current={(hoveredDomainIndex === 'overview' || (hoveredDomainIndex === null && displayedDomainIndex === -1)) ? 'true' : undefined}
+                      className={`editorial-category-item ${
+                        hoveredDomainIndex === 'overview' || (hoveredDomainIndex === null && displayedDomainIndex === -1)
+                          ? 'active'
+                          : ''
+                      }`}
+                    >
+                      <span className="editorial-category-index">00</span>
+                      <Crown className="w-4 h-4" />
+                      <span>Overview</span>
+                    </button>
+
+                    {DOMAINS.map((domain, idx) => {
+                      const IconComponent = domain.icon;
+                      const isDomainActive = (hoveredDomainIndex ?? displayedDomainIndex) === idx;
+                      return (
+                        <button
+                          key={domain.id}
+                          type="button"
+                          onClick={() => setDetailDomainModal(domain)}
+                          onMouseEnter={() => setHoveredDomainIndex(idx)}
+                          onMouseLeave={() => setHoveredDomainIndex(null)}
+                          onFocus={() => setHoveredDomainIndex(idx)}
+                          onBlur={() => setHoveredDomainIndex(null)}
+                          aria-current={isDomainActive ? 'true' : undefined}
+                          className={`editorial-category-item ${isDomainActive ? 'active' : ''}`}
+                        >
+                          <span className="editorial-category-index">0{idx + 1}</span>
+                          <IconComponent className="w-4 h-4" />
+                          <span>{domain.titleEn}</span>
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => openSubmissionWithDomain('others')}
+                      onMouseEnter={() => setHoveredDomainIndex(null)}
+                      onMouseLeave={() => setHoveredDomainIndex(null)}
+                      onFocus={() => setHoveredDomainIndex(null)}
+                      onBlur={() => setHoveredDomainIndex(null)}
+                      className="editorial-category-item editorial-category-item-other"
+                    >
+                      <span className="editorial-category-index">06</span>
+                      <Globe className="w-4 h-4" />
+                      <span>Others</span>
+                    </button>
                   </div>
-                </div>
-
-              </div>
-
-              {/* Editorial Category Navigation Strip */}
-              <div className="editorial-category-strip">
-                <div className="editorial-category-strip-label">EXPLORE<br />DOMAINS</div>
-                <div className="editorial-category-list">
-                  {DOMAINS.map((domain, idx) => {
-                    const IconComponent = domain.icon;
-                    const isDomainActive = (hoveredDomainIndex ?? displayedDomainIndex) === idx;
-                    return (
-                      <button
-                        key={domain.id}
-                        type="button"
-                        onClick={() => setDetailDomainModal(domain)}
-                        onMouseEnter={() => setHoveredDomainIndex(idx)}
-                        onMouseLeave={() => setHoveredDomainIndex(null)}
-                        onFocus={() => setHoveredDomainIndex(idx)}
-                        onBlur={() => setHoveredDomainIndex(null)}
-                        aria-current={isDomainActive ? 'true' : undefined}
-                        className={`editorial-category-item ${isDomainActive ? 'active' : ''}`}
-                      >
-                        <span className="editorial-category-index">0{idx + 1}</span>
-                        <IconComponent className="w-4 h-4" />
-                        <span>{domain.titleEn}</span>
-                      </button>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    onClick={() => openSubmissionWithDomain('others')}
-                    onMouseEnter={() => setHoveredDomainIndex(null)}
-                    onMouseLeave={() => setHoveredDomainIndex(null)}
-                    onFocus={() => setHoveredDomainIndex(null)}
-                    onBlur={() => setHoveredDomainIndex(null)}
-                    className="editorial-category-item editorial-category-item-other"
-                  >
-                    <span className="editorial-category-index">06</span>
-                    <Globe className="w-4 h-4" />
-                    <span>Others</span>
-                  </button>
                 </div>
               </div>
 
@@ -1126,7 +1112,7 @@ export default function App() {
                       <span>ข่าวล่าสุด</span>
                     </span>
                     <span className="announcement-pill-text">
-                      เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2026 จนถึง 15 พ.ย. 2569
+                      เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) จนถึง 15 พ.ย. 2569
                     </span>
                   </div>
                   
@@ -1844,7 +1830,7 @@ export default function App() {
                   <Calendar className="w-4 h-4" />
                   <span>COMPETITION ROADMAP</span>
                 </div>
-                <h2>กำหนดการสำคัญ ประจำปี 2569</h2>
+                <h2>กำหนดการสำคัญ ประจำปี 2570</h2>
                 <p>
                   ขั้นตอนการดำเนินโครงการตั้งแต่เปิดรับสมัคร การพิจารณาคัดเลือก จนถึงวันนำเสนอผลงานและพิธีมอบรางวัล
                 </p>
@@ -2295,7 +2281,7 @@ export default function App() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <FileText className="w-5 h-5 text-emerald-400" />
                         <div>
-                          <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>ประกาศเกณฑ์การประกวดฉบับทางการ 2569.pdf</div>
+                          <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>ประกาศเกณฑ์การประกวดฉบับทางการ 2570.pdf</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร PDF • 2.4 MB • คลิกเพื่อดูเกณฑ์การแข่งขัน</div>
                         </div>
                       </div>
@@ -2419,7 +2405,7 @@ export default function App() {
             </div>
           </div>
           <div style={{ marginBottom: '8px', color: 'var(--text-secondary)' }}>
-            โครงการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569 (KMUTNB Innovation Awards 2026)
+            โครงการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2570 (KMUTNB Innovation Awards 2027)
           </div>
           <div>© 2026 King Mongkut's University of Technology North Bangkok. All Rights Reserved.</div>
         </div>
