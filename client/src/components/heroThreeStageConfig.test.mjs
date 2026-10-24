@@ -4,6 +4,8 @@ import {
   DOMAIN_ORBIT_COLORS,
   DOMAIN_PHOTO_URLS,
   DOMAIN_CYCLE_SECONDS,
+  LIVING_PHOTO_FRAGMENT_SHADER,
+  resolveDomainPhotoUrl,
   getCoverUvScale,
   resolveTargetDomainIndex,
   advanceTransitionState,
@@ -21,6 +23,26 @@ test('DOMAIN_ORBIT_COLORS and DOMAIN_PHOTO_URLS define 5 real domain photos and 
     '/domain-material.jpg',
   ]);
   assert.equal(DOMAIN_CYCLE_SECONDS, 6);
+});
+
+test('resolveDomainPhotoUrl prefixes Vite BASE_URL without double slashes', () => {
+  assert.equal(resolveDomainPhotoUrl('/domain-energy.jpg', '/innoawards/'), '/innoawards/domain-energy.jpg');
+  assert.equal(resolveDomainPhotoUrl('/domain-energy.jpg', '/innoawards'), '/innoawards/domain-energy.jpg');
+  assert.equal(resolveDomainPhotoUrl('/domain-energy.jpg', '/'), '/domain-energy.jpg');
+  assert.equal(resolveDomainPhotoUrl('domain-energy.jpg', '/innoawards/'), '/innoawards/domain-energy.jpg');
+});
+
+test('LIVING_PHOTO_FRAGMENT_SHADER avoids negative-base pow() undefined behavior in GLSL ES', () => {
+  assert.equal(typeof LIVING_PHOTO_FRAGMENT_SHADER, 'string');
+  assert.equal(LIVING_PHOTO_FRAGMENT_SHADER.includes('float sq(float v)'), true);
+  // Must not use pow(..., 2.0) on signed differences like (uv.y - scanY), (uv.x - ecgSweepX), or (vUv.x - uMix)
+  assert.equal(LIVING_PHOTO_FRAGMENT_SHADER.includes(', 2.0)'), false);
+  // Every remaining pow( must clamp its base with max(0.0,
+  const powMatches = LIVING_PHOTO_FRAGMENT_SHADER.match(/pow\([^,]+/g) || [];
+  assert.equal(powMatches.length > 0, true);
+  powMatches.forEach((snippet) => {
+    assert.equal(snippet.startsWith('pow(max(0.0'), true, `Unclamped pow base: ${snippet}`);
+  });
 });
 
 test('getCoverUvScale preserves aspect ratio without stretching and handles zero/negative dimensions', () => {
@@ -66,6 +88,14 @@ test('advanceTransitionState interpolates mixProgress to 1, settles on target, a
 
   // Finish transition
   advanceTransitionState(state, 4, 1.0, 2.0);
+  assert.equal(state.transitioning, false);
+  assert.equal(state.currentIndex, 4);
+  assert.equal(state.nextIndex, 4);
+  assert.equal(state.mixProgress, 0);
+
+  // Bouncing back to currentIndex before mixProgress >= 0.5 cancels redundant self-transition
+  advanceTransitionState(state, 1, 0.1, 2.0); // mixProgress = 0.2 (< 0.5), currentIndex = 4, nextIndex = 1
+  advanceTransitionState(state, 4, 0.1, 2.0); // retarget back to 4
   assert.equal(state.transitioning, false);
   assert.equal(state.currentIndex, 4);
   assert.equal(state.nextIndex, 4);
