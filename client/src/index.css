@@ -2392,7 +2392,8 @@ button:disabled {
   z-index: 1;
 }
 
-.domain-card-bg {
+.domain-card-bg,
+.domain-card-living-bg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -2400,9 +2401,31 @@ button:disabled {
   object-fit: cover;
   background-size: cover;
   background-position: center;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -2;
+}
+
+.domain-card-bg {
   filter: brightness(1.05) contrast(1.1);
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s ease;
-  z-index: -2;
+}
+
+.domain-card-bg-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.domain-card-living-bg canvas {
+  position: relative;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  z-index: 1;
 }
 
 .domain-card-overlay {

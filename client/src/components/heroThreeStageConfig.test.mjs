@@ -1,10 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  DOMAIN_IDS,
   DOMAIN_ORBIT_COLORS,
   DOMAIN_PHOTO_URLS,
   DOMAIN_CYCLE_SECONDS,
   LIVING_PHOTO_FRAGMENT_SHADER,
+  DOMAIN_CARD_FRAGMENT_SHADER,
+  resolveDomainIndexById,
   resolveDomainPhotoUrl,
   getCoverUvScale,
   resolveTargetDomainIndex,
@@ -142,5 +145,38 @@ test('getStageResponsiveConfig and getMotionFactor handle mobile/desktop and red
     speedFactor: 1,
     parallaxFactor: 1,
     breathFactor: 1,
+  });
+});
+
+test('resolveDomainIndexById maps domain IDs and numeric indices to 0..4 shader domain index safely', () => {
+  assert.deepEqual(DOMAIN_IDS, [
+    'energy_environment',
+    'food_agriculture',
+    'social_economy',
+    'medical_device',
+    'material',
+  ]);
+  assert.equal(resolveDomainIndexById('energy_environment'), 0);
+  assert.equal(resolveDomainIndexById('food_agriculture'), 1);
+  assert.equal(resolveDomainIndexById('social_economy'), 2);
+  assert.equal(resolveDomainIndexById('medical_device'), 3);
+  assert.equal(resolveDomainIndexById('material'), 4);
+  assert.equal(resolveDomainIndexById(3), 3);
+  assert.equal(resolveDomainIndexById('unknown_domain'), 0);
+  assert.equal(resolveDomainIndexById(null), 0);
+});
+
+test('DOMAIN_CARD_FRAGMENT_SHADER includes sampleSharpTexture, applyLivingPhotoEffect, and hover zoom without leftScrim darkening', () => {
+  assert.equal(typeof DOMAIN_CARD_FRAGMENT_SHADER, 'string');
+  assert.equal(DOMAIN_CARD_FRAGMENT_SHADER.includes('vec3 sampleSharpTexture('), true);
+  assert.equal(DOMAIN_CARD_FRAGMENT_SHADER.includes('vec3 applyLivingPhotoEffect('), true);
+  assert.equal(DOMAIN_CARD_FRAGMENT_SHADER.includes('uniform float uHover;'), true);
+  // Card shader must not apply the hero leftScrim so the entire card image remains vibrant
+  assert.equal(DOMAIN_CARD_FRAGMENT_SHADER.includes('leftScrim'), false);
+  // Every pow( must clamp its base with max(0.0,
+  const powMatches = DOMAIN_CARD_FRAGMENT_SHADER.match(/pow\([^,]+/g) || [];
+  assert.equal(powMatches.length > 0, true);
+  powMatches.forEach((snippet) => {
+    assert.equal(snippet.startsWith('pow(max(0.0'), true, `Unclamped pow base: ${snippet}`);
   });
 });

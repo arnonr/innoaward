@@ -1,3 +1,11 @@
+export const DOMAIN_IDS = Object.freeze([
+  'energy_environment',
+  'food_agriculture',
+  'social_economy',
+  'medical_device',
+  'material',
+]);
+
 export const DOMAIN_ORBIT_COLORS = Object.freeze([
   0x00F5A0, // Energy, Environment & BCG Economy
   0x22C55E, // Food & Agriculture
@@ -26,19 +34,7 @@ export const LIVING_PHOTO_VERTEX_SHADER = `
   }
 `;
 
-export const LIVING_PHOTO_FRAGMENT_SHADER = `
-  uniform sampler2D uTexCurrent;
-  uniform sampler2D uTexNext;
-  uniform float uDomainCurrent;
-  uniform float uDomainNext;
-  uniform float uMix;
-  uniform vec2 uMouse;
-  uniform float uTime;
-  uniform vec2 uUvScale;
-  uniform float uParallaxStrength;
-  uniform vec3 uAccent;
-  varying vec2 vUv;
-
+const LIVING_PHOTO_GLSL_HELPERS = `
   float sq(float v) {
     return v * v;
   }
@@ -110,7 +106,21 @@ export const LIVING_PHOTO_FRAGMENT_SHADER = `
 
     return clamp(col + boost, 0.0, 1.0);
   }
+`;
 
+export const LIVING_PHOTO_FRAGMENT_SHADER = `
+  uniform sampler2D uTexCurrent;
+  uniform sampler2D uTexNext;
+  uniform float uDomainCurrent;
+  uniform float uDomainNext;
+  uniform float uMix;
+  uniform vec2 uMouse;
+  uniform float uTime;
+  uniform vec2 uUvScale;
+  uniform float uParallaxStrength;
+  uniform vec3 uAccent;
+  varying vec2 vUv;
+${LIVING_PHOTO_GLSL_HELPERS}
   void main() {
     // Smooth spatial depth (no per-pixel luminance UV offset, keeping photos 100% sharp)
     float spatialDepth = 0.55 + 0.45 * (1.0 - vUv.y);
@@ -145,6 +155,48 @@ export const LIVING_PHOTO_FRAGMENT_SHADER = `
     gl_FragColor = vec4(col, 1.0);
   }
 `;
+
+export const DOMAIN_CARD_FRAGMENT_SHADER = `
+  uniform sampler2D uTex;
+  uniform float uDomainId;
+  uniform vec2 uMouse;
+  uniform float uTime;
+  uniform vec2 uUvScale;
+  uniform float uParallaxStrength;
+  uniform float uHover;
+  varying vec2 vUv;
+${LIVING_PHOTO_GLSL_HELPERS}
+  void main() {
+    float spatialDepth = 0.55 + 0.45 * (1.0 - vUv.y);
+    vec2 parallaxOffset = uMouse * uParallaxStrength * spatialDepth;
+    float scale = 0.968 - uHover * 0.032;
+
+    vec2 uv = clamp((vUv - 0.5) * uUvScale * scale + 0.5 + parallaxOffset, 0.002, 0.998);
+    vec3 baseCol = sampleSharpTexture(uTex, uv);
+    vec3 livingCol = applyLivingPhotoEffect(baseCol, uv, uDomainId, uTime);
+    vec3 col = clamp(mix(baseCol, livingCol, 1.0 + uHover * 0.28), 0.0, 1.0);
+
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+export function resolveDomainIndexById(domainIdOrIndex) {
+  if (
+    typeof domainIdOrIndex === 'number' &&
+    Number.isInteger(domainIdOrIndex) &&
+    domainIdOrIndex >= 0 &&
+    domainIdOrIndex < DOMAIN_IDS.length
+  ) {
+    return domainIdOrIndex;
+  }
+  if (typeof domainIdOrIndex === 'string') {
+    const idx = DOMAIN_IDS.indexOf(domainIdOrIndex);
+    if (idx !== -1) {
+      return idx;
+    }
+  }
+  return 0;
+}
 
 const REDUCED_MOTION_FACTOR = Object.freeze({
   speedFactor: 0.25,

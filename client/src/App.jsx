@@ -10,6 +10,7 @@ import {
   BarChart3, FileCheck, Bell, Megaphone, Crown, Medal, Eye, Menu
 } from 'lucide-react';
 import HeroThreeStage from './components/HeroThreeStage';
+import DomainLivingCardBg from './components/DomainLivingCardBg';
 import { DOMAIN_CATALOG, getDomainSampleWinners } from './components/domainCatalog';
 
 
@@ -1215,10 +1216,7 @@ export default function App() {
                         style={{ cursor: 'pointer' }}
                         onClick={() => setDetailDomainModal(domain)}
                       >
-                        <div 
-                          className="domain-card-bg" 
-                          style={{ backgroundImage: `url(${getAssetUrl(domain.bgImage)})` }} 
-                        />
+                        <DomainLivingCardBg domainId={domain.id} bgImage={domain.bgImage} />
                         <div className="domain-card-overlay" />
                         <div>
                           <div className="domain-icon-wrap" style={{ borderColor: `${domain.color}90`, color: domain.color }}>
@@ -1608,7 +1606,7 @@ export default function App() {
                       style={{ cursor: 'pointer' }}
                       onClick={() => setDetailDomainModal(domain)}
                     >
-                      <img className="domain-card-bg" src={getAssetUrl(domain.bgImage)} alt="" loading="lazy" decoding="async" />
+                      <DomainLivingCardBg domainId={domain.id} bgImage={domain.bgImage} />
                       <div className="domain-card-overlay" />
                       <div>
                         <div className="domain-icon-wrap" style={{ borderColor: `${domain.color}90`, color: domain.color }}>
@@ -2891,14 +2889,9 @@ export default function App() {
                 <X className="w-5 h-5" />
               </button>
 
-              <div style={{ width: '100%', height: '200px', borderRadius: '14px', overflow: 'hidden', marginBottom: '18px', border: '1px solid var(--border-subtle)', position: 'relative' }}>
-                <img
-                  src={getAssetUrl(detailDomainModal.bgImage)}
-                  alt={detailDomainModal.titleTh}
-                  decoding="async"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(15,32,56,0.12) 0%, rgba(15,32,56,0.88) 100%)' }} />
+              <div style={{ width: '100%', height: '200px', borderRadius: '14px', overflow: 'hidden', marginBottom: '18px', border: '1px solid var(--border-subtle)', position: 'relative', isolation: 'isolate' }}>
+                <DomainLivingCardBg domainId={detailDomainModal.id} bgImage={detailDomainModal.bgImage} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(15,32,56,0.12) 0%, rgba(15,32,56,0.88) 100%)', pointerEvents: 'none' }} />
                 <div style={{ position: 'absolute', bottom: '14px', left: '16px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                   <span className="badge-category" style={{ background: 'rgba(24, 52, 88, 0.92)', borderColor: 'var(--border-cyan)', color: 'var(--emerald-300)' }}>
                     {detailDomainModal.indexLabel || 'INNOVATION DOMAIN'}
