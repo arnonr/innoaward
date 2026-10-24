@@ -1917,7 +1917,7 @@ export default function App() {
                   <MapPin className="w-5 h-5 text-cyan-400" />
                   <span>สถานที่จัดงานรอบชิงชนะเลิศ (Final Pitching & Award Ceremony)</span>
                 </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', fontSize: '0.88rem' }}>
+                <div className="responsive-two-col-grid" style={{ gap: '20px', fontSize: '0.88rem' }}>
                   <div>
                     <strong style={{ color: 'var(--cyan-300)', display: 'block', marginBottom: '4px' }}>อาคารอุทยานเทคโนโลยี มจพ. (Techno Park)</strong>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -2588,7 +2588,7 @@ export default function App() {
                         }}
                       />
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="responsive-two-col-grid" style={{ gap: '12px' }}>
                       <div className="form-group">
                         <label htmlFor="submission-category" className="form-label">หมวดหมู่นวัตกรรม *</label>
                         <select 
@@ -2839,7 +2839,7 @@ export default function App() {
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.84rem', marginBottom: '20px' }}>
+            <div className="responsive-two-col-grid" style={{ gap: '12px', fontSize: '0.84rem', marginBottom: '20px' }}>
               <div style={{ background: 'rgba(24, 52, 88, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--text-muted)', display: 'block' }}>ทีมผู้พัฒนา:</span>
                 <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.teamName}</strong>
