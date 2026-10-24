@@ -126,9 +126,9 @@ export const LIVING_PHOTO_FRAGMENT_SHADER = `
     vec3 highlightCompressed = col / (1.0 + col * leftScrim * 0.75);
     col = mix(col, highlightCompressed * 0.86, leftScrim);
 
-    // Subtle bottom vignette only behind the bottom category bar
+    // Subtle bottom vignette only behind the bottom category bar (matches Bright Midnight #11243E)
     float bottomVignette = (1.0 - smoothstep(0.0, 0.16, vUv.y)) * 0.35;
-    col = mix(col, vec3(0.016, 0.051, 0.039), bottomVignette);
+    col = mix(col, vec3(0.067, 0.141, 0.243), bottomVignette);
 
     gl_FragColor = vec4(col, 1.0);
   }

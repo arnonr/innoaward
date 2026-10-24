@@ -1360,7 +1360,7 @@ export default function App() {
                         <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
                           {renderAwardBadge(w)}
                         </div>
-                        <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(7, 34, 26, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
+                        <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(24, 52, 88, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
                           {w.trackingCode}
                         </div>
                       </div>
@@ -2193,7 +2193,7 @@ export default function App() {
 
               <div className="winner-grid">
                 {filteredWinners.length === 0 ? (
-                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '48px 24px', background: 'rgba(7, 34, 26, 0.5)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '48px 24px', background: 'rgba(24, 52, 88, 0.5)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
                     <Trophy className="w-12 h-12 text-emerald-500/50" style={{ margin: '0 auto 16px' }} />
                     <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>ไม่พบผลงานตามเงื่อนไขที่ค้นหา</h3>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '16px' }}>
@@ -2225,7 +2225,7 @@ export default function App() {
                         <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
                           {renderAwardBadge(w)}
                         </div>
-                        <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(7, 34, 26, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
+                        <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(24, 52, 88, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
                           {w.trackingCode}
                         </div>
                       </div>
@@ -2305,7 +2305,7 @@ export default function App() {
                   </p>
 
                   <div className="contact-download-list">
-                    <a href="#" className="bento-tier-row contact-download-item" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(7, 34, 26, 0.85)', border: '1px solid var(--border-medium)' }}>
+                    <a href="#" className="bento-tier-row contact-download-item" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(24, 52, 88, 0.85)', border: '1px solid var(--border-medium)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <FileText className="w-5 h-5 text-emerald-400" />
                         <div>
@@ -2316,7 +2316,7 @@ export default function App() {
                       <Download className="w-4 h-4 text-emerald-400" />
                     </a>
 
-                    <a href="#" className="bento-tier-row contact-download-item" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(7, 34, 26, 0.85)', border: '1px solid var(--border-medium)' }}>
+                    <a href="#" className="bento-tier-row contact-download-item" style={{ textDecoration: 'none', padding: '16px', background: 'rgba(24, 52, 88, 0.85)', border: '1px solid var(--border-medium)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <FileText className="w-5 h-5 text-orange-400" />
                         <div>
@@ -2763,7 +2763,7 @@ export default function App() {
               </div>
             )}
 
-            <div style={{ background: 'rgba(7, 34, 26, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+            <div style={{ background: 'rgba(24, 52, 88, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
               <h4 style={{ color: 'var(--emerald-300)', fontSize: '0.92rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <BookOpen className="w-4 h-4" />
                 <span>รายละเอียดและความโดดเด่นของนวัตกรรม (Problem & Solution)</span>
@@ -2774,11 +2774,11 @@ export default function App() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.84rem', marginBottom: '20px' }}>
-              <div style={{ background: 'rgba(7, 34, 26, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ background: 'rgba(24, 52, 88, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--text-muted)', display: 'block' }}>ทีมผู้พัฒนา:</span>
                 <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.teamName}</strong>
               </div>
-              <div style={{ background: 'rgba(7, 34, 26, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ background: 'rgba(24, 52, 88, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--text-muted)', display: 'block' }}>สถาบันการศึกษา / หน่วยงาน:</span>
                 <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.institution || selectedWinnerModal.advisorName}</strong>
               </div>

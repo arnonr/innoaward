@@ -1,34 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
 
 /* ============================================================
-   GLOBAL DESIGN TOKENS (VIBRANT INNOVATION FESTIVAL & EVENT THEME)
+   GLOBAL DESIGN TOKENS (BRIGHT MIDNIGHT & LUMINOUS GLASS THEME)
    ============================================================ */
 :root {
   --header-height: 72px;
-  /* Surfaces & Backgrounds (Deep Cosmic Pine & Luminous Stage Glass) */
-  --bg-base: #04130E;
-  --bg-surface: #07221A;
-  --bg-surface-raised: #0B3126;
-  --bg-card: rgba(8, 32, 25, 0.85);
-  --bg-card-hover: rgba(13, 48, 38, 0.95);
-  --bg-glass: rgba(6, 26, 20, 0.88);
+  /* Surfaces & Backgrounds (Luminous Midnight Sapphire & Frosted Sky Glass) */
+  --bg-base: #11243E;
+  --bg-surface: #173052;
+  --bg-surface-raised: #1F3E68;
+  --bg-card: rgba(25, 52, 86, 0.72);
+  --bg-card-hover: rgba(34, 68, 110, 0.88);
+  --bg-glass: rgba(17, 36, 62, 0.84);
   
-  /* Brand Event Colors (Electric Neon Emerald, Mint, Cyber Teal & Festival Colors) */
+  /* Brand Event Colors (Electric Neon Emerald, Sky Cyan & Royal Gold) */
   --emerald-300: #6EE7B7;
   --emerald-400: #00F5A0;
   --emerald-500: #10B981;
   --emerald-600: #059669;
   --emerald-glow: rgba(0, 245, 160, 0.45);
   
-  --cyan-300: #67E8F9;
-  --cyan-400: #00D9F5;
-  --cyan-500: #06B6D4;
-  --cyan-glow: rgba(0, 217, 245, 0.4);
+  --cyan-300: #7DD3FC;
+  --cyan-400: #38BDF8;
+  --cyan-500: #0EA5E9;
+  --cyan-glow: rgba(56, 189, 248, 0.45);
   
   --blue-400: #38BDF8;
   --blue-500: #0284C7;
   --blue-600: #2563EB;
-  --blue-glow: rgba(56, 189, 248, 0.35);
+  --blue-glow: rgba(56, 189, 248, 0.38);
   
   /* Royal Festival Orange */
   --gold-300: #FDBA74;
@@ -43,18 +43,18 @@
   --orange-500: #F97316;
   --border-orange: rgba(249, 115, 22, 0.55);
   
-  /* Typography Colors (High Contrast, Radiant & Readable) */
+  /* Typography Colors (High Contrast, Radiant & Crisp Silver-White) */
   --text-primary: #FFFFFF;
-  --text-secondary: #E2FDF2;
-  --text-muted: #86EFAC;
-  --text-inverse: #04130E;
+  --text-secondary: #F1F5F9;
+  --text-muted: #BAE6FD;
+  --text-inverse: #0B192C;
   
-  /* Borders & Event Neon Glow Dividers */
-  --border-subtle: rgba(110, 231, 183, 0.22);
-  --border-medium: rgba(0, 245, 160, 0.35);
-  --border-cyan: rgba(0, 217, 245, 0.45);
-  --border-blue: rgba(56, 189, 248, 0.45);
-  --border-gold: rgba(249, 115, 22, 0.55);
+  /* Borders & Luminous Glass Dividers */
+  --border-subtle: rgba(186, 230, 253, 0.26);
+  --border-medium: rgba(56, 189, 248, 0.42);
+  --border-cyan: rgba(56, 189, 248, 0.52);
+  --border-blue: rgba(56, 189, 248, 0.48);
+  --border-gold: rgba(249, 115, 22, 0.58);
 
   /* Typography */
   --font-th: 'Noto Sans Thai', sans-serif;
@@ -80,6 +80,7 @@ html {
 
 body {
   background-color: var(--bg-base);
+  background-image: linear-gradient(180deg, #11243E 0%, #162E4E 50%, #122642 100%);
   color: var(--text-primary);
   font-family: var(--font-th), var(--font-en);
   line-height: 1.6;
@@ -90,7 +91,7 @@ body {
   position: relative;
 }
 
-/* Dynamic Event Stage Ambient Lighting */
+/* Dynamic Bright Skylight Ambient Lighting */
 body::before {
   content: '';
   position: fixed;
@@ -99,9 +100,9 @@ body::before {
   width: 100vw;
   height: 100vh;
   background: 
-    radial-gradient(circle 900px at 15% 15%, rgba(0, 245, 160, 0.2) 0%, transparent 65%),
-    radial-gradient(circle 900px at 85% 25%, rgba(0, 217, 245, 0.18) 0%, transparent 70%),
-    radial-gradient(circle 800px at 50% 85%, rgba(249, 115, 22, 0.12) 0%, transparent 65%);
+    radial-gradient(circle 1050px at 18% 12%, rgba(56, 189, 248, 0.28) 0%, transparent 65%),
+    radial-gradient(circle 950px at 84% 24%, rgba(0, 245, 160, 0.22) 0%, transparent 68%),
+    radial-gradient(circle 900px at 50% 82%, rgba(251, 146, 60, 0.16) 0%, transparent 65%);
   pointer-events: none;
   z-index: 0;
 }
@@ -135,11 +136,11 @@ p {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(4, 19, 14, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(15, 32, 56, 0.84);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
   border-bottom: 1px solid var(--border-subtle);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4px 24px rgba(6, 15, 30, 0.35);
   transition: all 0.25s ease;
 }
 
@@ -247,7 +248,7 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(11, 49, 38, 0.65);
+  background: rgba(30, 62, 102, 0.65);
   border: 1px solid rgba(0, 245, 160, 0.4);
   color: #E2FDF2;
   font-family: var(--font-th);
@@ -274,7 +275,7 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(11, 49, 38, 0.85);
+  background: rgba(30, 62, 102, 0.85);
   border: 1px solid rgba(0, 245, 160, 0.5);
   padding: 4px 10px 4px 6px;
   border-radius: 999px;
@@ -329,7 +330,7 @@ p {
   justify-content: center;
   gap: 8px;
   background: linear-gradient(135deg, #059669 0%, #00F5A0 50%, #00D9F5 100%);
-  color: #04130E;
+  color: #0B192C;
   font-family: var(--font-th);
   font-size: 0.92rem;
   font-weight: 700;
@@ -354,7 +355,7 @@ p {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: rgba(8, 32, 25, 0.75);
+  background: rgba(25, 54, 90, 0.75);
   color: var(--emerald-300);
   font-family: var(--font-th);
   font-size: 0.9rem;
@@ -441,7 +442,7 @@ button:disabled {
   padding: 92px 0 92px;
   position: relative;
   background-image: 
-    linear-gradient(180deg, rgba(4, 19, 14, 0.25) 0%, rgba(4, 19, 14, 0.72) 100%), 
+    linear-gradient(180deg, rgba(15, 32, 56, 0.25) 0%, rgba(15, 32, 56, 0.72) 100%), 
     url('/hero-bg.jpg');
   background-size: cover;
   background-position: center center;
@@ -506,7 +507,7 @@ button:disabled {
    MISSION LAUNCH COUNTDOWN HUD
    ============================================================ */
 .hero-mission-hud {
-  background: rgba(4, 19, 14, 0.72);
+  background: rgba(15, 32, 56, 0.72);
   border: 1px solid rgba(249, 115, 22, 0.32);
   border-radius: 14px;
   padding: 12px 16px;
@@ -652,7 +653,7 @@ button:disabled {
   font-weight: 800;
   letter-spacing: 0.02em;
   background: linear-gradient(135deg, #059669 0%, #00F5A0 50%, #00D9F5 100%);
-  color: #04130E;
+  color: #0B192C;
   border: 1px solid rgba(0, 245, 160, 0.7);
   box-shadow: 0 8px 30px rgba(0, 245, 160, 0.5), 0 0 24px rgba(0, 217, 245, 0.35);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -704,7 +705,7 @@ button:disabled {
 .hero-category-matrix-card {
   width: 100%;
   max-width: 520px;
-  background: rgba(4, 19, 14, 0.76);
+  background: rgba(15, 32, 56, 0.76);
   border: 1px solid rgba(249, 115, 22, 0.36);
   border-radius: 20px;
   padding: 24px;
@@ -762,7 +763,7 @@ button:disabled {
   width: 100%;
   min-height: 68px;
   padding: 10px 11px;
-  background: rgba(7, 34, 26, 0.55);
+  background: rgba(24, 52, 88, 0.55);
   border: 1px solid rgba(110, 231, 183, 0.16);
   border-radius: 10px;
   cursor: pointer;
@@ -771,7 +772,7 @@ button:disabled {
 }
 
 .hero-category-btn:hover {
-  background: rgba(14, 56, 44, 0.95);
+  background: rgba(36, 74, 120, 0.95);
   border-color: var(--emerald-400);
   transform: translateY(-2px);
   box-shadow: 0 4px 18px rgba(0, 245, 160, 0.35);
@@ -862,7 +863,7 @@ button:disabled {
 .hero-command-center {
   background-image:
     linear-gradient(90deg, rgba(2, 12, 20, 0.9) 0%, rgba(2, 18, 25, 0.66) 48%, rgba(2, 12, 20, 0.82) 100%),
-    linear-gradient(180deg, rgba(0, 217, 245, 0.08), rgba(4, 19, 14, 0.88)),
+    linear-gradient(180deg, rgba(0, 217, 245, 0.08), rgba(15, 32, 56, 0.88)),
     url('/hero-bg.jpg');
   background-position: center;
   background-size: cover;
@@ -1049,8 +1050,8 @@ button:disabled {
 .hero-editorial {
   padding: 108px 0 76px;
   background-image:
-    linear-gradient(90deg, rgba(4, 19, 14, 0.84) 0%, rgba(4, 19, 14, 0.48) 58%, rgba(4, 19, 14, 0.76) 100%),
-    linear-gradient(180deg, rgba(4, 19, 14, 0.1), rgba(4, 19, 14, 0.9)),
+    linear-gradient(90deg, rgba(15, 32, 56, 0.84) 0%, rgba(15, 32, 56, 0.48) 58%, rgba(15, 32, 56, 0.76) 100%),
+    linear-gradient(180deg, rgba(15, 32, 56, 0.1), rgba(15, 32, 56, 0.9)),
     url('/hero-bg.jpg');
 }
 
@@ -1170,7 +1171,7 @@ button:disabled {
   overflow: hidden;
   padding: 48px 34px 30px;
   text-align: center;
-  background: rgba(4, 19, 14, 0.38);
+  background: rgba(15, 32, 56, 0.38);
   border: 1px solid rgba(249, 115, 22, 0.32);
   border-radius: 2px;
   box-shadow: inset 0 0 70px rgba(249, 115, 22, 0.04), 0 24px 60px rgba(0, 0, 0, 0.38);
@@ -1434,7 +1435,7 @@ button:disabled {
 .hero-video-stage .editorial-category-strip {
   display: flex;
   margin-top: 44px;
-  background: rgba(4, 19, 14, 0.68);
+  background: rgba(15, 32, 56, 0.68);
   backdrop-filter: blur(12px);
 }
 
@@ -1614,10 +1615,10 @@ button:disabled {
   min-height: 720px;
   display: flex;
   align-items: center;
-  background-color: #07110F;
+  background-color: #11243E;
   background-image:
     radial-gradient(circle at 14% 48%, rgba(0, 245, 160, 0.1), transparent 30%),
-    linear-gradient(90deg, #07110F 0%, #07110F 38%, rgba(7, 17, 15, 0.22) 62%, rgba(7, 17, 15, 0.62) 100%);
+    linear-gradient(90deg, #11243E 0%, #11243E 38%, rgba(17, 36, 62, 0.22) 62%, rgba(17, 36, 62, 0.62) 100%);
 }
 
 .hero-video-stage::before {
@@ -1625,8 +1626,8 @@ button:disabled {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 52% 68% at 26% 42%, rgba(4, 18, 14, 0.38) 0%, rgba(4, 18, 14, 0.14) 62%, transparent 100%),
-    linear-gradient(180deg, rgba(4, 15, 12, 0.18) 0%, transparent 38%, rgba(4, 15, 12, 0.48) 100%);
+    radial-gradient(ellipse 52% 68% at 26% 42%, rgba(15, 32, 56, 0.38) 0%, rgba(15, 32, 56, 0.14) 62%, transparent 100%),
+    linear-gradient(180deg, rgba(15, 32, 56, 0.18) 0%, transparent 38%, rgba(15, 32, 56, 0.48) 100%);
   animation: none;
 }
 
@@ -1679,7 +1680,7 @@ button:disabled {
 .hero-video-stage .hero-editorial-eyebrow {
   justify-content: flex-start;
   text-align: left;
-  background: rgba(4, 19, 14, 0.48);
+  background: rgba(15, 32, 56, 0.48);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(249, 115, 22, 0.34);
@@ -1693,7 +1694,7 @@ button:disabled {
   font-size: clamp(3.2rem, 5.4vw, 5.8rem);
   line-height: 0.9;
   text-align: left;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 8px 28px rgba(0, 0, 0, 0.88), 0 0 42px rgba(4, 19, 14, 0.92);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 8px 28px rgba(0, 0, 0, 0.88), 0 0 42px rgba(15, 32, 56, 0.92);
 }
 
 .hero-video-stage .hero-editorial-desc {
@@ -1701,7 +1702,7 @@ button:disabled {
   max-width: 540px;
   color: #FFFFFF;
   font-weight: 500;
-  background: rgba(4, 19, 14, 0.46);
+  background: rgba(15, 32, 56, 0.46);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-left: 3px solid rgba(0, 245, 160, 0.75);
@@ -1713,7 +1714,7 @@ button:disabled {
 
 .hero-video-stage .hero-editorial-hud {
   width: min(580px, 100%);
-  background: rgba(4, 19, 14, 0.54);
+  background: rgba(15, 32, 56, 0.54);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(216, 181, 104, 0.42);
@@ -1729,7 +1730,7 @@ button:disabled {
 
 .hero-video-stage .hero-sub-cta {
   padding: 13px 22px;
-  background: rgba(4, 19, 14, 0.76);
+  background: rgba(15, 32, 56, 0.76);
   border: 1px solid rgba(0, 245, 160, 0.45);
   border-radius: 10px;
   color: #FFFFFF;
@@ -1761,7 +1762,7 @@ button:disabled {
 @media (max-width: 768px) {
   .hero-video-stage {
     min-height: 700px;
-    background-image: linear-gradient(180deg, rgba(7, 17, 15, 0.5), rgba(7, 17, 15, 0.88));
+    background-image: linear-gradient(180deg, rgba(17, 36, 62, 0.5), rgba(17, 36, 62, 0.88));
   }
 
   .hero-video-stage .editorial-category-strip {
@@ -1769,7 +1770,7 @@ button:disabled {
   }
 
   .hero-video-stage::before {
-    background: linear-gradient(180deg, rgba(7, 17, 15, 0.27), rgba(7, 17, 15, 0.63));
+    background: linear-gradient(180deg, rgba(17, 36, 62, 0.27), rgba(17, 36, 62, 0.63));
   }
 
   .hero-video-stage::after {
@@ -1822,13 +1823,25 @@ button:disabled {
   }
 }
 
+.level-card,
+.home-highlight-card,
+.step-card,
+.winner-card,
+.standard-card,
+.criteria-card,
+.prize-card,
+.prep-step-card,
+.announcement-card {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 12px 30px rgba(6, 15, 30, 0.28);
+}
+
 .site-footer {
   border-top: 1px solid var(--border-subtle);
   padding: 28px 0;
   text-align: center;
   font-size: 0.82rem;
   color: var(--text-muted);
-  background: #04130E;
+  background: #0E1F38;
 }
 
 .site-footer-contact {
@@ -1851,7 +1864,7 @@ button:disabled {
   text-decoration: none;
   min-height: 42px;
   padding: 6px 16px;
-  background: rgba(7, 34, 26, 0.65);
+  background: rgba(24, 52, 88, 0.65);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
   transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1860,7 +1873,7 @@ button:disabled {
 }
 
 .site-footer-contact-item:hover {
-  background: rgba(14, 56, 44, 0.95);
+  background: rgba(36, 74, 120, 0.95);
   border-color: var(--emerald-400);
   color: var(--emerald-300);
   transform: translateY(-2px);
@@ -1901,7 +1914,7 @@ button:disabled {
   padding: 6px 14px 6px 10px;
   border: 1px solid rgba(110, 231, 183, 0.24);
   border-radius: 999px;
-  background: rgba(7, 34, 26, 0.9);
+  background: rgba(24, 52, 88, 0.9);
   color: var(--emerald-300);
   font-weight: 600;
   white-space: nowrap;
@@ -1926,7 +1939,7 @@ button:disabled {
 
 .hero-announcement-pill {
   width: 100%;
-  background: rgba(4, 19, 14, 0.88);
+  background: rgba(15, 32, 56, 0.88);
   border: 1px solid rgba(0, 245, 160, 0.45);
   border-radius: 16px;
   padding: 12px 20px;
@@ -1942,7 +1955,7 @@ button:disabled {
 }
 
 .hero-announcement-pill:hover {
-  background: rgba(11, 49, 38, 0.95);
+  background: rgba(30, 62, 102, 0.95);
   border-color: var(--emerald-400);
   transform: translateY(-2px);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6), 0 0 28px var(--emerald-glow);
@@ -2143,7 +2156,7 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: rgba(7, 34, 26, 0.75);
+  background: rgba(24, 52, 88, 0.75);
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
   font-size: 0.85rem;
@@ -2168,7 +2181,7 @@ button:disabled {
    PRE-SUBMISSION CHECKLIST BANNER (WARM ORANGE ACCENT)
    ============================================================ */
 .prep-checklist-banner {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.16) 0%, rgba(8, 32, 25, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.16) 0%, rgba(25, 54, 90, 0.95) 100%);
   border: 1px solid var(--border-orange);
   border-radius: 20px;
   padding: 32px 36px;
@@ -2213,7 +2226,7 @@ button:disabled {
 }
 
 .prep-step-card {
-  background: rgba(7, 34, 26, 0.88);
+  background: rgba(24, 52, 88, 0.88);
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
   padding: 20px 18px;
@@ -2225,7 +2238,7 @@ button:disabled {
 .prep-step-card:hover {
   border-color: var(--orange-400);
   transform: translateY(-2px);
-  background: rgba(14, 56, 44, 0.95);
+  background: rgba(36, 74, 120, 0.95);
 }
 
 .prep-step-num {
@@ -2254,7 +2267,7 @@ button:disabled {
 
 /* General Rules Box */
 .general-rules-box {
-  background: rgba(8, 32, 25, 0.75);
+  background: rgba(25, 54, 90, 0.75);
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
   padding: 24px 28px;
@@ -2331,10 +2344,10 @@ button:disabled {
   inset: 0;
   background: linear-gradient(
     180deg, 
-    rgba(4, 19, 14, 0.05) 0%, 
-    rgba(4, 19, 14, 0.22) 40%, 
-    rgba(4, 19, 14, 0.65) 75%, 
-    rgba(4, 19, 14, 0.88) 100%
+    rgba(15, 32, 56, 0.05) 0%, 
+    rgba(15, 32, 56, 0.22) 40%, 
+    rgba(15, 32, 56, 0.65) 75%, 
+    rgba(15, 32, 56, 0.88) 100%
   );
   transition: background 0.35s ease;
   z-index: -1;
@@ -2354,7 +2367,7 @@ button:disabled {
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: rgba(4, 19, 14, 0.85);
+  background: rgba(15, 32, 56, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-cyan);
@@ -2366,7 +2379,7 @@ button:disabled {
 }
 
 .domain-card-content {
-  background: rgba(7, 34, 26, 0.82);
+  background: rgba(24, 52, 88, 0.82);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(110, 231, 183, 0.25);
@@ -2399,7 +2412,7 @@ button:disabled {
   min-height: 44px;
   padding: 8px 14px;
   border-radius: 8px;
-  background: rgba(4, 19, 14, 0.88);
+  background: rgba(15, 32, 56, 0.88);
   color: var(--emerald-300);
   font-family: var(--font-th);
   font-size: 0.88rem;
@@ -2412,7 +2425,7 @@ button:disabled {
 .domain-card-btn:hover {
   background: linear-gradient(135deg, #059669 0%, #00F5A0 100%);
   border-color: transparent;
-  color: #04130E;
+  color: #0B192C;
   font-weight: 700;
   box-shadow: 0 4px 16px var(--emerald-glow);
 }
@@ -2439,7 +2452,7 @@ button:disabled {
 .step-card.active {
   border-color: var(--emerald-400);
   box-shadow: 0 0 24px var(--emerald-glow);
-  background: rgba(11, 49, 38, 0.95);
+  background: rgba(30, 62, 102, 0.95);
 }
 
 .step-card.active::before {
@@ -2448,7 +2461,7 @@ button:disabled {
   top: -10px;
   right: 16px;
   background: var(--emerald-500);
-  color: #04130E;
+  color: #0B192C;
   font-size: 0.65rem;
   font-weight: 800;
   padding: 2px 8px;
@@ -2501,7 +2514,7 @@ button:disabled {
 }
 
 .filter-select {
-  background: rgba(7, 34, 26, 0.75);
+  background: rgba(24, 52, 88, 0.75);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   font-family: var(--font-th);
@@ -2523,7 +2536,7 @@ button:disabled {
 
 .filter-select:focus {
   border-color: var(--emerald-400);
-  background: rgba(14, 56, 44, 0.95);
+  background: rgba(36, 74, 120, 0.95);
   box-shadow: 0 0 0 3px rgba(0, 245, 160, 0.15), 0 4px 16px rgba(0, 245, 160, 0.1);
 }
 
@@ -2560,7 +2573,7 @@ button:disabled {
   height: 210px;
   position: relative;
   overflow: hidden;
-  background: #07221A;
+  background: #173052;
 }
 
 .winner-card-image {
@@ -2639,7 +2652,7 @@ button:disabled {
 .venue-section {
   padding: 90px 0;
   position: relative;
-  background-image: linear-gradient(180deg, rgba(4, 19, 14, 0.88) 0%, rgba(7, 34, 26, 0.96) 100%), url('/technopark-bg.jpg');
+  background-image: linear-gradient(180deg, rgba(15, 32, 56, 0.88) 0%, rgba(24, 52, 88, 0.96) 100%), url('/technopark-bg.jpg');
   background-size: cover;
   background-position: center;
   border-top: 1px solid var(--border-subtle);
@@ -2687,7 +2700,7 @@ button:disabled {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2, 10, 7, 0.85);
+  background: rgba(8, 18, 34, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   z-index: 100;
@@ -2818,7 +2831,7 @@ button:disabled {
   position: sticky;
   top: var(--header-height);
   z-index: 40;
-  background: rgba(4, 19, 14, 0.88);
+  background: rgba(15, 32, 56, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-medium);
@@ -2846,7 +2859,7 @@ button:disabled {
   min-height: 44px;
   padding: 8px 16px;
   border-radius: 9999px;
-  background: rgba(7, 34, 26, 0.75);
+  background: rgba(24, 52, 88, 0.75);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   font-family: var(--font-th);
@@ -2860,7 +2873,7 @@ button:disabled {
 .subnav-tab-btn:hover {
   border-color: var(--emerald-400);
   color: var(--emerald-300);
-  background: rgba(11, 49, 38, 0.95);
+  background: rgba(30, 62, 102, 0.95);
 }
 
 .subnav-tab-btn.active {
@@ -2976,7 +2989,7 @@ button:disabled {
 }
 
 .prize-card.gold-champion {
-  background: linear-gradient(180deg, rgba(249, 115, 22, 0.18) 0%, rgba(8, 32, 25, 0.92) 100%);
+  background: linear-gradient(180deg, rgba(249, 115, 22, 0.18) 0%, rgba(25, 54, 90, 0.92) 100%);
   border: 1px solid var(--border-gold);
   box-shadow: 0 8px 24px rgba(249, 115, 22, 0.25);
 }
@@ -3150,7 +3163,7 @@ button:disabled {
    SCHEDULE ROADMAP ACTIVE PHASE BANNER
    ============================================================ */
 .active-phase-banner {
-  background: linear-gradient(135deg, rgba(0, 245, 160, 0.2) 0%, rgba(8, 32, 25, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(0, 245, 160, 0.2) 0%, rgba(25, 54, 90, 0.95) 100%);
   border: 1px solid var(--border-cyan);
   border-radius: 20px;
   padding: 28px 32px;
@@ -3186,7 +3199,7 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(7, 34, 26, 0.75);
+  background: rgba(24, 52, 88, 0.75);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 10px 16px;
@@ -3199,7 +3212,7 @@ button:disabled {
 .search-input-wrap:focus-within,
 .announcement-search-bar:focus-within {
   border-color: var(--emerald-400);
-  background: rgba(14, 56, 44, 0.9);
+  background: rgba(36, 74, 120, 0.9);
   box-shadow: 0 0 0 3px rgba(0, 245, 160, 0.15), 0 4px 16px rgba(0, 245, 160, 0.1);
 }
 
@@ -3277,7 +3290,7 @@ button:disabled {
 }
 
 .announcement-roster-box {
-  background: rgba(4, 19, 14, 0.75);
+  background: rgba(15, 32, 56, 0.75);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 16px;
@@ -3291,7 +3304,7 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: rgba(7, 34, 26, 0.7);
+  background: rgba(24, 52, 88, 0.7);
   border-radius: 8px;
   font-size: 0.84rem;
 }
@@ -3369,7 +3382,7 @@ button:disabled {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: rgba(11, 49, 38, 0.75);
+  background: rgba(30, 62, 102, 0.75);
   border: 1px solid var(--border-medium);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -3386,7 +3399,7 @@ button:disabled {
   top: 100%;
   left: 0;
   width: 100%;
-  background: rgba(4, 19, 14, 0.98);
+  background: rgba(15, 32, 56, 0.98);
   border-bottom: 1px solid var(--border-medium);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -3422,7 +3435,7 @@ button:disabled {
   justify-content: space-between;
   padding: 12px 14px;
   border-radius: 10px;
-  background: rgba(7, 34, 26, 0.6);
+  background: rgba(24, 52, 88, 0.6);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   font-family: var(--font-th);
@@ -3435,7 +3448,7 @@ button:disabled {
 
 .mobile-nav-item:hover,
 .mobile-nav-item.active {
-  background: rgba(14, 56, 44, 0.95);
+  background: rgba(36, 74, 120, 0.95);
   border-color: var(--emerald-400);
   color: var(--emerald-300);
   font-weight: 600;
