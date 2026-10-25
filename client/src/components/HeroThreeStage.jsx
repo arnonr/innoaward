@@ -788,22 +788,22 @@ export default function HeroThreeStage({
     const disposableGeometries = [];
     const disposableMaterials = [];
     const disposableTextures = [];
+    const deferredTimers = [];
+    let isDisposed = false;
 
     const baseUrl = import.meta.env?.BASE_URL || '/';
     const textureLoader = new THREE.TextureLoader();
     const maxAnisotropy = renderer.capabilities?.getMaxAnisotropy?.() || 1;
 
-    const photoTextures = DOMAIN_PHOTO_URLS.map((url) => {
-      const tex = textureLoader.load(resolveDomainPhotoUrl(url, baseUrl));
-      tex.generateMipmaps = false;
-      tex.minFilter = THREE.LinearFilter;
-      tex.magFilter = THREE.LinearFilter;
-      tex.anisotropy = maxAnisotropy;
-      tex.wrapS = THREE.ClampToEdgeWrapping;
-      tex.wrapT = THREE.ClampToEdgeWrapping;
-      disposableTextures.push(tex);
-      return tex;
-    });
+    // 1x1 transparent placeholder so Act 2 & Act 3 meshes don't block Frame 0 on mount
+    const placeholderTex = new THREE.DataTexture(
+      new Uint8Array([0, 0, 0, 0]),
+      1,
+      1,
+      THREE.RGBAFormat
+    );
+    placeholderTex.needsUpdate = true;
+    disposableTextures.push(placeholderTex);
 
     // ============================================================
     // 1. 3D CONSTELLATION NETWORK & DATA FILAMENTS (Background -> Deep Space)
@@ -1003,7 +1003,7 @@ export default function HeroThreeStage({
     // Back stacked glass tab (gives multi-layered browser depth like 0:01 in Pinterest video)
     const backTabUniforms = {
       uPanelTex: { value: backTabTex },
-      uPhotoTex: { value: photoTextures[0] },
+      uPhotoTex: { value: placeholderTex },
       uHasPhoto: { value: 0.0 },
       uDomainId: { value: 0.0 },
       uAccentColor: { value: new THREE.Color(0x38bdf8) },
@@ -1027,10 +1027,10 @@ export default function HeroThreeStage({
     backTabMesh.renderOrder = 30;
     overviewGroup.add(backTabMesh);
 
-    // Front Main Holographic Screen (KMUTNB INNOVATION AWARDS 2026)
+    // Front Main Holographic Screen (KMUTNB INNOVATION AWARDS 2027)
     const mainGlassUniforms = {
       uPanelTex: { value: overviewTex },
-      uPhotoTex: { value: photoTextures[0] },
+      uPhotoTex: { value: placeholderTex },
       uHasPhoto: { value: 0.0 },
       uDomainId: { value: 0.0 },
       uAccentColor: { value: new THREE.Color(0x00d9f5) },
@@ -1061,7 +1061,7 @@ export default function HeroThreeStage({
     disposableGeometries.push(spotlightGeo);
     const spotlightUniforms = {
       uPanelTex: { value: spotlightTex },
-      uPhotoTex: { value: photoTextures[0] },
+      uPhotoTex: { value: placeholderTex },
       uHasPhoto: { value: 0.0 },
       uDomainId: { value: 0.0 },
       uAccentColor: { value: new THREE.Color(0xfbbf24) },
@@ -1090,20 +1090,18 @@ export default function HeroThreeStage({
     // ============================================================
     // 4. ACT 2: BREAKTHROUGH KINETIC TYPOGRAPHY HOLOGRAM (z = -4.2)
     // ============================================================
-    const breakthroughTex = createBreakthroughGlassTexture();
-    disposableTextures.push(breakthroughTex);
     const breakthroughGeo = new THREE.PlaneGeometry(5.2, 2.92);
     disposableGeometries.push(breakthroughGeo);
     const breakthroughUniforms = {
-      uPanelTex: { value: breakthroughTex },
-      uPhotoTex: { value: photoTextures[0] },
+      uPanelTex: { value: placeholderTex },
+      uPhotoTex: { value: placeholderTex },
       uHasPhoto: { value: 0.0 },
       uDomainId: { value: 0.0 },
       uAccentColor: { value: new THREE.Color(0x00f5a0) },
       uTime: { value: 0 },
       uElectricIntensity: { value: 1.0 },
       uPortalOpen: { value: 0 },
-      uOpacity: { value: 0.95 },
+      uOpacity: { value: 0.0 },
       uHover: { value: 0 },
     };
     const breakthroughMat = new THREE.ShaderMaterial({
@@ -1118,28 +1116,27 @@ export default function HeroThreeStage({
     const breakthroughMesh = new THREE.Mesh(breakthroughGeo, breakthroughMat);
     breakthroughMesh.position.set(0, 0.54, -4.2);
     breakthroughMesh.renderOrder = 20;
+    breakthroughMesh.visible = false;
     scene.add(breakthroughMesh);
 
     // ============================================================
     // 5. ACT 3: 5 ORBITING DOMAIN HOLOGRAPHIC GLASS PANELS (Around z = -10.8)
     // ============================================================
+    projectorCoreGroup.visible = false;
     const domainCardGeo = new THREE.PlaneGeometry(4.4, 2.48);
     disposableGeometries.push(domainCardGeo);
 
     const domainMeshes = DOMAIN_CATALOG.map((domain, idx) => {
-      const hudTex = createDomainHudTexture(domain, idx);
-      disposableTextures.push(hudTex);
-
       const uniforms = {
-        uPanelTex: { value: hudTex },
-        uPhotoTex: { value: photoTextures[idx] },
-        uHasPhoto: { value: 1.0 },
+        uPanelTex: { value: placeholderTex },
+        uPhotoTex: { value: placeholderTex },
+        uHasPhoto: { value: 0.0 },
         uDomainId: { value: idx },
         uAccentColor: { value: new THREE.Color(DOMAIN_ORBIT_COLORS[idx]) },
         uTime: { value: idx * 1.3 },
         uElectricIntensity: { value: 0.85 },
         uPortalOpen: { value: 0.0 },
-        uOpacity: { value: 0.95 },
+        uOpacity: { value: 0.0 },
         uHover: { value: 0.0 },
       };
 
@@ -1154,9 +1151,58 @@ export default function HeroThreeStage({
       disposableMaterials.push(mat);
 
       const mesh = new THREE.Mesh(domainCardGeo, mat);
+      mesh.visible = false;
       mesh.userData = { type: 'domain', domainIndex: idx };
       scene.add(mesh);
-      return { mesh, uniforms, index: idx };
+      return { mesh, uniforms, index: idx, hydrated: false };
+    });
+
+    let isBreakthroughHydrated = false;
+    const ensureBreakthroughHydrated = () => {
+      if (isDisposed || isBreakthroughHydrated) return;
+      isBreakthroughHydrated = true;
+      const btTex = createBreakthroughGlassTexture();
+      disposableTextures.push(btTex);
+      breakthroughUniforms.uPanelTex.value = btTex;
+    };
+
+    const ensureDomainHydrated = (idx) => {
+      const entry = domainMeshes[idx];
+      if (isDisposed || !entry || entry.hydrated) return;
+      entry.hydrated = true;
+
+      const hudTex = createDomainHudTexture(DOMAIN_CATALOG[idx], idx);
+      disposableTextures.push(hudTex);
+      entry.uniforms.uPanelTex.value = hudTex;
+
+      const photoUrl = DOMAIN_PHOTO_URLS[idx];
+      if (photoUrl) {
+        const photoTex = textureLoader.load(
+          resolveDomainPhotoUrl(photoUrl, baseUrl),
+          (loadedTex) => {
+            if (isDisposed) return;
+            loadedTex.generateMipmaps = false;
+            loadedTex.minFilter = THREE.LinearFilter;
+            loadedTex.magFilter = THREE.LinearFilter;
+            loadedTex.anisotropy = maxAnisotropy;
+            loadedTex.wrapS = THREE.ClampToEdgeWrapping;
+            loadedTex.wrapT = THREE.ClampToEdgeWrapping;
+            entry.uniforms.uPhotoTex.value = loadedTex;
+            entry.uniforms.uHasPhoto.value = 1.0;
+          }
+        );
+        disposableTextures.push(photoTex);
+      }
+    };
+
+    // Stagger heavy canvas/photo allocations across idle frames AFTER Act 1 is already animating smoothly
+    deferredTimers.push(setTimeout(ensureBreakthroughHydrated, 180));
+    DOMAIN_CATALOG.forEach((_, idx) => {
+      deferredTimers.push(
+        setTimeout(() => {
+          ensureDomainHydrated(idx);
+        }, 300 + idx * 140)
+      );
     });
 
     // ============================================================
@@ -1235,17 +1281,24 @@ export default function HeroThreeStage({
     };
 
     const initPortrait = getPortraitOffsets(config.aspect);
-    const currentCamPos = new THREE.Vector3(0, 0.24 + initPortrait.liftPosY, 7.35 + initPortrait.pullbackZ);
+    const currentCamPos = new THREE.Vector3(0, 0.24 + initPortrait.liftPosY, 7.55 + initPortrait.pullbackZ);
     const currentLookAt = new THREE.Vector3(0, -0.16 + initPortrait.liftLookY, 0);
+    camera.position.copy(currentCamPos);
+    camera.lookAt(currentLookAt);
     let currentOrbitAngle = 0;
     let lastReportedIndex = -99;
-
-    const timer = new THREE.Timer();
-    timer.connect(document);
+    let elapsed = 0;
+    let lastFrameTime = null;
 
     const animate = (timestamp) => {
-      timer.update(timestamp);
-      const elapsed = timer.getElapsed();
+      const now = typeof timestamp === 'number' ? timestamp : performance.now();
+      if (lastFrameTime === null) {
+        lastFrameTime = now;
+      }
+      const deltaSec = Math.min(0.05, Math.max(0, (now - lastFrameTime) / 1000));
+      lastFrameTime = now;
+      elapsed += deltaSec;
+
       const { speedFactor, parallaxFactor, breathFactor } = getMotionFactor(prefersReducedMotion);
 
       const timeline = getShowreelTimelineState(elapsed * speedFactor, activeDomainRef.current);
@@ -1315,6 +1368,9 @@ export default function HeroThreeStage({
         timeline.act === 'overview' && portalVal < 0.05
           ? 0.0
           : Math.min(1, portalVal * 1.4) * (1 - breakthroughPortal * 0.92);
+      if (breakthroughVisibility > 0.01 && !isBreakthroughHydrated) {
+        ensureBreakthroughHydrated();
+      }
       breakthroughUniforms.uTime.value = elapsed;
       breakthroughUniforms.uPortalOpen.value = breakthroughPortal;
       breakthroughUniforms.uOpacity.value = breakthroughVisibility;
@@ -1339,7 +1395,10 @@ export default function HeroThreeStage({
           : Math.min(1, Math.max(0, (breakthroughPortal - 0.05) / 0.65));
       projectorCoreGroup.visible = orbitStageVisibility > 0.02;
 
-      domainMeshes.forEach(({ mesh, uniforms, index }) => {
+      domainMeshes.forEach(({ mesh, uniforms, index, hydrated }) => {
+        if (orbitStageVisibility > 0.02 && !hydrated) {
+          ensureDomainHydrated(index);
+        }
         const pose = getDomainOrbitPose(index, currentOrbitAngle);
         mesh.position.set(pose.x, pose.y, pose.z);
         mesh.rotation.y = pose.rotY + smoothedPointer.x * 0.08 * pose.frontness;
@@ -1390,7 +1449,12 @@ export default function HeroThreeStage({
     if (typeof IntersectionObserver !== 'undefined') {
       intersectionObserver = new IntersectionObserver(
         ([entry]) => {
-          renderer.setAnimationLoop(entry.isIntersecting ? animate : null);
+          if (entry.isIntersecting) {
+            lastFrameTime = null;
+            renderer.setAnimationLoop(animate);
+          } else {
+            renderer.setAnimationLoop(null);
+          }
         },
         { threshold: 0.05 }
       );
@@ -1398,8 +1462,9 @@ export default function HeroThreeStage({
     }
 
     return () => {
+      isDisposed = true;
+      deferredTimers.forEach((id) => clearTimeout(id));
       renderer.setAnimationLoop(null);
-      timer.dispose();
       resizeObserver?.disconnect();
       intersectionObserver?.disconnect();
       renderer.domElement.removeEventListener('pointermove', handlePointerMove);

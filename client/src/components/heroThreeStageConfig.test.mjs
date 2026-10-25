@@ -18,6 +18,7 @@ import {
   HOLO_GLASS_FRAGMENT_SHADER,
   getShowreelTimelineState,
   getDomainOrbitPose,
+  getHeroTitleCharState,
 } from './heroThreeStageConfig.js';
 
 test('DOMAIN_ORBIT_COLORS and DOMAIN_PHOTO_URLS define 5 real domain photos and accent colors', () => {
@@ -244,4 +245,21 @@ test('HOLO_GLASS_FRAGMENT_SHADER includes electric border plasma, portal split r
     assert.equal(snippet.startsWith('pow(max(0.0'), true, `Unclamped pow base: ${snippet}`);
   });
 });
+
+test('getHeroTitleCharState staggers letter-by-letter entrance with flash and continuous sheen', () => {
+  const before = getHeroTitleCharState(5, 0.05, 0.05);
+  assert.equal(before.visible, false);
+  assert.equal(before.alpha, 0);
+
+  const entering = getHeroTitleCharState(0, 0.12, 0.12);
+  assert.equal(entering.visible, true);
+  assert.equal(entering.progress > 0 && entering.progress < 1, true);
+  assert.equal(entering.flash > 0.5, true);
+
+  const settled = getHeroTitleCharState(0, 3.0, 3.0);
+  assert.equal(settled.visible, true);
+  assert.equal(settled.progress, 1);
+  assert.equal(settled.alpha, 1);
+});
+
 

@@ -520,6 +520,64 @@ function smoothstep01(t) {
   return clamped * clamped * (3 - 2 * clamped);
 }
 
+export function getHeroTitleCharState(charIndex, entranceElapsed, totalElapsed = 0) {
+  const safeIdx = Math.max(0, Number.isFinite(charIndex) ? charIndex : 0);
+  const safeEntrance = Math.max(0, Number.isFinite(entranceElapsed) ? entranceElapsed : 0);
+  const safeTotal = Math.max(0, Number.isFinite(totalElapsed) ? totalElapsed : 0);
+
+  const charDelay = 0.052;
+  const charDuration = 0.3;
+  const startTime = safeIdx * charDelay;
+  const rawT = (safeEntrance - startTime) / charDuration;
+
+  if (rawT <= 0) {
+    return {
+      visible: false,
+      progress: 0,
+      alpha: 0,
+      scale: 1.48,
+      offsetX: 16,
+      offsetY: 34,
+      flash: 0,
+      sheen: 0,
+    };
+  }
+
+  if (rawT < 1) {
+    const t = Math.max(0, Math.min(1, rawT));
+    const inv = 1 - t;
+    const easeOutCubic = 1 - inv * inv * inv;
+    const tMinus1 = t - 1;
+    const easeOutBack = 1 + 2.4 * tMinus1 * tMinus1 * tMinus1 + 1.4 * tMinus1 * tMinus1;
+    return {
+      visible: true,
+      progress: t,
+      alpha: Math.min(1, t * 2.2),
+      scale: 1.48 - 0.48 * easeOutCubic,
+      offsetX: (1 - easeOutCubic) * 16,
+      offsetY: (1 - easeOutBack) * 34,
+      flash: Math.sin(t * Math.PI),
+      sheen: 0,
+    };
+  }
+
+  const waveY = Math.sin(safeTotal * 3.1 - safeIdx * 0.35) * 2.2;
+  const sweepPos = ((safeTotal * 13.5) % 36) - 5;
+  const dist = Math.abs(safeIdx - sweepPos);
+  const sheen = Math.max(0, 1 - dist / 3.0);
+
+  return {
+    visible: true,
+    progress: 1,
+    alpha: 1,
+    scale: 1 + sheen * 0.045,
+    offsetX: 0,
+    offsetY: waveY - sheen * 3.5,
+    flash: 0,
+    sheen,
+  };
+}
+
 export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
   const count = DOMAIN_IDS.length;
   const stepAngle = (Math.PI * 2) / count;
