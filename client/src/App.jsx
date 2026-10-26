@@ -7,7 +7,8 @@ import {
   BookOpen, Layers, Calendar, MapPin, Phone, Mail, Globe,
   Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
   CheckCircle, User, Video, ClipboardList, CheckSquare,
-  BarChart3, FileCheck, Bell, Megaphone, Crown, Medal, Eye, Menu
+  BarChart3, FileCheck, Bell, Megaphone, Crown, Medal, Eye, Menu,
+  Play, Maximize2, Film
 } from 'lucide-react';
 import HeroThreeStage from './components/HeroThreeStage';
 import DomainLivingCardBg from './components/DomainLivingCardBg';
@@ -94,16 +95,106 @@ const DOMAINS = DOMAIN_CATALOG.map((domain) => ({
   icon: DOMAIN_ICONS[domain.id] || Box,
 }));
 
-// Project Images for Awarded Works
+// Project Poster Images & Video Assets for Awarded Works
 const WINNER_IMAGES = {
-  'sub-2025-01': '/photo_candidates/science_lab.jpg',
+  'sub-2025-01': '/osbi-poster.jpg',
+  'KMUTNB-2568-0001': '/osbi-poster.jpg',
   'sub-2025-02': '/photo_candidates/robotics_engineer.jpg',
+  'KMUTNB-2568-0002': '/photo_candidates/robotics_engineer.jpg',
   'sub-2025-03': '/domain-food.jpg',
+  'KMUTNB-2568-0003': '/domain-food.jpg',
   'sub-2025-04': '/photo_candidates/young_team_workshop.jpg',
+  'KMUTNB-2568-0004': '/photo_candidates/young_team_workshop.jpg',
   'sub-2025-05': '/domain-material.jpg',
+  'KMUTNB-2568-0005': '/domain-material.jpg',
   'sub-2025-06': '/photo_candidates/tech_creators.jpg',
+  'KMUTNB-2568-0006': '/photo_candidates/tech_creators.jpg',
   'sub-2024-01': '/winner-robot.jpg',
-  'sub-2023-01': '/winner-eco.jpg'
+  'KMUTNB-2567-0001': '/winner-robot.jpg',
+  'sub-2023-01': '/winner-eco.jpg',
+  'KMUTNB-2566-0001': '/winner-eco.jpg'
+};
+
+const WINNER_VIDEOS = {
+  'sub-2025-01': '/Osbi_ver2.mp4',
+  'KMUTNB-2568-0001': '/Osbi_ver2.mp4'
+};
+
+const WINNER_VIDEO_DURATIONS = {
+  'sub-2025-01': '03:54',
+  'KMUTNB-2568-0001': '03:54',
+  'sub-2025-02': '02:45',
+  'KMUTNB-2568-0002': '02:45',
+  'sub-2025-03': '02:58',
+  'KMUTNB-2568-0003': '02:58',
+  'sub-2025-04': '02:30',
+  'KMUTNB-2568-0004': '02:30',
+  'sub-2025-05': '02:50',
+  'KMUTNB-2568-0005': '02:50',
+  'sub-2025-06': '02:40',
+  'KMUTNB-2568-0006': '02:40',
+  'sub-2024-01': '03:00',
+  'KMUTNB-2567-0001': '03:00',
+  'sub-2023-01': '02:35',
+  'KMUTNB-2566-0001': '02:35'
+};
+
+const getWinnerPosterUrl = (w) => {
+  if (!w) return getAssetUrl('/winner-robot.jpg');
+  return getAssetUrl(
+    WINNER_IMAGES[w.id] ||
+    WINNER_IMAGES[w.trackingCode] ||
+    w.coverImage ||
+    w.image ||
+    '/winner-robot.jpg'
+  );
+};
+
+const getWinnerVideoInfo = (w) => {
+  if (!w) return { type: 'preview', src: null, rawUrl: '', duration: '03:00' };
+  const rawUrl = (WINNER_VIDEOS[w.id] || WINNER_VIDEOS[w.trackingCode] || w.videoUrl || '').trim();
+  const duration = WINNER_VIDEO_DURATIONS[w.id] || WINNER_VIDEO_DURATIONS[w.trackingCode] || w.videoDuration || '02:45';
+
+  if (
+    rawUrl &&
+    (rawUrl.startsWith('/') ||
+      rawUrl.startsWith('blob:') ||
+      /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(rawUrl))
+  ) {
+    return {
+      type: 'file',
+      src: getAssetUrl(rawUrl),
+      rawUrl,
+      duration
+    };
+  }
+
+  const ytMatch = rawUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  if (ytMatch && ytMatch[1]) {
+    return {
+      type: 'embed',
+      src: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`,
+      rawUrl,
+      duration
+    };
+  }
+
+  const driveMatch = rawUrl.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (driveMatch && driveMatch[1]) {
+    return {
+      type: 'embed',
+      src: `https://drive.google.com/file/d/${driveMatch[1]}/preview`,
+      rawUrl,
+      duration
+    };
+  }
+
+  return {
+    type: 'preview',
+    src: null,
+    rawUrl,
+    duration
+  };
 };
 
 // Official Seed / Fallback Data for Hall of Fame Winners
@@ -126,7 +217,9 @@ const FALLBACK_WINNERS = [
     institution: 'คณะวิทยาศาสตร์ประยุกต์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
     advisorName: 'คณะวิทยาศาสตร์ประยุกต์ มจพ.',
     abstractTh: 'นวัตกรรมวัสดุการแพทย์ขั้นสูง ไทเทเนียมที่ผ่านกระบวนการพิมพ์ 3 มิติร่วมกับการเคลือบไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพ ช่วยเร่งการยึดติดของเซลล์กระดูกและลดการอักเสบติดเชื้อสำหรับการผ่าตัดทางศัลยกรรมกระดูก',
-    videoUrl: 'https://youtube.com'
+    coverImage: '/osbi-poster.jpg',
+    videoUrl: '/Osbi_ver2.mp4',
+    videoDuration: '03:54'
   },
   {
     id: 'sub-2025-02',
@@ -397,6 +490,7 @@ export default function App() {
   
   // Modals
   const [selectedWinnerModal, setSelectedWinnerModal] = useState(null);
+  const [playingCardId, setPlayingCardId] = useState(null);
   const [showPortalModal, setShowPortalModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [portalTab, setPortalTab] = useState('register'); // 'register' | 'login' | 'submission'
@@ -749,6 +843,190 @@ export default function App() {
     setSubForm(prev => ({ ...prev, category: domainId }));
     setShowPortalModal(true);
     if (user) setPortalTab('submission');
+  };
+
+  const openWinnerModal = (w) => {
+    setPlayingCardId(null);
+    setSelectedWinnerModal(w);
+  };
+
+  const renderWinnerVideoCard = (w, { isFeatured = false } = {}) => {
+    const cardKey = w.id || w.trackingCode;
+    const posterUrl = getWinnerPosterUrl(w);
+    const videoInfo = getWinnerVideoInfo(w);
+    const isPlayingInline = playingCardId === cardKey && (videoInfo.type === 'file' || videoInfo.type === 'embed');
+
+    const handleVideoStageActivate = (e) => {
+      e.stopPropagation();
+      if (videoInfo.type === 'file' || videoInfo.type === 'embed') {
+        setPlayingCardId(cardKey);
+      } else {
+        openWinnerModal(w);
+      }
+    };
+
+    return (
+      <article
+        key={cardKey}
+        className={`winner-card winner-video-card ${isFeatured ? 'winner-card-featured' : ''} ${isPlayingInline ? 'is-playing' : ''}`}
+      >
+        <div
+          className="winner-card-image-wrap winner-card-video-stage"
+          onClick={!isPlayingInline ? handleVideoStageActivate : undefined}
+        >
+          {isPlayingInline ? (
+            videoInfo.type === 'file' ? (
+              <video
+                key={videoInfo.src}
+                src={videoInfo.src}
+                poster={posterUrl}
+                controls
+                autoPlay
+                playsInline
+                className="winner-card-video-player"
+                onEnded={() => setPlayingCardId(null)}
+              />
+            ) : (
+              <iframe
+                src={videoInfo.src}
+                title={w.titleTh}
+                className="winner-card-video-player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )
+          ) : (
+            <>
+              {videoInfo.type === 'file' ? (
+                <video
+                  src={videoInfo.src}
+                  poster={posterUrl}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="winner-card-image winner-card-video-preview"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.play().catch(() => {});
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.pause();
+                  }}
+                />
+              ) : (
+                <img
+                  src={posterUrl}
+                  alt={w.titleTh}
+                  loading="lazy"
+                  decoding="async"
+                  className="winner-card-image"
+                />
+              )}
+
+              <div className="winner-video-stage-scrim" aria-hidden="true" />
+
+              {/* Top Overlay Row: Award Badge + Video Format Duration Pill */}
+              <div className="winner-video-stage-topbar">
+                <div>{renderAwardBadge(w)}</div>
+                <span className="winner-video-badge">
+                  <Film className="w-3.5 h-3.5" />
+                  <span>VIDEO • {videoInfo.duration}</span>
+                </span>
+              </div>
+
+              {/* Center Cinema Play Button */}
+              <button
+                type="button"
+                className="winner-video-play-btn"
+                aria-label={`เล่นวิดีโอผลงาน ${w.titleTh}`}
+                onClick={handleVideoStageActivate}
+              >
+                <span className="winner-video-play-circle">
+                  <Play className="w-6 h-6" style={{ fill: 'currentColor', marginLeft: '2px' }} />
+                </span>
+                <span className="winner-video-play-caption">
+                  {videoInfo.type === 'file' || videoInfo.type === 'embed'
+                    ? 'คลิกเพื่อเล่นวิดีโอผลงาน'
+                    : 'คลิกเพื่อรับชมวิดีโอผลงาน'}
+                </span>
+              </button>
+
+              {/* Bottom Cinema HUD + Progress Bar */}
+              <div className="winner-video-stage-bottombar" aria-hidden="true">
+                <div className="winner-video-stage-meta">
+                  <span className="winner-video-live-indicator">
+                    <span className="winner-video-live-dot" />
+                    <span>{videoInfo.type === 'file' ? 'HD 1080P • VDO PITCH' : 'VDO PRESENTATION'}</span>
+                  </span>
+                  <span className="winner-video-tracking-chip">{w.trackingCode}</span>
+                </div>
+                <div className="winner-video-scrubber">
+                  <div className="winner-video-scrubber-fill" />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="winner-card-body">
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+              <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px', background: 'rgba(16, 185, 129, 0.18)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
+                ปี {w.year || '2568'}
+              </span>
+              <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
+                {getCategoryNameTh(w.category)}
+              </span>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาขึ้นไป'}
+              </span>
+            </div>
+
+            <h4
+              onClick={() => openWinnerModal(w)}
+              style={{ cursor: 'pointer' }}
+            >
+              {w.titleTh}
+            </h4>
+            <div className="winner-card-en">{w.titleEn}</div>
+            <div style={{ fontSize: '0.82rem', color: 'var(--emerald-400)', fontWeight: 600, marginTop: '6px', marginBottom: '8px' }}>
+              ทีม {w.teamName} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>• {w.institution}</span>
+            </div>
+            <p>{w.abstractTh}</p>
+          </div>
+
+          <div className="winner-card-footer">
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <Video className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{w.awardNameTh || 'ผลงานที่ได้รับรางวัล'}</span>
+            </span>
+
+            <div className="winner-card-actions">
+              {(videoInfo.type === 'file' || videoInfo.type === 'embed') && !isPlayingInline && (
+                <button
+                  type="button"
+                  onClick={handleVideoStageActivate}
+                  className="winner-action-play-inline"
+                >
+                  <Play className="w-3.5 h-3.5" style={{ fill: 'currentColor' }} />
+                  <span>เล่นวิดีโอ</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => openWinnerModal(w)}
+                className="winner-cta-link winner-cta-btn"
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span>รับชมวิดีโอ & รายละเอียด</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    );
   };
 
   return (
@@ -1292,77 +1570,27 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Hall of Fame Teaser */}
+              {/* Hall of Fame Video Showcase Teaser */}
               <div style={{ marginTop: '56px', textAlign: 'center' }}>
                 <div className="badge-tag" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5em' }}>
-                  <Trophy className="w-4 h-4" />
-                  <span>PAST GRAND PRIZE WINNERS</span>
+                  <Film className="w-4 h-4" />
+                  <span>PAST AWARD WINNERS • VIDEO SHOWCASE</span>
                 </div>
-                <h2 style={{ fontSize: '2rem', marginBottom: '32px' }}>ตัวอย่างผลงานที่เคยได้รับรางวัลชนะเลิศ</h2>
+                <h2 style={{ fontSize: '2rem', marginBottom: '10px' }}>ผลงานที่เคยได้รับรางวัล</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.94rem', maxWidth: '680px', margin: '0 auto 32px' }}>
+                  รับชมคลิปวิดีโอนำเสนอผลงานนวัตกรรมและสิ่งประดิษฐ์ที่เคยได้รับรางวัลเกียรติยศจากเวทีการประกวด
+                </p>
 
                 <div className="winner-grid home-winner-grid" style={{ textAlign: 'left' }}>
-                  {filteredWinners.slice(0, 3).map(w => (
-                    <button type="button"
-                      key={w.id}
-                      onClick={() => setSelectedWinnerModal(w)}
-                      className="winner-card"
-                    >
-                      <div className="winner-card-image-wrap">
-                        <img 
-                          src={getAssetUrl(WINNER_IMAGES[w.id] || w.coverImage || w.image || '/winner-robot.jpg')} 
-                          alt={w.titleTh} 
-                          loading="lazy"
-                          decoding="async"
-                          className="winner-card-image"
-                        />
-                        <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-                          {renderAwardBadge(w)}
-                        </div>
-                        <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(24, 52, 88, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
-                          {w.trackingCode}
-                        </div>
-                      </div>
-
-                      <div className="winner-card-body">
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
-                            <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px', background: 'rgba(16, 185, 129, 0.18)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
-                              ปี {w.year || '2568'}
-                            </span>
-                            <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
-                              {getCategoryNameTh(w.category)}
-                            </span>
-                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                              {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาขึ้นไป'}
-                            </span>
-                          </div>
-                          <h4>{w.titleTh}</h4>
-                          <div className="winner-card-en">{w.titleEn}</div>
-                          <div style={{ fontSize: '0.82rem', color: 'var(--emerald-400)', fontWeight: 600, marginTop: '6px', marginBottom: '8px' }}>
-                            ทีม {w.teamName} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>• {w.institution}</span>
-                          </div>
-                          <p>{w.abstractTh}</p>
-                        </div>
-
-                        <div className="winner-card-footer">
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                            {w.awardNameTh || 'ผลงานที่ได้รับรางวัล'}
-                          </span>
-                          <span className="winner-cta-link">
-                            <span>อ่านสตอรี่ผลงาน</span>
-                            <ChevronRight className="w-4 h-4" />
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+                  {filteredWinners.slice(0, 3).map((w, idx) =>
+                    renderWinnerVideoCard(w, { isFeatured: idx === 0 })
+                  )}
                 </div>
 
                 <div style={{ marginTop: '32px' }}>
                   <button onClick={() => navigateTo('halloffame')} className="btn-outline-cyan" style={{ padding: '10px 24px' }}>
-                    <Layers className="w-4 h-4" />
-                    <span>เข้าสู่คลังผลงานทั้งหมด (Hall of Fame)</span>
+                    <Film className="w-4 h-4" />
+                    <span>เข้าสู่คลังวิดีโอผลงานทั้งหมด (Hall of Fame)</span>
                   </button>
                 </div>
               </div>
@@ -2175,62 +2403,16 @@ export default function App() {
                     </button>
                   </div>
                 ) : (
-                  filteredWinners.map(w => (
-                    <button type="button"
-                      key={w.id}
-                      onClick={() => setSelectedWinnerModal(w)}
-                      className="winner-card"
-                    >
-                      <div className="winner-card-image-wrap">
-                        <img 
-                          src={getAssetUrl(WINNER_IMAGES[w.id] || w.coverImage || w.image || '/winner-robot.jpg')} 
-                          alt={w.titleTh} 
-                          loading="lazy"
-                          decoding="async"
-                          className="winner-card-image"
-                        />
-                        <div style={{ position: 'absolute', top: '12px', left: '12px' }}>
-                          {renderAwardBadge(w)}
-                        </div>
-                        <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(24, 52, 88, 0.88)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald-300)', border: '1px solid var(--border-subtle)' }}>
-                          {w.trackingCode}
-                        </div>
-                      </div>
-
-                      <div className="winner-card-body">
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
-                            <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px', background: 'rgba(16, 185, 129, 0.18)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
-                              ปี {w.year || '2568'}
-                            </span>
-                            <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
-                              {getCategoryNameTh(w.category)}
-                            </span>
-                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                              {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาขึ้นไป'}
-                            </span>
-                          </div>
-                          <h4>{w.titleTh}</h4>
-                          <div className="winner-card-en">{w.titleEn}</div>
-                          <div style={{ fontSize: '0.82rem', color: 'var(--emerald-400)', fontWeight: 600, marginTop: '6px', marginBottom: '8px' }}>
-                            ทีม {w.teamName} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>• {w.institution}</span>
-                          </div>
-                          <p>{w.abstractTh}</p>
-                        </div>
-
-                        <div className="winner-card-footer">
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                            {w.awardNameTh || 'ผลงานที่ได้รับรางวัล'}
-                          </span>
-                          <span className="winner-cta-link">
-                            <span>อ่านสตอรี่ผลงาน</span>
-                            <ChevronRight className="w-4 h-4" />
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-                  ))
+                  filteredWinners.map((w, idx) =>
+                    renderWinnerVideoCard(w, {
+                      isFeatured:
+                        idx === 0 &&
+                        selectedYear === 'all' &&
+                        selectedDomain === 'all' &&
+                        selectedLevel === 'all' &&
+                        !winnerSearch.trim()
+                    })
+                  )
                 )}
               </div>
 
@@ -2766,89 +2948,163 @@ export default function App() {
         </div>
       )}
 
-      {/* --- MODAL 3: WINNER STORYTELLING MODAL --- */}
-      {selectedWinnerModal && (
-        <div className="modal-overlay" onClick={() => setSelectedWinnerModal(null)}>
-          <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="winner-modal-title" style={{ maxWidth: '720px' }} onClick={e => e.stopPropagation()}>
-            <button aria-label="ปิดหน้าต่างรายละเอียดผลงาน" className="modal-close-btn" onClick={() => setSelectedWinnerModal(null)}>
-              <X className="w-5 h-5" />
-            </button>
+      {/* --- MODAL 3: WINNER VIDEO & STORYTELLING MODAL --- */}
+      {selectedWinnerModal && (() => {
+        const modalVideoInfo = getWinnerVideoInfo(selectedWinnerModal);
+        const modalPosterUrl = getWinnerPosterUrl(selectedWinnerModal);
+        return (
+          <div className="modal-overlay" onClick={() => setSelectedWinnerModal(null)}>
+            <div className="modal-box winner-video-modal-box" role="dialog" aria-modal="true" aria-labelledby="winner-modal-title" style={{ maxWidth: '860px' }} onClick={e => e.stopPropagation()}>
+              <button aria-label="ปิดหน้าต่างรายละเอียดผลงาน" className="modal-close-btn" onClick={() => setSelectedWinnerModal(null)}>
+                <X className="w-5 h-5" />
+              </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
-              {renderAwardBadge(selectedWinnerModal)}
-              <span className="badge-category" style={{ background: 'rgba(16, 185, 129, 0.2)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
-                ปีการประกวด {selectedWinnerModal.year || '2568'}
-              </span>
-              <span className="badge-category">
-                {getCategoryNameTh(selectedWinnerModal.category)}
-              </span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                {selectedWinnerModal.educationLevel === 'below_higher' ? 'ระดับต่ำกว่าอุดมศึกษา' : 'ระดับอุดมศึกษาขึ้นไป'}
-              </span>
-            </div>
-
-            <div style={{ width: '100%', height: '230px', borderRadius: '12px', overflow: 'hidden', marginBottom: '18px', border: '1px solid var(--border-subtle)' }}>
-              <img 
-                src={getAssetUrl(WINNER_IMAGES[selectedWinnerModal.id] || selectedWinnerModal.coverImage || selectedWinnerModal.image || '/winner-robot.jpg')} 
-                alt={selectedWinnerModal.titleTh} 
-                decoding="async"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-
-            <h2 id="winner-modal-title" style={{ fontSize: '1.45rem', lineHeight: 1.4, marginBottom: '6px', color: 'var(--text-primary)' }}>
-              {selectedWinnerModal.titleTh}
-            </h2>
-            <div style={{ color: 'var(--emerald-400)', fontSize: '0.88rem', fontWeight: 600, marginBottom: '16px' }}>
-              {selectedWinnerModal.titleEn}
-            </div>
-
-            {selectedWinnerModal.prizeDetails && (
-              <div style={{ background: 'rgba(6, 78, 59, 0.25)', border: '1px solid rgba(52, 211, 153, 0.4)', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Trophy className="w-5 h-5 text-amber-300 flex-shrink-0" />
-                <span style={{ fontSize: '0.85rem', color: '#D1FAE5', lineHeight: 1.5 }}>
-                  <strong style={{ color: '#FDE68A' }}>รางวัลที่ได้รับ: </strong>
-                  {selectedWinnerModal.prizeDetails}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap', paddingRight: '52px' }}>
+                {renderAwardBadge(selectedWinnerModal)}
+                <span className="badge-category" style={{ background: 'rgba(16, 185, 129, 0.2)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
+                  ปีการประกวด {selectedWinnerModal.year || '2568'}
+                </span>
+                <span className="badge-category">
+                  {getCategoryNameTh(selectedWinnerModal.category)}
+                </span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  {selectedWinnerModal.educationLevel === 'below_higher' ? 'ระดับต่ำกว่าอุดมศึกษา' : 'ระดับอุดมศึกษาขึ้นไป'}
+                </span>
+                <span className="winner-video-badge">
+                  <Film className="w-3.5 h-3.5" />
+                  <span>VIDEO • {modalVideoInfo.duration}</span>
                 </span>
               </div>
-            )}
 
-            <div style={{ background: 'rgba(24, 52, 88, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
-              <h4 style={{ color: 'var(--emerald-300)', fontSize: '0.92rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <BookOpen className="w-4 h-4" />
-                <span>รายละเอียดและความโดดเด่นของนวัตกรรม (Problem & Solution)</span>
-              </h4>
-              <p style={{ fontSize: '0.88rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
-                {selectedWinnerModal.abstractTh}
-              </p>
-            </div>
-
-            <div className="responsive-two-col-grid" style={{ gap: '12px', fontSize: '0.84rem', marginBottom: '20px' }}>
-              <div style={{ background: 'rgba(24, 52, 88, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                <span style={{ color: 'var(--text-muted)', display: 'block' }}>ทีมผู้พัฒนา:</span>
-                <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.teamName}</strong>
+              {/* 16:9 Cinema Video Player Stage */}
+              <div className="winner-modal-video-stage">
+                {modalVideoInfo.type === 'file' ? (
+                  <video
+                    key={modalVideoInfo.src}
+                    src={modalVideoInfo.src}
+                    poster={modalPosterUrl}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="winner-modal-video-player"
+                  />
+                ) : modalVideoInfo.type === 'embed' ? (
+                  <iframe
+                    src={modalVideoInfo.src}
+                    title={selectedWinnerModal.titleTh}
+                    className="winner-modal-video-player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="winner-modal-video-preview-wrap">
+                    <img
+                      src={modalPosterUrl}
+                      alt={selectedWinnerModal.titleTh}
+                      decoding="async"
+                      className="winner-modal-video-poster"
+                    />
+                    <div className="winner-video-stage-scrim" aria-hidden="true" />
+                    <div className="winner-modal-preview-overlay">
+                      <span className="winner-video-play-circle">
+                        <Film className="w-6 h-6" />
+                      </span>
+                      <div className="winner-modal-preview-text">
+                        <strong>คลิปวิดีโอนำเสนอผลงาน ({modalVideoInfo.duration} นาที)</strong>
+                        <span>รหัสผลงาน {selectedWinnerModal.trackingCode} • ทีม {selectedWinnerModal.teamName}</span>
+                      </div>
+                    </div>
+                    <div className="winner-video-stage-bottombar" aria-hidden="true">
+                      <div className="winner-video-stage-meta">
+                        <span className="winner-video-live-indicator">
+                          <span className="winner-video-live-dot" />
+                          <span>VDO PRESENTATION ARCHIVE • {modalVideoInfo.duration}</span>
+                        </span>
+                        <span className="winner-video-tracking-chip">{selectedWinnerModal.trackingCode}</span>
+                      </div>
+                      <div className="winner-video-scrubber">
+                        <div className="winner-video-scrubber-fill" style={{ width: '35%' }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div style={{ background: 'rgba(24, 52, 88, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                <span style={{ color: 'var(--text-muted)', display: 'block' }}>สถาบันการศึกษา / หน่วยงาน:</span>
-                <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.institution || selectedWinnerModal.advisorName}</strong>
-              </div>
-            </div>
 
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <a 
-                href={selectedWinnerModal.videoUrl || '#'} 
-                target="_blank" 
-                rel="noreferrer"
-                className="btn-solid-primary"
-                style={{ flex: 1, textDecoration: 'none', justifyContent: 'center' }}
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>รับชมวิดีโอสาธิตผลงาน</span>
-              </a>
+              <h2 id="winner-modal-title" style={{ fontSize: '1.45rem', lineHeight: 1.4, marginBottom: '6px', color: 'var(--text-primary)' }}>
+                {selectedWinnerModal.titleTh}
+              </h2>
+              <div style={{ color: 'var(--emerald-400)', fontSize: '0.88rem', fontWeight: 600, marginBottom: '16px' }}>
+                {selectedWinnerModal.titleEn}
+              </div>
+
+              {selectedWinnerModal.prizeDetails && (
+                <div style={{ background: 'rgba(6, 78, 59, 0.25)', border: '1px solid rgba(52, 211, 153, 0.4)', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Trophy className="w-5 h-5 text-amber-300 flex-shrink-0" />
+                  <span style={{ fontSize: '0.85rem', color: '#D1FAE5', lineHeight: 1.5 }}>
+                    <strong style={{ color: '#FDE68A' }}>รางวัลที่ได้รับ: </strong>
+                    {selectedWinnerModal.prizeDetails}
+                  </span>
+                </div>
+              )}
+
+              <div style={{ background: 'rgba(24, 52, 88, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+                <h4 style={{ color: 'var(--emerald-300)', fontSize: '0.92rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <BookOpen className="w-4 h-4" />
+                  <span>รายละเอียดและความโดดเด่นของนวัตกรรม (Problem & Solution)</span>
+                </h4>
+                <p style={{ fontSize: '0.88rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+                  {selectedWinnerModal.abstractTh}
+                </p>
+              </div>
+
+              <div className="responsive-two-col-grid" style={{ gap: '12px', fontSize: '0.84rem', marginBottom: '20px' }}>
+                <div style={{ background: 'rgba(24, 52, 88, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                  <span style={{ color: 'var(--text-muted)', display: 'block' }}>ทีมผู้พัฒนา:</span>
+                  <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.teamName}</strong>
+                </div>
+                <div style={{ background: 'rgba(24, 52, 88, 0.6)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                  <span style={{ color: 'var(--text-muted)', display: 'block' }}>สถาบันการศึกษา / หน่วยงาน:</span>
+                  <strong style={{ color: 'var(--text-primary)' }}>{selectedWinnerModal.institution || selectedWinnerModal.advisorName}</strong>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                {modalVideoInfo.type === 'file' ? (
+                  <a
+                    href={modalVideoInfo.src}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-solid-primary"
+                    style={{ flex: 1, textDecoration: 'none', justifyContent: 'center' }}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>เปิดไฟล์วิดีโอในแท็บใหม่</span>
+                  </a>
+                ) : modalVideoInfo.rawUrl && modalVideoInfo.rawUrl !== 'https://youtube.com' ? (
+                  <a
+                    href={modalVideoInfo.rawUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-solid-primary"
+                    style={{ flex: 1, textDecoration: 'none', justifyContent: 'center' }}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>รับชมวิดีโอต้นฉบับ</span>
+                  </a>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => setSelectedWinnerModal(null)}
+                  className="btn-outline-cyan"
+                  style={{ flex: 1, justifyContent: 'center' }}
+                >
+                  <span>ปิดหน้าต่าง</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* --- MODAL 4: DOMAIN DETAIL MODAL (FROM HERO CATEGORY STRIP & DOMAIN CARDS) --- */}
       {detailDomainModal && (() => {
@@ -2934,43 +3190,42 @@ export default function App() {
               {/* Sample Past Winners in this Domain */}
               {domainWinners.length > 0 && (
                 <div style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px dashed rgba(251, 191, 36, 0.45)', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }}>
-                  <div style={{ fontSize: '0.84rem', color: 'var(--gold-300)', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Trophy className="w-4 h-4 text-amber-300" />
-                    <span>ตัวอย่างผลงานที่เคยได้รับรางวัลในหมวดนี้</span>
+                  <div style={{ fontSize: '0.84rem', color: 'var(--gold-300)', fontWeight: 700, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Film className="w-4 h-4 text-amber-300" />
+                    <span>ตัวอย่างวิดีโอผลงานที่เคยได้รับรางวัลในหมวดนี้</span>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {domainWinners.map((w) => (
-                      <button
-                        key={w.id || w.trackingCode}
-                        type="button"
-                        onClick={() => {
-                          setDetailDomainModal(null);
-                          setSelectedWinnerModal(w);
-                        }}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '12px',
-                          textAlign: 'left',
-                          width: '100%',
-                          padding: '10px 12px',
-                          borderRadius: '8px',
-                          background: 'rgba(15, 32, 56, 0.72)',
-                          border: '1px solid var(--border-subtle)',
-                          color: 'var(--text-primary)',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <div style={{ fontSize: '0.84rem', lineHeight: 1.45 }}>
-                          <div style={{ fontWeight: 600 }}>{w.titleTh}</div>
-                          <div style={{ fontSize: '0.76rem', color: 'var(--emerald-300)', marginTop: '2px' }}>
-                            {w.awardNameTh || 'รางวัลเกียรติยศ'} • ปี {w.year || '2568'}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {domainWinners.map((w) => {
+                      const dwVideo = getWinnerVideoInfo(w);
+                      const dwPoster = getWinnerPosterUrl(w);
+                      return (
+                        <button
+                          key={w.id || w.trackingCode}
+                          type="button"
+                          onClick={() => {
+                            setDetailDomainModal(null);
+                            openWinnerModal(w);
+                          }}
+                          className="domain-sample-video-item"
+                        >
+                          <div className="domain-sample-video-thumb">
+                            <img src={dwPoster} alt={w.titleTh} loading="lazy" decoding="async" />
+                            <span className="domain-sample-video-play">
+                              <Play className="w-3.5 h-3.5" style={{ fill: 'currentColor', marginLeft: '1px' }} />
+                            </span>
+                            <span className="domain-sample-video-duration">{dwVideo.duration}</span>
                           </div>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-emerald-400" style={{ flexShrink: 0 }} />
-                      </button>
-                    ))}
+                          <div style={{ fontSize: '0.84rem', lineHeight: 1.45, flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{w.titleTh}</div>
+                            <div style={{ fontSize: '0.76rem', color: 'var(--emerald-300)', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                              <span>{w.awardNameTh || 'รางวัลเกียรติยศ'} • ปี {w.year || '2568'}</span>
+                              <span style={{ color: 'var(--gold-300)', fontWeight: 600 }}>• คลิกเพื่อรับชมวิดีโอ</span>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-emerald-400" style={{ flexShrink: 0 }} />
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

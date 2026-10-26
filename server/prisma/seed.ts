@@ -250,9 +250,9 @@ async function main() {
       members: ['ทีม OsseBioMix'],
       abstractTh: 'นวัตกรรมวัสดุการแพทย์ขั้นสูง ไทเทเนียมที่ผ่านกระบวนการพิมพ์ 3 มิติร่วมกับการเคลือบไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพ ช่วยเร่งการยึดติดของเซลล์กระดูกและลดการอักเสบติดเชื้อสำหรับการผ่าตัดทางศัลยกรรมกระดูก',
       abstractEn: 'Advanced biomedical implant utilizing 3D-printed titanium coated with bioactive hyaluronic acid hydrogel to enhance osseointegration and reduce infection risks.',
-      coverImage: '/photo_candidates/science_lab.jpg',
-      image: '/photo_candidates/science_lab.jpg',
-      videoUrl: 'https://youtube.com',
+      coverImage: '/osbi-poster.jpg',
+      image: '/osbi-poster.jpg',
+      videoUrl: '/Osbi_ver2.mp4',
       submittedAt: new Date('2025-05-10T10:00:00Z'),
     },
     {
