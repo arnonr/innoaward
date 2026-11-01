@@ -23,11 +23,16 @@ async function main() {
 
   const levelHigher = await prisma.educationLevel.upsert({
     where: { code: 'higher_and_above' },
-    update: {},
+    update: {
+      nameTh: 'ระดับอุดมศึกษาและบุคคลทั่วไป',
+      nameEn: 'Higher Education & General Public',
+      eligibleTh: 'นิสิต นักศึกษา (ป.ตรี-โท-เอก), อาจารย์, นักวิจัย, ผู้ประกอบการ และประชาชนทั่วไป',
+      eligibleEn: 'Undergraduate, graduate students, researchers, startups, and general public',
+    },
     create: {
       code: 'higher_and_above',
-      nameTh: 'ระดับตั้งแต่อุดมศึกษาขึ้นไป',
-      nameEn: 'Higher Education & Above',
+      nameTh: 'ระดับอุดมศึกษาและบุคคลทั่วไป',
+      nameEn: 'Higher Education & General Public',
       eligibleTh: 'นิสิต นักศึกษา (ป.ตรี-โท-เอก), อาจารย์, นักวิจัย, ผู้ประกอบการ และประชาชนทั่วไป',
       eligibleEn: 'Undergraduate, graduate students, researchers, startups, and general public',
       orderIndex: 2,
@@ -109,17 +114,30 @@ async function main() {
   console.log('  -> Seeding Competition Years...');
   const yearsData = [
     {
+      year: 2570,
+      yearAd: 2027,
+      titleTh: 'โครงการประกวดสิ่งประดิษฐ์ และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2570',
+      titleEn: 'KMUTNB Innovation Awards 2027',
+      themeTh: 'นวัตกรรมขับเคลื่อนเศรษฐกิจและสังคมที่ยั่งยืน (Innovations for Sustainable Economy & Society)',
+      submissionStart: new Date('2026-11-01T00:00:00+07:00'),
+      submissionEnd: new Date('2027-02-28T23:59:59+07:00'),
+      announcementDate: new Date('2027-05-15T09:00:00+07:00'),
+      eventDate: new Date('2027-06-25T08:30:00+07:00'),
+      isCurrent: true,
+      status: CompetitionStatus.OPEN_FOR_SUBMISSION,
+    },
+    {
       year: 2569,
       yearAd: 2026,
       titleTh: 'โครงการประกวดสิ่งประดิษฐ์ และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569',
       titleEn: 'KMUTNB Innovation Awards 2026',
       themeTh: 'นวัตกรรมขับเคลื่อนเศรษฐกิจและสังคมที่ยั่งยืน (Innovations for Sustainable Economy & Society)',
-      submissionStart: new Date('2026-09-01T00:00:00Z'),
-      submissionEnd: new Date('2026-11-15T23:59:59Z'),
-      announcementDate: new Date('2026-12-10T09:00:00Z'),
-      eventDate: new Date('2027-01-26T08:30:00Z'),
-      isCurrent: true,
-      status: CompetitionStatus.OPEN_FOR_SUBMISSION,
+      submissionStart: new Date('2026-03-01T00:00:00+07:00'),
+      submissionEnd: new Date('2026-04-15T23:59:59+07:00'),
+      announcementDate: new Date('2026-05-15T09:00:00+07:00'),
+      eventDate: new Date('2026-06-26T08:30:00+07:00'),
+      isCurrent: false,
+      status: CompetitionStatus.COMPLETED,
     },
     {
       year: 2568,
@@ -160,6 +178,7 @@ async function main() {
     yearMap.set(y.year, createdYear);
 
     // Bind 5 categories to each competition year
+    const prizeSummaryText = 'ชิงถ้วยพระราชทานฯ (สำหรับรางวัลชนะเลิศ) เงินรางวัลรวม 180,000 บาท และเกียรติบัตร';
     for (const [code, cat] of categoryMap.entries()) {
       await prisma.competitionYearCategory.upsert({
         where: {
@@ -168,11 +187,13 @@ async function main() {
             categoryId: cat.id,
           },
         },
-        update: {},
+        update: {
+          prizeSummary: prizeSummaryText,
+        },
         create: {
           competitionYearId: createdYear.id,
           categoryId: cat.id,
-          prizeSummary: 'เงินรางวัลชนะเลิศแต่ละหมวด 20,000 - 50,000 บาท พร้อมโล่รางวัลและเกียรติบัตร',
+          prizeSummary: prizeSummaryText,
           isActive: true,
           orderIndex: cat.orderIndex,
         },
@@ -241,7 +262,7 @@ async function main() {
       awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
       awardNameEn: 'Grand Prize - Royal Trophy',
       awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-      prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+      prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 40,000 บาท',
       titleTh: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก',
       titleEn: '3D-Printed Titanium Coated with Bioactive Hyaluronic Acid Hydrogel for Orthopedic Applications',
       teamName: 'OsseBioMix',
@@ -263,8 +284,8 @@ async function main() {
       awardTier: AwardTier.RUNNER_UP_1,
       awardNameTh: 'รางวัลรองชนะเลิศอันดับ 1',
       awardNameEn: '1st Runner-Up',
-      awardBadgeText: 'รองชนะเลิศอันดับ 1 • ถ้วยคิดเป็น ทำเป็น',
-      prizeDetails: 'ได้รับถ้วยรางวัล "คิดเป็น ทำเป็น" พร้อมเกียรติบัตร และเงินรางวัล 30,000 บาท',
+      awardBadgeText: 'รองชนะเลิศอันดับ 1',
+      prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 30,000 บาท',
       titleTh: 'เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบ Butt Fusion',
       titleEn: 'Automatic HDPE Pipe Butt Fusion Welding Controller and Data Logger',
       teamName: 'เขาชื่ออะไร',
@@ -286,8 +307,8 @@ async function main() {
       awardTier: AwardTier.RUNNER_UP_2,
       awardNameTh: 'รางวัลรองชนะเลิศอันดับ 2',
       awardNameEn: '2nd Runner-Up',
-      awardBadgeText: 'รองชนะเลิศอันดับ 2 • ถ้วยคิดเป็น ทำเป็น',
-      prizeDetails: 'ได้รับถ้วยรางวัล "คิดเป็น ทำเป็น" พร้อมเกียรติบัตร และเงินรางวัล 20,000 บาท',
+      awardBadgeText: 'รองชนะเลิศอันดับ 2',
+      prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 20,000 บาท',
       titleTh: 'Growell: สารจับใบชีวภาพเพื่อเพิ่มประสิทธิภาพการใช้สารทางเกษตร',
       titleEn: 'Growell: Bio-Adjuvant for Agricultural Spraying Efficiency Enhancement',
       teamName: 'Lucyne Innovia Lab',
@@ -310,7 +331,7 @@ async function main() {
       awardNameTh: 'รางวัลชมเชย',
       awardNameEn: 'Honorable Mention',
       awardBadgeText: 'รางวัลชมเชย',
-      prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+      prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 5,000 บาท',
       titleTh: 'ระบบกล้องติดยานพาหนะและเว็บแอปพลิเคชัน AI สำหรับวิเคราะห์ความเสียหายและประมาณการค่าซ่อมถนนคอนกรีต',
       titleEn: 'Vehicle-Mounted AI Vision System and Web Application for Concrete Road Damage Detection and Repair Cost Estimation',
       teamName: 'ROAD AI',
@@ -333,7 +354,7 @@ async function main() {
       awardNameTh: 'รางวัลชมเชย',
       awardNameEn: 'Honorable Mention',
       awardBadgeText: 'รางวัลชมเชย',
-      prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+      prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 5,000 บาท',
       titleTh: 'แผ่นรองหลังแนวเชื่อมจีโอโพลิเมอร์ทนความร้อนสูงจากวัสดุเหลือทิ้งอุตสาหกรรม',
       titleEn: 'High-Temperature Resistant Geopolymer Backing Ceramic for Welding from Industrial By-products',
       teamName: 'GeoWeld',
@@ -356,7 +377,7 @@ async function main() {
       awardNameTh: 'รางวัลชมเชย',
       awardNameEn: 'Honorable Mention',
       awardBadgeText: 'รางวัลชมเชย',
-      prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+      prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 5,000 บาท',
       titleTh: 'ระบบการตรวจคัดกรองโรคมะเร็งตับผ่านการวิเคราะห์สารประกอบอินทรีย์ระเหยง่ายในลมหายใจด้วยระบบปัญญาประดิษฐ์',
       titleEn: 'AI-Powered Non-Invasive Liver Cancer Screening System via Breath Volatile Organic Compounds (VOCs) Analysis',
       teamName: 'CLARA',
@@ -380,7 +401,7 @@ async function main() {
       awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
       awardNameEn: 'Grand Prize - Royal Trophy',
       awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-      prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+      prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 40,000 บาท',
       titleTh: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติขั้นวิกฤต',
       titleEn: 'Autonomous AI-Powered Rescue & Search Robot for Extreme Disaster Zones',
       teamName: 'KMUTNB Robotics Lab',
@@ -404,7 +425,7 @@ async function main() {
       awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
       awardNameEn: 'Grand Prize - Royal Trophy',
       awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-      prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+      prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 30,000 บาท',
       titleTh: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
       titleEn: 'Bio-Nanocellulose Enhanced Rice Straw Sustainable Packaging',
       teamName: 'EcoInno High School Team',
@@ -477,57 +498,73 @@ async function main() {
           },
         });
       }
+    } else {
+      await prisma.submission.update({
+        where: { id: existingSub.id },
+        data: {
+          awardTier: win.awardTier,
+          awardNameTh: win.awardNameTh,
+          awardNameEn: win.awardNameEn,
+          awardBadgeText: win.awardBadgeText,
+          prizeDetails: win.prizeDetails,
+        },
+      });
     }
   }
 
   // 6. Seed Announcements
   console.log('  -> Seeding Announcements...');
-  const year2569 = yearMap.get(2569);
+  const year2570 = yearMap.get(2570);
   const year2568 = yearMap.get(2568);
 
-  const ann1 = await prisma.announcement.create({
+  await prisma.announcementRoster.deleteMany({});
+  await prisma.announcement.deleteMany({});
+
+  await prisma.announcement.create({
     data: {
-      competitionYearId: year2569.id,
+      competitionYearId: year2570.id,
       type: AnnouncementType.GENERAL,
       badgeText: 'ข่าวสารโครงการ',
       badgeClass: 'announcement-badge-general',
-      dateStr: '1 กันยายน 2569',
-      title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2026 ชิงถ้วยพระราชทานฯ',
-      abstract: 'ขอเชิญชวนนักเรียน นักศึกษา นักวิจัย และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมเข้าร่วมประกวด 5 สาขาเป้าหมาย ชิงเงินรางวัลรวมกว่า 300,000 บาท หมดเขต 15 พ.ย. 2569',
+      dateStr: '1 พฤศจิกายน 2569',
+      title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) ชิงถ้วยพระราชทานฯ',
+      abstract: 'ขอเชิญชวนนักเรียน นักศึกษา นักวิจัย และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมเข้าร่วมประกวด 5 สาขาเป้าหมาย ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท เปิดรับสมัครตั้งแต่บัดนี้ – 28 ก.พ. 2570',
       pdfUrl: '#',
       isPublished: true,
+      publishedAt: new Date('2026-11-01T09:00:00+07:00'),
     },
   });
 
-  const ann2 = await prisma.announcement.create({
+  await prisma.announcement.create({
     data: {
-      competitionYearId: year2569.id,
+      competitionYearId: year2570.id,
       type: AnnouncementType.FINALISTS,
       badgeText: 'ประกาศผลรอบคัดเลือก',
       badgeClass: 'announcement-badge-finalists',
-      dateStr: '10 ธันวาคม 2569 (ตัวอย่างการแสดงผล)',
-      title: 'ประกาศรายชื่อผลงานที่ผ่านการคัดเลือกรอบแรก (Finalists) เข้าสู่รอบ Pitching',
-      abstract: 'คณะกรรมการผู้ทรงคุณวุฒิได้ดำเนินการประเมินข้อเสนอโครงการและคลิปวิดีโอเรียบร้อยแล้ว ขอแสดงความยินดีกับทีมที่ผ่านการคัดเลือกเข้าสู่รอบสุดท้าย ณ อาคารอุทยานเทคโนโลยี มจพ.',
+      dateStr: 'มีนาคม 2570 (ตัวอย่างการแสดงผล)',
+      title: 'ประกาศรายชื่อผลงานที่ผ่านรอบคัดเลือก 60 ทีม เข้าสู่รอบจัดส่งโปสเตอร์',
+      abstract: 'คณะกรรมการผู้ทรงคุณวุฒิได้ดำเนินการประเมินข้อเสนอโครงการและคลิปวิดีโอเรียบร้อยแล้ว ขอแสดงความยินดีกับทั้ง 60 ทีมที่ผ่านรอบคัดเลือก และขอให้จัดทำโปสเตอร์ (Poster) ส่งภายในเดือนเมษายน 2570',
       pdfUrl: '#',
-      isPublished: true,
+      isPublished: false,
+      publishedAt: new Date('2027-03-25T09:00:00+07:00'),
       roster: {
         create: [
           {
-            code: 'KMUTNB-2026-8821',
+            code: 'KMUTNB-2570-8821',
             title: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI',
             team: 'KMUTNB Robotics Lab',
-            level: 'ตั้งแต่อุดมศึกษาขึ้นไป',
+            level: 'อุดมศึกษาและบุคคลทั่วไป',
             orderIndex: 1,
           },
           {
-            code: 'KMUTNB-2026-4109',
+            code: 'KMUTNB-2570-4109',
             title: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
             team: 'EcoInno Team',
             level: 'ต่ำกว่าอุดมศึกษา',
             orderIndex: 2,
           },
           {
-            code: 'KMUTNB-2026-5502',
+            code: 'KMUTNB-2570-5502',
             title: 'ระบบตรวจวัดการเจริญเติบโตพืชไฮโดรโปนิกส์ด้วย IoT',
             team: 'AgriSmart High Team',
             level: 'ต่ำกว่าอุดมศึกษา',
@@ -538,7 +575,7 @@ async function main() {
     },
   });
 
-  const ann3 = await prisma.announcement.create({
+  await prisma.announcement.create({
     data: {
       competitionYearId: year2568.id,
       type: AnnouncementType.WINNERS,
@@ -549,6 +586,7 @@ async function main() {
       abstract: 'สรุปรายชื่อผลงานที่ได้รับรางวัลชนะเลิศ Grand Prize ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี และรางวัลตามระดับการศึกษา ประจำปี 2568',
       pdfUrl: '#',
       isPublished: true,
+      publishedAt: new Date('2025-01-26T09:00:00+07:00'),
       roster: {
         create: [
           {

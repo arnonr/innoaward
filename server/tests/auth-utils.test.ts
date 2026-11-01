@@ -23,6 +23,6 @@ describe("Core Auth & Tracking Utilities", () => {
     expect(code2569).toMatch(/^KMUTNB-2569-\d{4}$/);
 
     const codeDefault = generateTrackingCode();
-    expect(codeDefault).toMatch(/^KMUTNB-2569-\d{4}$/);
+    expect(codeDefault).toMatch(/^KMUTNB-2570-\d{4}$/);
   });
 });

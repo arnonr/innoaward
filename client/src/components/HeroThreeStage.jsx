@@ -310,8 +310,8 @@ function createOverviewGlassTexture() {
     },
     {
       kicker: 'TOTAL PRIZE // 02',
-      title: '300,000+ THB',
-      sub: 'เงินรางวัลรวมและทุนต่อยอดนวัตกรรม',
+      title: '180,000 THB',
+      sub: 'เงินรางวัลรวมทั้ง 2 ระดับ (12 รางวัล)',
       accent: '#00F5A0',
     },
     {
@@ -581,7 +581,7 @@ function createBreakthroughGlassTexture() {
 
   ctx.font = '600 32px "Prompt", sans-serif';
   ctx.fillStyle = '#E2E8F0';
-  ctx.fillText('5 สาขานวัตกรรมเป้าหมาย • ชิงถ้วยพระราชทานฯ และเงินรางวัลรวมกว่า 300,000+ บาท', W / 2, 720);
+  ctx.fillText('5 สาขานวัตกรรมเป้าหมาย • ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท', W / 2, 720);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;

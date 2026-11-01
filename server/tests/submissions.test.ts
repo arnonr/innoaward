@@ -60,7 +60,7 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(response.status).toBe(200);
     const json = await response.json();
     expect(json.success).toBe(true);
-    expect(json.data.trackingCode).toMatch(/^KMUTNB-2569-\d{4}$/);
+    expect(json.data.trackingCode).toMatch(/^KMUTNB-2570-\d{4}$/);
     expect(json.data.status).toBe("SUBMITTED");
     expect(json.data.coverImage).toBe("/photo_candidates/robotics_engineer.jpg");
     expect(json.data.members.length).toBe(2);

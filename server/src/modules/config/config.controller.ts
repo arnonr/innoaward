@@ -13,7 +13,7 @@ export const configController = new Elysia()
 
     return {
       status: 'ok',
-      service: 'KMUTNB Innovation Awards 2026 API Engine',
+      service: 'KMUTNB Innovation Awards 2027 API Engine',
       timestamp: new Date().toISOString(),
       engine: 'Elysia.js on Bun',
       database: dbStatus,
@@ -57,21 +57,27 @@ export const configController = new Elysia()
 
     return {
       event: {
-        nameTh: currentYear?.titleTh || 'โครงการประกวดสิ่งประดิษฐ์ และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569',
-        nameEn: currentYear?.titleEn || 'KMUTNB Innovation Awards 2026',
+        nameTh: currentYear?.titleTh || 'โครงการประกวดสิ่งประดิษฐ์ และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2570',
+        nameEn: currentYear?.titleEn || 'KMUTNB Innovation Awards 2027',
         themeTh: currentYear?.themeTh || 'นวัตกรรมขับเคลื่อนเศรษฐกิจและสังคมที่ยั่งยืน',
         grandPrize: currentYear?.grandPrize || 'ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี',
-        eventDate: currentYear?.eventDate?.toISOString() || '2027-01-26T08:30:00Z',
-        submissionStart: currentYear?.submissionStart?.toISOString() || '2026-09-01T00:00:00Z',
-        submissionDeadline: currentYear?.submissionEnd?.toISOString() || '2026-11-15T23:59:59Z',
+        eventDate: currentYear?.eventDate?.toISOString() || '2027-06-25T01:30:00.000Z',
+        submissionStart: currentYear?.submissionStart?.toISOString() || '2026-10-31T17:00:00.000Z',
+        submissionDeadline: currentYear?.submissionEnd?.toISOString() || '2027-02-28T16:59:59.000Z',
         organizer: 'อุทยานเทคโนโลยี มจพ.',
       },
       categories: categoriesFormatted,
       educationLevels: levelsFormatted,
+      totalPrizePool: 180000,
       prizes: [
-        { rank: 'Grand Prize', title: 'ถ้วยพระราชทานฯ + เงินรางวัล 100,000 บาท + โล่รางวัล + เกียรติบัตร' },
-        { rank: 'ระดับอุดมศึกษาขึ้นไป', title: 'เงินรางวัลชนะเลิศแต่ละหมวด 30,000 - 50,000 บาท + โล่รางวัล + เกียรติบัตร' },
-        { rank: 'ระดับต่ำกว่าอุดมศึกษา', title: 'เงินรางวัลชนะเลิศแต่ละหมวด 20,000 - 30,000 บาท + โล่รางวัล + เกียรติบัตร' },
+        {
+          rank: 'ระดับอุดมศึกษาและบุคคลทั่วไป',
+          title: 'ชนะเลิศ (1 รางวัล) 40,000 บาท + ถ้วยพระราชทานฯ + เกียรติบัตร | รองชนะเลิศอันดับ 1 (1 รางวัล) 30,000 บาท + เกียรติบัตร | รองชนะเลิศอันดับ 2 (1 รางวัล) 20,000 บาท + เกียรติบัตร | ชมเชย (3 รางวัล) รางวัลละ 5,000 บาท (รวม 15,000 บาท) + เกียรติบัตร',
+        },
+        {
+          rank: 'ระดับต่ำกว่าอุดมศึกษา',
+          title: 'ชนะเลิศ (1 รางวัล) 30,000 บาท + ถ้วยพระราชทานฯ + เกียรติบัตร | รองชนะเลิศอันดับ 1 (1 รางวัล) 20,000 บาท + เกียรติบัตร | รองชนะเลิศอันดับ 2 (1 รางวัล) 10,000 บาท + เกียรติบัตร | ชมเชย (3 รางวัล) รางวัลละ 5,000 บาท (รวม 15,000 บาท) + เกียรติบัตร',
+        },
       ],
     };
   });

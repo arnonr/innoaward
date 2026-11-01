@@ -208,7 +208,7 @@ const FALLBACK_WINNERS = [
     awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
     awardNameEn: 'Grand Prize - Royal Trophy',
     awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 40,000 บาท',
     titleTh: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก',
     titleEn: '3D-Printed Titanium Coated with Bioactive Hyaluronic Acid Hydrogel for Orthopedic Applications',
     category: 'medical_device',
@@ -228,8 +228,8 @@ const FALLBACK_WINNERS = [
     awardTier: 'runner_up_1',
     awardNameTh: 'รางวัลรองชนะเลิศอันดับ 1',
     awardNameEn: '1st Runner-Up',
-    awardBadgeText: 'รองชนะเลิศอันดับ 1 • ถ้วยคิดเป็น ทำเป็น',
-    prizeDetails: 'ได้รับถ้วยรางวัล "คิดเป็น ทำเป็น" พร้อมเกียรติบัตร และเงินรางวัล 30,000 บาท',
+    awardBadgeText: 'รองชนะเลิศอันดับ 1',
+    prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 30,000 บาท',
     titleTh: 'เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบ Butt Fusion',
     titleEn: 'Automatic HDPE Pipe Butt Fusion Welding Controller and Data Logger',
     category: 'energy_environment',
@@ -247,8 +247,8 @@ const FALLBACK_WINNERS = [
     awardTier: 'runner_up_2',
     awardNameTh: 'รางวัลรองชนะเลิศอันดับ 2',
     awardNameEn: '2nd Runner-Up',
-    awardBadgeText: 'รองชนะเลิศอันดับ 2 • ถ้วยคิดเป็น ทำเป็น',
-    prizeDetails: 'ได้รับถ้วยรางวัล "คิดเป็น ทำเป็น" พร้อมเกียรติบัตร และเงินรางวัล 20,000 บาท',
+    awardBadgeText: 'รองชนะเลิศอันดับ 2',
+    prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 20,000 บาท',
     titleTh: 'Growell: สารจับใบชีวภาพเพื่อเพิ่มประสิทธิภาพการใช้สารทางเกษตร',
     titleEn: 'Growell: Bio-Adjuvant for Agricultural Spraying Efficiency Enhancement',
     category: 'food_agriculture',
@@ -267,7 +267,7 @@ const FALLBACK_WINNERS = [
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
     awardBadgeText: 'รางวัลชมเชย',
-    prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+    prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 5,000 บาท',
     titleTh: 'ระบบกล้องติดยานพาหนะและเว็บแอปพลิเคชัน AI สำหรับวิเคราะห์ความเสียหายและประมาณการค่าซ่อมถนนคอนกรีต',
     titleEn: 'Vehicle-Mounted AI Vision System and Web Application for Concrete Road Damage Detection and Repair Cost Estimation',
     category: 'social_economy',
@@ -286,7 +286,7 @@ const FALLBACK_WINNERS = [
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
     awardBadgeText: 'รางวัลชมเชย',
-    prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+    prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 5,000 บาท',
     titleTh: 'แผ่นรองหลังแนวเชื่อมจีโอโพลิเมอร์ทนความร้อนสูงจากวัสดุเหลือทิ้งอุตสาหกรรม',
     titleEn: 'High-Temperature Resistant Geopolymer Backing Ceramic for Welding from Industrial By-products',
     category: 'material',
@@ -305,7 +305,7 @@ const FALLBACK_WINNERS = [
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
     awardBadgeText: 'รางวัลชมเชย',
-    prizeDetails: 'ได้รับโล่รางวัล เกียรติบัตร และเงินรางวัล 5,000 บาท',
+    prizeDetails: 'ได้รับเกียรติบัตร และเงินรางวัล 5,000 บาท',
     titleTh: 'ระบบการตรวจคัดกรองโรคมะเร็งตับผ่านการวิเคราะห์สารประกอบอินทรีย์ระเหยง่ายในลมหายใจด้วยระบบปัญญาประดิษฐ์',
     titleEn: 'AI-Powered Non-Invasive Liver Cancer Screening System via Breath Volatile Organic Compounds (VOCs) Analysis',
     category: 'medical_device',
@@ -326,7 +326,7 @@ const FALLBACK_WINNERS = [
     awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
     awardNameEn: 'Grand Prize - Royal Trophy',
     awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 40,000 บาท',
     titleTh: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติขั้นวิกฤต',
     titleEn: 'Autonomous AI-Powered Rescue & Search Robot for Extreme Disaster Zones',
     category: 'energy_environment',
@@ -347,7 +347,7 @@ const FALLBACK_WINNERS = [
     awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
     awardNameEn: 'Grand Prize - Royal Trophy',
     awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมโล่รางวัล เกียรติบัตร และเงินรางวัล 40,000 บาท',
+    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 30,000 บาท',
     titleTh: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
     titleEn: 'Bio-Nanocellulose Enhanced Rice Straw Sustainable Packaging',
     category: 'food_agriculture',
@@ -385,7 +385,7 @@ const renderAwardBadge = (w) => {
     return (
       <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'linear-gradient(135deg, rgba(14, 116, 144, 0.95), rgba(6, 78, 59, 0.9))', color: '#E0F2FE', border: '1px solid rgba(56, 189, 248, 0.8)' }}>
         <Medal className="w-3.5 h-3.5 text-cyan-200" />
-        <span>{w.awardBadgeText || 'รองชนะเลิศอันดับ 1 • ถ้วยคิดเป็น ทำเป็น'}</span>
+        <span>{w.awardBadgeText || 'รองชนะเลิศอันดับ 1'}</span>
       </span>
     );
   }
@@ -393,7 +393,7 @@ const renderAwardBadge = (w) => {
     return (
       <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'linear-gradient(135deg, rgba(180, 83, 9, 0.95), rgba(120, 53, 15, 0.9))', color: '#FEF3C7', border: '1px solid rgba(245, 158, 11, 0.7)' }}>
         <Medal className="w-3.5 h-3.5 text-amber-200" />
-        <span>{w.awardBadgeText || 'รองชนะเลิศอันดับ 2 • ถ้วยคิดเป็น ทำเป็น'}</span>
+        <span>{w.awardBadgeText || 'รองชนะเลิศอันดับ 2'}</span>
       </span>
     );
   }
@@ -408,30 +408,15 @@ const renderAwardBadge = (w) => {
 // Official Announcements Data
 const ANNOUNCEMENTS = [
   {
-    id: 'ann-2026-01',
+    id: 'ann-2027-01',
     category: 'general',
     badgeText: 'ข่าวสารโครงการ',
     badgeClass: 'announcement-badge-general',
-    date: '1 กันยายน 2569',
+    date: '1 พฤศจิกายน 2569',
     title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) ชิงถ้วยพระราชทานฯ',
-    abstract: 'ขอเชิญชวนนักเรียน นักศึกษา นักวิจัย และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมเข้าร่วมประกวด 5 สาขาเป้าหมาย ชิงเงินรางวัลรวมกว่า 300,000 บาท หมดเขต 15 พ.ย. 2569',
+    abstract: 'ขอเชิญชวนนักเรียน นักศึกษา นักวิจัย และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมเข้าร่วมประกวด 5 สาขาเป้าหมาย ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท เปิดรับสมัครตั้งแต่บัดนี้ – 28 ก.พ. 2570',
     pdfUrl: '#',
     roster: []
-  },
-  {
-    id: 'ann-2026-02',
-    category: 'finalists',
-    badgeText: 'ประกาศผลรอบคัดเลือก',
-    badgeClass: 'announcement-badge-finalists',
-    date: '10 ธันวาคม 2569 (ตัวอย่างการแสดงผล)',
-    title: 'ประกาศรายชื่อผลงานที่ผ่านการคัดเลือกรอบแรก (Finalists) เข้าสู่รอบ Pitching',
-    abstract: 'คณะกรรมการผู้ทรงคุณวุฒิได้ดำเนินการประเมินข้อเสนอโครงการและคลิปวิดีโอเรียบร้อยแล้ว ขอแสดงความยินดีกับทีมที่ผ่านการคัดเลือกเข้าสู่รอบสุดท้าย ณ อาคารอุทยานเทคโนโลยี มจพ.',
-    pdfUrl: '#',
-    roster: [
-      { code: 'KMUTNB-2026-8821', title: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI', team: 'KMUTNB Robotics Lab', level: 'ตั้งแต่อุดมศึกษาขึ้นไป' },
-      { code: 'KMUTNB-2026-4109', title: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส', team: 'EcoInno Team', level: 'ต่ำกว่าอุดมศึกษา' },
-      { code: 'KMUTNB-2026-5502', title: 'ระบบตรวจวัดการเจริญเติบโตพืชไฮโดรโปนิกส์ด้วย IoT', team: 'AgriSmart High Team', level: 'ต่ำกว่าอุดมศึกษา' }
-    ]
   },
   {
     id: 'ann-2025-01',
@@ -443,14 +428,14 @@ const ANNOUNCEMENTS = [
     abstract: 'สรุปรายชื่อผลงานที่ได้รับรางวัลชนะเลิศ Grand Prize ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี และรางวัลตามระดับการศึกษา ประจำปี 2568',
     pdfUrl: '#',
     roster: [
-      { code: 'KMUTNB-2025-8821', title: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติ', team: 'KMUTNB Robotics Lab', level: 'Grand Prize ชนะเลิศอุดมศึกษา' },
-      { code: 'KMUTNB-2025-4109', title: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส', team: 'EcoInno High School Team', level: 'ชนะเลิศระดับต่ำกว่าอุดมศึกษา' }
+      { code: 'KMUTNB-2568-0001', title: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพ', team: 'OsseBioMix', level: 'Grand Prize ชนะเลิศอุดมศึกษา' },
+      { code: 'KMUTNB-2568-0004', title: 'ระบบกล้องติดยานพาหนะและเว็บแอปพลิเคชัน AI สำหรับวิเคราะห์ถนน', team: 'ROAD AI', level: 'ชมเชยระดับต่ำกว่าอุดมศึกษา' }
     ]
   }
 ];
 
-// Target deadline: 15 พฤศจิกายน 2569 เวลา 23:59:59 น.
-const TARGET_DEADLINE = new Date('2026-11-15T23:59:59+07:00').getTime();
+// Target deadline: 28 กุมภาพันธ์ 2570 เวลา 23:59:59 น.
+const TARGET_DEADLINE = new Date('2027-02-28T23:59:59+07:00').getTime();
 
 export default function App() {
   // Navigation & View Routing State
@@ -796,7 +781,7 @@ export default function App() {
         }
       })
       .catch(() => {
-        const mockCode = `KMUTNB-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+        const mockCode = `KMUTNB-2570-${Math.floor(1000 + Math.random() * 9000)}`;
         setSubSuccess({ trackingCode: mockCode });
         if (!isDraft) {
           confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
@@ -825,16 +810,16 @@ export default function App() {
       })
       .catch(() => {
         setStatusLoading(false);
-        if (trackingSearch.toUpperCase().includes('8821')) {
+        if (trackingSearch.toUpperCase().includes('2568-0001')) {
           setStatusResult({
-            trackingCode: 'KMUTNB-2025-8821',
-            titleTh: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติ',
-            teamName: 'KMUTNB Robotics Lab',
-            status: 'awarded',
-            feedback: 'ได้รับรางวัล Grand Prize ชิงถ้วยพระราชทานฯ'
+            trackingCode: 'KMUTNB-2568-0001',
+            titleTh: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก',
+            teamName: 'OsseBioMix',
+            status: 'AWARDED',
+            feedback: 'ได้รับรางวัลชนะเลิศ (ถ้วยพระราชทานฯ)'
           });
         } else {
-          setStatusError('ไม่พบรหัสติดตามผลงานนี้ในระบบ (ทดสอบกรอก KMUTNB-2025-8821)');
+          setStatusError('ไม่พบรหัสติดตามผลงานนี้ในระบบ (ทดสอบกรอก KMUTNB-2568-0001)');
         }
       });
   };
@@ -979,7 +964,7 @@ export default function App() {
               </span>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาขึ้นไป'}
+                {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาและบุคคลทั่วไป'}
               </span>
             </div>
 
@@ -1238,7 +1223,7 @@ export default function App() {
             {/* Screen-reader accessible title & summary (visual text lives inside 3D Holographic Stage) */}
             <div className="sr-only">
               <h1>KMUTNB INNOVATION AWARDS 2027 (ประจำปี 2570) ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</h1>
-              <p>เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ชิงถ้วยพระราชทานฯ และเงินรางวัลรวมกว่า 300,000+ บาท</p>
+              <p>เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท</p>
             </div>
 
             <div className="pro-container hero-hologram-container">
@@ -1390,7 +1375,7 @@ export default function App() {
                       <span>ข่าวล่าสุด</span>
                     </span>
                     <span className="announcement-pill-text">
-                      เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) จนถึง 15 พ.ย. 2569
+                      เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) จนถึง 28 ก.พ. 2570
                     </span>
                   </div>
                   
@@ -1431,8 +1416,8 @@ export default function App() {
                     <div className="highlight-icon-wrap" style={{ background: 'rgba(249, 115, 22, 0.15)', color: 'var(--orange-400)' }}>
                       <Award className="w-6 h-6" />
                     </div>
-                    <h3 style={{ color: 'var(--gold-300)' }}>รางวัลรวม 300,000+ บาท</h3>
-                    <p>ชิงถ้วยพระราชทานฯ อันทรงเกียรติ พร้อมโล่รางวัล เกียรติบัตร และการสนับสนุนต่อยอดเชิงพาณิชย์</p>
+                    <h3 style={{ color: 'var(--gold-300)' }}>เงินรางวัลรวม 180,000 บาท</h3>
+                    <p>รางวัลชนะเลิศรับถ้วยพระราชทานฯ อันทรงเกียรติ พร้อมเงินรางวัลและเกียรติบัตร รวมทั้งสิ้น 12 รางวัล (2 ระดับการแข่งขัน)</p>
                   </div>
                   <button onClick={() => navigateTo('guidelines', 'prizes')} className="highlight-action-btn" style={{ color: 'var(--gold-300)' }}>
                     <span>ดูสัดส่วนเงินรางวัล</span>
@@ -1446,8 +1431,8 @@ export default function App() {
                     <div className="highlight-icon-wrap" style={{ background: 'rgba(129, 140, 248, 0.15)', color: 'var(--blue-400)' }}>
                       <GraduationCap className="w-6 h-6" />
                     </div>
-                    <h3>เปิดรับ 2 ระดับการศึกษา</h3>
-                    <p>ระดับต่ำกว่าอุดมศึกษา (มัธยม/ปวช.) และระดับตั้งแต่อุดมศึกษาขึ้นไป (ป.ตรี-โท-เอก/ประชาชน)</p>
+                    <h3>เปิดรับ 2 ระดับการแข่งขัน</h3>
+                    <p>ระดับต่ำกว่าอุดมศึกษา (มัธยม/ปวช.) และระดับอุดมศึกษาและบุคคลทั่วไป (ป.ตรี-โท-เอก/ประชาชน)</p>
                   </div>
                   <button onClick={() => navigateTo('guidelines', 'eligibility')} className="highlight-action-btn">
                     <span>ตรวจสอบคุณสมบัติ</span>
@@ -1724,7 +1709,7 @@ export default function App() {
                     </ul>
                   </div>
                   <div className="bento-tier-row">
-                    <span className="tier-award-label"><Trophy className="w-4 h-4" aria-hidden="true" /> รางวัลชนะเลิศระดับนี้:</span>
+                    <span className="tier-award-label"><Trophy className="w-4 h-4" aria-hidden="true" /> รางวัลชนะเลิศ (ถ้วยพระราชทานฯ):</span>
                     <strong>30,000 บาท</strong>
                   </div>
                 </div>
@@ -1738,14 +1723,14 @@ export default function App() {
                       </div>
                       <div>
                         <span style={{ fontSize: '0.75rem', color: 'var(--gold-400)', fontWeight: 600, textTransform: 'uppercase' }}>LEVEL 2</span>
-                        <h3 style={{ color: 'var(--gold-300)' }}>ระดับตั้งแต่อุดมศึกษาขึ้นไป</h3>
+                        <h3 style={{ color: 'var(--gold-300)' }}>ระดับอุดมศึกษาและบุคคลทั่วไป</h3>
                       </div>
                     </div>
                     <p>เปิดรับสมัครผลงานวิจัย นวัตกรรม และสิ่งประดิษฐ์ต้นแบบพร้อมต่อยอดเชิงพาณิชย์</p>
                     <ul className="checklist-list">
                       <li className="checklist-item">
                         <CheckCircle className="checklist-icon gold" />
-                        <span><strong>สถานะผู้สมัคร:</strong> นิสิต นักศึกษา (ป.ตรี-โท-เอก), อาจารย์, นักวิจัย, สตาร์ทอัพ และประชาชน</span>
+                        <span><strong>สถานะผู้สมัคร:</strong> นิสิต นักศึกษา (ป.ตรี-โท-เอก), อาจารย์, นักวิจัย, สตาร์ทอัพ และประชาชนทั่วไป</span>
                       </li>
                       <li className="checklist-item">
                         <CheckCircle className="checklist-icon gold" />
@@ -1762,8 +1747,8 @@ export default function App() {
                     </ul>
                   </div>
                   <div className="bento-tier-row">
-                    <span className="tier-award-label"><Trophy className="w-4 h-4" aria-hidden="true" /> รางวัลชนะเลิศระดับนี้:</span>
-                    <strong style={{ color: 'var(--gold-400)' }}>50,000 บาท</strong>
+                    <span className="tier-award-label"><Trophy className="w-4 h-4" aria-hidden="true" /> รางวัลชนะเลิศ (ถ้วยพระราชทานฯ):</span>
+                    <strong style={{ color: 'var(--gold-400)' }}>40,000 บาท</strong>
                   </div>
                 </div>
               </div>
@@ -1859,70 +1844,70 @@ export default function App() {
               </div>
 
               <div className="prizes-container">
-                {/* Higher & Above Level Prizes */}
+                {/* Higher & General Public Level Prizes */}
                 <div>
-                  <h4 style={{ fontSize: '1.15rem', color: 'var(--gold-300)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h4 style={{ fontSize: '1.15rem', color: 'var(--gold-300)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <Building2 className="w-5 h-5 text-orange-400" />
-                    <span>รางวัลสำหรับระดับตั้งแต่อุดมศึกษาขึ้นไป (ป.ตรี-โท-เอก / อาจารย์ / นักวิจัย / ประชาชน)</span>
+                    <span>รางวัลระดับอุดมศึกษาและบุคคลทั่วไป (รวม 6 รางวัล • 105,000 บาท)</span>
                   </h4>
                   <div className="prizes-tier-grid">
                     <div className="prize-card gold-champion">
                       <div className="prize-medal-icon" aria-hidden="true"><Crown /></div>
-                      <h5>ชนะเลิศ Grand Prize</h5>
-                      <div className="prize-cash-amount">50,000 ฿</div>
-                      <span>ถ้วยพระราชทานฯ + โล่ + เกียรติบัตร</span>
+                      <h5>รางวัลชนะเลิศ (1 รางวัล)</h5>
+                      <div className="prize-cash-amount">40,000 ฿</div>
+                      <span>ถ้วยพระราชทานฯ + เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
                       <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
-                      <h5>รองชนะเลิศอันดับ 1</h5>
+                      <h5>รองชนะเลิศอันดับ 1 (1 รางวัล)</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>30,000 ฿</div>
-                      <span>โล่รางวัล + เกียรติบัตร</span>
+                      <span>เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
                       <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
-                      <h5>รองชนะเลิศอันดับ 2</h5>
+                      <h5>รองชนะเลิศอันดับ 2 (1 รางวัล)</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>20,000 ฿</div>
-                      <span>โล่รางวัล + เกียรติบัตร</span>
+                      <span>เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
                       <div className="prize-medal-icon" aria-hidden="true"><Award /></div>
-                      <h5>รางวัลชมเชย (2 รางวัล)</h5>
-                      <div className="prize-cash-amount" style={{ color: 'var(--text-secondary)' }}>10,000 ฿</div>
-                      <span>เกียรติบัตรเชิดชูเกียรติ</span>
+                      <h5>รางวัลชมเชย (3 รางวัล)</h5>
+                      <div className="prize-cash-amount" style={{ color: 'var(--text-secondary)' }}>5,000 ฿</div>
+                      <span>รางวัลละ 5,000 ฿ (รวม 15,000 ฿) + เกียรติบัตร</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Below Higher Level Prizes */}
                 <div style={{ marginTop: '16px' }}>
-                  <h4 style={{ fontSize: '1.15rem', color: 'var(--cyan-300)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h4 style={{ fontSize: '1.15rem', color: 'var(--cyan-300)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <GraduationCap className="w-5 h-5 text-cyan-400" />
-                    <span>รางวัลสำหรับระดับต่ำกว่าอุดมศึกษา (มัธยมศึกษา / ปวช.)</span>
+                    <span>รางวัลระดับต่ำกว่าอุดมศึกษา (รวม 6 รางวัล • 75,000 บาท)</span>
                   </h4>
                   <div className="prizes-tier-grid">
                     <div className="prize-card" style={{ borderColor: 'var(--border-cyan)' }}>
                       <div className="prize-medal-icon" aria-hidden="true"><Crown /></div>
-                      <h5>ชนะเลิศ First Place</h5>
+                      <h5>รางวัลชนะเลิศ (1 รางวัล)</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>30,000 ฿</div>
-                      <span>ถ้วยเกียรติยศ + โล่ + เกียรติบัตร</span>
+                      <span>ถ้วยพระราชทานฯ + เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
                       <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
-                      <h5>รองชนะเลิศอันดับ 1</h5>
+                      <h5>รองชนะเลิศอันดับ 1 (1 รางวัล)</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>20,000 ฿</div>
-                      <span>โล่รางวัล + เกียรติบัตร</span>
+                      <span>เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
                       <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
-                      <h5>รองชนะเลิศอันดับ 2</h5>
+                      <h5>รองชนะเลิศอันดับ 2 (1 รางวัล)</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>10,000 ฿</div>
-                      <span>โล่รางวัล + เกียรติบัตร</span>
+                      <span>เกียรติบัตร</span>
                     </div>
                     <div className="prize-card">
                       <div className="prize-medal-icon" aria-hidden="true"><Award /></div>
-                      <h5>รางวัลชมเชย (2 รางวัล)</h5>
+                      <h5>รางวัลชมเชย (3 รางวัล)</h5>
                       <div className="prize-cash-amount" style={{ color: 'var(--text-secondary)' }}>5,000 ฿</div>
-                      <span>เกียรติบัตรเชิดชูเกียรติ</span>
+                      <span>รางวัลละ 5,000 ฿ (รวม 15,000 ฿) + เกียรติบัตร</span>
                     </div>
                   </div>
                 </div>
@@ -2072,10 +2057,10 @@ export default function App() {
                     <span>STAGE ปัจจุบัน • ACTIVE NOW</span>
                   </div>
                   <h3 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                    ช่วงเปิดรับข้อเสนอผลงาน (1 กันยายน - 15 พฤศจิกายน 2569)
+                    ช่วงเปิดรับข้อเสนอผลงาน (บัดนี้ - 28 กุมภาพันธ์ 2570)
                   </h3>
                   <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                    ผู้สมัครสามารถลงทะเบียน กรอกข้อเสนอโครงการ และแนบลิงก์คลิปวิดีโอได้จนถึงเวลา 23:59 น.
+                    ผู้สมัครสามารถลงทะเบียน กรอกข้อเสนอโครงการ และแนบลิงก์คลิปวิดีโอผ่านระบบออนไลน์ได้จนถึงวันที่ 28 กุมภาพันธ์ 2570 เวลา 23:59 น.
                   </p>
                 </div>
 
@@ -2092,34 +2077,48 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Step-by-Step 4 Milestones */}
+              {/* Step-by-Step 6 Milestones (Official 2570 Roadmap) */}
               <div className="stepper-grid">
                 <div className="step-card active">
                   <div className="step-number">01</div>
-                  <div className="step-date">1 ก.ย. - 15 พ.ย. 2569</div>
-                  <h4>เปิดรับสมัครผลงาน</h4>
-                  <p>ยื่นเอกสารข้อเสนอโครงการ (Proposal) และลิงก์คลิปวิดีโอแนะนำผลงานความยาว 2-3 นาที ผ่านระบบออนไลน์</p>
+                  <div className="step-date">บัดนี้ – 28 ก.พ. 2570</div>
+                  <h4>เปิดรับสมัครและส่งผลงานออนไลน์</h4>
+                  <p>เปิดตัวเว็บไซต์และระบบรับสมัคร ประชาสัมพันธ์โครงการ จัดฝึกอบรมภายในมหาวิทยาลัย เปิดรับส่งผลงานออนไลน์ และตรวจสอบคัดกรองเอกสาร</p>
                 </div>
 
                 <div className="step-card">
                   <div className="step-number">02</div>
-                  <div className="step-date">20 - 30 พ.ย. 2569</div>
-                  <h4>พิจารณาคัดเลือกรอบแรก</h4>
-                  <p>คณะกรรมการผู้ทรงคุณวุฒิประเมินข้อเสนอโครงการและคลิปวิดีโอเพื่อคัดเลือกผลงานที่ผ่านเกณฑ์เข้าสู่รอบชิงชนะเลิศ</p>
+                  <div className="step-date">มีนาคม 2570</div>
+                  <h4>ประเมินผลและประกาศผลรอบคัดเลือก</h4>
+                  <p>คณะกรรมการประเมินผลรอบคัดเลือก ประกาศรายชื่อผลงานที่ผ่านรอบคัดเลือกจำนวน 60 ทีม และแจ้งให้ผู้สมัครจัดทำโปสเตอร์ (Poster)</p>
                 </div>
 
                 <div className="step-card">
                   <div className="step-number">03</div>
-                  <div className="step-date">10 ธ.ค. 2569</div>
-                  <h4>ประกาศผลผู้เข้ารอบสุดท้าย</h4>
-                  <p>ประกาศรายชื่อทีมที่ผ่านการคัดเลือกผ่านทางเว็บไซต์ พร้อมส่งหนังสือแจ้งยืนยันสิทธิ์เข้าร่วมรอบ Pitching</p>
+                  <div className="step-date">เมษายน 2570</div>
+                  <h4>ผู้ผ่านเข้ารอบจัดส่งโปสเตอร์</h4>
+                  <p>ผู้ผ่านเข้ารอบคัดเลือกทั้ง 60 ทีม ดำเนินการจัดทำและจัดส่งโปสเตอร์นำเสนอผลงาน (Poster) ตามรูปแบบที่โครงการกำหนด</p>
+                </div>
+
+                <div className="step-card">
+                  <div className="step-number">04</div>
+                  <div className="step-date">เมษายน – พฤษภาคม 2570</div>
+                  <h4>ประเมินผลงาน รอบที่ 2</h4>
+                  <p>คณะกรรมการผู้ทรงคุณวุฒิดำเนินการพิจารณาและประเมินผลงานในรอบที่ 2 เพื่อคัดเลือกผลงานเข้าสู่รอบชิงชนะเลิศ</p>
+                </div>
+
+                <div className="step-card">
+                  <div className="step-number">05</div>
+                  <div className="step-date">พฤษภาคม 2570</div>
+                  <h4>ประกาศผลผู้ผ่านรอบชิงชนะเลิศ</h4>
+                  <p>ประกาศรายชื่อผลงานที่ผ่านการคัดเลือกเข้าสู่รอบชิงชนะเลิศผ่านทางเว็บไซต์อย่างเป็นทางการ เพื่อเตรียมนำเสนอในวันจัดงาน</p>
                 </div>
 
                 <div className="step-card" style={{ borderColor: 'var(--border-gold)' }}>
                   <div className="step-number" style={{ background: 'rgba(249, 115, 22, 0.18)', color: 'var(--orange-400)' }} aria-hidden="true"><Trophy /></div>
-                  <div className="step-date" style={{ color: 'var(--gold-300)' }}>26 ม.ค. 2570</div>
-                  <h4>Pitching & พิธีมอบรางวัล</h4>
-                  <p>นำเสนอผลงานต่อหน้าคณะกรรมการ จัดแสดงบูธนิทรรศการ และพิธีมอบถ้วยพระราชทานฯ ณ อุทยานเทคโนโลยี มจพ.</p>
+                  <div className="step-date" style={{ color: 'var(--gold-300)' }}>มิถุนายน 2570</div>
+                  <h4>จัดงานประกวดและพิธีมอบรางวัล</h4>
+                  <p>จัดงานประกวด นำเสนอผลงานรอบชิงชนะเลิศ จัดแสดงนิทรรศการ และพิธีมอบถ้วยพระราชทานฯ ณ อุทยานเทคโนโลยี มจพ.</p>
                 </div>
               </div>
 
@@ -2192,7 +2191,7 @@ export default function App() {
                     onClick={() => setAnnCategory('all')} 
                     className={`subnav-tab-btn ${annCategory === 'all' ? 'active' : ''}`}
                   >
-                    <span>ทั้งหมด ({ANNOUNCEMENTS.length})</span>
+                    <span>ทั้งหมด ({announcementsList.length})</span>
                   </button>
 
                   <button 
@@ -2261,7 +2260,9 @@ export default function App() {
 
                 {filteredAnnouncements.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)', background: 'var(--bg-card)', borderRadius: '16px' }}>
-                    ไม่พบข้อมูลประกาศที่ตรงกับคำค้นหา
+                    {!annSearch.trim() && annCategory === 'finalists'
+                      ? 'ยังไม่มีประกาศรายชื่อผู้ผ่านเข้ารอบในขณะนี้ (ติดตามประกาศผลรอบคัดเลือก มีนาคม 2570 และรอบชิงชนะเลิศ พฤษภาคม 2570)'
+                      : 'ไม่พบข้อมูลประกาศที่ตรงกับคำค้นหา'}
                   </div>
                 )}
               </div>
@@ -2273,7 +2274,7 @@ export default function App() {
                     ต้องการตรวจสอบผลการพิจารณาเฉพาะของทีมคุณหรือไม่?
                   </h4>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    สามารถกรอกรหัสติดตามผลงาน (เช่น KMUTNB-2025-8821) เพื่อดูคอมเมนต์และสถานะแบบส่วนบุคคล
+                    สามารถกรอกรหัสติดตามผลงาน (เช่น KMUTNB-2568-0001) เพื่อดูคอมเมนต์และสถานะแบบส่วนบุคคล
                   </p>
                 </div>
                 <button onClick={() => setShowStatusModal(true)} className="btn-solid-primary">
@@ -2368,9 +2369,9 @@ export default function App() {
                       className="filter-select"
                       style={{ minWidth: '180px' }}
                     >
-                      <option value="all">ทุกระดับการศึกษา</option>
+                      <option value="all">ทุกระดับการแข่งขัน</option>
                       <option value="below_higher">ต่ำกว่าอุดมศึกษา</option>
-                      <option value="higher_and_above">ตั้งแต่อุดมศึกษาขึ้นไป</option>
+                      <option value="higher_and_above">อุดมศึกษาและบุคคลทั่วไป</option>
                     </select>
                   </div>
 
@@ -2777,7 +2778,7 @@ export default function App() {
                           onChange={e => setSubForm({...subForm, educationLevel: e.target.value})}
                         >
                           <option value="below_higher">ต่ำกว่าอุดมศึกษา (มัธยม / ปวช.)</option>
-                          <option value="higher_and_above">ตั้งแต่อุดมศึกษาขึ้นไป (ป.ตรี-โท-เอก / ประชาชน)</option>
+                          <option value="higher_and_above">อุดมศึกษาและบุคคลทั่วไป (ป.ตรี-โท-เอก / ประชาชน)</option>
                         </select>
                       </div>
                     </div>
@@ -2876,7 +2877,7 @@ export default function App() {
               <span>ตรวจสอบสถานะการสมัคร</span>
             </h3>
             <p style={{ fontSize: '0.85rem', marginBottom: '20px' }}>
-              กรอกรหัสติดตามผลงานเพื่อดูสถานะการพิจารณา (เช่น KMUTNB-2025-8821)
+              กรอกรหัสติดตามผลงานเพื่อดูสถานะการพิจารณา (เช่น KMUTNB-2568-0001)
             </p>
 
             <form onSubmit={handleStatusCheck} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
@@ -2968,7 +2969,7 @@ export default function App() {
                   {getCategoryNameTh(selectedWinnerModal.category)}
                 </span>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  {selectedWinnerModal.educationLevel === 'below_higher' ? 'ระดับต่ำกว่าอุดมศึกษา' : 'ระดับอุดมศึกษาขึ้นไป'}
+                  {selectedWinnerModal.educationLevel === 'below_higher' ? 'ระดับต่ำกว่าอุดมศึกษา' : 'ระดับอุดมศึกษาและบุคคลทั่วไป'}
                 </span>
                 <span className="winner-video-badge">
                   <Film className="w-3.5 h-3.5" />

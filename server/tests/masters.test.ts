@@ -18,13 +18,13 @@ describe("Masters & Config API Modules", () => {
     expect(Array.isArray(json.data)).toBe(true);
     expect(json.data.length).toBeGreaterThanOrEqual(4);
     
-    const year2569 = json.data.find((y: any) => y.year === 2569);
-    expect(year2569).toBeDefined();
-    expect(year2569.isCurrent).toBe(true);
+    const year2570 = json.data.find((y: any) => y.year === 2570);
+    expect(year2570).toBeDefined();
+    expect(year2570.isCurrent).toBe(true);
   });
 
-  test("GET /api/masters/years/2569/categories returns categories for year 2569", async () => {
-    const response = await app.handle(new Request("http://localhost/api/masters/years/2569/categories"));
+  test("GET /api/masters/years/2570/categories returns categories for year 2570", async () => {
+    const response = await app.handle(new Request("http://localhost/api/masters/years/2570/categories"));
     expect(response.status).toBe(200);
 
     const json = await response.json();
@@ -58,8 +58,15 @@ describe("Masters & Config API Modules", () => {
 
     const json = await response.json();
     expect(json.event).toBeDefined();
-    expect(json.event.nameTh).toContain("2569");
+    expect(json.event.nameTh).toContain("2570");
+    expect(json.event.submissionDeadline).toContain("2027-02-28");
     expect(json.categories.length).toBe(5);
     expect(json.educationLevels.length).toBe(2);
+    expect(json.educationLevels.some((l: any) => l.nameTh === "ระดับอุดมศึกษาและบุคคลทั่วไป")).toBe(true);
+    expect(json.totalPrizePool).toBe(180000);
+    expect(json.prizes.length).toBe(2);
+    expect(json.prizes[0].title).toContain("40,000");
+    expect(json.prizes[1].title).toContain("30,000");
+    expect(json.prizes.every((p: any) => !p.title.includes("โล่"))).toBe(true);
   });
 });

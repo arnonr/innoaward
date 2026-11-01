@@ -23,7 +23,7 @@ export const app = new Elysia()
       path: '/swagger',
       documentation: {
         info: {
-          title: 'KMUTNB Innovation Awards 2026 API',
+          title: 'KMUTNB Innovation Awards 2027 API',
           version: '2.0.0',
           description: 'Production Backend API Engine built with Bun, Elysia.js, Prisma ORM, and PostgreSQL 18',
         },
@@ -75,7 +75,7 @@ export const app = new Elysia()
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT);
-  console.log(`🚀 KMUTNB Innovation Awards 2026 PostgreSQL Engine running at http://${app.server?.hostname}:${app.server?.port}`);
+  console.log(`🚀 KMUTNB Innovation Awards 2027 PostgreSQL Engine running at http://${app.server?.hostname}:${app.server?.port}`);
   console.log(`📑 Interactive Swagger UI available at http://${app.server?.hostname}:${app.server?.port}/swagger`);
 }
 
