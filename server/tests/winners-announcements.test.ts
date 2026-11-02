@@ -19,16 +19,16 @@ describe("Winners Hall of Fame & Announcements Modules", () => {
     expect(json.data.length).toBeGreaterThanOrEqual(8);
   });
 
-  test("GET /api/winners?year=2568 filters by year 2568", async () => {
+  test("GET /api/winners?year=2569 filters by year 2569 (2026)", async () => {
     const response = await app.handle(
-      new Request("http://localhost/api/winners?year=2568")
+      new Request("http://localhost/api/winners?year=2569")
     );
     expect(response.status).toBe(200);
 
     const json = await response.json();
     expect(json.success).toBe(true);
     expect(json.data.length).toBe(6);
-    expect(json.data.every((w: any) => w.year === 2568)).toBe(true);
+    expect(json.data.every((w: any) => w.year === 2569)).toBe(true);
     expect(json.data.every((w: any) => !String(w.prizeDetails || "").includes("โล่"))).toBe(true);
 
     const runnerUps = json.data.filter((w: any) => w.awardTier !== "grand_winner");
@@ -68,8 +68,11 @@ describe("Winners Hall of Fame & Announcements Modules", () => {
 
     const winnersAnn = json.data.find((a: any) => a.category === "winners");
     expect(winnersAnn).toBeDefined();
-    expect(winnersAnn.roster.length).toBeGreaterThanOrEqual(2);
-    expect(winnersAnn.roster[0].code).toBe("KMUTNB-2568-0001");
+    expect(winnersAnn.date).toBe("มิถุนายน 2569");
+    expect(winnersAnn.title).toContain("KMUTNB Innovation Awards 2026");
+    expect(winnersAnn.title).toContain("ประจำปี 2569");
+    expect(winnersAnn.roster.length).toBe(6);
+    expect(winnersAnn.roster[0].code).toBe("KMUTNB-2569-0001");
   });
 
   test("GET /api/news returns announcements as alias", async () => {

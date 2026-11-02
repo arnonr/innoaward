@@ -97,18 +97,18 @@ const DOMAINS = DOMAIN_CATALOG.map((domain) => ({
 
 // Project Poster Images & Video Assets for Awarded Works
 const WINNER_IMAGES = {
-  'sub-2025-01': '/osbi-poster.jpg',
-  'KMUTNB-2568-0001': '/osbi-poster.jpg',
-  'sub-2025-02': '/photo_candidates/robotics_engineer.jpg',
-  'KMUTNB-2568-0002': '/photo_candidates/robotics_engineer.jpg',
-  'sub-2025-03': '/domain-food.jpg',
-  'KMUTNB-2568-0003': '/domain-food.jpg',
-  'sub-2025-04': '/photo_candidates/young_team_workshop.jpg',
-  'KMUTNB-2568-0004': '/photo_candidates/young_team_workshop.jpg',
-  'sub-2025-05': '/domain-material.jpg',
-  'KMUTNB-2568-0005': '/domain-material.jpg',
-  'sub-2025-06': '/photo_candidates/tech_creators.jpg',
-  'KMUTNB-2568-0006': '/photo_candidates/tech_creators.jpg',
+  'sub-2026-01': '/osbi-poster.jpg',
+  'KMUTNB-2569-0001': '/osbi-poster.jpg',
+  'sub-2026-02': '/photo_candidates/robotics_engineer.jpg',
+  'KMUTNB-2569-0002': '/photo_candidates/robotics_engineer.jpg',
+  'sub-2026-03': '/domain-food.jpg',
+  'KMUTNB-2569-0003': '/domain-food.jpg',
+  'sub-2026-04': '/photo_candidates/young_team_workshop.jpg',
+  'KMUTNB-2569-0004': '/photo_candidates/young_team_workshop.jpg',
+  'sub-2026-05': '/domain-material.jpg',
+  'KMUTNB-2569-0005': '/domain-material.jpg',
+  'sub-2026-06': '/photo_candidates/tech_creators.jpg',
+  'KMUTNB-2569-0006': '/photo_candidates/tech_creators.jpg',
   'sub-2024-01': '/winner-robot.jpg',
   'KMUTNB-2567-0001': '/winner-robot.jpg',
   'sub-2023-01': '/winner-eco.jpg',
@@ -116,23 +116,23 @@ const WINNER_IMAGES = {
 };
 
 const WINNER_VIDEOS = {
-  'sub-2025-01': '/Osbi_ver2.mp4',
-  'KMUTNB-2568-0001': '/Osbi_ver2.mp4'
+  'sub-2026-01': '/Osbi_ver2.mp4',
+  'KMUTNB-2569-0001': '/Osbi_ver2.mp4'
 };
 
 const WINNER_VIDEO_DURATIONS = {
-  'sub-2025-01': '03:54',
-  'KMUTNB-2568-0001': '03:54',
-  'sub-2025-02': '02:45',
-  'KMUTNB-2568-0002': '02:45',
-  'sub-2025-03': '02:58',
-  'KMUTNB-2568-0003': '02:58',
-  'sub-2025-04': '02:30',
-  'KMUTNB-2568-0004': '02:30',
-  'sub-2025-05': '02:50',
-  'KMUTNB-2568-0005': '02:50',
-  'sub-2025-06': '02:40',
-  'KMUTNB-2568-0006': '02:40',
+  'sub-2026-01': '03:54',
+  'KMUTNB-2569-0001': '03:54',
+  'sub-2026-02': '02:45',
+  'KMUTNB-2569-0002': '02:45',
+  'sub-2026-03': '02:58',
+  'KMUTNB-2569-0003': '02:58',
+  'sub-2026-04': '02:30',
+  'KMUTNB-2569-0004': '02:30',
+  'sub-2026-05': '02:50',
+  'KMUTNB-2569-0005': '02:50',
+  'sub-2026-06': '02:40',
+  'KMUTNB-2569-0006': '02:40',
   'sub-2024-01': '03:00',
   'KMUTNB-2567-0001': '03:00',
   'sub-2023-01': '02:35',
@@ -199,11 +199,11 @@ const getWinnerVideoInfo = (w) => {
 
 // Official Seed / Fallback Data for Hall of Fame Winners
 const FALLBACK_WINNERS = [
-  // --- ประจำปี 2568 (2025) ---
+  // --- ประจำปี 2569 (2026) ---
   {
-    id: 'sub-2025-01',
-    trackingCode: 'KMUTNB-2568-0001',
-    year: 2568,
+    id: 'sub-2026-01',
+    trackingCode: 'KMUTNB-2569-0001',
+    year: 2569,
     awardTier: 'grand_winner',
     awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
     awardNameEn: 'Grand Prize - Royal Trophy',
@@ -222,9 +222,9 @@ const FALLBACK_WINNERS = [
     videoDuration: '03:54'
   },
   {
-    id: 'sub-2025-02',
-    trackingCode: 'KMUTNB-2568-0002',
-    year: 2568,
+    id: 'sub-2026-02',
+    trackingCode: 'KMUTNB-2569-0002',
+    year: 2569,
     awardTier: 'runner_up_1',
     awardNameTh: 'รางวัลรองชนะเลิศอันดับ 1',
     awardNameEn: '1st Runner-Up',
@@ -241,9 +241,9 @@ const FALLBACK_WINNERS = [
     videoUrl: 'https://youtube.com'
   },
   {
-    id: 'sub-2025-03',
-    trackingCode: 'KMUTNB-2568-0003',
-    year: 2568,
+    id: 'sub-2026-03',
+    trackingCode: 'KMUTNB-2569-0003',
+    year: 2569,
     awardTier: 'runner_up_2',
     awardNameTh: 'รางวัลรองชนะเลิศอันดับ 2',
     awardNameEn: '2nd Runner-Up',
@@ -260,9 +260,9 @@ const FALLBACK_WINNERS = [
     videoUrl: 'https://youtube.com'
   },
   {
-    id: 'sub-2025-04',
-    trackingCode: 'KMUTNB-2568-0004',
-    year: 2568,
+    id: 'sub-2026-04',
+    trackingCode: 'KMUTNB-2569-0004',
+    year: 2569,
     awardTier: 'honorable_mention',
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
@@ -279,9 +279,9 @@ const FALLBACK_WINNERS = [
     videoUrl: 'https://youtube.com'
   },
   {
-    id: 'sub-2025-05',
-    trackingCode: 'KMUTNB-2568-0005',
-    year: 2568,
+    id: 'sub-2026-05',
+    trackingCode: 'KMUTNB-2569-0005',
+    year: 2569,
     awardTier: 'honorable_mention',
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
@@ -298,9 +298,9 @@ const FALLBACK_WINNERS = [
     videoUrl: 'https://youtube.com'
   },
   {
-    id: 'sub-2025-06',
-    trackingCode: 'KMUTNB-2568-0006',
-    year: 2568,
+    id: 'sub-2026-06',
+    trackingCode: 'KMUTNB-2569-0006',
+    year: 2569,
     awardTier: 'honorable_mention',
     awardNameTh: 'รางวัลชมเชย',
     awardNameEn: 'Honorable Mention',
@@ -372,7 +372,7 @@ const getCategoryNameTh = (cat) => {
 };
 
 const renderAwardBadge = (w) => {
-  const tier = w.awardTier || (w.id === 'sub-2025-01' ? 'grand_winner' : (w.id === 'sub-2025-02' ? 'runner_up_1' : (w.id === 'sub-2025-03' ? 'runner_up_2' : 'honorable_mention')));
+  const tier = w.awardTier || (w.id === 'sub-2026-01' ? 'grand_winner' : (w.id === 'sub-2026-02' ? 'runner_up_1' : (w.id === 'sub-2026-03' ? 'runner_up_2' : 'honorable_mention')));
   if (tier === 'grand_winner') {
     return (
       <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.95), rgba(180, 83, 9, 0.9))', color: '#FEF3C7', border: '1px solid rgba(251, 191, 36, 0.8)', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)' }}>
@@ -419,17 +419,21 @@ const ANNOUNCEMENTS = [
     roster: []
   },
   {
-    id: 'ann-2025-01',
+    id: 'ann-2026-01',
     category: 'winners',
     badgeText: 'ประกาศผลรางวัลชนะเลิศ',
     badgeClass: 'announcement-badge-winners',
-    date: '26 มกราคม 2568',
-    title: 'ประกาศผลการตัดสินรางวัลชนะเลิศ KMUTNB Innovation Awards 2568 ครองถ้วยพระราชทานฯ',
-    abstract: 'สรุปรายชื่อผลงานที่ได้รับรางวัลชนะเลิศ Grand Prize ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี และรางวัลตามระดับการศึกษา ประจำปี 2568',
+    date: 'มิถุนายน 2569',
+    title: 'ประกาศผลการตัดสินรางวัลชนะเลิศ KMUTNB Innovation Awards 2026 (ประจำปี 2569) ครองถ้วยพระราชทานฯ',
+    abstract: 'สรุปรายชื่อผลงานที่ได้รับรางวัลชนะเลิศ ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี และรางวัลเกียรติยศตามระดับการแข่งขัน ประจำปี 2569 (KMUTNB Innovation Awards 2026)',
     pdfUrl: '#',
     roster: [
-      { code: 'KMUTNB-2568-0001', title: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพ', team: 'OsseBioMix', level: 'Grand Prize ชนะเลิศอุดมศึกษา' },
-      { code: 'KMUTNB-2568-0004', title: 'ระบบกล้องติดยานพาหนะและเว็บแอปพลิเคชัน AI สำหรับวิเคราะห์ถนน', team: 'ROAD AI', level: 'ชมเชยระดับต่ำกว่าอุดมศึกษา' }
+      { code: 'KMUTNB-2569-0001', title: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก', team: 'OsseBioMix', level: 'รางวัลชนะเลิศ • อุดมศึกษาและบุคคลทั่วไป' },
+      { code: 'KMUTNB-2569-0002', title: 'เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบ Butt Fusion', team: 'เขาชื่ออะไร', level: 'รองชนะเลิศอันดับ 1 • อุดมศึกษาและบุคคลทั่วไป' },
+      { code: 'KMUTNB-2569-0003', title: 'Growell: สารจับใบชีวภาพเพื่อเพิ่มประสิทธิภาพการใช้สารทางเกษตร', team: 'Lucyne Innovia Lab', level: 'รองชนะเลิศอันดับ 2 • อุดมศึกษาและบุคคลทั่วไป' },
+      { code: 'KMUTNB-2569-0004', title: 'ระบบกล้องติดยานพาหนะและเว็บแอปพลิเคชัน AI สำหรับวิเคราะห์ความเสียหายและประมาณการค่าซ่อมถนนคอนกรีต', team: 'ROAD AI', level: 'รางวัลชมเชย • ต่ำกว่าอุดมศึกษา' },
+      { code: 'KMUTNB-2569-0005', title: 'แผ่นรองหลังแนวเชื่อมจีโอโพลิเมอร์ทนความร้อนสูงจากวัสดุเหลือทิ้งอุตสาหกรรม', team: 'GeoWeld', level: 'รางวัลชมเชย • อุดมศึกษาและบุคคลทั่วไป' },
+      { code: 'KMUTNB-2569-0006', title: 'ระบบการตรวจคัดกรองโรคมะเร็งตับผ่านการวิเคราะห์สารประกอบอินทรีย์ระเหยง่ายในลมหายใจด้วยระบบปัญญาประดิษฐ์', team: 'CLARA', level: 'รางวัลชมเชย • ต่ำกว่าอุดมศึกษา' }
     ]
   }
 ];
@@ -810,16 +814,16 @@ export default function App() {
       })
       .catch(() => {
         setStatusLoading(false);
-        if (trackingSearch.toUpperCase().includes('2568-0001')) {
+        if (trackingSearch.toUpperCase().includes('2569-0001')) {
           setStatusResult({
-            trackingCode: 'KMUTNB-2568-0001',
+            trackingCode: 'KMUTNB-2569-0001',
             titleTh: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก',
             teamName: 'OsseBioMix',
             status: 'AWARDED',
             feedback: 'ได้รับรางวัลชนะเลิศ (ถ้วยพระราชทานฯ)'
           });
         } else {
-          setStatusError('ไม่พบรหัสติดตามผลงานนี้ในระบบ (ทดสอบกรอก KMUTNB-2568-0001)');
+          setStatusError('ไม่พบรหัสติดตามผลงานนี้ในระบบ (ทดสอบกรอก KMUTNB-2569-0001)');
         }
       });
   };
@@ -957,7 +961,7 @@ export default function App() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
               <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px', background: 'rgba(16, 185, 129, 0.18)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
-                ปี {w.year || '2568'}
+                ปี {w.year || '2569'}
               </span>
               <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
                 {getCategoryNameTh(w.category)}
@@ -2274,7 +2278,7 @@ export default function App() {
                     ต้องการตรวจสอบผลการพิจารณาเฉพาะของทีมคุณหรือไม่?
                   </h4>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    สามารถกรอกรหัสติดตามผลงาน (เช่น KMUTNB-2568-0001) เพื่อดูคอมเมนต์และสถานะแบบส่วนบุคคล
+                    สามารถกรอกรหัสติดตามผลงาน (เช่น KMUTNB-2569-0001) เพื่อดูคอมเมนต์และสถานะแบบส่วนบุคคล
                   </p>
                 </div>
                 <button onClick={() => setShowStatusModal(true)} className="btn-solid-primary">
@@ -2340,7 +2344,7 @@ export default function App() {
                       style={{ minWidth: '170px' }}
                     >
                       <option value="all">ทุกปีการประกวด</option>
-                      <option value="2568">ประจำปี 2568 (2025)</option>
+                      <option value="2569">ประจำปี 2569 (2026)</option>
                       <option value="2567">ประจำปี 2567 (2024)</option>
                       <option value="2566">ประจำปี 2566 (2023)</option>
                     </select>
@@ -2877,7 +2881,7 @@ export default function App() {
               <span>ตรวจสอบสถานะการสมัคร</span>
             </h3>
             <p style={{ fontSize: '0.85rem', marginBottom: '20px' }}>
-              กรอกรหัสติดตามผลงานเพื่อดูสถานะการพิจารณา (เช่น KMUTNB-2568-0001)
+              กรอกรหัสติดตามผลงานเพื่อดูสถานะการพิจารณา (เช่น KMUTNB-2569-0001)
             </p>
 
             <form onSubmit={handleStatusCheck} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
@@ -2963,7 +2967,7 @@ export default function App() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap', paddingRight: '52px' }}>
                 {renderAwardBadge(selectedWinnerModal)}
                 <span className="badge-category" style={{ background: 'rgba(16, 185, 129, 0.2)', borderColor: 'rgba(52, 211, 153, 0.4)', color: 'var(--emerald-300)' }}>
-                  ปีการประกวด {selectedWinnerModal.year || '2568'}
+                  ปีการประกวด {selectedWinnerModal.year || '2569'}
                 </span>
                 <span className="badge-category">
                   {getCategoryNameTh(selectedWinnerModal.category)}
@@ -3219,7 +3223,7 @@ export default function App() {
                           <div style={{ fontSize: '0.84rem', lineHeight: 1.45, flex: 1, minWidth: 0 }}>
                             <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{w.titleTh}</div>
                             <div style={{ fontSize: '0.76rem', color: 'var(--emerald-300)', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                              <span>{w.awardNameTh || 'รางวัลเกียรติยศ'} • ปี {w.year || '2568'}</span>
+                              <span>{w.awardNameTh || 'รางวัลเกียรติยศ'} • ปี {w.year || '2569'}</span>
                               <span style={{ color: 'var(--gold-300)', fontWeight: 600 }}>• คลิกเพื่อรับชมวิดีโอ</span>
                             </div>
                           </div>

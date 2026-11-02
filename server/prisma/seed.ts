@@ -252,10 +252,10 @@ async function main() {
   // 5. Seed Historical Awarded Submissions (Hall of Fame)
   console.log('  -> Seeding Historical Award Winners (Hall of Fame)...');
   const winnersData = [
-    // 2568
+    // 2569 (KMUTNB Innovation Awards 2026)
     {
-      trackingCode: 'KMUTNB-2568-0001',
-      year: 2568,
+      trackingCode: 'KMUTNB-2569-0001',
+      year: 2569,
       categoryCode: 'medical_device',
       levelCode: 'higher_and_above',
       awardTier: AwardTier.GRAND_WINNER,
@@ -274,11 +274,11 @@ async function main() {
       coverImage: '/osbi-poster.jpg',
       image: '/osbi-poster.jpg',
       videoUrl: '/Osbi_ver2.mp4',
-      submittedAt: new Date('2025-05-10T10:00:00Z'),
+      submittedAt: new Date('2026-04-10T10:00:00Z'),
     },
     {
-      trackingCode: 'KMUTNB-2568-0002',
-      year: 2568,
+      trackingCode: 'KMUTNB-2569-0002',
+      year: 2569,
       categoryCode: 'energy_environment',
       levelCode: 'higher_and_above',
       awardTier: AwardTier.RUNNER_UP_1,
@@ -297,11 +297,11 @@ async function main() {
       coverImage: '/photo_candidates/robotics_engineer.jpg',
       image: '/photo_candidates/robotics_engineer.jpg',
       videoUrl: 'https://youtube.com',
-      submittedAt: new Date('2025-05-12T09:15:00Z'),
+      submittedAt: new Date('2026-04-12T09:15:00Z'),
     },
     {
-      trackingCode: 'KMUTNB-2568-0003',
-      year: 2568,
+      trackingCode: 'KMUTNB-2569-0003',
+      year: 2569,
       categoryCode: 'food_agriculture',
       levelCode: 'higher_and_above',
       awardTier: AwardTier.RUNNER_UP_2,
@@ -320,11 +320,11 @@ async function main() {
       coverImage: '/domain-food.jpg',
       image: '/domain-food.jpg',
       videoUrl: 'https://youtube.com',
-      submittedAt: new Date('2025-05-14T11:00:00Z'),
+      submittedAt: new Date('2026-04-14T11:00:00Z'),
     },
     {
-      trackingCode: 'KMUTNB-2568-0004',
-      year: 2568,
+      trackingCode: 'KMUTNB-2569-0004',
+      year: 2569,
       categoryCode: 'social_economy',
       levelCode: 'below_higher',
       awardTier: AwardTier.HONORABLE_MENTION,
@@ -343,11 +343,11 @@ async function main() {
       coverImage: '/photo_candidates/young_team_workshop.jpg',
       image: '/photo_candidates/young_team_workshop.jpg',
       videoUrl: 'https://youtube.com',
-      submittedAt: new Date('2025-05-15T08:30:00Z'),
+      submittedAt: new Date('2026-04-15T08:30:00Z'),
     },
     {
-      trackingCode: 'KMUTNB-2568-0005',
-      year: 2568,
+      trackingCode: 'KMUTNB-2569-0005',
+      year: 2569,
       categoryCode: 'material',
       levelCode: 'higher_and_above',
       awardTier: AwardTier.HONORABLE_MENTION,
@@ -366,11 +366,11 @@ async function main() {
       coverImage: '/domain-material.jpg',
       image: '/domain-material.jpg',
       videoUrl: 'https://youtube.com',
-      submittedAt: new Date('2025-05-15T10:20:00Z'),
+      submittedAt: new Date('2026-04-15T10:20:00Z'),
     },
     {
-      trackingCode: 'KMUTNB-2568-0006',
-      year: 2568,
+      trackingCode: 'KMUTNB-2569-0006',
+      year: 2569,
       categoryCode: 'medical_device',
       levelCode: 'below_higher',
       awardTier: AwardTier.HONORABLE_MENTION,
@@ -389,7 +389,7 @@ async function main() {
       coverImage: '/photo_candidates/tech_creators.jpg',
       image: '/photo_candidates/tech_creators.jpg',
       videoUrl: 'https://youtube.com',
-      submittedAt: new Date('2025-05-15T14:45:00Z'),
+      submittedAt: new Date('2026-04-15T14:45:00Z'),
     },
     // 2567
     {
@@ -440,6 +440,22 @@ async function main() {
       submittedAt: new Date('2023-05-12T09:15:00Z'),
     },
   ];
+
+  // Remove obsolete 2568 tracking codes that were migrated to 2569 (2026)
+  await prisma.submission.deleteMany({
+    where: {
+      trackingCode: {
+        in: [
+          'KMUTNB-2568-0001',
+          'KMUTNB-2568-0002',
+          'KMUTNB-2568-0003',
+          'KMUTNB-2568-0004',
+          'KMUTNB-2568-0005',
+          'KMUTNB-2568-0006',
+        ],
+      },
+    },
+  });
 
   for (const win of winnersData) {
     const compYear = yearMap.get(win.year);
@@ -515,7 +531,7 @@ async function main() {
   // 6. Seed Announcements
   console.log('  -> Seeding Announcements...');
   const year2570 = yearMap.get(2570);
-  const year2568 = yearMap.get(2568);
+  const year2569 = yearMap.get(2569);
 
   await prisma.announcementRoster.deleteMany({});
   await prisma.announcement.deleteMany({});
@@ -577,31 +593,59 @@ async function main() {
 
   await prisma.announcement.create({
     data: {
-      competitionYearId: year2568.id,
+      competitionYearId: year2569.id,
       type: AnnouncementType.WINNERS,
       badgeText: 'ประกาศผลรางวัลชนะเลิศ',
       badgeClass: 'announcement-badge-winners',
-      dateStr: '26 มกราคม 2568',
-      title: 'ประกาศผลการตัดสินรางวัลชนะเลิศ KMUTNB Innovation Awards 2568 ครองถ้วยพระราชทานฯ',
-      abstract: 'สรุปรายชื่อผลงานที่ได้รับรางวัลชนะเลิศ Grand Prize ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี และรางวัลตามระดับการศึกษา ประจำปี 2568',
+      dateStr: 'มิถุนายน 2569',
+      title: 'ประกาศผลการตัดสินรางวัลชนะเลิศ KMUTNB Innovation Awards 2026 (ประจำปี 2569) ครองถ้วยพระราชทานฯ',
+      abstract: 'สรุปรายชื่อผลงานที่ได้รับรางวัลชนะเลิศ ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี และรางวัลเกียรติยศตามระดับการแข่งขัน ประจำปี 2569 (KMUTNB Innovation Awards 2026)',
       pdfUrl: '#',
       isPublished: true,
-      publishedAt: new Date('2025-01-26T09:00:00+07:00'),
+      publishedAt: new Date('2026-06-26T09:00:00+07:00'),
       roster: {
         create: [
           {
-            code: 'KMUTNB-2568-0001',
-            title: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพ',
+            code: 'KMUTNB-2569-0001',
+            title: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก',
             team: 'OsseBioMix',
-            level: 'Grand Prize ชนะเลิศอุดมศึกษา',
+            level: 'รางวัลชนะเลิศ • อุดมศึกษาและบุคคลทั่วไป',
             orderIndex: 1,
           },
           {
-            code: 'KMUTNB-2568-0004',
-            title: 'ระบบกล้องติดยานพาหนะและเว็บแอปพลิเคชัน AI สำหรับวิเคราะห์ถนน',
-            team: 'ROAD AI',
-            level: 'ชมเชยระดับต่ำกว่าอุดมศึกษา',
+            code: 'KMUTNB-2569-0002',
+            title: 'เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบ Butt Fusion',
+            team: 'เขาชื่ออะไร',
+            level: 'รองชนะเลิศอันดับ 1 • อุดมศึกษาและบุคคลทั่วไป',
             orderIndex: 2,
+          },
+          {
+            code: 'KMUTNB-2569-0003',
+            title: 'Growell: สารจับใบชีวภาพเพื่อเพิ่มประสิทธิภาพการใช้สารทางเกษตร',
+            team: 'Lucyne Innovia Lab',
+            level: 'รองชนะเลิศอันดับ 2 • อุดมศึกษาและบุคคลทั่วไป',
+            orderIndex: 3,
+          },
+          {
+            code: 'KMUTNB-2569-0004',
+            title: 'ระบบกล้องติดยานพาหนะและเว็บแอปพลิเคชัน AI สำหรับวิเคราะห์ความเสียหายและประมาณการค่าซ่อมถนนคอนกรีต',
+            team: 'ROAD AI',
+            level: 'รางวัลชมเชย • ต่ำกว่าอุดมศึกษา',
+            orderIndex: 4,
+          },
+          {
+            code: 'KMUTNB-2569-0005',
+            title: 'แผ่นรองหลังแนวเชื่อมจีโอโพลิเมอร์ทนความร้อนสูงจากวัสดุเหลือทิ้งอุตสาหกรรม',
+            team: 'GeoWeld',
+            level: 'รางวัลชมเชย • อุดมศึกษาและบุคคลทั่วไป',
+            orderIndex: 5,
+          },
+          {
+            code: 'KMUTNB-2569-0006',
+            title: 'ระบบการตรวจคัดกรองโรคมะเร็งตับผ่านการวิเคราะห์สารประกอบอินทรีย์ระเหยง่ายในลมหายใจด้วยระบบปัญญาประดิษฐ์',
+            team: 'CLARA',
+            level: 'รางวัลชมเชย • ต่ำกว่าอุดมศึกษา',
+            orderIndex: 6,
           },
         ],
       },
