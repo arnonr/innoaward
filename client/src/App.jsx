@@ -21,7 +21,11 @@ import {
   formatCitizenIdInput,
   hydrateSubmissionFormFromServer,
   isSubmissionDeadlinePassed,
-  MAX_PROJECTS_PER_ACCOUNT
+  MAX_PROJECTS_PER_ACCOUNT,
+  DEFAULT_RUBRIC_CRITERIA,
+  RUBRIC_SCORE_LEVELS,
+  calculateWeightedRubricScore,
+  validateRubricWeights
 } from './components/submissionDossierUtils';
 
 
@@ -574,7 +578,411 @@ export default function App() {
   const [mySubmissionsLoading, setMySubmissionsLoading] = useState(false);
   const [submissionDeadlineIso, setSubmissionDeadlineIso] = useState(DEFAULT_SUBMISSION_DEADLINE_ISO);
 
+  // Multi-Year Judging, Dynamic Categories & Weighted Rubric State
+  const [dynamicCategories, setDynamicCategories] = useState([
+    { code: 'energy_environment', nameTh: 'พลังงานและสิ่งแวดล้อม', nameEn: 'Energy & Environment' },
+    { code: 'food_agriculture', nameTh: 'เกษตรและอาหารแปรรูป', nameEn: 'Food & Agriculture' },
+    { code: 'social_economy', nameTh: 'เศรษฐกิจและสังคมดิจิทัล', nameEn: 'Social & Economy' },
+    { code: 'medical_device', nameTh: 'เครื่องมือแพทย์และสาธารณสุข', nameEn: 'Medical Device' },
+    { code: 'material', nameTh: 'วัสดุศาสตร์และเทคโนโลยีก้าวหน้า', nameEn: 'Material' },
+    { code: 'others', nameTh: 'อื่นๆ (สิ่งประดิษฐ์และนวัตกรรมทั่วไป)', nameEn: 'Others' }
+  ]);
+  const [rubricCriteria, setRubricCriteria] = useState(DEFAULT_RUBRIC_CRITERIA);
+  const [availableYears, setAvailableYears] = useState([
+    { year: 2570, isActive: true, submissionDeadline: DEFAULT_SUBMISSION_DEADLINE_ISO },
+    { year: 2569, isActive: false, submissionDeadline: '2026-02-28T23:59:59+07:00' }
+  ]);
+  const [selectedJudgeYear, setSelectedJudgeYear] = useState(2570);
+  const [showJudgingModal, setShowJudgingModal] = useState(false);
+  const [judgingTab, setJudgingTab] = useState('queue'); // 'queue' | 'judges' | 'setup'
+  const [judgeRoundFilter, setJudgeRoundFilter] = useState('ROUND_1'); // 'all' | 'SCREENING' | 'ROUND_1' | 'ROUND_2' | 'ROUND_3'
+  const [judgeCategoryFilter, setJudgeCategoryFilter] = useState('all');
+  const [judgeLevelFilter, setJudgeLevelFilter] = useState('all');
+  const [judgingSubmissions, setJudgingSubmissions] = useState([]);
+  const [judgingLoading, setJudgingLoading] = useState(false);
+  const [judgingNotice, setJudgingNotice] = useState('');
+  const [judgingError, setJudgingError] = useState('');
+  const [activeEvalSubmission, setActiveEvalSubmission] = useState(null);
+  const [evalRound, setEvalRound] = useState('ROUND_1');
+  const [evalScores, setEvalScores] = useState({});
+  const [evalComment, setEvalComment] = useState('');
+  const [evalSaving, setEvalSaving] = useState(false);
+  const [judgesList, setJudgesList] = useState([]);
+  const [newJudgeForm, setNewJudgeForm] = useState({
+    email: '',
+    fullName: '',
+    password: '',
+    institution: '',
+    categoryCodes: []
+  });
+  const [newCategoryForm, setNewCategoryForm] = useState({
+    code: '',
+    nameTh: '',
+    nameEn: '',
+    description: ''
+  });
+  const [newYearForm, setNewYearForm] = useState({
+    year: 2571,
+    submissionDeadline: '2028-02-28T23:59:59+07:00',
+    cloneFromYear: 2570
+  });
+  const [publishRoundForm, setPublishRoundForm] = useState({
+    round: 'ROUND_1',
+    title: ''
+  });
+  const [deadlineEditValue, setDeadlineEditValue] = useState(DEFAULT_SUBMISSION_DEADLINE_ISO);
+
   const deadlinePassed = isSubmissionDeadlinePassed(submissionDeadlineIso);
+
+  const fetchConfigForYear = (yearParam = null) => {
+    const query = yearParam ? `?year=${encodeURIComponent(yearParam)}` : '';
+    fetch(`${API_BASE}/config${query}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data?.event?.submissionDeadline) {
+          if (!yearParam) {
+            setSubmissionDeadlineIso(data.event.submissionDeadline);
+          }
+          setDeadlineEditValue(data.event.submissionDeadline);
+        }
+        if (data?.event?.year && !yearParam) {
+          setSelectedJudgeYear(Number(data.event.year));
+        }
+        if (Array.isArray(data?.availableYears) && data.availableYears.length > 0) {
+          setAvailableYears(data.availableYears);
+        }
+        if (Array.isArray(data?.masters?.categories) && data.masters.categories.length > 0) {
+          setDynamicCategories(data.masters.categories);
+        }
+        if (Array.isArray(data?.rubric?.criteria) && data.rubric.criteria.length > 0) {
+          setRubricCriteria(data.rubric.criteria);
+        }
+      })
+      .catch(() => {});
+  };
+
+  const fetchJudgingWorkspace = (yearOverride = selectedJudgeYear, tokenOverride = authToken) => {
+    const activeToken = tokenOverride || authToken;
+    if (!activeToken) return;
+    const targetYear = Number(yearOverride || selectedJudgeYear || 2570);
+    setJudgingLoading(true);
+    setJudgingError('');
+
+    fetch(`${API_BASE}/judging/submissions?year=${targetYear}`, {
+      headers: { Authorization: `Bearer ${activeToken}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setJudgingSubmissions(Array.isArray(data.data) ? data.data : []);
+          if (Array.isArray(data.rubric?.criteria) && data.rubric.criteria.length > 0) {
+            setRubricCriteria(data.rubric.criteria);
+          }
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถดึงรายการผลงานสำหรับประเมินได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ระบบประเมินได้'))
+      .finally(() => setJudgingLoading(false));
+
+    fetch(`${API_BASE}/judging/judges?year=${targetYear}`, {
+      headers: { Authorization: `Bearer ${activeToken}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data)) {
+          setJudgesList(data.data);
+        }
+      })
+      .catch(() => {});
+  };
+
+  const openEvaluationDrawer = (sub, defaultRound = judgeRoundFilter) => {
+    const targetRound = ['ROUND_1', 'ROUND_2', 'ROUND_3'].includes(defaultRound)
+      ? defaultRound
+      : 'ROUND_1';
+    setActiveEvalSubmission(sub);
+    setEvalRound(targetRound);
+    const existing = (sub.myEvaluations || []).find(ev => ev.round === targetRound);
+    if (existing && existing.scores) {
+      setEvalScores(existing.scores);
+      setEvalComment(existing.comment || '');
+    } else {
+      const initialScores = {};
+      for (const crit of rubricCriteria) {
+        initialScores[crit.id] = 4;
+      }
+      setEvalScores(initialScores);
+      setEvalComment('');
+    }
+  };
+
+  const handleSaveEvaluation = (e) => {
+    e.preventDefault();
+    if (!activeEvalSubmission || evalSaving) return;
+    setEvalSaving(true);
+    setJudgingError('');
+    setJudgingNotice('');
+    fetch(`${API_BASE}/judging/submissions/${activeEvalSubmission.id}/evaluate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        round: evalRound,
+        scores: evalScores,
+        comment: evalComment
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setJudgingNotice(`บันทึกคะแนน ${evalRound} สำเร็จ (คะแนนรวมถ่วงน้ำหนัก ${data.data.weightedTotal} / 100)`);
+          setActiveEvalSubmission(null);
+          fetchJudgingWorkspace(selectedJudgeYear, authToken);
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถบันทึกคะแนนประเมินได้');
+        }
+      })
+      .catch(() => setJudgingError('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'))
+      .finally(() => setEvalSaving(false));
+  };
+
+  const handleAdminStatusAdvance = (submissionId, payload, successLabel) => {
+    setJudgingError('');
+    setJudgingNotice('');
+    fetch(`${API_BASE}/submissions/${submissionId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setJudgingNotice(successLabel || 'อัปเดตสถานะโครงการเรียบร้อยแล้ว');
+          fetchJudgingWorkspace(selectedJudgeYear, authToken);
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถอัปเดตสถานะโครงการได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+  };
+
+  const handleCreateOrUpdateJudge = (e) => {
+    e.preventDefault();
+    setJudgingError('');
+    setJudgingNotice('');
+    fetch(`${API_BASE}/judging/judges`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        ...newJudgeForm,
+        year: selectedJudgeYear
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setJudgingNotice('บันทึกข้อมูลกรรมการและผูกกลุ่มนวัตกรรมเรียบร้อยแล้ว');
+          setNewJudgeForm({ email: '', fullName: '', password: '', institution: '', categoryCodes: [] });
+          fetchJudgingWorkspace(selectedJudgeYear, authToken);
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถบันทึกข้อมูลกรรมการได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+  };
+
+  const handleToggleJudgeCategory = (judge, categoryCode) => {
+    const currentCodes = (judge.assignedCategories || []).map(c => c.code);
+    const nextCodes = currentCodes.includes(categoryCode)
+      ? currentCodes.filter(c => c !== categoryCode)
+      : [...currentCodes, categoryCode];
+
+    fetch(`${API_BASE}/judging/judges/${judge.id}/categories`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        year: selectedJudgeYear,
+        categoryCodes: nextCodes
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setJudgingNotice(`อัปเดตกลุ่มนวัตกรรมของ ${judge.fullName} เรียบร้อยแล้ว`);
+          fetchJudgingWorkspace(selectedJudgeYear, authToken);
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถอัปเดตกลุ่มนวัตกรรมของกรรมการได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+  };
+
+  const handleSaveRubricWeights = (e) => {
+    e.preventDefault();
+    const weightErr = validateRubricWeights(rubricCriteria);
+    if (weightErr) {
+      setJudgingError(weightErr);
+      return;
+    }
+    setJudgingError('');
+    setJudgingNotice('');
+    fetch(`${API_BASE}/config/rubric`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        year: selectedJudgeYear,
+        criteria: rubricCriteria
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setRubricCriteria(data.data.criteria);
+          setJudgingNotice(`บันทึกเกณฑ์รูบริกและค่าน้ำหนักประจำปี ${selectedJudgeYear} เรียบร้อยแล้ว (รวม 100%)`);
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถบันทึกเกณฑ์รูบริกได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+  };
+
+  const handleSaveDynamicCategory = (e) => {
+    e.preventDefault();
+    setJudgingError('');
+    setJudgingNotice('');
+    fetch(`${API_BASE}/config/categories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        ...newCategoryForm,
+        year: selectedJudgeYear,
+        isActive: true
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setJudgingNotice(`เพิ่ม/อัปเดตกลุ่มนวัตกรรม "${newCategoryForm.nameTh}" สำหรับปี ${selectedJudgeYear} สำเร็จ`);
+          setNewCategoryForm({ code: '', nameTh: '', nameEn: '', description: '' });
+          fetchConfigForYear(selectedJudgeYear);
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถบันทึกกลุ่มนวัตกรรมได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+  };
+
+  const handleUpdateDeadline = (e) => {
+    e.preventDefault();
+    setJudgingError('');
+    setJudgingNotice('');
+    fetch(`${API_BASE}/config/deadline`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        year: selectedJudgeYear,
+        submissionDeadline: deadlineEditValue
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setSubmissionDeadlineIso(data.data.submissionDeadline);
+          setJudgingNotice(`อัปเดตวันปิดรับสมัครปี ${selectedJudgeYear} เป็น ${data.data.submissionDeadline} สำเร็จ`);
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถอัปเดตวันปิดรับสมัครได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+  };
+
+  const handlePublishRoundResults = (e) => {
+    e.preventDefault();
+    setJudgingError('');
+    setJudgingNotice('');
+    fetch(`${API_BASE}/judging/publish-results`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        year: selectedJudgeYear,
+        round: publishRoundForm.round,
+        title: publishRoundForm.title || undefined
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setJudgingNotice(`เผยแพร่ประกาศผล ${publishRoundForm.round} ประจำปี ${selectedJudgeYear} ขึ้นหน้าเว็บไซต์เรียบร้อยแล้ว`);
+          fetch(`${API_BASE}/announcements`)
+            .then(r => r.json())
+            .then(annData => {
+              if (Array.isArray(annData?.data) && annData.data.length > 0) {
+                setAnnouncementsList(annData.data);
+              }
+            })
+            .catch(() => {});
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถเผยแพร่ประกาศผลได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+  };
+
+  const handleCreateNextYear = (e) => {
+    e.preventDefault();
+    setJudgingError('');
+    setJudgingNotice('');
+    fetch(`${API_BASE}/config/years`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        year: Number(newYearForm.year),
+        submissionDeadline: newYearForm.submissionDeadline,
+        cloneFromYear: Number(newYearForm.cloneFromYear),
+        isActive: true
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const createdYear = Number(data.data.year);
+          setSelectedJudgeYear(createdYear);
+          fetchConfigForYear(createdYear);
+          fetchJudgingWorkspace(createdYear, authToken);
+          setJudgingNotice(`เปิดปีการแข่งขัน พ.ศ. ${createdYear} สำเร็จ (คัดลอกกลุ่มนวัตกรรมและเกณฑ์คะแนนจากปี ${newYearForm.cloneFromYear} เรียบร้อย)`);
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถสร้างปีการแข่งขันใหม่ได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+  };
 
   const fetchMySubmissions = (tokenOverride = authToken) => {
     const activeToken = tokenOverride || authToken;
@@ -675,14 +1083,7 @@ export default function App() {
     };
     window.addEventListener('hashchange', handleHashChange);
 
-    fetch(`${API_BASE}/config`)
-      .then(res => res.json())
-      .then(data => {
-        if (data?.event?.submissionDeadline) {
-          setSubmissionDeadlineIso(data.event.submissionDeadline);
-        }
-      })
-      .catch(() => {});
+    fetchConfigForYear();
 
     fetch(`${API_BASE}/winners`)
       .then(res => res.json())
@@ -723,7 +1124,7 @@ export default function App() {
   }, [submissionDeadlineIso]);
 
   useEffect(() => {
-    const hasOpenModal = showPortalModal || showStatusModal || selectedWinnerModal || detailDomainModal;
+    const hasOpenModal = showPortalModal || showStatusModal || selectedWinnerModal || detailDomainModal || showJudgingModal;
     if (!hasOpenModal) return undefined;
 
     const modal = document.querySelector('[role="dialog"]');
@@ -738,6 +1139,7 @@ export default function App() {
         setShowStatusModal(false);
         setSelectedWinnerModal(null);
         setDetailDomainModal(null);
+        setShowJudgingModal(false);
         return;
       }
 
@@ -755,7 +1157,7 @@ export default function App() {
 
     document.addEventListener('keydown', handleModalKeyDown);
     return () => document.removeEventListener('keydown', handleModalKeyDown);
-  }, [showPortalModal, portalTab, subSuccess, showStatusModal, selectedWinnerModal, detailDomainModal]);
+  }, [showPortalModal, portalTab, subSuccess, showStatusModal, selectedWinnerModal, detailDomainModal, showJudgingModal]);
 
   useEffect(() => {
     if (currentView !== 'guidelines') return undefined;
@@ -863,8 +1265,16 @@ export default function App() {
             localStorage.setItem('innoaward_token', data.token);
             localStorage.setItem('innoaward_user', JSON.stringify(data.user));
             fetchMySubmissions(data.token);
+            if (data.user?.role === 'ADMIN' || data.user?.role === 'JUDGE') {
+              fetchJudgingWorkspace(selectedJudgeYear, data.token);
+            }
           }
-          setPortalTab('submission');
+          if (data.user?.role === 'ADMIN' || data.user?.role === 'JUDGE') {
+            setShowPortalModal(false);
+            setShowJudgingModal(true);
+          } else {
+            setPortalTab('submission');
+          }
           confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
         } else {
           setAuthError(data.message || 'ไม่สามารถลงทะเบียนได้ กรุณาตรวจสอบข้อมูลอีกครั้ง');
@@ -899,8 +1309,16 @@ export default function App() {
             localStorage.setItem('innoaward_token', data.token);
             localStorage.setItem('innoaward_user', JSON.stringify(data.user));
             fetchMySubmissions(data.token);
+            if (data.user?.role === 'ADMIN' || data.user?.role === 'JUDGE') {
+              fetchJudgingWorkspace(selectedJudgeYear, data.token);
+            }
           }
-          setPortalTab('submission');
+          if (data.user?.role === 'ADMIN' || data.user?.role === 'JUDGE') {
+            setShowPortalModal(false);
+            setShowJudgingModal(true);
+          } else {
+            setPortalTab('submission');
+          }
         } else {
           setAuthError(data.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง โปรดลองใหม่อีกครั้ง');
         }
@@ -1767,6 +2185,21 @@ export default function App() {
                 <span>ตรวจสถานะ</span>
               </button>
 
+              {(user?.role === 'ADMIN' || user?.role === 'JUDGE') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowJudgingModal(true);
+                    fetchJudgingWorkspace(selectedJudgeYear, authToken);
+                  }}
+                  className="btn-outline-cyan"
+                  style={{ padding: '7px 13px', fontSize: '0.8rem', borderColor: 'rgba(251, 191, 36, 0.55)', color: 'var(--gold-300)' }}
+                >
+                  <ShieldCheck className="w-4 h-4 text-amber-300" />
+                  <span>{user?.role === 'ADMIN' ? 'ระบบกรรมการ & แอดมิน' : 'ประเมินผลงาน (Judge)'}</span>
+                </button>
+              )}
+
               {user ? (
                 /* Logged In: User Profile Capsule */
                 <div className="user-profile-pill">
@@ -1775,10 +2208,7 @@ export default function App() {
                   </div>
                   <span className="user-name-label">{user.fullName || 'ผู้เข้าแข่งขัน'}</span>
                   <button 
-                    onClick={() => {
-                      setUser(null);
-                      setPortalTab('register');
-                    }}
+                    onClick={handleLogout}
                     title="ออกจากระบบ"
                     aria-label="ออกจากระบบ"
                     className="user-logout-btn"
@@ -3830,12 +4260,11 @@ export default function App() {
                               value={subForm.category}
                               onChange={e => setSubForm({...subForm, category: e.target.value})}
                             >
-                              <option value="energy_environment">Energy & Environment (พลังงานและสิ่งแวดล้อม)</option>
-                              <option value="food_agriculture">Food & Agriculture (เกษตรและอาหารแปรรูป)</option>
-                              <option value="social_economy">Social & Economy (เศรษฐกิจและสังคมดิจิทัล)</option>
-                              <option value="medical_device">Medical Device (เครื่องมือแพทย์และสาธารณสุข)</option>
-                              <option value="material">Material (วัสดุศาสตร์และเทคโนโลยีก้าวหน้า)</option>
-                              <option value="others">อื่นๆ (Others) — สิ่งประดิษฐ์และนวัตกรรมทั่วไป</option>
+                              {dynamicCategories.map(cat => (
+                                <option key={cat.code} value={cat.code}>
+                                  {cat.nameEn ? `${cat.nameEn} (${cat.nameTh})` : cat.nameTh}
+                                </option>
+                              ))}
                             </select>
                           </div>
                           <div className="form-group">
@@ -4988,6 +5417,656 @@ export default function App() {
           </div>
         );
       })()}
+
+      {/* --- MODAL 5: MULTI-YEAR JUDGE & ADMIN EVALUATION WORKSPACE --- */}
+      {showJudgingModal && (
+        <div className="modal-overlay" onClick={() => setShowJudgingModal(false)}>
+          <div
+            className="modal-box"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="judging-modal-title"
+            style={{ maxWidth: '1080px', width: '95vw', maxHeight: '90vh', overflowY: 'auto' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              aria-label="ปิดหน้าต่างระบบประเมินและจัดการการแข่งขัน"
+              className="modal-close-btn"
+              onClick={() => setShowJudgingModal(false)}
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap', marginBottom: '18px' }}>
+              <div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 10px', borderRadius: '999px', background: 'rgba(245, 158, 11, 0.14)', border: '1px solid rgba(251, 191, 36, 0.4)', color: 'var(--gold-300)', fontSize: '0.76rem', fontWeight: 700, marginBottom: '8px' }}>
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>{user?.role === 'ADMIN' ? 'ADMIN & JUDGE COMMAND CENTER' : 'CATEGORY JUDGE EVALUATION PORTAL'}</span>
+                </div>
+                <h2 id="judging-modal-title" style={{ fontSize: '1.35rem', color: 'var(--text-primary)', margin: 0 }}>
+                  ระบบประเมินคะแนนแบบรูบริกถ่วงน้ำหนัก และบริหารจัดการการประกวดรายปี
+                </h2>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <label htmlFor="judge-year-select" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                  ปีการแข่งขัน (พ.ศ.):
+                </label>
+                <select
+                  id="judge-year-select"
+                  className="form-input"
+                  style={{ width: 'auto', minWidth: '140px', padding: '7px 12px' }}
+                  value={selectedJudgeYear}
+                  onChange={e => {
+                    const nextYear = Number(e.target.value);
+                    setSelectedJudgeYear(nextYear);
+                    fetchConfigForYear(nextYear);
+                    fetchJudgingWorkspace(nextYear, authToken);
+                  }}
+                >
+                  {availableYears.map(y => (
+                    <option key={y.year} value={y.year}>
+                      พ.ศ. {y.year} {y.isActive ? '(ปีปัจจุบัน)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {judgingNotice && (
+              <div style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.14)', border: '1px solid rgba(52, 211, 153, 0.45)', color: 'var(--emerald-300)', fontSize: '0.86rem', marginBottom: '14px' }}>
+                {judgingNotice}
+              </div>
+            )}
+            {judgingError && (
+              <div style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.14)', border: '1px solid rgba(248, 113, 113, 0.45)', color: '#fca5a5', fontSize: '0.86rem', marginBottom: '14px' }}>
+                {judgingError}
+              </div>
+            )}
+
+            {/* Top Navigation Tabs */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '18px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px' }}>
+              <button
+                type="button"
+                className={judgingTab === 'queue' ? 'btn-solid-primary' : 'btn-outline-cyan'}
+                style={{ padding: '8px 14px', fontSize: '0.84rem' }}
+                onClick={() => setJudgingTab('queue')}
+              >
+                <ClipboardList className="w-4 h-4" />
+                <span>ประเมินและคัดกรองผลงาน ({judgingSubmissions.length})</span>
+              </button>
+              {user?.role === 'ADMIN' && (
+                <>
+                  <button
+                    type="button"
+                    className={judgingTab === 'judges' ? 'btn-solid-primary' : 'btn-outline-cyan'}
+                    style={{ padding: '8px 14px', fontSize: '0.84rem' }}
+                    onClick={() => setJudgingTab('judges')}
+                  >
+                    <UserCheck className="w-4 h-4" />
+                    <span>จัดการกรรมการประจำกลุ่มนวัตกรรม ({judgesList.length})</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={judgingTab === 'setup' ? 'btn-solid-primary' : 'btn-outline-cyan'}
+                    style={{ padding: '8px 14px', fontSize: '0.84rem' }}
+                    onClick={() => setJudgingTab('setup')}
+                  >
+                    <Layers className="w-4 h-4" />
+                    <span>ตั้งค่ากลุ่มนวัตกรรม, รูบริก, ประกาศผล & ปีถัดไป</span>
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* TAB 1: EVALUATION & SCREENING QUEUE */}
+            {judgingTab === 'queue' && (
+              <div>
+                {/* 4-Stage Filter Bar */}
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                  {[
+                    { id: 'all', label: 'ทั้งหมด (All Stages)' },
+                    { id: 'SCREENING', label: '0. ตรวจคัดกรอง (Screening)' },
+                    { id: 'ROUND_1', label: '1. ตัดสินรอบที่ 1 (คัดเลือกเอกสาร)' },
+                    { id: 'ROUND_2', label: '2. ตัดสินรอบที่ 2 (ต้องส่ง POSTER)' },
+                    { id: 'ROUND_3', label: '3. ตัดสินรอบชิงชนะเลิศ (Final)' }
+                  ].map(stage => (
+                    <button
+                      key={stage.id}
+                      type="button"
+                      onClick={() => setJudgeRoundFilter(stage.id)}
+                      className={judgeRoundFilter === stage.id ? 'btn-solid-primary' : 'btn-outline-cyan'}
+                      style={{ padding: '6px 12px', fontSize: '0.79rem' }}
+                    >
+                      <span>{stage.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Category & Education Level Filters */}
+                <div className="responsive-two-col-grid" style={{ gap: '12px', marginBottom: '16px' }}>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.78rem' }}>กรองตามกลุ่มนวัตกรรม</label>
+                    <select
+                      className="form-input"
+                      value={judgeCategoryFilter}
+                      onChange={e => setJudgeCategoryFilter(e.target.value)}
+                    >
+                      <option value="all">ทุกกลุ่มนวัตกรรมที่รับผิดชอบ</option>
+                      {dynamicCategories.map(cat => (
+                        <option key={cat.code} value={cat.code}>
+                          {cat.nameTh} ({cat.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.78rem' }}>กรองตามระดับการศึกษา</label>
+                    <select
+                      className="form-input"
+                      value={judgeLevelFilter}
+                      onChange={e => setJudgeLevelFilter(e.target.value)}
+                    >
+                      <option value="all">ทุกระดับการแข่งขัน</option>
+                      <option value="below_higher">ต่ำกว่าอุดมศึกษา</option>
+                      <option value="higher_and_above">อุดมศึกษาและบุคคลทั่วไป</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Active Weighted Rubric Evaluative Drawer */}
+                {activeEvalSubmission && (
+                  <form
+                    onSubmit={handleSaveEvaluation}
+                    style={{ background: 'rgba(15, 32, 56, 0.95)', border: '1px solid var(--border-cyan)', borderRadius: '14px', padding: '18px', marginBottom: '18px' }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                      <div>
+                        <span className="badge-category" style={{ marginRight: '8px' }}>{activeEvalSubmission.trackingCode}</span>
+                        <strong style={{ color: 'var(--text-primary)', fontSize: '1rem' }}>{activeEvalSubmission.titleTh}</strong>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <select
+                          className="form-input"
+                          style={{ width: 'auto', padding: '6px 10px', fontSize: '0.82rem' }}
+                          value={evalRound}
+                          onChange={e => openEvaluationDrawer(activeEvalSubmission, e.target.value)}
+                        >
+                          <option value="ROUND_1">รอบที่ 1 (คัดเลือกเอกสาร)</option>
+                          <option value="ROUND_2">รอบที่ 2 (ออนไลน์ + POSTER)</option>
+                          <option value="ROUND_3">รอบที่ 3 (รอบชิงชนะเลิศ)</option>
+                        </select>
+                        <span style={{ padding: '6px 12px', borderRadius: '999px', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(52, 211, 153, 0.5)', color: 'var(--emerald-300)', fontWeight: 700, fontSize: '0.88rem' }}>
+                          คะแนนรวมถ่วงน้ำหนัก: {calculateWeightedRubricScore(evalScores, rubricCriteria)} / 100
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '14px' }}>
+                      {rubricCriteria.map(crit => (
+                        <div
+                          key={crit.id}
+                          style={{ background: 'rgba(24, 52, 88, 0.55)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}
+                        >
+                          <div style={{ flex: 1, minWidth: '240px' }}>
+                            <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.88rem' }}>
+                              {crit.titleTh} <span style={{ color: 'var(--gold-300)', fontFamily: 'var(--font-mono)' }}>(น้ำหนัก {crit.weight}%)</span>
+                            </div>
+                            {crit.description && (
+                              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{crit.description}</div>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                            {RUBRIC_SCORE_LEVELS.map(lvl => {
+                              const selected = Number(evalScores[crit.id]) === lvl.score;
+                              return (
+                                <button
+                                  key={lvl.score}
+                                  type="button"
+                                  onClick={() => setEvalScores(prev => ({ ...prev, [crit.id]: lvl.score }))}
+                                  style={{
+                                    padding: '6px 10px',
+                                    borderRadius: '8px',
+                                    border: selected ? '1px solid var(--emerald-400)' : '1px solid var(--border-subtle)',
+                                    background: selected ? 'rgba(16, 185, 129, 0.24)' : 'rgba(15, 23, 42, 0.65)',
+                                    color: selected ? 'var(--emerald-300)' : 'var(--text-secondary)',
+                                    fontWeight: selected ? 700 : 500,
+                                    fontSize: '0.78rem',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {lvl.score} ({lvl.labelTh})
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '12px' }}>
+                      <label className="form-label" style={{ fontSize: '0.8rem' }}>ข้อเสนอแนะจากกรรมการ (Feedback / Comment)</label>
+                      <textarea
+                        className="form-input"
+                        rows={2}
+                        placeholder="ระบุจุดเด่นหรือข้อเสนอแนะเพื่อพัฒนาผลงาน..."
+                        value={evalComment}
+                        onChange={e => setEvalComment(e.target.value)}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                      <button
+                        type="button"
+                        className="btn-outline-cyan"
+                        onClick={() => setActiveEvalSubmission(null)}
+                      >
+                        ยกเลิก
+                      </button>
+                      <button type="submit" className="btn-solid-primary" disabled={evalSaving}>
+                        <Save className="w-4 h-4" />
+                        <span>{evalSaving ? 'กำลังบันทึกคะแนน...' : 'ยืนยันการบันทึกคะแนนรูบริก'}</span>
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* Submission Cards List */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {judgingSubmissions
+                    .filter(sub => {
+                      if (judgeCategoryFilter !== 'all' && sub.category !== judgeCategoryFilter) return false;
+                      if (judgeLevelFilter !== 'all' && sub.educationLevel !== judgeLevelFilter) return false;
+                      if (judgeRoundFilter === 'SCREENING') return sub.status === 'SUBMITTED' || sub.status === 'UNDER_REVIEW' || sub.status === 'REJECTED';
+                      if (judgeRoundFilter === 'ROUND_2') return sub.round1Status === 'PASSED' || sub.status === 'PASSED_FIRST_ROUND' || sub.status === 'FINALIST' || sub.status === 'AWARDED';
+                      if (judgeRoundFilter === 'ROUND_3') return sub.round2Status === 'PASSED' || sub.status === 'FINALIST' || sub.status === 'AWARDED';
+                      return true;
+                    })
+                    .map(sub => {
+                      const activeSummaryRound = ['ROUND_1', 'ROUND_2', 'ROUND_3'].includes(judgeRoundFilter) ? judgeRoundFilter : 'ROUND_1';
+                      const roundStats = sub.evaluationSummary?.[activeSummaryRound] || { count: 0, averageWeightedTotal: null };
+                      return (
+                        <div
+                          key={sub.id}
+                          style={{ background: 'rgba(24, 52, 88, 0.5)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '14px 16px' }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
+                            <div style={{ flex: 1, minWidth: '260px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                                <span className="badge-category">{sub.trackingCode}</span>
+                                <span className="badge-category" style={{ background: 'rgba(16, 185, 129, 0.16)', color: 'var(--emerald-300)' }}>
+                                  {sub.categoryNameTh || sub.category}
+                                </span>
+                                <span style={{ fontSize: '0.76rem', padding: '2px 8px', borderRadius: '999px', background: sub.hasPoster ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.16)', color: sub.hasPoster ? 'var(--emerald-300)' : 'var(--gold-300)', fontWeight: 700 }}>
+                                  {sub.hasPoster ? 'ส่ง POSTER แล้ว' : 'ยังไม่ส่ง POSTER'}
+                                </span>
+                                <span style={{ fontSize: '0.76rem', color: 'var(--cyan-300)', fontFamily: 'var(--font-mono)' }}>
+                                  สถานะ: {sub.status}
+                                </span>
+                              </div>
+                              <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.96rem' }}>{sub.titleTh}</div>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '3px' }}>
+                                ทีม {sub.teamName} • {sub.affiliation}
+                              </div>
+                              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '8px', fontSize: '0.78rem' }}>
+                                {sub.artifacts?.proposalPdfUrl && (
+                                  <a href={sub.artifacts.proposalPdfUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--cyan-300)' }}>
+                                    เปิด Proposal PDF
+                                  </a>
+                                )}
+                                {sub.artifacts?.videoUrl && (
+                                  <a href={sub.artifacts.videoUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--emerald-300)' }}>
+                                    เปิด Video Pitch
+                                  </a>
+                                )}
+                                {sub.artifacts?.posterUrl && (
+                                  <a href={sub.artifacts.posterUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--gold-300)' }}>
+                                    เปิดไฟล์ POSTER (รอบที่ 2)
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                              <div style={{ textAlign: 'right', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                <div>
+                                  ค่าเฉลี่ย {activeSummaryRound}:{' '}
+                                  <strong style={{ color: 'var(--gold-300)', fontSize: '0.96rem' }}>
+                                    {roundStats.averageWeightedTotal !== null ? `${roundStats.averageWeightedTotal} / 100` : 'ยังไม่มีผลประเมิน'}
+                                  </strong>{' '}
+                                  ({roundStats.count} กรรมการ)
+                                </div>
+                              </div>
+
+                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                                <button
+                                  type="button"
+                                  className="btn-solid-primary"
+                                  style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                                  onClick={() => openEvaluationDrawer(sub, activeSummaryRound)}
+                                >
+                                  <CheckSquare className="w-3.5 h-3.5" />
+                                  <span>ให้คะแนนรูบริก (1-5)</span>
+                                </button>
+
+                                {user?.role === 'ADMIN' && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      className="btn-outline-cyan"
+                                      style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+                                      onClick={() => handleAdminStatusAdvance(sub.id, { status: 'UNDER_REVIEW' }, `ผ่านตรวจคัดกรอง: ${sub.trackingCode}`)}
+                                    >
+                                      ผ่านคัดกรอง
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="btn-outline-cyan"
+                                      style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+                                      onClick={() => handleAdminStatusAdvance(sub.id, { status: 'PASSED_FIRST_ROUND', round1Status: 'PASSED' }, `ผ่านรอบที่ 1: ${sub.trackingCode}`)}
+                                    >
+                                      ผ่านรอบ 1
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="btn-outline-cyan"
+                                      style={{ padding: '6px 10px', fontSize: '0.75rem' }}
+                                      onClick={() => handleAdminStatusAdvance(sub.id, { status: 'FINALIST', round1Status: 'PASSED', round2Status: 'PASSED' }, `ผ่านรอบที่ 2 (Finalist): ${sub.trackingCode}`)}
+                                    >
+                                      ผ่านรอบ 2 (ชิงชนะเลิศ)
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="btn-outline-cyan"
+                                      style={{ padding: '6px 10px', fontSize: '0.75rem', borderColor: 'rgba(251, 191, 36, 0.5)', color: 'var(--gold-300)' }}
+                                      onClick={() => handleAdminStatusAdvance(sub.id, { status: 'AWARDED', round1Status: 'PASSED', round2Status: 'PASSED', round3Status: 'PASSED', awardTier: 'GRAND_WINNER', round3Result: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)' }, `มอบรางวัลชนะเลิศ: ${sub.trackingCode}`)}
+                                    >
+                                      มอบรางวัลชนะเลิศ
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: ADMIN JUDGE MANAGEMENT & CATEGORY ASSIGNMENT */}
+            {judgingTab === 'judges' && user?.role === 'ADMIN' && (
+              <div>
+                <form
+                  onSubmit={handleCreateOrUpdateJudge}
+                  style={{ background: 'rgba(24, 52, 88, 0.45)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}
+                >
+                  <h4 style={{ margin: '0 0 12px 0', color: 'var(--emerald-300)', fontSize: '0.96rem' }}>
+                    เพิ่มกรรมการและผูกเข้ากับกลุ่มนวัตกรรม (ไม่ต้องจัดการเป็นรายชิ้นงาน)
+                  </h4>
+                  <div className="responsive-two-col-grid" style={{ gap: '10px', marginBottom: '10px' }}>
+                    <input
+                      type="text"
+                      required
+                      className="form-input"
+                      placeholder="ชื่อ-นามสกุลกรรมการ *"
+                      value={newJudgeForm.fullName}
+                      onChange={e => setNewJudgeForm(prev => ({ ...prev, fullName: e.target.value }))}
+                    />
+                    <input
+                      type="email"
+                      required
+                      className="form-input"
+                      placeholder="อีเมลสำหรับเข้าสู่ระบบกรรมการ *"
+                      value={newJudgeForm.email}
+                      onChange={e => setNewJudgeForm(prev => ({ ...prev, email: e.target.value }))}
+                    />
+                    <input
+                      type="password"
+                      className="form-input"
+                      placeholder="รหัสผ่านเริ่มต้น (อย่างน้อย 8 ตัวอักษร)"
+                      value={newJudgeForm.password}
+                      onChange={e => setNewJudgeForm(prev => ({ ...prev, password: e.target.value }))}
+                    />
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="สังกัด / คณะ / หน่วยงาน"
+                      value={newJudgeForm.institution}
+                      onChange={e => setNewJudgeForm(prev => ({ ...prev, institution: e.target.value }))}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                      เลือกกลุ่มนวัตกรรมที่กรรมการท่านนี้รับผิดชอบในปี พ.ศ. {selectedJudgeYear}:
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {dynamicCategories.map(cat => {
+                        const checked = newJudgeForm.categoryCodes.includes(cat.code);
+                        return (
+                          <label
+                            key={cat.code}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 10px', borderRadius: '8px', background: checked ? 'rgba(16, 185, 129, 0.22)' : 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-subtle)', fontSize: '0.78rem', cursor: 'pointer' }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                setNewJudgeForm(prev => ({
+                                  ...prev,
+                                  categoryCodes: checked
+                                    ? prev.categoryCodes.filter(c => c !== cat.code)
+                                    : [...prev.categoryCodes, cat.code]
+                                }));
+                              }}
+                            />
+                            <span>{cat.nameTh}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <button type="submit" className="btn-solid-primary" style={{ padding: '8px 16px', fontSize: '0.84rem' }}>
+                    <UserPlus className="w-4 h-4" />
+                    <span>บันทึกกรรมการและผูกกลุ่มนวัตกรรม</span>
+                  </button>
+                </form>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {judgesList.map(judge => (
+                    <div
+                      key={judge.id}
+                      style={{ background: 'rgba(24, 52, 88, 0.45)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '12px 14px' }}
+                    >
+                      <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.92rem' }}>
+                        {judge.fullName} <span style={{ color: 'var(--cyan-300)', fontWeight: 400, fontSize: '0.8rem' }}>({judge.email})</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                        {dynamicCategories.map(cat => {
+                          const assigned = (judge.assignedCategories || []).some(c => c.code === cat.code);
+                          return (
+                            <button
+                              key={cat.code}
+                              type="button"
+                              onClick={() => handleToggleJudgeCategory(judge, cat.code)}
+                              className={assigned ? 'btn-solid-primary' : 'btn-outline-cyan'}
+                              style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                            >
+                              {assigned ? '✓ ' : '+ '}
+                              {cat.nameTh}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: ADMIN RUBRIC WEIGHTS, DYNAMIC CATEGORIES, RESULT PUBLISHING & MULTI-YEAR SETUP */}
+            {judgingTab === 'setup' && user?.role === 'ADMIN' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                {/* 1. Rubric Weights Editor */}
+                <form
+                  onSubmit={handleSaveRubricWeights}
+                  style={{ background: 'rgba(24, 52, 88, 0.45)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px' }}
+                >
+                  <h4 style={{ margin: '0 0 10px 0', color: 'var(--gold-300)', fontSize: '0.96rem' }}>
+                    1. ตั้งค่าเกณฑ์คะแนนรูบริก (ระดับ 5-4-3-2-1) และค่าน้ำหนักแต่ละข้อ (รวม 100%) ประจำปี {selectedJudgeYear}
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                    {rubricCriteria.map((crit, idx) => (
+                      <div key={crit.id || idx} style={{ display: 'grid', gridTemplateColumns: '2fr 90px', gap: '10px', alignItems: 'center' }}>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={crit.titleTh}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setRubricCriteria(prev => prev.map((c, i) => (i === idx ? { ...c, titleTh: val } : c)));
+                          }}
+                        />
+                        <input
+                          type="number"
+                          min="1"
+                          max="100"
+                          className="form-input"
+                          value={crit.weight}
+                          onChange={e => {
+                            const val = Number(e.target.value);
+                            setRubricCriteria(prev => prev.map((c, i) => (i === idx ? { ...c, weight: val } : c)));
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <button type="submit" className="btn-solid-primary" style={{ padding: '8px 14px', fontSize: '0.82rem' }}>
+                    <Save className="w-4 h-4" />
+                    <span>บันทึกเกณฑ์รูบริกและค่าน้ำหนักประจำปี {selectedJudgeYear}</span>
+                  </button>
+                </form>
+
+                {/* 2. Dynamic Innovation Categories Manager */}
+                <form
+                  onSubmit={handleSaveDynamicCategory}
+                  style={{ background: 'rgba(24, 52, 88, 0.45)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px' }}
+                >
+                  <h4 style={{ margin: '0 0 10px 0', color: 'var(--emerald-300)', fontSize: '0.96rem' }}>
+                    2. จัดการกลุ่มนวัตกรรมแบบยืดหยุ่น (รองรับ 3, 5, 6, 7+ กลุ่มต่อปี) ประจำปี {selectedJudgeYear}
+                  </h4>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                    {dynamicCategories.map(cat => (
+                      <span key={cat.code} className="badge-category">
+                        {cat.nameTh} ({cat.code})
+                      </span>
+                    ))}
+                  </div>
+                  <div className="responsive-two-col-grid" style={{ gap: '10px', marginBottom: '10px' }}>
+                    <input
+                      type="text"
+                      required
+                      className="form-input"
+                      placeholder="รหัสกลุ่มนวัตกรรม เช่น ai_robotics *"
+                      value={newCategoryForm.code}
+                      onChange={e => setNewCategoryForm(prev => ({ ...prev, code: e.target.value }))}
+                    />
+                    <input
+                      type="text"
+                      required
+                      className="form-input"
+                      placeholder="ชื่อกลุ่มนวัตกรรม (ภาษาไทย) *"
+                      value={newCategoryForm.nameTh}
+                      onChange={e => setNewCategoryForm(prev => ({ ...prev, nameTh: e.target.value }))}
+                    />
+                  </div>
+                  <button type="submit" className="btn-solid-primary" style={{ padding: '8px 14px', fontSize: '0.82rem' }}>
+                    <Plus className="w-4 h-4" />
+                    <span>เพิ่ม/อัปเดตกลุ่มนวัตกรรมในปี {selectedJudgeYear}</span>
+                  </button>
+                </form>
+
+                {/* 3. Publish Official Round Announcements & Deadline */}
+                <div className="responsive-two-col-grid" style={{ gap: '14px' }}>
+                  <form
+                    onSubmit={handlePublishRoundResults}
+                    style={{ background: 'rgba(24, 52, 88, 0.45)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px' }}
+                  >
+                    <h4 style={{ margin: '0 0 10px 0', color: 'var(--cyan-300)', fontSize: '0.94rem' }}>
+                      3. ประกาศผลการตัดสินขึ้นหน้าเว็บไซต์ (One-Click Publish)
+                    </h4>
+                    <select
+                      className="form-input"
+                      style={{ marginBottom: '10px' }}
+                      value={publishRoundForm.round}
+                      onChange={e => setPublishRoundForm(prev => ({ ...prev, round: e.target.value }))}
+                    >
+                      <option value="ROUND_1">ประกาศผลรอบที่ 1 (ผู้ผ่านคัดเลือกเอกสาร)</option>
+                      <option value="ROUND_2">ประกาศผลรอบที่ 2 (ผู้ผ่านเข้าสู่รอบชิงชนะเลิศ)</option>
+                      <option value="ROUND_3">ประกาศผลรางวัลชนะเลิศรอบชิงชนะเลิศ</option>
+                    </select>
+                    <button type="submit" className="btn-solid-primary" style={{ padding: '8px 14px', fontSize: '0.82rem' }}>
+                      <Megaphone className="w-4 h-4" />
+                      <span>เผยแพร่ประกาศผลประจำปี {selectedJudgeYear}</span>
+                    </button>
+                  </form>
+
+                  <form
+                    onSubmit={handleUpdateDeadline}
+                    style={{ background: 'rgba(24, 52, 88, 0.45)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px' }}
+                  >
+                    <h4 style={{ margin: '0 0 10px 0', color: 'var(--cyan-300)', fontSize: '0.94rem' }}>
+                      4. กำหนดเวลาปิดรับสมัครและแก้ไขใบสมัคร (ISO-8601)
+                    </h4>
+                    <input
+                      type="text"
+                      className="form-input"
+                      style={{ marginBottom: '10px' }}
+                      value={deadlineEditValue}
+                      onChange={e => setDeadlineEditValue(e.target.value)}
+                    />
+                    <button type="submit" className="btn-outline-cyan" style={{ padding: '8px 14px', fontSize: '0.82rem' }}>
+                      <Calendar className="w-4 h-4" />
+                      <span>อัปเดตวันปิดรับสมัครปี {selectedJudgeYear}</span>
+                    </button>
+                  </form>
+                </div>
+
+                {/* 5. Multi-Year Competition Rollover */}
+                <form
+                  onSubmit={handleCreateNextYear}
+                  style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px dashed rgba(52, 211, 153, 0.45)', borderRadius: '12px', padding: '16px' }}
+                >
+                  <h4 style={{ margin: '0 0 10px 0', color: 'var(--emerald-300)', fontSize: '0.96rem' }}>
+                    5. เปิดปีการแข่งขันถัดไปอัตโนมัติ (คัดลอกกลุ่มนวัตกรรมและเกณฑ์รูบริกโดยไม่ต้องพัฒนาระบบใหม่)
+                  </h4>
+                  <div className="responsive-two-col-grid" style={{ gap: '10px', marginBottom: '10px' }}>
+                    <input
+                      type="number"
+                      className="form-input"
+                      placeholder="ปี พ.ศ. ใหม่ เช่น 2571"
+                      value={newYearForm.year}
+                      onChange={e => setNewYearForm(prev => ({ ...prev, year: e.target.value }))}
+                    />
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="วันปิดรับสมัครปีใหม่ (ISO-8601)"
+                      value={newYearForm.submissionDeadline}
+                      onChange={e => setNewYearForm(prev => ({ ...prev, submissionDeadline: e.target.value }))}
+                    />
+                  </div>
+                  <button type="submit" className="btn-solid-primary" style={{ padding: '8px 14px', fontSize: '0.82rem' }}>
+                    <Rocket className="w-4 h-4" />
+                    <span>สร้างและเปิดใช้งานปีการแข่งขัน พ.ศ. {newYearForm.year}</span>
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

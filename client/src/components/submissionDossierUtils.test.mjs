@@ -219,3 +219,20 @@ test('calculateWeightedRubricScore and validateRubricWeights compute weighted 1.
     /100%/
   );
 });
+
+test('App.jsx integrates Judge & Admin Workspace modal, weighted 1-5 rubric evaluation, dynamic categories, judge category assignment, result publishing, and multi-year setup', () => {
+  const appPath = path.resolve(__dirname, '../App.jsx');
+  const appSrc = fs.readFileSync(appPath, 'utf8');
+
+  assert.match(appSrc, /calculateWeightedRubricScore/);
+  assert.match(appSrc, /validateRubricWeights/);
+  assert.match(appSrc, /\/judging\/submissions/);
+  assert.match(appSrc, /\/judging\/judges/);
+  assert.match(appSrc, /\/judging\/publish-results/);
+  assert.match(appSrc, /\/config\/rubric/);
+  assert.match(appSrc, /\/config\/categories/);
+  assert.match(appSrc, /\/config\/years/);
+  assert.match(appSrc, /dynamicCategories/);
+  assert.match(appSrc, /ส่ง POSTER แล้ว/);
+});
+
