@@ -1,4 +1,4 @@
-import { PrismaClient, Role, SubmissionStatus, AwardTier, CompetitionStatus, AnnouncementType } from '@prisma/client';
+import { PrismaClient, Role, SubmissionStatus, RoundStatus, AwardTier, CompetitionStatus, AnnouncementType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -290,13 +290,21 @@ async function main() {
       titleEn: 'Automatic HDPE Pipe Butt Fusion Welding Controller and Data Logger',
       teamName: 'เขาชื่ออะไร',
       institution: 'คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
-      advisorName: 'คณะครุศาสตร์อุตสาหกรรม มจพ.',
-      members: ['ทีม เขาชื่ออะไร'],
+      advisorName: 'ผศ.ดร.วัฒนา แก้วมณี',
+      members: [{ fullName: 'ผศ.ดร.วัฒนา แก้วมณี', role: 'หัวหน้าทีม', idCard: '5-1601-00029-58-2' }],
+      primaryCoordName: 'ผศ.ดร.วัฒนา แก้วมณี',
+      primaryCoordIdCard: '5-1601-00029-58-2',
+      primaryCoordPhone: '064-274-9888',
+      primaryCoordEmail: 'wattana.k@fte.kmutnb.ac.th',
+      secondaryCoordName: 'ผศ.ดร.วัฒนา แก้วมณี',
+      secondaryCoordIdCard: '5-1601-00029-58-2',
+      secondaryCoordPhone: '064-274-9888',
+      secondaryCoordEmail: 'wattana.kaewmanee@gmail.com',
       abstractTh: 'อุปกรณ์ควบคุมและบันทึกข้อมูลการเชื่อมท่อพอลิเอทิลีนความหนาแน่นสูง (HDPE) แบบหลอมชนอัตโนมัติ เพื่อเพิ่มความแม่นยำ มาตรฐานความปลอดภัย และตรวจสอบย้อนกลับของคุณภาพแนวเชื่อมในงานวิศวกรรมระบบท่อ',
       abstractEn: 'An automated control and logging system for HDPE butt fusion pipe welding to enhance engineering accuracy, safety, and traceability.',
-      coverImage: '/photo_candidates/robotics_engineer.jpg',
-      image: '/photo_candidates/robotics_engineer.jpg',
-      videoUrl: 'https://youtube.com',
+      coverImage: '/hdpe-poster.jpg',
+      image: '/hdpe-poster.jpg',
+      videoUrl: '/hdpe-welding.mp4',
       submittedAt: new Date('2026-04-12T09:15:00Z'),
     },
     {
@@ -317,9 +325,9 @@ async function main() {
       members: ['ทีม Lucyne Innovia Lab'],
       abstractTh: 'นวัตกรรมสารเสริมประสิทธิภาพการฉีดพ่นทางการเกษตร (Bio-adjuvant) จากสารสกัดชีวภาพ ช่วยเพิ่มการกระจายตัว ยึดเกาะ และการดูดซึมสารอาหารบนใบพืช ลดการชะล้างและเป็นมิตรต่อสิ่งแวดล้อม',
       abstractEn: 'Bio-based agricultural spraying adjuvant formulated to enhance droplet spreading, retention, and nutrient absorption on plant foliage while reducing chemical runoff.',
-      coverImage: '/domain-food.jpg',
-      image: '/domain-food.jpg',
-      videoUrl: 'https://youtube.com',
+      coverImage: '/growell-poster.jpg',
+      image: '/growell-poster.jpg',
+      videoUrl: '/Growell.mp4',
       submittedAt: new Date('2026-04-14T11:00:00Z'),
     },
     {
@@ -340,9 +348,9 @@ async function main() {
       members: ['ทีม ROAD AI'],
       abstractTh: 'ระบบตรวจจับและประเมินสภาพความเสียหายของพื้นผิวถนนคอนกรีตแบบอัตโนมัติด้วยกล้องติดยานพาหนะร่วมกับโมเดล Deep Learning พร้อมเว็บแอปพลิเคชันประมาณการงบประมาณค่าซ่อมบำรุงแบบเรียลไทม์',
       abstractEn: 'Vehicle-mounted computer vision system integrated with deep learning models and a web platform for automated road crack detection and real-time maintenance cost budgeting.',
-      coverImage: '/photo_candidates/young_team_workshop.jpg',
-      image: '/photo_candidates/young_team_workshop.jpg',
-      videoUrl: 'https://youtube.com',
+      coverImage: '/road-ai-poster.jpg',
+      image: '/road-ai-poster.jpg',
+      videoUrl: '/road-ai.mp4',
       submittedAt: new Date('2026-04-15T08:30:00Z'),
     },
     {
@@ -363,9 +371,9 @@ async function main() {
       members: ['ทีม GeoWeld'],
       abstractTh: 'นวัตกรรมแผ่นรองหลังแนวเชื่อมทนความร้อนสูงที่พัฒนาจากเถ้าลอยและกากของเสียอุตสาหกรรมด้วยกระบวนการจีโอโพลิเมอร์ ช่วยลดต้นทุนการนำเข้าวัสดุทนไฟจากต่างประเทศ และส่งเสริมเศรษฐกิจหมุนเวียน (Circular Economy)',
       abstractEn: 'Eco-friendly high-temperature resistant welding backing material developed from industrial fly ash via geopolymerization to substitute imported ceramic backings.',
-      coverImage: '/domain-material.jpg',
-      image: '/domain-material.jpg',
-      videoUrl: 'https://youtube.com',
+      coverImage: '/geoweld-poster.jpg',
+      image: '/geoweld-poster.jpg',
+      videoUrl: '/geoweld.mp4',
       submittedAt: new Date('2026-04-15T10:20:00Z'),
     },
     {
@@ -386,62 +394,14 @@ async function main() {
       members: ['ทีม CLARA'],
       abstractTh: 'เครื่องตรวจคัดกรองความเสี่ยงโรคมะเร็งตับเบื้องต้นแบบไม่เจ็บตัว (Non-invasive) โดยการตรวจจับและวิเคราะห์รูปแบบของสารประกอบอินทรีย์ระเหยง่าย (VOCs) ในลมหายใจด้วยเซนเซอร์และอัลกอริทึม AI ที่แม่นยำสูง',
       abstractEn: 'Non-invasive breathalyzer screening device for early-stage liver cancer detection utilizing metal-oxide gas sensor array and machine learning VOC pattern recognition.',
-      coverImage: '/photo_candidates/tech_creators.jpg',
-      image: '/photo_candidates/tech_creators.jpg',
-      videoUrl: 'https://youtube.com',
+      coverImage: '/clara-poster.jpg',
+      image: '/clara-poster.jpg',
+      videoUrl: '/clara.mp4',
       submittedAt: new Date('2026-04-15T14:45:00Z'),
-    },
-    // 2567
-    {
-      trackingCode: 'KMUTNB-2567-0001',
-      year: 2567,
-      categoryCode: 'energy_environment',
-      levelCode: 'higher_and_above',
-      awardTier: AwardTier.GRAND_WINNER,
-      awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
-      awardNameEn: 'Grand Prize - Royal Trophy',
-      awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-      prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 40,000 บาท',
-      titleTh: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติขั้นวิกฤต',
-      titleEn: 'Autonomous AI-Powered Rescue & Search Robot for Extreme Disaster Zones',
-      teamName: 'KMUTNB Robotics Lab',
-      institution: 'คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
-      advisorName: 'คณะวิศวกรรมศาสตร์ มจพ.',
-      members: ['ทีม KMUTNB Robotics Lab'],
-      abstractTh: 'หุ่นยนต์กู้ภัยที่สามารถเคลื่อนที่ในพื้นที่ซากปรักหักพัง มีระบบตรวจจับสัญญาณชีพด้วยอินฟราเรดและ AI คอมพิวเตอร์วิสัยทัศน์ พร้อมสร้างแผนที่ 3 มิติแบบเรียลไทม์',
-      abstractEn: 'High-mobility rescue robot equipped with infrared vital sign sensors and AI mapping technology for hazardous disaster response.',
-      coverImage: '/winner-robot.jpg',
-      image: '/winner-robot.jpg',
-      videoUrl: 'https://youtube.com',
-      submittedAt: new Date('2024-05-10T10:00:00Z'),
-    },
-    // 2566
-    {
-      trackingCode: 'KMUTNB-2566-0001',
-      year: 2566,
-      categoryCode: 'food_agriculture',
-      levelCode: 'below_higher',
-      awardTier: AwardTier.GRAND_WINNER,
-      awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
-      awardNameEn: 'Grand Prize - Royal Trophy',
-      awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-      prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 30,000 บาท',
-      titleTh: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
-      titleEn: 'Bio-Nanocellulose Enhanced Rice Straw Sustainable Packaging',
-      teamName: 'EcoInno High School Team',
-      institution: 'โรงเรียนสาธิต มจพ.',
-      advisorName: 'อาจารย์ที่ปรึกษา สาธิต มจพ.',
-      members: ['ทีม EcoInno'],
-      abstractTh: 'แนวคิดการแปรรูปเศษวัสดุเหลือทิ้งทางการเกษตรเป็นบรรจุภัณฑ์ทนความร้อน ทนน้ำ และย่อยสลายได้ในธรรมชาติภายใน 45 วัน เพื่อทดแทนพลาสติก',
-      abstractEn: 'Innovative eco-friendly biodegradable packaging synthesized from agricultural rice straw waste.',
-      coverImage: '/winner-eco.jpg',
-      image: '/winner-eco.jpg',
-      videoUrl: 'https://youtube.com',
-      submittedAt: new Date('2023-05-12T09:15:00Z'),
     },
   ];
 
-  // Remove obsolete 2568 tracking codes that were migrated to 2569 (2026)
+  // Remove obsolete tracking codes (2568 migrated to 2569, plus removed 2566/2567 sample entries)
   await prisma.submission.deleteMany({
     where: {
       trackingCode: {
@@ -452,6 +412,8 @@ async function main() {
           'KMUTNB-2568-0004',
           'KMUTNB-2568-0005',
           'KMUTNB-2568-0006',
+          'KMUTNB-2567-0001',
+          'KMUTNB-2566-0001',
         ],
       },
     },
@@ -465,6 +427,27 @@ async function main() {
     const existingSub = await prisma.submission.findUnique({
       where: { trackingCode: win.trackingCode },
     });
+
+    const winAny = win as any;
+    const commonDossierData = {
+      affiliation: win.institution,
+      proposalPdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
+      documentUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
+      posterUrl: win.coverImage,
+      presentationUrl: '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf',
+      primaryCoordName: winAny.primaryCoordName || win.advisorName || win.teamName,
+      primaryCoordIdCard: winAny.primaryCoordIdCard || '1-1001-00001-01-1',
+      primaryCoordPhone: winAny.primaryCoordPhone || '02-555-2000',
+      primaryCoordEmail: winAny.primaryCoordEmail || 'contact@kmutnb.ac.th',
+      secondaryCoordName: winAny.secondaryCoordName || '',
+      secondaryCoordIdCard: winAny.secondaryCoordIdCard || '',
+      secondaryCoordPhone: winAny.secondaryCoordPhone || '',
+      secondaryCoordEmail: winAny.secondaryCoordEmail || '',
+      round1Status: RoundStatus.PASSED,
+      round2Status: RoundStatus.PASSED,
+      round3Status: RoundStatus.PASSED,
+      round3Result: win.awardNameTh,
+    };
 
     if (!existingSub) {
       const yearCat = await prisma.competitionYearCategory.findUnique({
@@ -501,15 +484,18 @@ async function main() {
           image: win.image,
           videoUrl: win.videoUrl,
           submittedAt: win.submittedAt,
+          ...commonDossierData,
         },
       });
 
       for (let i = 0; i < win.members.length; i++) {
+        const m = win.members[i] as any;
         await prisma.teamMember.create({
           data: {
             submissionId: sub.id,
-            fullName: win.members[i],
-            role: i === 0 ? 'หัวหน้าทีม' : 'สมาชิก',
+            fullName: typeof m === 'string' ? m : m.fullName,
+            role: typeof m === 'string' ? (i === 0 ? 'หัวหน้าทีม' : 'สมาชิก') : (m.role || 'หัวหน้าทีม'),
+            idCard: typeof m === 'string' ? '' : (m.idCard || ''),
             orderIndex: i + 1,
           },
         });
@@ -523,8 +509,27 @@ async function main() {
           awardNameEn: win.awardNameEn,
           awardBadgeText: win.awardBadgeText,
           prizeDetails: win.prizeDetails,
+          coverImage: win.coverImage,
+          image: win.image,
+          videoUrl: win.videoUrl,
+          advisorName: win.advisorName,
+          ...commonDossierData,
         },
       });
+
+      await prisma.teamMember.deleteMany({ where: { submissionId: existingSub.id } });
+      for (let i = 0; i < win.members.length; i++) {
+        const m = win.members[i] as any;
+        await prisma.teamMember.create({
+          data: {
+            submissionId: existingSub.id,
+            fullName: typeof m === 'string' ? m : m.fullName,
+            role: typeof m === 'string' ? (i === 0 ? 'หัวหน้าทีม' : 'สมาชิก') : (m.role || 'หัวหน้าทีม'),
+            idCard: typeof m === 'string' ? '' : (m.idCard || ''),
+            orderIndex: i + 1,
+          },
+        });
+      }
     }
   }
 
@@ -545,7 +550,7 @@ async function main() {
       dateStr: '1 พฤศจิกายน 2569',
       title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) ชิงถ้วยพระราชทานฯ',
       abstract: 'ขอเชิญชวนนักเรียน นักศึกษา นักวิจัย และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมเข้าร่วมประกวด 5 สาขาเป้าหมาย ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท เปิดรับสมัครตั้งแต่บัดนี้ – 28 ก.พ. 2570',
-      pdfUrl: '#',
+      pdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
       isPublished: true,
       publishedAt: new Date('2026-11-01T09:00:00+07:00'),
     },
@@ -566,25 +571,11 @@ async function main() {
       roster: {
         create: [
           {
-            code: 'KMUTNB-2570-8821',
-            title: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI',
-            team: 'KMUTNB Robotics Lab',
-            level: 'อุดมศึกษาและบุคคลทั่วไป',
-            orderIndex: 1,
-          },
-          {
-            code: 'KMUTNB-2570-4109',
-            title: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
-            team: 'EcoInno Team',
-            level: 'ต่ำกว่าอุดมศึกษา',
-            orderIndex: 2,
-          },
-          {
             code: 'KMUTNB-2570-5502',
             title: 'ระบบตรวจวัดการเจริญเติบโตพืชไฮโดรโปนิกส์ด้วย IoT',
             team: 'AgriSmart High Team',
             level: 'ต่ำกว่าอุดมศึกษา',
-            orderIndex: 3,
+            orderIndex: 1,
           },
         ],
       },
@@ -600,7 +591,7 @@ async function main() {
       dateStr: 'มิถุนายน 2569',
       title: 'ประกาศผลการตัดสินรางวัลชนะเลิศ KMUTNB Innovation Awards 2026 (ประจำปี 2569) ครองถ้วยพระราชทานฯ',
       abstract: 'สรุปรายชื่อผลงานที่ได้รับรางวัลชนะเลิศ ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี และรางวัลเกียรติยศตามระดับการแข่งขัน ประจำปี 2569 (KMUTNB Innovation Awards 2026)',
-      pdfUrl: '#',
+      pdfUrl: '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf',
       isPublished: true,
       publishedAt: new Date('2026-06-26T09:00:00+07:00'),
       roster: {

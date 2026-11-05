@@ -23,6 +23,12 @@ enum SubmissionStatus {
   REJECTED
 }
 
+enum RoundStatus {
+  PENDING
+  PASSED
+  FAILED
+}
+
 enum AwardTier {
   GRAND_WINNER
   RUNNER_UP_1
@@ -164,15 +170,32 @@ model Submission {
   titleTh                   String
   titleEn                   String?                  @default("")
   teamName                  String                   @default("ทีมสร้างสรรค์นวัตกรรม")
+  affiliation               String?                  @default("")
   advisorName               String?                  @default("")
   abstractTh                String                   @db.Text
   abstractEn                String?                  @db.Text @default("")
   
+  proposalPdfUrl            String?                  @default("")
   coverImage                String?                  @default("")
   videoUrl                  String?                  @default("")
+  posterUrl                 String?                  @default("")
+  presentationUrl           String?                  @default("")
   documentUrl               String?                  @default("")
   
+  primaryCoordName          String?                  @default("")
+  primaryCoordIdCard        String?                  @default("")
+  primaryCoordPhone         String?                  @default("")
+  primaryCoordEmail         String?                  @default("")
+  secondaryCoordName        String?                  @default("")
+  secondaryCoordIdCard      String?                  @default("")
+  secondaryCoordPhone       String?                  @default("")
+  secondaryCoordEmail       String?                  @default("")
+
   status                    SubmissionStatus         @default(DRAFT)
+  round1Status              RoundStatus              @default(PENDING)
+  round2Status              RoundStatus              @default(PENDING)
+  round3Status              RoundStatus              @default(PENDING)
+  round3Result              String?                  @default("")
   feedback                  String?                  @db.Text @default("")
   
   // Award & Hall of Fame
@@ -204,6 +227,7 @@ model TeamMember {
   submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   fullName     String
   role         String     @default("สมาชิก")
+  idCard       String?    @default("")
   orderIndex   Int        @default(0)
   createdAt    DateTime   @default(now())
 
