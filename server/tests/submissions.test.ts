@@ -9,17 +9,35 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     .use(authController)
     .use(submissionsController);
 
+  const freshEmail = `contestant-${Date.now()}@kmutnb.ac.th`;
   let contestantToken = "";
   let createdTrackingCode = "";
   let createdSubmissionId = "";
+  let secondSubmissionId = "";
 
-  test("Login contestant to get token", async () => {
+  test("Register and login contestant to get token", async () => {
+    const regRes = await app.handle(
+      new Request("http://localhost/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: freshEmail,
+          password: "Contestant2026!",
+          fullName: "นักนวัตกรรม ทดสอบระบบ",
+          phone: "081-234-5678",
+          institution: "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+          educationLevel: "higher_and_above",
+        }),
+      })
+    );
+    expect(regRes.status).toBe(200);
+
     const loginRes = await app.handle(
       new Request("http://localhost/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: "contestant@kmutnb.ac.th",
+          email: freshEmail,
           password: "Contestant2026!",
         }),
       })
@@ -172,6 +190,77 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(json.data.round3Result).toBe("");
     expect(json.data.members[0].idCard).toBe("5-1601-00029-58-2");
     createdTrackingCode = json.data.trackingCode;
+    secondSubmissionId = json.data.id;
+  });
+
+  test("POST /api/submissions enforces max 2 projects per account while allowing updates to existing projects", async () => {
+    const thirdRes = await app.handle(
+      new Request("http://localhost/api/submissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${contestantToken}`,
+        },
+        body: JSON.stringify({
+          titleTh: "โครงการที่ 3 เกินโควตา",
+          category: "energy_environment",
+          educationLevel: "higher_and_above",
+          teamName: "QuotaExceeded",
+          isDraft: true,
+        }),
+      })
+    );
+    expect(thirdRes.status).toBe(400);
+    const thirdJson = await thirdRes.json();
+    expect(thirdJson.success).toBe(false);
+    expect(thirdJson.message).toContain("2 โครงการ");
+
+    // Updating existing project #2 by id succeeds even when account has 2 projects
+    const updateRes = await app.handle(
+      new Request("http://localhost/api/submissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${contestantToken}`,
+        },
+        body: JSON.stringify({
+          id: secondSubmissionId,
+          titleTh: "เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบอัจฉริยะ (แก้ไขครั้งที่ 1)",
+          titleEn: "Smart HDPE Pipe Welding Controller",
+          category: "others",
+          educationLevel: "higher_and_above",
+          teamName: "เขาชื่ออะไร",
+          affiliation: "คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+          advisorName: "ผศ.ดร.วัฒนา แก้วมณี",
+          abstractTh: "ระบบควบคุมและบันทึกข้อมูลการเชื่อมท่อ HDPE แบบ Butt Fusion",
+          members: [
+            { fullName: "ผศ.ดร.วัฒนา แก้วมณี", role: "หัวหน้าทีม", idCard: "5-1601-00029-58-2" },
+            { fullName: "นาย นวัตกร วิจัยดี", role: "สมาชิก", idCard: "1100100234567" },
+          ],
+          primaryCoordinator: {
+            name: "ผศ.ดร.วัฒนา แก้วมณี",
+            idCard: "5-1601-00029-58-2",
+            phone: "064-274-9888",
+            email: "wattana.k@fte.kmutnb.ac.th",
+          },
+          secondaryCoordinator: {
+            name: "ผศ.ดร.วัฒนา แก้วมณี",
+            idCard: "AA9876543",
+            phone: "064-274-9888",
+            email: "wattana.kaewmanee@gmail.com",
+          },
+          files: {
+            proposalPdfUrl: "https://drive.google.com/proposal.pdf",
+            videoUrl: "https://youtube.com/watch?v=hdpe123",
+            imageUrl: "/hdpe-poster.jpg",
+          },
+          isDraft: false,
+        }),
+      })
+    );
+    expect(updateRes.status).toBe(200);
+    const updateJson = await updateRes.json();
+    expect(updateJson.data.titleTh).toContain("แก้ไขครั้งที่ 1");
   });
 
   test("GET /api/submissions/status/:trackingCode masks PII for unauthenticated requests and unmasks for owner", async () => {
@@ -223,11 +312,25 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(hijackRes.status).toBe(403);
   });
 
-  test("PATCH /api/submissions/tracking/:trackingCode/artifacts allows attaching Poster and Presentation later", async () => {
-    const patchRes = await app.handle(
+  test("PATCH /api/submissions/tracking/:trackingCode/artifacts requires owner auth and allows attaching Poster/Presentation even after deadline", async () => {
+    const unauthPatch = await app.handle(
       new Request(`http://localhost/api/submissions/tracking/${createdTrackingCode}/artifacts`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          posterUrl: "https://drive.google.com/unauthorized.pdf",
+        }),
+      })
+    );
+    expect(unauthPatch.status).toBe(401);
+
+    const patchRes = await app.handle(
+      new Request(`http://localhost/api/submissions/tracking/${createdTrackingCode}/artifacts`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${contestantToken}`,
+        },
         body: JSON.stringify({
           posterUrl: "https://drive.google.com/poster-round2.pdf",
           presentationUrl: "https://drive.google.com/slides-round3.pdf",
@@ -245,7 +348,10 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     const partialRes = await app.handle(
       new Request(`http://localhost/api/submissions/tracking/${createdTrackingCode}/artifacts`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${contestantToken}`,
+        },
         body: JSON.stringify({
           posterUrl: "",
           presentationUrl: "https://drive.google.com/slides-round3-v2.pdf",
@@ -255,5 +361,55 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     const partialJson = await partialRes.json();
     expect(partialJson.data.artifacts.posterUrl).toBe("https://drive.google.com/poster-round2.pdf");
     expect(partialJson.data.artifacts.presentationUrl).toBe("https://drive.google.com/slides-round3-v2.pdf");
+
+    // When submissionEnd is in the past, full-form POST is rejected (403) while late artifacts PATCH succeeds (200)
+    const currentYear = await prisma.competitionYear.findFirst({ where: { isCurrent: true } });
+    try {
+      if (currentYear) {
+        await prisma.competitionYear.update({
+          where: { id: currentYear.id },
+          data: { submissionEnd: new Date("2020-01-01T00:00:00.000Z") },
+        });
+      }
+
+      const lateFormEditRes = await app.handle(
+        new Request("http://localhost/api/submissions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${contestantToken}`,
+          },
+          body: JSON.stringify({
+            id: secondSubmissionId,
+            titleTh: "แก้ไขหลังปิดรับสมัคร",
+            category: "others",
+            educationLevel: "higher_and_above",
+            teamName: "เขาชื่ออะไร",
+          }),
+        })
+      );
+      expect(lateFormEditRes.status).toBe(403);
+
+      const lateArtifactAfterDeadlineRes = await app.handle(
+        new Request(`http://localhost/api/submissions/tracking/${createdTrackingCode}/artifacts`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${contestantToken}`,
+          },
+          body: JSON.stringify({
+            posterUrl: "https://drive.google.com/poster-round2-final.pdf",
+          }),
+        })
+      );
+      expect(lateArtifactAfterDeadlineRes.status).toBe(200);
+    } finally {
+      if (currentYear) {
+        await prisma.competitionYear.update({
+          where: { id: currentYear.id },
+          data: { submissionEnd: currentYear.submissionEnd },
+        });
+      }
+    }
   });
 });

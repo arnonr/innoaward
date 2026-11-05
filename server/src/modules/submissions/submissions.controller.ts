@@ -41,6 +41,26 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         });
       }
 
+      // Check configurable submission deadline for full-form create/update
+      const deadlineDate = compYear?.submissionEnd
+        ? compYear.submissionEnd
+        : process.env.SUBMISSION_DEADLINE
+        ? new Date(process.env.SUBMISSION_DEADLINE)
+        : null;
+      if (
+        deadlineDate &&
+        !Number.isNaN(deadlineDate.getTime()) &&
+        Date.now() > deadlineDate.getTime() &&
+        currentUser?.role !== Role.ADMIN
+      ) {
+        set.status = 403;
+        return {
+          success: false,
+          message:
+            'ปิดรับสมัครและสิ้นสุดเวลาแก้ไขข้อมูลใบสมัครแล้ว (หากต้องการแนบโปสเตอร์หรือสไลด์นำเสนอ กรุณาใช้เมนูแนบไฟล์เพิ่มเติม)',
+        };
+      }
+
       // 2. Resolve Category (support "others" without altering active 5-domain catalog)
       let category = await prisma.category.findFirst({
         where: {
@@ -212,6 +232,22 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
       }
 
       if (!submission) {
+        if (currentUser?.role !== Role.ADMIN) {
+          const existingCount = await prisma.submission.count({
+            where: {
+              userId: targetUserId,
+              competitionYearId: compYear!.id,
+            },
+          });
+          if (existingCount >= 2) {
+            set.status = 400;
+            return {
+              success: false,
+              message: 'บัญชีนี้สร้างผลงานครบโควตาสูงสุด 2 โครงการแล้ว',
+            };
+          }
+        }
+
         const trackingCode = generateTrackingCode(compYear!.year);
 
         submission = await prisma.submission.create({
@@ -291,10 +327,18 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
     };
   })
 
-  // Post-Submission Artifact Update (Poster & Presentation can be attached later)
+  // Post-Submission Artifact Update (Poster & Presentation can be attached later by owner or ADMIN)
   .patch(
     '/tracking/:trackingCode/artifacts',
     async ({ params, body, currentUser, set }) => {
+      if (!currentUser) {
+        set.status = 401;
+        return {
+          success: false,
+          message: 'กรุณาเข้าสู่ระบบด้วยอีเมลและรหัสผ่านก่อนแนบหรือแก้ไขไฟล์ประกอบผลงาน',
+        };
+      }
+
       const code = params.trackingCode.toUpperCase().trim();
       const found = await prisma.submission.findUnique({
         where: { trackingCode: code },
@@ -305,6 +349,14 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         return {
           success: false,
           message: 'ไม่พบรหัสติดตามผลงานนี้ในระบบ',
+        };
+      }
+
+      if (currentUser.id !== found.userId && currentUser.role !== Role.ADMIN) {
+        set.status = 403;
+        return {
+          success: false,
+          message: 'ไม่มีสิทธิ์แก้ไขไฟล์ประกอบผลงานของผู้ใช้อื่น',
         };
       }
 
@@ -436,7 +488,7 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
 
     return {
       success: true,
-      data: submissions,
+      data: submissions.map((s) => ({ ...s, ...formatDossierResponse(s, true) })),
     };
   })
 
