@@ -36,6 +36,10 @@ test('validateSubmissionStep requires Proposal PDF, Video, and Image on final su
   assert.equal(validateSubmissionStep(form, 1, false), '');
   assert.equal(validateSubmissionStep(form, 2, false), '');
   assert.equal(validateSubmissionStep(form, 3, false), '');
+  const payload = buildSubmissionApiPayload(form, false);
+  assert.equal(payload.isDraft, false);
+  assert.equal(payload.members.length, 1);
+  assert.equal(payload.primaryCoordinator.email, 'wattana.k@fte.kmutnb.ac.th');
 });
 
 test('normalizeStatusDossier produces complete 3-round, coordinator, member, and 5-artifact structure for KMUTNB-2569-0002 fallback', () => {

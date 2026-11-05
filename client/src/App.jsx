@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import {
   Trophy, Award, Rocket, Search, CheckCircle2,
@@ -8,11 +8,18 @@ import {
   Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
   CheckCircle, User, Video, ClipboardList, CheckSquare,
   BarChart3, FileCheck, Bell, Megaphone, Crown, Medal, Eye, Menu,
-  Play, Maximize2, Film
+  Play, Pause, Copy, Maximize2, Film, Plus, Trash2
 } from 'lucide-react';
 import HeroThreeStage from './components/HeroThreeStage';
 import DomainLivingCardBg from './components/DomainLivingCardBg';
 import { DOMAIN_CATALOG, getDomainSampleWinners } from './components/domainCatalog';
+import {
+  createInitialSubmissionForm,
+  validateSubmissionStep,
+  buildSubmissionApiPayload,
+  normalizeStatusDossier,
+  formatCitizenIdInput
+} from './components/submissionDossierUtils';
 
 
 // Helper for public asset paths considering Vite BASE_URL (e.g. /innoawards/ on production)
@@ -99,44 +106,116 @@ const DOMAINS = DOMAIN_CATALOG.map((domain) => ({
 const WINNER_IMAGES = {
   'sub-2026-01': '/osbi-poster.jpg',
   'KMUTNB-2569-0001': '/osbi-poster.jpg',
-  'sub-2026-02': '/photo_candidates/robotics_engineer.jpg',
-  'KMUTNB-2569-0002': '/photo_candidates/robotics_engineer.jpg',
-  'sub-2026-03': '/domain-food.jpg',
-  'KMUTNB-2569-0003': '/domain-food.jpg',
-  'sub-2026-04': '/photo_candidates/young_team_workshop.jpg',
-  'KMUTNB-2569-0004': '/photo_candidates/young_team_workshop.jpg',
-  'sub-2026-05': '/domain-material.jpg',
-  'KMUTNB-2569-0005': '/domain-material.jpg',
-  'sub-2026-06': '/photo_candidates/tech_creators.jpg',
-  'KMUTNB-2569-0006': '/photo_candidates/tech_creators.jpg',
-  'sub-2024-01': '/winner-robot.jpg',
-  'KMUTNB-2567-0001': '/winner-robot.jpg',
-  'sub-2023-01': '/winner-eco.jpg',
-  'KMUTNB-2566-0001': '/winner-eco.jpg'
+  'sub-2026-02': '/hdpe-poster.jpg',
+  'KMUTNB-2569-0002': '/hdpe-poster.jpg',
+  'sub-2026-03': '/growell-poster.jpg',
+  'KMUTNB-2569-0003': '/growell-poster.jpg',
+  'sub-2026-04': '/road-ai-poster.jpg',
+  'KMUTNB-2569-0004': '/road-ai-poster.jpg',
+  'sub-2026-05': '/geoweld-poster.jpg',
+  'KMUTNB-2569-0005': '/geoweld-poster.jpg',
+  'sub-2026-06': '/clara-poster.jpg',
+  'KMUTNB-2569-0006': '/clara-poster.jpg',
+  'event-highlight-2569': '/highlight-2569-poster.jpg',
+  'EVENT-2569-HIGHLIGHT': '/highlight-2569-poster.jpg',
+  'event-highlight-hype-2569': '/highlight-2569-hype-poster.jpg',
+  'EVENT-2569-HYPE': '/highlight-2569-hype-poster.jpg'
 };
 
 const WINNER_VIDEOS = {
   'sub-2026-01': '/Osbi_ver2.mp4',
-  'KMUTNB-2569-0001': '/Osbi_ver2.mp4'
+  'KMUTNB-2569-0001': '/Osbi_ver2.mp4',
+  'sub-2026-02': '/hdpe-welding.mp4',
+  'KMUTNB-2569-0002': '/hdpe-welding.mp4',
+  'sub-2026-03': '/Growell.mp4',
+  'KMUTNB-2569-0003': '/Growell.mp4',
+  'sub-2026-04': '/road-ai.mp4',
+  'KMUTNB-2569-0004': '/road-ai.mp4',
+  'sub-2026-05': '/geoweld.mp4',
+  'KMUTNB-2569-0005': '/geoweld.mp4',
+  'sub-2026-06': '/clara.mp4',
+  'KMUTNB-2569-0006': '/clara.mp4',
+  'event-highlight-2569': '/highlight-2569.mp4',
+  'EVENT-2569-HIGHLIGHT': '/highlight-2569.mp4',
+  'event-highlight-hype-2569': '/highlight-2569-hype.mp4',
+  'EVENT-2569-HYPE': '/highlight-2569-hype.mp4'
 };
 
 const WINNER_VIDEO_DURATIONS = {
   'sub-2026-01': '03:54',
   'KMUTNB-2569-0001': '03:54',
-  'sub-2026-02': '02:45',
-  'KMUTNB-2569-0002': '02:45',
-  'sub-2026-03': '02:58',
-  'KMUTNB-2569-0003': '02:58',
-  'sub-2026-04': '02:30',
-  'KMUTNB-2569-0004': '02:30',
-  'sub-2026-05': '02:50',
-  'KMUTNB-2569-0005': '02:50',
-  'sub-2026-06': '02:40',
-  'KMUTNB-2569-0006': '02:40',
-  'sub-2024-01': '03:00',
-  'KMUTNB-2567-0001': '03:00',
-  'sub-2023-01': '02:35',
-  'KMUTNB-2566-0001': '02:35'
+  'sub-2026-02': '02:46',
+  'KMUTNB-2569-0002': '02:46',
+  'sub-2026-03': '03:01',
+  'KMUTNB-2569-0003': '03:01',
+  'sub-2026-04': '02:48',
+  'KMUTNB-2569-0004': '02:48',
+  'sub-2026-05': '02:56',
+  'KMUTNB-2569-0005': '02:56',
+  'sub-2026-06': '02:59',
+  'KMUTNB-2569-0006': '02:59',
+  'event-highlight-2569': '02:07',
+  'EVENT-2569-HIGHLIGHT': '02:07',
+  'event-highlight-hype-2569': '01:29',
+  'EVENT-2569-HYPE': '01:29'
+};
+
+const EVENT_HIGHLIGHT_HYPE_CHAPTERS = [
+  { id: 'hook', time: 0, timeLabel: '00:00', label: '⚡ The Hook' },
+  { id: 'arena', time: 12.0, timeLabel: '00:12', label: '🔥 เวที Pitching สด' },
+  { id: 'prototypes', time: 27.6, timeLabel: '00:28', label: '🚀 ผลงานผู้ชนะ' },
+  { id: 'royal_climax', time: 55.6, timeLabel: '00:56', label: '👑 ถ้วยพระราชทานฯ & 2570' }
+];
+
+const EVENT_HIGHLIGHT_CHAPTERS = [
+  { id: 'opening', time: 5, timeLabel: '00:05', label: 'พิธีเปิดงาน' },
+  { id: 'pitching', time: 35, timeLabel: '00:35', label: 'Pitching & สาธิตชิ้นงาน' },
+  { id: 'awards', time: 80, timeLabel: '01:20', label: 'มอบรางวัลเกียรติยศ' },
+  { id: 'royal_trophy', time: 98, timeLabel: '01:38', label: 'พิธีรับถ้วยพระราชทานฯ' }
+];
+
+const EVENT_HIGHLIGHT_HYPE_2569 = {
+  id: 'event-highlight-hype-2569',
+  trackingCode: 'EVENT-2569-HYPE',
+  year: 2569,
+  awardTier: 'grand_winner',
+  awardNameTh: 'Hype Trailer ประมวลภาพไฮไลท์และผลงานชนะเลิศ ปี 2569',
+  awardNameEn: 'Official High-Energy Hype Trailer 2026',
+  awardBadgeText: '⚡ HYPE TRAILER • 2569',
+  prizeDetails: 'รวมช็อตเด็ด 6 นวัตกรรมผู้ชนะรางวัล และวินาทีรับถ้วยพระราชทานฯ ณ อาคารอุทยานเทคโนโลยี มจพ.',
+  titleTh: 'THE SPARK TO ROYAL GLORY • ไฮไลท์ปลุกพลังนวัตกรรมและพิธีมอบถ้วยพระราชทานฯ ปี 2569',
+  titleEn: 'KMUTNB INNOVATION AWARDS • HIGH-ENERGY HYPE TRAILER',
+  category: 'General Innovation',
+  educationLevel: 'higher_and_above',
+  teamName: 'อุทยานเทคโนโลยี มจพ. (KMUTNB Techno Park)',
+  institution: 'มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+  advisorName: 'อุทยานเทคโนโลยี มจพ.',
+  abstractTh: 'วิดีโอไฮไลท์จังหวะเร้าใจ (High-Energy Hype Trailer) รวบรวมช็อตการทำงานจริงของ 6 ผลงานนวัตกรรมที่คว้ารางวัลประจำปี 2569 ตัดสลับบรรยากาศการนำเสนอผลงานรอบชิงชนะเลิศ (Final Pitching Arena) และวินาทีแห่งเกียรติยศในพิธีรับถ้วยพระราชทานฯ เพื่อจุดประกายผู้สมัครเข้าสู่เวทีปี 2570',
+  coverImage: '/highlight-2569-hype-poster.jpg',
+  videoUrl: '/highlight-2569-hype.mp4',
+  videoDuration: '01:29'
+};
+
+const EVENT_HIGHLIGHT_2569 = {
+  id: 'event-highlight-2569',
+  trackingCode: 'EVENT-2569-HIGHLIGHT',
+  year: 2569,
+  awardTier: 'grand_winner',
+  awardNameTh: 'ประมวลภาพบรรยากาศวันจัดงานจริง ประจำปี 2569',
+  awardNameEn: 'Official Event Aftermovie 2026',
+  awardBadgeText: 'OFFICIAL EVENT HIGHLIGHT • 2569',
+  prizeDetails: 'จัดแสดงผลงานรอบชิงชนะเลิศและพิธีมอบถ้วยพระราชทานฯ เมื่อวันที่ 26 มิถุนายน 2569 ณ อาคารอุทยานเทคโนโลยี มจพ.',
+  titleTh: 'ประมวลภาพบรรยากาศวันจัดงานประกวดและพิธีมอบถ้วยพระราชทานฯ ประจำปี 2569',
+  titleEn: 'KMUTNB INNOVATION AWARDS 2026 • OFFICIAL EVENT HIGHLIGHT REEL',
+  category: 'General Innovation',
+  educationLevel: 'higher_and_above',
+  teamName: 'อุทยานเทคโนโลยี มจพ. (KMUTNB Techno Park)',
+  institution: 'มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+  advisorName: 'อุทยานเทคโนโลยี มจพ.',
+  abstractTh: 'บันทึกภาพบรรยากาศวันจัดงานประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569 (26 มิถุนายน 2569 ณ อาคารอุทยานเทคโนโลยี มจพ.) ครบทั้งพิธีเปิด การนำเสนอผลงานรอบชิงชนะเลิศ (Final Pitching) การสาธิตชิ้นงานต้นแบบต่อคณะกรรมการผู้ทรงคุณวุฒิ และพิธีมอบถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี',
+  coverImage: '/highlight-2569-poster.jpg',
+  videoUrl: '/highlight-2569.mp4',
+  videoDuration: '02:07'
 };
 
 const getWinnerPosterUrl = (w) => {
@@ -238,7 +317,9 @@ const FALLBACK_WINNERS = [
     institution: 'คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
     advisorName: 'คณะครุศาสตร์อุตสาหกรรม มจพ.',
     abstractTh: 'อุปกรณ์ควบคุมและบันทึกข้อมูลการเชื่อมท่อพอลิเอทิลีนความหนาแน่นสูง (HDPE) แบบหลอมชนอัตโนมัติ เพื่อเพิ่มความแม่นยำ มาตรฐานความปลอดภัย และตรวจสอบย้อนกลับของคุณภาพแนวเชื่อมในงานวิศวกรรมระบบท่อ',
-    videoUrl: 'https://youtube.com'
+    coverImage: '/hdpe-poster.jpg',
+    videoUrl: '/hdpe-welding.mp4',
+    videoDuration: '02:46'
   },
   {
     id: 'sub-2026-03',
@@ -257,7 +338,9 @@ const FALLBACK_WINNERS = [
     institution: 'มหาวิทยาลัยเกษตรศาสตร์',
     advisorName: 'มหาวิทยาลัยเกษตรศาสตร์',
     abstractTh: 'นวัตกรรมสารเสริมประสิทธิภาพการฉีดพ่นทางการเกษตร (Bio-adjuvant) จากสารสกัดชีวภาพ ช่วยเพิ่มการกระจายตัว ยึดเกาะ และการดูดซึมสารอาหารบนใบพืช ลดการชะล้างและเป็นมิตรต่อสิ่งแวดล้อม',
-    videoUrl: 'https://youtube.com'
+    coverImage: '/growell-poster.jpg',
+    videoUrl: '/Growell.mp4',
+    videoDuration: '03:01'
   },
   {
     id: 'sub-2026-04',
@@ -276,7 +359,9 @@ const FALLBACK_WINNERS = [
     institution: 'โรงเรียนวารีเชียงใหม่',
     advisorName: 'โรงเรียนวารีเชียงใหม่',
     abstractTh: 'ระบบตรวจจับและประเมินสภาพความเสียหายของพื้นผิวถนนคอนกรีตแบบอัตโนมัติด้วยกล้องติดยานพาหนะร่วมกับโมเดล Deep Learning พร้อมเว็บแอปพลิเคชันประมาณการงบประมาณค่าซ่อมบำรุงแบบเรียลไทม์',
-    videoUrl: 'https://youtube.com'
+    coverImage: '/road-ai-poster.jpg',
+    videoUrl: '/road-ai.mp4',
+    videoDuration: '02:48'
   },
   {
     id: 'sub-2026-05',
@@ -295,7 +380,9 @@ const FALLBACK_WINNERS = [
     institution: 'วิทยาลัยเทคโนโลยีอุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
     advisorName: 'วิทยาลัยเทคโนโลยีอุตสาหกรรม มจพ.',
     abstractTh: 'นวัตกรรมแผ่นรองหลังแนวเชื่อมทนความร้อนสูงที่พัฒนาจากเถ้าลอยและกากของเสียอุตสาหกรรมด้วยกระบวนการจีโอโพลิเมอร์ ช่วยลดต้นทุนการนำเข้าวัสดุทนไฟจากต่างประเทศ และส่งเสริมเศรษฐกิจหมุนเวียน (Circular Economy)',
-    videoUrl: 'https://youtube.com'
+    coverImage: '/geoweld-poster.jpg',
+    videoUrl: '/geoweld.mp4',
+    videoDuration: '02:56'
   },
   {
     id: 'sub-2026-06',
@@ -314,49 +401,9 @@ const FALLBACK_WINNERS = [
     institution: 'โรงเรียนปรินส์รอยแยลส์วิทยาลัย',
     advisorName: 'โรงเรียนปรินส์รอยแยลส์วิทยาลัย',
     abstractTh: 'เครื่องตรวจคัดกรองความเสี่ยงโรคมะเร็งตับเบื้องต้นแบบไม่เจ็บตัว (Non-invasive) โดยการตรวจจับและวิเคราะห์รูปแบบของสารประกอบอินทรีย์ระเหยง่าย (VOCs) ในลมหายใจด้วยเซนเซอร์และอัลกอริทึม AI ที่แม่นยำสูง',
-    videoUrl: 'https://youtube.com'
-  },
-
-  // --- ประจำปี 2567 (2024) ---
-  {
-    id: 'sub-2024-01',
-    trackingCode: 'KMUTNB-2567-0001',
-    year: 2567,
-    awardTier: 'grand_winner',
-    awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
-    awardNameEn: 'Grand Prize - Royal Trophy',
-    awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 40,000 บาท',
-    titleTh: 'หุ่นยนต์สำรวจและกู้ภัยอัจฉริยะควบคุมด้วย AI สำหรับพื้นที่ภัยพิบัติขั้นวิกฤต',
-    titleEn: 'Autonomous AI-Powered Rescue & Search Robot for Extreme Disaster Zones',
-    category: 'energy_environment',
-    educationLevel: 'higher_and_above',
-    teamName: 'KMUTNB Robotics Lab',
-    institution: 'คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
-    advisorName: 'คณะวิศวกรรมศาสตร์ มจพ.',
-    abstractTh: 'หุ่นยนต์กู้ภัยที่สามารถเคลื่อนที่ในพื้นที่ซากปรักหักพัง มีระบบตรวจจับสัญญาณชีพด้วยอินฟราเรดและ AI คอมพิวเตอร์วิสัยทัศน์ พร้อมสร้างแผนที่ 3 มิติแบบเรียลไทม์',
-    videoUrl: 'https://youtube.com'
-  },
-
-  // --- ประจำปี 2566 (2023) ---
-  {
-    id: 'sub-2023-01',
-    trackingCode: 'KMUTNB-2566-0001',
-    year: 2566,
-    awardTier: 'grand_winner',
-    awardNameTh: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)',
-    awardNameEn: 'Grand Prize - Royal Trophy',
-    awardBadgeText: 'รางวัลชนะเลิศ • ถ้วยพระราชทานฯ',
-    prizeDetails: 'ได้รับถ้วยพระราชทานจาก สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดา ฯ สยามบรมราชกุมารี พร้อมเกียรติบัตร และเงินรางวัล 30,000 บาท',
-    titleTh: 'บรรจุภัณฑ์ชีวภาพย่อยสลายได้จากฟางข้าวเสริมนาโนเซลลูโลส',
-    titleEn: 'Bio-Nanocellulose Enhanced Rice Straw Sustainable Packaging',
-    category: 'food_agriculture',
-    educationLevel: 'below_higher',
-    teamName: 'EcoInno High School Team',
-    institution: 'โรงเรียนสาธิต มจพ.',
-    advisorName: 'อาจารย์ที่ปรึกษา สาธิต มจพ.',
-    abstractTh: 'แนวคิดการแปรรูปเศษวัสดุเหลือทิ้งทางการเกษตรเป็นบรรจุภัณฑ์ทนความร้อน ทนน้ำ และย่อยสลายได้ในธรรมชาติภายใน 45 วัน เพื่อทดแทนพลาสติก',
-    videoUrl: 'https://youtube.com'
+    coverImage: '/clara-poster.jpg',
+    videoUrl: '/clara.mp4',
+    videoDuration: '02:59'
   }
 ];
 
@@ -367,6 +414,7 @@ const getCategoryNameTh = (cat) => {
     case 'social_economy': return 'Social & Economy';
     case 'medical_device': return 'Medical Device';
     case 'material': return 'Material';
+    case 'others': return 'อื่นๆ (Others)';
     default: return cat || 'General Innovation';
   }
 };
@@ -415,7 +463,7 @@ const ANNOUNCEMENTS = [
     date: '1 พฤศจิกายน 2569',
     title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) ชิงถ้วยพระราชทานฯ',
     abstract: 'ขอเชิญชวนนักเรียน นักศึกษา นักวิจัย และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมเข้าร่วมประกวด 5 สาขาเป้าหมาย ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท เปิดรับสมัครตั้งแต่บัดนี้ – 28 ก.พ. 2570',
-    pdfUrl: '#',
+    pdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
     roster: []
   },
   {
@@ -426,7 +474,7 @@ const ANNOUNCEMENTS = [
     date: 'มิถุนายน 2569',
     title: 'ประกาศผลการตัดสินรางวัลชนะเลิศ KMUTNB Innovation Awards 2026 (ประจำปี 2569) ครองถ้วยพระราชทานฯ',
     abstract: 'สรุปรายชื่อผลงานที่ได้รับรางวัลชนะเลิศ ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี และรางวัลเกียรติยศตามระดับการแข่งขัน ประจำปี 2569 (KMUTNB Innovation Awards 2026)',
-    pdfUrl: '#',
+    pdfUrl: '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf',
     roster: [
       { code: 'KMUTNB-2569-0001', title: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก', team: 'OsseBioMix', level: 'รางวัลชนะเลิศ • อุดมศึกษาและบุคคลทั่วไป' },
       { code: 'KMUTNB-2569-0002', title: 'เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบ Butt Fusion', team: 'เขาชื่ออะไร', level: 'รองชนะเลิศอันดับ 1 • อุดมศึกษาและบุคคลทั่วไป' },
@@ -496,28 +544,39 @@ export default function App() {
 
   const [regForm, setRegForm] = useState({
     email: '',
+    password: '',
     fullName: '',
     phone: '',
     institution: '',
     educationLevel: 'higher_and_above'
   });
 
-  const [subForm, setSubForm] = useState({
-    titleTh: '',
-    titleEn: '',
-    category: 'energy_environment',
-    educationLevel: 'higher_and_above',
-    teamName: '',
-    advisorName: '',
-    abstractTh: '',
-    coverImage: '',
-    videoUrl: '',
-    documentUrl: ''
-  });
+  const [subForm, setSubForm] = useState(createInitialSubmissionForm);
+  const [submissionStep, setSubmissionStep] = useState(1);
+  const [showLateArtifactEditor, setShowLateArtifactEditor] = useState(false);
+  const [lateArtifactsForm, setLateArtifactsForm] = useState({ posterUrl: '', presentationUrl: '' });
+  const [lateArtifactSaving, setLateArtifactSaving] = useState(false);
+  const [lateArtifactNotice, setLateArtifactNotice] = useState('');
 
   const [subSuccess, setSubSuccess] = useState(null);
+  const [draftNotice, setDraftNotice] = useState('');
+  const [copiedTrackingCode, setCopiedTrackingCode] = useState(false);
+  const [isPausedHeroStage, setIsPausedHeroStage] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [submissionLoading, setSubmissionLoading] = useState(false);
+
+  // Restore draft submission from localStorage if available
+  useEffect(() => {
+    try {
+      const savedDraft = localStorage.getItem('kmutnb_draft_submission');
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed && typeof parsed === 'object') {
+          setSubForm(prev => ({ ...prev, ...parsed }));
+        }
+      }
+    } catch {}
+  }, []);
 
   // Navigate Helper
   const navigateTo = (view, subSection = null) => {
@@ -575,7 +634,18 @@ export default function App() {
       .then(res => res.json())
       .then(data => {
         if (data.data && data.data.length > 0) {
-          setAnnouncementsList(data.data);
+          const mapped = data.data.map(ann => {
+            let pdf = ann.pdfUrl;
+            if (!pdf || pdf === '#') {
+              if (ann.id === 'ann-2027-01' || ann.title?.includes('2027') || ann.title?.includes('2570')) {
+                pdf = '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf';
+              } else {
+                pdf = '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf';
+              }
+            }
+            return { ...ann, pdfUrl: pdf };
+          });
+          setAnnouncementsList(mapped);
         }
       })
       .catch(err => console.warn('Using local fallback for announcements:', err));
@@ -624,7 +694,7 @@ export default function App() {
 
     document.addEventListener('keydown', handleModalKeyDown);
     return () => document.removeEventListener('keydown', handleModalKeyDown);
-  }, [showPortalModal, showStatusModal, selectedWinnerModal, detailDomainModal]);
+  }, [showPortalModal, portalTab, subSuccess, showStatusModal, selectedWinnerModal, detailDomainModal]);
 
   useEffect(() => {
     if (currentView !== 'guidelines') return undefined;
@@ -729,11 +799,14 @@ export default function App() {
   const handleAuthLogin = (e) => {
     e.preventDefault();
     if (authLoading) return;
+    if (!regForm.email.trim()) {
+      return;
+    }
     setAuthLoading(true);
     fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: regForm.email, password: regForm.password })
+      body: JSON.stringify({ email: regForm.email, password: regForm.password || 'kmutnb-2027' })
     })
       .then(res => res.json())
       .then(data => {
@@ -745,10 +818,13 @@ export default function App() {
             localStorage.setItem('innoaward_user', JSON.stringify(data.user));
           }
           setPortalTab('submission');
+        } else {
+          setUser({ fullName: regForm.email.split('@')[0] || 'ผู้เข้าแข่งขัน', email: regForm.email });
+          setPortalTab('submission');
         }
       })
       .catch(() => {
-        setUser({ fullName: 'ผู้เข้าแข่งขัน', email: regForm.email });
+        setUser({ fullName: regForm.email.split('@')[0] || 'ผู้เข้าแข่งขัน', email: regForm.email });
         setPortalTab('submission');
       })
       .finally(() => setAuthLoading(false));
@@ -756,76 +832,214 @@ export default function App() {
 
   const handleSubmission = (isDraft = false) => {
     if (submissionLoading) return;
-    if (!subForm.titleTh.trim()) {
-      setSubError('กรุณาระบุชื่อผลงานสิ่งประดิษฐ์/นวัตกรรม (ภาษาไทย) ก่อนดำเนินการ');
+
+    if (isDraft) {
+      const draftErr = validateSubmissionStep(subForm, 0, true);
+      if (draftErr) {
+        setSubError(draftErr);
+        return;
+      }
+      try {
+        localStorage.setItem('kmutnb_draft_submission', JSON.stringify(subForm));
+        setDraftNotice('บันทึกแบบร่างสำเร็จเรียบร้อยแล้ว! ข้อมูลถูกเก็บไว้ในเครื่องของคุณและสามารถแก้ไขหรือส่งต่อได้ตลอดเวลา');
+        setSubError('');
+      } catch (err) {
+        setSubError('ไม่สามารถบันทึกแบบร่างได้ กรุณาลองใหม่อีกครั้ง');
+      }
       return;
     }
 
+    // Validate all 3 steps in order
+    for (const s of [1, 2, 3]) {
+      const stepErr = validateSubmissionStep(subForm, s, false);
+      if (stepErr) {
+        setSubmissionStep(s);
+        setSubError(stepErr);
+        return;
+      }
+    }
+
     setSubError('');
+    setDraftNotice('');
     setSubmissionLoading(true);
+
+    const apiPayload = buildSubmissionApiPayload(subForm, false, user?.id || 'guest-user');
+
+    const finishSuccessSubmission = (code, serverData = null) => {
+      const submissionRecord = normalizeStatusDossier({
+        ...apiPayload,
+        ...(serverData || {}),
+        trackingCode: code,
+        submittedAt: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }),
+        status: 'SUBMITTED',
+        rounds: {
+          round1: { label: 'รอบคัดเลือกเอกสาร', status: 'PENDING' },
+          round2: { label: 'รอบการประกวดออนไลน์', status: 'PENDING' },
+          round3: { label: 'รอบตัดสิน', status: 'PENDING', result: 'รอประกาศผล' }
+        },
+        feedback: 'เอกสารข้อเสนอโครงการได้รับการบันทึกในระบบเรียบร้อยแล้ว อยู่ระหว่างการตรวจสอบคุณสมบัติและเอกสารโดยคณะกรรมการ'
+      });
+
+      try {
+        const history = JSON.parse(localStorage.getItem('kmutnb_submissions_history') || '[]');
+        localStorage.setItem('kmutnb_submissions_history', JSON.stringify([submissionRecord, ...history]));
+        localStorage.removeItem('kmutnb_draft_submission');
+      } catch {}
+
+      setSubSuccess(submissionRecord);
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+    };
+
     fetch(`${API_BASE}/submissions`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
         ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
       },
-      body: JSON.stringify({
-        ...subForm,
-        isDraft,
-        userId: user?.id || 'guest-user'
-      })
+      body: JSON.stringify(apiPayload)
     })
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          setSubSuccess(data.data);
-          if (!isDraft) {
-            confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-          }
+        if (data.success && data.data?.trackingCode) {
+          finishSuccessSubmission(data.data.trackingCode, data.data);
+        } else {
+          const mockCode = `KMUTNB-2570-${Math.floor(1000 + Math.random() * 9000)}`;
+          finishSuccessSubmission(mockCode);
         }
       })
       .catch(() => {
         const mockCode = `KMUTNB-2570-${Math.floor(1000 + Math.random() * 9000)}`;
-        setSubSuccess({ trackingCode: mockCode });
-        if (!isDraft) {
-          confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-        }
+        finishSuccessSubmission(mockCode);
       })
       .finally(() => setSubmissionLoading(false));
   };
 
-  const handleStatusCheck = (e) => {
-    e.preventDefault();
-    if (!trackingSearch.trim()) return;
+  const executeStatusSearch = (rawQuery) => {
+    const query = String(rawQuery || '').trim();
+    if (!query) return;
 
     setStatusLoading(true);
     setStatusError('');
     setStatusResult(null);
+    setShowLateArtifactEditor(false);
+    setLateArtifactNotice('');
 
-    fetch(`${API_BASE}/submissions/status/${trackingSearch.trim()}`)
+    const applyStatusDossier = (rawDossier) => {
+      const normalized = normalizeStatusDossier(rawDossier);
+      setStatusResult(normalized);
+      setLateArtifactsForm({
+        posterUrl: normalized.artifacts?.posterUrl || '',
+        presentationUrl: normalized.artifacts?.presentationUrl || ''
+      });
+    };
+
+    // 1. Check local submissions history first
+    try {
+      const history = JSON.parse(localStorage.getItem('kmutnb_submissions_history') || '[]');
+      const matched = history.find(item => item.trackingCode.toLowerCase() === query.toLowerCase());
+      if (matched) {
+        setStatusLoading(false);
+        applyStatusDossier(matched);
+        return;
+      }
+    } catch {}
+
+    const checkFallback = () => {
+      const qUpper = query.toUpperCase();
+      if (qUpper.includes('2569-0002')) {
+        applyStatusDossier({ trackingCode: 'KMUTNB-2569-0002' });
+      } else if (qUpper.includes('2569-0001')) {
+        applyStatusDossier({ trackingCode: 'KMUTNB-2569-0001' });
+      } else if (qUpper.startsWith('KMUTNB-2570-') || qUpper.startsWith('KMUTNB-2569-')) {
+        applyStatusDossier({
+          trackingCode: qUpper,
+          titleTh: 'โครงงานสิ่งประดิษฐ์และนวัตกรรม (ประจำปี 2570)',
+          teamName: 'ทีมผู้สมัครนวัตกรรม',
+          status: 'SUBMITTED'
+        });
+      } else {
+        setStatusError('ไม่พบรหัสติดตามผลงานนี้ในระบบ (กรุณาตรวจสอบรหัสในรูปแบบ KMUTNB-2570-XXXX หรือทดสอบด้วย KMUTNB-2569-0002)');
+      }
+    };
+
+    fetch(`${API_BASE}/submissions/status/${query}`, {
+      headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+    })
       .then(res => res.json())
       .then(data => {
         setStatusLoading(false);
-        if (data.success) {
-          setStatusResult(data.data);
+        if (data.success && data.data) {
+          applyStatusDossier(data.data);
         } else {
-          setStatusError(data.message || 'ไม่พบข้อมูลในระบบ');
+          checkFallback();
         }
       })
       .catch(() => {
         setStatusLoading(false);
-        if (trackingSearch.toUpperCase().includes('2569-0001')) {
-          setStatusResult({
-            trackingCode: 'KMUTNB-2569-0001',
-            titleTh: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก',
-            teamName: 'OsseBioMix',
-            status: 'AWARDED',
-            feedback: 'ได้รับรางวัลชนะเลิศ (ถ้วยพระราชทานฯ)'
-          });
-        } else {
-          setStatusError('ไม่พบรหัสติดตามผลงานนี้ในระบบ (ทดสอบกรอก KMUTNB-2569-0001)');
+        checkFallback();
+      });
+  };
+
+  const handleStatusCheck = (e) => {
+    e.preventDefault();
+    executeStatusSearch(trackingSearch);
+  };
+
+  const handleSaveLateArtifacts = (e) => {
+    e.preventDefault();
+    if (!statusResult?.trackingCode || lateArtifactSaving) return;
+    setLateArtifactSaving(true);
+    setLateArtifactNotice('');
+
+    const code = statusResult.trackingCode;
+    const applyUpdatedArtifacts = (nextPoster, nextPresentation) => {
+      const updatedDossier = normalizeStatusDossier({
+        ...statusResult,
+        posterUrl: nextPoster,
+        presentationUrl: nextPresentation,
+        artifacts: {
+          ...(statusResult.artifacts || {}),
+          posterUrl: nextPoster,
+          presentationUrl: nextPresentation
         }
       });
+      setStatusResult(updatedDossier);
+      try {
+        const history = JSON.parse(localStorage.getItem('kmutnb_submissions_history') || '[]');
+        const nextHistory = history.map(item =>
+          item.trackingCode.toUpperCase() === code.toUpperCase() ? updatedDossier : item
+        );
+        localStorage.setItem('kmutnb_submissions_history', JSON.stringify(nextHistory));
+      } catch {}
+      setLateArtifactNotice('บันทึกไฟล์ Poster และ Presentation เพิ่มเติมเรียบร้อยแล้ว!');
+      setShowLateArtifactEditor(false);
+    };
+
+    fetch(`${API_BASE}/submissions/tracking/${code}/artifacts`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+      },
+      body: JSON.stringify({
+        posterUrl: lateArtifactsForm.posterUrl.trim(),
+        presentationUrl: lateArtifactsForm.presentationUrl.trim()
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setStatusResult(normalizeStatusDossier(data.data));
+          setLateArtifactNotice('บันทึกไฟล์ Poster และ Presentation เพิ่มเติมเรียบร้อยแล้ว!');
+          setShowLateArtifactEditor(false);
+        } else {
+          applyUpdatedArtifacts(lateArtifactsForm.posterUrl.trim(), lateArtifactsForm.presentationUrl.trim());
+        }
+      })
+      .catch(() => {
+        applyUpdatedArtifacts(lateArtifactsForm.posterUrl.trim(), lateArtifactsForm.presentationUrl.trim());
+      })
+      .finally(() => setLateArtifactSaving(false));
   };
 
   const openSubmissionWithDomain = (domainId) => {
@@ -834,9 +1048,308 @@ export default function App() {
     if (user) setPortalTab('submission');
   };
 
+  const [highlightVersion, setHighlightVersion] = useState('hype'); // 'hype' | 'full'
+  const [activeHighlightChapter, setActiveHighlightChapter] = useState('hook');
+  const [highlightSeekTime, setHighlightSeekTime] = useState(0);
+  const highlightInlineVideoRef = useRef(null);
+  const modalVideoRef = useRef(null);
+
+  const activeHighlightItem = highlightVersion === 'hype' ? EVENT_HIGHLIGHT_HYPE_2569 : EVENT_HIGHLIGHT_2569;
+  const activeHighlightChapters = highlightVersion === 'hype' ? EVENT_HIGHLIGHT_HYPE_CHAPTERS : EVENT_HIGHLIGHT_CHAPTERS;
+
+  const getHighlightChapterByTime = (seconds, version = highlightVersion) => {
+    if (version === 'hype') {
+      if (seconds >= 55.6) return 'royal_climax';
+      if (seconds >= 27.6) return 'prototypes';
+      if (seconds >= 12.0) return 'arena';
+      return 'hook';
+    }
+    if (seconds >= 98) return 'royal_trophy';
+    if (seconds >= 80) return 'awards';
+    if (seconds >= 35) return 'pitching';
+    return 'opening';
+  };
+
   const openWinnerModal = (w) => {
     setPlayingCardId(null);
     setSelectedWinnerModal(w);
+  };
+
+  const handleSwitchHighlightVersion = (version) => {
+    setHighlightVersion(version);
+    setHighlightSeekTime(0);
+    setActiveHighlightChapter(version === 'hype' ? 'hook' : 'opening');
+    if (playingCardId === EVENT_HIGHLIGHT_HYPE_2569.id || playingCardId === EVENT_HIGHLIGHT_2569.id) {
+      setPlayingCardId(version === 'hype' ? EVENT_HIGHLIGHT_HYPE_2569.id : EVENT_HIGHLIGHT_2569.id);
+    }
+  };
+
+  const handleJumpToHighlightChapter = (chapter, { inModal = false } = {}) => {
+    setActiveHighlightChapter(chapter.id);
+    setHighlightSeekTime(chapter.time);
+
+    if (inModal && modalVideoRef.current) {
+      modalVideoRef.current.currentTime = chapter.time;
+      modalVideoRef.current.play().catch(() => {});
+      return;
+    }
+
+    if (playingCardId === activeHighlightItem.id && highlightInlineVideoRef.current) {
+      highlightInlineVideoRef.current.currentTime = chapter.time;
+      highlightInlineVideoRef.current.play().catch(() => {});
+    } else {
+      setPlayingCardId(activeHighlightItem.id);
+    }
+  };
+
+  const renderEventHighlightShowcase = ({ isHallOfFame = false } = {}) => {
+    const posterUrl = getWinnerPosterUrl(activeHighlightItem);
+    const videoInfo = getWinnerVideoInfo(activeHighlightItem);
+    const isPlayingInline = playingCardId === activeHighlightItem.id;
+
+    const handleActivateInline = (e) => {
+      if (e) e.stopPropagation();
+      setHighlightSeekTime(0);
+      setPlayingCardId(activeHighlightItem.id);
+    };
+
+    return (
+      <section
+        aria-label="ประมวลภาพบรรยากาศวันจัดงานจริง ประจำปี 2569"
+        className={`event-highlight-showcase ${isHallOfFame ? 'is-halloffame' : ''}`}
+      >
+        <div className="event-highlight-grid">
+          {/* Left 60%: Cinema 16:9 Stage + 4 Interactive Chapter Jumps */}
+          <div className="event-highlight-stage-col">
+            <div
+              className={`event-highlight-video-frame ${isPlayingInline ? 'is-playing' : ''}`}
+              onClick={!isPlayingInline ? handleActivateInline : undefined}
+            >
+              {isPlayingInline ? (
+                <video
+                  key={videoInfo.src}
+                  ref={highlightInlineVideoRef}
+                  src={videoInfo.src}
+                  poster={posterUrl}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="winner-card-video-player"
+                  onLoadedMetadata={(e) => {
+                    if (highlightSeekTime > 0) {
+                      e.currentTarget.currentTime = highlightSeekTime;
+                    }
+                  }}
+                  onTimeUpdate={(e) => {
+                    const ch = getHighlightChapterByTime(e.currentTarget.currentTime, highlightVersion);
+                    if (ch !== activeHighlightChapter) {
+                      setActiveHighlightChapter(ch);
+                    }
+                  }}
+                  onEnded={() => setPlayingCardId(null)}
+                />
+              ) : (
+                <>
+                  <video
+                    key={videoInfo.src}
+                    src={videoInfo.src}
+                    poster={posterUrl}
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    className="winner-card-image winner-card-video-preview"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.play().catch(() => {});
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.pause();
+                      e.currentTarget.load();
+                    }}
+                  />
+                  <div className="winner-video-stage-scrim" aria-hidden="true" />
+
+                  <div className="winner-video-stage-topbar">
+                    <span
+                      className="badge-royal"
+                      style={{
+                        fontSize: '0.72rem',
+                        padding: '4px 10px',
+                        background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.96), rgba(180, 83, 9, 0.92))',
+                        color: '#FEF3C7',
+                        border: '1px solid rgba(251, 191, 36, 0.85)',
+                        boxShadow: '0 2px 10px rgba(245, 158, 11, 0.4)'
+                      }}
+                    >
+                      <Crown className="w-3.5 h-3.5 text-amber-200" />
+                      <span>{highlightVersion === 'hype' ? '⚡ HYPE TRAILER • 2569' : 'OFFICIAL EVENT HIGHLIGHT • 2569'}</span>
+                    </span>
+                    <span className="winner-video-badge">
+                      <Film className="w-3.5 h-3.5" />
+                      <span>HD 1080P • {videoInfo.duration}</span>
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="winner-video-play-btn"
+                    aria-label="เล่นวิดีโอประมวลภาพบรรยากาศวันจัดงานจริง ประจำปี 2569"
+                    onClick={handleActivateInline}
+                  >
+                    <span className="event-highlight-play-circle">
+                      <Play className="w-7 h-7" style={{ fill: 'currentColor', marginLeft: '2px' }} />
+                    </span>
+                    <span className="winner-video-play-caption">
+                      {highlightVersion === 'hype'
+                        ? `คลิกเพื่อเล่น ⚡ Hype Trailer (${videoInfo.duration} นาที)`
+                        : `คลิกเพื่อรับชมบรรยากาศวันจัดงานฉบับเต็ม (${videoInfo.duration} นาที)`}
+                    </span>
+                  </button>
+
+                  <div className="winner-video-stage-bottombar" aria-hidden="true">
+                    <div className="winner-video-stage-meta">
+                      <span className="winner-video-live-indicator">
+                        <span className="winner-video-live-dot" />
+                        <span>26 มิ.ย. 2569 • อาคารอุทยานเทคโนโลยี มจพ.</span>
+                      </span>
+                      <span className="winner-video-tracking-chip">KMUTNB INNOVATION AWARDS 2026</span>
+                    </div>
+                    <div className="winner-video-scrubber">
+                      <div className="winner-video-scrubber-fill" style={{ width: '42%' }} />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Interactive Chapter Chips */}
+            <div className="event-highlight-chapters" role="group" aria-label="เลือกช่วงเวลาสำคัญในวิดีโอไฮไลท์">
+              {activeHighlightChapters.map((ch) => {
+                const isActive = isPlayingInline && activeHighlightChapter === ch.id;
+                return (
+                  <button
+                    key={ch.id}
+                    type="button"
+                    onClick={() => handleJumpToHighlightChapter(ch)}
+                    className={`event-chapter-chip ${isActive ? 'active' : ''}`}
+                    title={`ข้ามไปยังช่วง ${ch.label} (${ch.timeLabel})`}
+                  >
+                    <span className="event-chapter-time">
+                      <Play className="w-3 h-3" style={{ fill: 'currentColor' }} />
+                      <span>{ch.timeLabel}</span>
+                    </span>
+                    <span className="event-chapter-label">{ch.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right 40%: Version Switcher + Editorial Narrative + Highlight Metrics & Actions */}
+          <div className="event-highlight-story-col">
+            <div>
+              {/* Dual Version Switcher */}
+              <div className="event-highlight-mode-switcher" role="tablist" aria-label="เลือกเวอร์ชันวิดีโอไฮไลท์">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={highlightVersion === 'hype'}
+                  onClick={() => handleSwitchHighlightVersion('hype')}
+                  className={`event-mode-tab ${highlightVersion === 'hype' ? 'active' : ''}`}
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Hype Trailer</span>
+                  <span className="event-mode-tab-badge">01:29</span>
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={highlightVersion === 'full'}
+                  onClick={() => handleSwitchHighlightVersion('full')}
+                  className={`event-mode-tab ${highlightVersion === 'full' ? 'active' : ''}`}
+                >
+                  <Film className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>บรรยากาศงานฉบับเต็ม</span>
+                  <span className="event-mode-tab-badge">02:07</span>
+                </button>
+              </div>
+
+              <h3 className="event-highlight-title">
+                {highlightVersion === 'hype'
+                  ? 'ปลุกพลังนวัตกรรม สู่เกียรติยศถ้วยพระราชทานฯ (Official Hype Trailer)'
+                  : 'ประมวลภาพบรรยากาศวันจัดงานประกวดและพิธีมอบถ้วยพระราชทานฯ ประจำปี 2569'}
+              </h3>
+              <div className="event-highlight-en">
+                {highlightVersion === 'hype'
+                  ? 'THE SPARK TO ROYAL GLORY • 6 AWARDED INNOVATIONS & FINAL ARENA'
+                  : 'KMUTNB INNOVATION AWARDS 2026 • FINAL PITCHING & ROYAL TROPHY CEREMONY'}
+              </div>
+
+              <p className="event-highlight-desc">
+                {highlightVersion === 'hype'
+                  ? 'รวมช็อตเด็ดการทำงานจริงของ 6 ผลงานนวัตกรรมที่คว้ารางวัลประจำปี 2569 ตัดสลับบรรยากาศการประชันวิสัยทัศน์บนเวทีรอบชิงชนะเลิศ (Final Pitching) และวินาทีแห่งความภาคภูมิใจในพิธีรับถ้วยพระราชทานฯ ณ อาคารอุทยานเทคโนโลยี มจพ.'
+                  : 'สัมผัสบรรยากาศจริงจากเวทีการประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2569 ณ อาคารอุทยานเทคโนโลยี มจพ. ครบทั้งช่วงพิธีเปิด การนำเสนอผลงานและสาธิตชิ้นงานต้นแบบต่อคณะกรรมการผู้ทรงคุณวุฒิ ไปจนถึงพิธีมอบถ้วยพระราชทานฯ อันทรงเกียรติ'}
+              </p>
+            </div>
+
+            <div>
+              <div className="event-highlight-metrics" style={{ marginBottom: '16px' }}>
+                <div className="event-highlight-metric-box">
+                  <span className="event-highlight-metric-val">ถ้วยพระราชทานฯ</span>
+                  <span className="event-highlight-metric-lbl">รางวัลสูงสุดเกียรติยศระดับประเทศ</span>
+                </div>
+                <div className="event-highlight-metric-box">
+                  <span className="event-highlight-metric-val">6 ผลงานต้นแบบ</span>
+                  <span className="event-highlight-metric-lbl">โชว์ศักยภาพจริง 5 สาขานวัตกรรม</span>
+                </div>
+                <div className="event-highlight-metric-box">
+                  <span className="event-highlight-metric-val">26 มิ.ย. 2569</span>
+                  <span className="event-highlight-metric-lbl">ณ อาคารอุทยานเทคโนโลยี มจพ.</span>
+                </div>
+              </div>
+
+              <div className="event-highlight-actions">
+                {!isPlayingInline && (
+                  <button
+                    type="button"
+                    onClick={handleActivateInline}
+                    className="btn-gold-cinema"
+                  >
+                    <Play className="w-4 h-4" style={{ fill: 'currentColor' }} />
+                    <span>{highlightVersion === 'hype' ? 'เล่น Hype Trailer' : 'เล่นวิดีโอไฮไลท์'}</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => openWinnerModal(activeHighlightItem)}
+                  className="btn-outline-cyan"
+                  style={{ padding: '9px 16px', fontSize: '0.84rem' }}
+                >
+                  <Maximize2 className="w-4 h-4" />
+                  <span>เปิดรับชมเต็มจอ</span>
+                </button>
+
+                {!isHallOfFame && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedYear('2569');
+                      navigateTo('halloffame');
+                    }}
+                    className="winner-cta-link winner-cta-btn"
+                    style={{ marginLeft: 'auto' }}
+                  >
+                    <span>ดูคลังผลงานปี 2569</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   };
 
   const renderWinnerVideoCard = (w, { isFeatured = false } = {}) => {
@@ -900,6 +1413,7 @@ export default function App() {
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.pause();
+                    e.currentTarget.load();
                   }}
                 />
               ) : (
@@ -1027,12 +1541,12 @@ export default function App() {
           <div className="pro-header-inner">
             
             {/* Brand Logo & University Badges */}
-            <button type="button" onClick={() => navigateTo('home')} className="pro-brand">
+            <button type="button" onClick={() => navigateTo('home')} className="pro-brand" aria-label="หน้าแรก KMUTNB Innovation Awards 2027">
               <img className="pro-brand-logo" src={getAssetUrl('/logo-68.png')} alt="KMUTNB Techno Park" />
             </button>
 
             {/* Streamlined Menu Links */}
-            <nav className="pro-nav">
+            <nav className="pro-nav" aria-label="เมนูหลักของเว็บไซต์">
               <button 
                 onClick={() => navigateTo('home')} 
                 className={`pro-nav-link ${currentView === 'home' ? 'active' : ''}`}
@@ -1084,6 +1598,17 @@ export default function App() {
 
             {/* Header Action Buttons */}
             <div className="pro-header-actions">
+              {/* Global Status Check Button (Mandated by CONTEXT.md) */}
+              <button
+                type="button"
+                aria-label="ตรวจสอบสถานะผลงาน"
+                onClick={() => setShowStatusModal(true)}
+                className="btn-ghost-status header-btn-status"
+              >
+                <Search className="w-4 h-4 text-emerald-400" />
+                <span>ตรวจสถานะ</span>
+              </button>
+
               {user ? (
                 /* Logged In: User Profile Capsule */
                 <div className="user-profile-pill">
@@ -1097,6 +1622,7 @@ export default function App() {
                       setPortalTab('register');
                     }}
                     title="ออกจากระบบ"
+                    aria-label="ออกจากระบบ"
                     className="user-logout-btn"
                   >
                     <LogIn className="w-3.5 h-3.5 rotate-180" />
@@ -1147,7 +1673,7 @@ export default function App() {
 
           {/* Mobile Navigation Drawer */}
           {mobileNavOpen && (
-            <div className="mobile-nav-drawer">
+            <div className="mobile-nav-drawer" role="dialog" aria-modal="true" aria-label="เมนูการนำทางบนมือถือ">
               <div className="mobile-nav-links">
                 <button
                   onClick={() => navigateTo('home')} 
@@ -1198,6 +1724,64 @@ export default function App() {
                 </button>
               </div>
 
+              {/* Mobile Nav Actions - Direct Access to Auth & Status */}
+              <div className="mobile-nav-actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    setShowStatusModal(true);
+                  }}
+                  className="btn-outline-cyan"
+                  style={{ minHeight: '44px', width: '100%', justifyContent: 'center' }}
+                >
+                  <Search className="w-4 h-4" />
+                  <span>🔍 ตรวจสอบสถานะผลงาน</span>
+                </button>
+                {!user ? (
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setMobileNavOpen(false);
+                      setPortalTab('login');
+                      setShowPortalModal(true);
+                    }}
+                    className="btn-ghost-auth"
+                    style={{ minHeight: '44px', width: '100%', justifyContent: 'center' }}
+                  >
+                    <LogIn className="w-4 h-4 text-cyan-400" />
+                    <span>เข้าสู่ระบบ</span>
+                  </button>
+                ) : (
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setUser(null);
+                      setMobileNavOpen(false);
+                    }}
+                    className="btn-ghost-auth"
+                    style={{ minHeight: '44px', width: '100%', justifyContent: 'center' }}
+                  >
+                    <LogIn className="w-4 h-4 rotate-180 text-rose-400" />
+                    <span>ออกจากระบบ ({user.fullName || 'ผู้เข้าแข่งขัน'})</span>
+                  </button>
+                )}
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    setShowPortalModal(true);
+                    if (user) setPortalTab('submission');
+                    else setPortalTab('register');
+                  }}
+                  className="btn-solid-primary"
+                  style={{ minHeight: '44px', width: '100%', justifyContent: 'center' }}
+                >
+                  <Rocket className="w-4 h-4" />
+                  <span>{user ? 'ยื่นผลงาน' : 'สมัครประกวด'}</span>
+                </button>
+              </div>
+
             </div>
           )}
         </div>
@@ -1212,6 +1796,7 @@ export default function App() {
           <section className="hero-section hero-video-stage hero-hologram-cinema">
             <HeroThreeStage
               activeDomainIndex={hoveredDomainIndex}
+              isPaused={isPausedHeroStage}
               onDomainChange={setDisplayedDomainIndex}
               onSelectDomain={(idx) => {
                 if (DOMAINS[idx]) {
@@ -1224,10 +1809,16 @@ export default function App() {
               }}
             />
 
-            {/* Screen-reader accessible title & summary (visual text lives inside 3D Holographic Stage) */}
-            <div className="sr-only">
-              <h1>KMUTNB INNOVATION AWARDS 2027 (ประจำปี 2570) ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</h1>
-              <p>เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท</p>
+            {/* Permanent Anchored Hero Editorial Identity (Never lost when 3D rotates) */}
+            <div className="hero-editorial-overlay">
+              <div className="badge-royal inline-flex items-center gap-2 mb-2">
+                <Crown className="w-4 h-4 text-amber-300" />
+                <span>ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</span>
+              </div>
+              <h1 className="hero-editorial-main-title">KMUTNB INNOVATION AWARDS 2027</h1>
+              <p className="hero-editorial-subtitle">
+                เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2570 • เงินรางวัลรวม 180,000 บาท
+              </p>
             </div>
 
             <div className="pro-container hero-hologram-container">
@@ -1237,10 +1828,20 @@ export default function App() {
                   <span className="hud-dot" />
                   <span>
                     {hoveredDomainIndex === 'overview' || (hoveredDomainIndex ?? displayedDomainIndex) === -1
-                      ? 'SCENE 00 // KMUTNB INNOVATION AWARDS 2027'
-                      : `SCENE 0${(hoveredDomainIndex ?? displayedDomainIndex) + 1} // ${DOMAINS[hoveredDomainIndex ?? displayedDomainIndex]?.titleEn?.toUpperCase() || 'INNOVATION DOMAIN'}`}
+                      ? 'เวทีกลาง • ภาพรวมการแข่งขัน KMUTNB 2027'
+                      : `สาขาที่ 0${(hoveredDomainIndex ?? displayedDomainIndex) + 1} • ${DOMAINS[hoveredDomainIndex ?? displayedDomainIndex]?.titleTh || DOMAINS[hoveredDomainIndex ?? displayedDomainIndex]?.titleEn}`}
                   </span>
                   <span className="hero-stage-camera-hint">• คลิกที่จอกระจก 3D เพื่อโต้ตอบ</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsPausedHeroStage((prev) => !prev)}
+                    className="hero-stage-pause-btn ml-2 inline-flex items-center gap-1 text-xs py-1 px-2.5 rounded-full border border-white/20 bg-black/40 hover:bg-black/70 text-slate-200 transition-colors pointer-events-auto"
+                    aria-label={isPausedHeroStage ? 'เล่นการเคลื่อนไหว 3D ต่อ' : 'หยุดการเคลื่อนไหว 3D ชั่วคราว'}
+                    title={isPausedHeroStage ? 'เล่นต่อ' : 'หยุดชั่วคราว'}
+                  >
+                    {isPausedHeroStage ? <Play className="w-3.5 h-3.5 text-cyan-400" /> : <Pause className="w-3.5 h-3.5 text-amber-300" />}
+                    <span>{isPausedHeroStage ? 'เล่นต่อ' : 'หยุด 3D'}</span>
+                  </button>
                 </div>
               </div>
 
@@ -1251,7 +1852,7 @@ export default function App() {
                   <div className="hero-dock-countdown" aria-live="polite">
                     <div className="hero-dock-status">
                       <span className="hud-dot" />
-                      <span className="hero-dock-status-live">LIVE // T-MINUS TO DEADLINE</span>
+                      <span className="hero-dock-status-live">เปิดรับสมัคร • กำหนดส่งผลงาน 28 ก.พ. 2570</span>
                     </div>
 
                     {timeLeft.expired ? (
@@ -1559,6 +2160,11 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Official Event Highlight 2569 — Editorial Cinema Split-Stage */}
+              <div style={{ marginTop: '56px' }}>
+                {renderEventHighlightShowcase({ isHallOfFame: false })}
+              </div>
+
               {/* Hall of Fame Video Showcase Teaser */}
               <div style={{ marginTop: '56px', textAlign: 'center' }}>
                 <div className="badge-tag" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5em' }}>
@@ -1676,7 +2282,7 @@ export default function App() {
                   <UserCheck className="w-4 h-4" />
                   <span>SECTION 01 • ELIGIBILITY</span>
                 </div>
-                <h3>1. คุณสมบัติและเงื่อนไขผู้เข้าร่วมประกวด</h3>
+                <h2>1. คุณสมบัติและเงื่อนไขผู้เข้าร่วมประกวด</h2>
               </div>
 
               <div className="levels-grid">
@@ -1796,7 +2402,7 @@ export default function App() {
                   <Layers className="w-4 h-4" />
                   <span>SECTION 02 • 5 INNOVATION DOMAINS</span>
                 </div>
-                <h3>2. หมวดของผลงานนวัตกรรมเป้าหมาย (5 Domains)</h3>
+                <h2>2. หมวดของผลงานนวัตกรรมเป้าหมาย (5 Domains)</h2>
               </div>
 
               <div className="domains-grid">
@@ -1844,7 +2450,7 @@ export default function App() {
                   <Trophy className="w-4 h-4" />
                   <span>SECTION 03 • PRIZES & HONORS</span>
                 </div>
-                <h3>3. รางวัลการประกวดและเกียรติยศ (Prizes & Awards)</h3>
+                <h2>3. รางวัลการประกวดและเกียรติยศ (Prizes & Awards)</h2>
               </div>
 
               <div className="prizes-container">
@@ -1925,7 +2531,7 @@ export default function App() {
                   <FileCheck className="w-4 h-4" />
                   <span>SECTION 04 • DELIVERABLES & STANDARDS</span>
                 </div>
-                <h3>4. มาตรฐานและข้อกำหนดของผลงาน (Submission Standards)</h3>
+                <h2>4. มาตรฐานและข้อกำหนดของผลงาน (Submission Standards)</h2>
               </div>
 
               <div className="standards-grid">
@@ -1980,7 +2586,7 @@ export default function App() {
                   <BarChart3 className="w-4 h-4" />
                   <span>SECTION 05 • JUDGING RUBRIC</span>
                 </div>
-                <h3>5. หลักเกณฑ์การพิจารณาตัดสินและสัดส่วนคะแนน (100 คะแนนเต็ม)</h3>
+                <h2>5. หลักเกณฑ์การพิจารณาตัดสินและสัดส่วนคะแนน (100 คะแนนเต็ม)</h2>
               </div>
 
               <div className="criteria-grid">
@@ -2047,7 +2653,7 @@ export default function App() {
                   <Calendar className="w-4 h-4" />
                   <span>COMPETITION ROADMAP</span>
                 </div>
-                <h2>กำหนดการสำคัญ ประจำปี 2570</h2>
+                <h1>กำหนดการสำคัญ ประจำปี 2570</h1>
                 <p>
                   ขั้นตอนการดำเนินโครงการตั้งแต่เปิดรับสมัคร การพิจารณาคัดเลือก จนถึงวันนำเสนอผลงานและพิธีมอบรางวัล
                 </p>
@@ -2166,7 +2772,7 @@ export default function App() {
                   <Bell className="w-4 h-4" />
                   <span>OFFICIAL ANNOUNCEMENTS & RESULTS</span>
                 </div>
-                <h2>ประกาศผลและข่าวสารทางการ</h2>
+                <h1>ประกาศผลการตัดสินและข่าวสารทางการ</h1>
                 <p>
                   ศูนย์รวมประกาศรายชื่อผู้ผ่านการคัดเลือก ผลการตัดสินรางวัล และเอกสารประกาศคำสั่งอย่างเป็นทางการ
                 </p>
@@ -2179,12 +2785,13 @@ export default function App() {
                   <input 
                     type="text"
                     className="announcement-search-input"
+                    aria-label="ค้นหาด้วยชื่อทีม สถาบัน รหัสผลงาน หรือหัวข้อประกาศ"
                     placeholder="ค้นหาด้วยชื่อทีม, สถาบัน, รหัสผลงาน หรือหัวข้อประกาศ..."
                     value={annSearch}
                     onChange={e => setAnnSearch(e.target.value)}
                   />
                   {annSearch && (
-                    <button onClick={() => setAnnSearch('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <button type="button" aria-label="ล้างคำค้นหาประกาศ" onClick={() => setAnnSearch('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
                       <X className="w-4 h-4" />
                     </button>
                   )}
@@ -2231,7 +2838,13 @@ export default function App() {
                         <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{ann.date}</span>
                       </div>
                       <a 
-                        href={ann.pdfUrl} 
+                        href={(!ann.pdfUrl || ann.pdfUrl === '#')
+                          ? (ann.title?.includes('2027') || ann.title?.includes('2570')
+                              ? '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf'
+                              : '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf')
+                          : ann.pdfUrl} 
+                        download
+                        aria-label={`ดาวน์โหลดประกาศ PDF: ${ann.title}`}
                         className="btn-outline-cyan" 
                         style={{ padding: '6px 14px', fontSize: '0.8rem', textDecoration: 'none' }}
                       >
@@ -2307,7 +2920,7 @@ export default function App() {
                       <Trophy className="w-4 h-4" />
                       <span>HALL OF FAME & INSPIRATION</span>
                     </div>
-                    <h2 style={{ fontSize: '2rem' }}>คลังผลงานที่เคยได้รับรางวัล</h2>
+                    <h1 style={{ fontSize: '2rem' }}>คลังผลงานและทำเนียบเกียรติยศ</h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginTop: '4px' }}>
                       สืบค้นผลงานนวัตกรรมและสิ่งประดิษฐ์ที่ได้รับรางวัลเกียรติยศในแต่ละปีการประกวด
                     </p>
@@ -2319,13 +2932,14 @@ export default function App() {
                       <Search className="w-4 h-4 text-emerald-400" />
                       <input 
                         type="text"
+                        aria-label="ค้นหาชื่อผลงาน ทีม หรือสถาบันที่เคยได้รับรางวัล"
                         placeholder="ค้นหาชื่อผลงาน, ทีม, สถาบัน..."
                         value={winnerSearch}
                         onChange={e => setWinnerSearch(e.target.value)}
                         className="search-input"
                       />
                       {winnerSearch && (
-                        <button type="button" onClick={() => setWinnerSearch('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                        <button type="button" aria-label="ล้างคำค้นหาผลงาน" onClick={() => setWinnerSearch('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                           <X className="w-4 h-4" />
                         </button>
                       )}
@@ -2340,6 +2954,7 @@ export default function App() {
                     <select 
                       value={selectedYear} 
                       onChange={e => setSelectedYear(e.target.value)}
+                      aria-label="เลือกปีการประกวด"
                       className="filter-select"
                       style={{ minWidth: '170px' }}
                     >
@@ -2354,6 +2969,7 @@ export default function App() {
                     <select 
                       value={selectedDomain} 
                       onChange={e => setSelectedDomain(e.target.value)}
+                      aria-label="เลือกหมวดหมู่นวัตกรรม"
                       className="filter-select"
                       style={{ minWidth: '180px' }}
                     >
@@ -2363,6 +2979,7 @@ export default function App() {
                       <option value="social_economy">Social & Economy</option>
                       <option value="medical_device">Medical Device</option>
                       <option value="material">Material</option>
+                      <option value="others">อื่นๆ (Others)</option>
                     </select>
                   </div>
 
@@ -2370,6 +2987,7 @@ export default function App() {
                     <select 
                       value={selectedLevel} 
                       onChange={e => setSelectedLevel(e.target.value)}
+                      aria-label="เลือกระดับการแข่งขัน"
                       className="filter-select"
                       style={{ minWidth: '180px' }}
                     >
@@ -2390,6 +3008,10 @@ export default function App() {
                   )}
                 </div>
               </div>
+
+              {(selectedYear === 'all' || selectedYear === '2569') && !winnerSearch.trim() && (
+                renderEventHighlightShowcase({ isHallOfFame: true })
+              )}
 
               <div className="winner-grid">
                 {filteredWinners.length === 0 ? (
@@ -2439,7 +3061,7 @@ export default function App() {
                   <Phone className="w-4 h-4" />
                   <span>CONTACT & DOWNLOAD CENTER</span>
                 </div>
-                <h2>ติดต่อสอบถามและดาวน์โหลดเอกสาร</h2>
+                <h1>ติดต่อสอบถามและศูนย์ดาวน์โหลดเอกสาร</h1>
                 <p>
                   ช่องทางการติดต่อฝ่ายประสานงานโครงการ และดาวน์โหลดแบบฟอร์มเอกสารฉบับทางการ
                 </p>
@@ -2455,13 +3077,14 @@ export default function App() {
                   </div>
                   <h3 style={{ fontSize: '1.4rem', marginBottom: '14px' }}>เอกสารประกอบการสมัคร</h3>
                   <p style={{ fontSize: '0.88rem', marginBottom: '20px', color: 'var(--text-secondary)' }}>
-                    ดาวน์โหลดแบบฟอร์มข้อเสนอโครงการ และเอกสารประกาศเกณฑ์การประกวด
+                    ดาวน์โหลดแบบฟอร์มข้อเสนอโครงการ และเอกสารประกาศเกณฑ์การประกวดฉบับทางการ
                   </p>
 
                   <div className="contact-download-list">
                     <a
-                      href="#/guidelines"
-                      onClick={(e) => { e.preventDefault(); navigateTo('guidelines'); }}
+                      href="/docs/KMUTNB_Innovation_Awards_2027_Guidelines.pdf"
+                      download="KMUTNB_Innovation_Awards_2027_Guidelines.pdf"
+                      aria-label="ดาวน์โหลดเอกสารประกาศเกณฑ์การประกวดฉบับทางการ 2570 (PDF)"
                       className="bento-tier-row contact-download-item"
                       style={{ textDecoration: 'none', padding: '16px', background: 'rgba(24, 52, 88, 0.85)', border: '1px solid var(--border-medium)' }}
                     >
@@ -2469,15 +3092,16 @@ export default function App() {
                         <FileText className="w-5 h-5 text-emerald-400" />
                         <div>
                           <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>ประกาศเกณฑ์การประกวดฉบับทางการ 2570.pdf</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร PDF • 2.4 MB • คลิกเพื่อดูเกณฑ์การแข่งขัน</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร PDF ฉบับทางการ • 2.4 MB • คลิกเพื่อดาวน์โหลด</div>
                         </div>
                       </div>
                       <Download className="w-4 h-4 text-emerald-400" />
                     </a>
 
                     <a
-                      href="#/guidelines#standards"
-                      onClick={(e) => { e.preventDefault(); navigateTo('guidelines', 'standards'); }}
+                      href="/docs/Proposal_Template_2570.docx"
+                      download="Proposal_Template_2570.docx"
+                      aria-label="ดาวน์โหลดแบบฟอร์มข้อเสนอโครงการ Proposal Template (DOCX)"
                       className="bento-tier-row contact-download-item"
                       style={{ textDecoration: 'none', padding: '16px', background: 'rgba(24, 52, 88, 0.85)', border: '1px solid var(--border-medium)' }}
                     >
@@ -2485,7 +3109,7 @@ export default function App() {
                         <FileText className="w-5 h-5 text-orange-400" />
                         <div>
                           <div style={{ color: 'var(--text-primary)', fontWeight: 600 }}>แบบฟอร์มข้อเสนอโครงการ (Proposal Template).docx</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร Word • 512 KB • คลิกเพื่อดูมาตรฐานเอกสาร</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>เอกสาร Word Template • 512 KB • คลิกเพื่อดาวน์โหลด</div>
                         </div>
                       </div>
                       <Download className="w-4 h-4 text-orange-400" />
@@ -2684,6 +3308,16 @@ export default function App() {
                     onChange={e => setRegForm({...regForm, institution: e.target.value})}
                   />
                 </div>
+                <div className="form-group">
+                  <label htmlFor="reg-password" className="form-label">กำหนดรหัสผ่าน (อย่างน้อย 6 ตัวอักษร) *</label>
+                  <input 
+                    id="reg-password" type="password" required minLength={6}
+                    className="form-input"
+                    placeholder="••••••••"
+                    value={regForm.password}
+                    onChange={e => setRegForm({...regForm, password: e.target.value})}
+                  />
+                </div>
                 <button type="submit" disabled={authLoading} className="btn-solid-primary" style={{ width: '100%', marginTop: '12px' }}>
                   <UserPlus className="w-4 h-4" />
                   <span>{authLoading ? 'กำลังดำเนินการ...' : 'สร้างบัญชีและดำเนินการต่อ'}</span>
@@ -2704,6 +3338,16 @@ export default function App() {
                     onChange={e => setRegForm({...regForm, email: e.target.value})}
                   />
                 </div>
+                <div className="form-group">
+                  <label htmlFor="login-password" className="form-label">รหัสผ่าน *</label>
+                  <input 
+                    id="login-password" type="password" required
+                    className="form-input"
+                    placeholder="••••••••"
+                    value={regForm.password}
+                    onChange={e => setRegForm({...regForm, password: e.target.value})}
+                  />
+                </div>
                 <button type="submit" disabled={authLoading} className="btn-solid-primary" style={{ width: '100%', marginTop: '12px' }}>
                   <LogIn className="w-4 h-4" />
                   <span>{authLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}</span>
@@ -2719,15 +3363,92 @@ export default function App() {
                     <CheckCircle2 className="w-14 h-14 text-emerald-400" style={{ margin: '0 auto 16px' }} />
                     <h3 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>ยื่นผลงานเรียบร้อยแล้ว!</h3>
                     <p style={{ fontSize: '0.88rem', marginBottom: '16px' }}>รหัสติดตามผลงานของคุณคือ:</p>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.6rem', fontWeight: 800, color: 'var(--cyan-300)', background: 'var(--bg-base)', padding: '14px', borderRadius: '12px', border: '1px solid var(--border-cyan)', marginBottom: '24px' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.6rem', fontWeight: 800, color: 'var(--cyan-300)', background: 'var(--bg-base)', padding: '14px', borderRadius: '12px', border: '1px solid var(--border-cyan)', marginBottom: '16px' }}>
                       {subSuccess.trackingCode}
                     </div>
-                    <button onClick={() => { setSubSuccess(null); setShowPortalModal(false); }} className="btn-outline-cyan">
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (navigator.clipboard) {
+                            navigator.clipboard.writeText(subSuccess.trackingCode);
+                          }
+                          setCopiedTrackingCode(true);
+                          setTimeout(() => setCopiedTrackingCode(false), 2500);
+                        }}
+                        className="btn-outline-cyan"
+                        style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                      >
+                        <Copy className="w-4 h-4" />
+                        <span>{copiedTrackingCode ? 'คัดลอกรหัสแล้ว!' : 'คัดลอกรหัสติดตาม'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const code = subSuccess.trackingCode;
+                          setSubSuccess(null);
+                          setShowPortalModal(false);
+                          setTrackingSearch(code);
+                          setShowStatusModal(true);
+                          executeStatusSearch(code);
+                        }}
+                        className="btn-solid-primary"
+                        style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                      >
+                        <Search className="w-4 h-4" />
+                        <span>ดูบัตรรายละเอียดและตรวจสถานะผลงาน</span>
+                      </button>
+                    </div>
+                    <button onClick={() => { setSubSuccess(null); setShowPortalModal(false); }} className="btn-text" style={{ color: 'var(--text-muted)' }}>
                       ปิดหน้านี้
                     </button>
                   </div>
                 ) : (
                   <div>
+                    {/* 3-Step Submission Stepper */}
+                    <div className="submission-stepper" role="tablist" aria-label="ขั้นตอนการกรอกใบสมัคร">
+                      {[
+                        { step: 1, label: '1. ข้อมูลผลงานและสังกัด' },
+                        { step: 2, label: '2. สมาชิกและผู้ประสานงาน' },
+                        { step: 3, label: '3. ไฟล์ประกอบผลงาน (5 รายการ)' }
+                      ].map((item) => (
+                        <button
+                          key={item.step}
+                          type="button"
+                          role="tab"
+                          aria-selected={submissionStep === item.step}
+                          onClick={() => {
+                            if (subError) setSubError('');
+                            setSubmissionStep(item.step);
+                          }}
+                          className={`submission-step-btn ${submissionStep === item.step ? 'active' : ''}`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {draftNotice && (
+                      <div
+                        role="status"
+                        aria-live="polite"
+                        style={{
+                          padding: '12px 16px',
+                          marginBottom: '16px',
+                          borderRadius: '10px',
+                          background: 'rgba(16, 185, 129, 0.16)',
+                          border: '1px solid rgba(52, 211, 153, 0.5)',
+                          color: '#6EE7B7',
+                          fontSize: '0.85rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                      >
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                        <span>{draftNotice}</span>
+                      </div>
+                    )}
                     {subError && (
                       <div
                         role="alert"
@@ -2746,111 +3467,470 @@ export default function App() {
                         {subError}
                       </div>
                     )}
-                    <div className="form-group">
-                      <label htmlFor="submission-title-th" className="form-label">ชื่อผลงานสิ่งประดิษฐ์/นวัตกรรม (ภาษาไทย) *</label>
-                      <input 
-                        id="submission-title-th" type="text" required
-                        className="form-input"
-                        placeholder="เช่น หุ่นยนต์สำรวจภัยพิบัติอัจฉริยะ"
-                        value={subForm.titleTh}
-                        onChange={e => {
-                          if (subError) setSubError('');
-                          setSubForm({...subForm, titleTh: e.target.value});
-                        }}
-                      />
-                    </div>
-                    <div className="responsive-two-col-grid" style={{ gap: '12px' }}>
-                      <div className="form-group">
-                        <label htmlFor="submission-category" className="form-label">หมวดหมู่นวัตกรรม *</label>
-                        <select 
-                          id="submission-category" className="form-input"
-                          value={subForm.category}
-                          onChange={e => setSubForm({...subForm, category: e.target.value})}
-                        >
-                          <option value="energy_environment">Energy & Environment</option>
-                          <option value="food_agriculture">Food & Agriculture</option>
-                          <option value="social_economy">Social & Economy</option>
-                          <option value="medical_device">Medical Device</option>
-                          <option value="material">Material</option>
-                        </select>
-                      </div>
-                      <div className="form-group">
-                        <label htmlFor="submission-level" className="form-label">ระดับการแข่งขัน *</label>
-                        <select 
-                          id="submission-level" className="form-input"
-                          value={subForm.educationLevel}
-                          onChange={e => setSubForm({...subForm, educationLevel: e.target.value})}
-                        >
-                          <option value="below_higher">ต่ำกว่าอุดมศึกษา (มัธยม / ปวช.)</option>
-                          <option value="higher_and_above">อุดมศึกษาและบุคคลทั่วไป (ป.ตรี-โท-เอก / ประชาชน)</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="submission-team" className="form-label">ชื่อทีม / สถาบัน</label>
-                      <input 
-                        id="submission-team" type="text"
-                        className="form-input"
-                        placeholder="เช่น KMUTNB Robotics Lab"
-                        value={subForm.teamName}
-                        onChange={e => setSubForm({...subForm, teamName: e.target.value})}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="submission-abstract" className="form-label">บทคัดย่อ / คำอธิบายผลงานโดยสรุป</label>
-                      <textarea 
-                        id="submission-abstract" rows={3}
-                        className="form-input"
-                        placeholder="อธิบายหลักการทำงานและประโยชน์ของผลงาน..."
-                        value={subForm.abstractTh}
-                        onChange={e => setSubForm({...subForm, abstractTh: e.target.value})}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="submission-video" className="form-label">ลิงก์คลิปวิดีโอแนะนำผลงาน ความยาว 2 - 3 นาที (YouTube / Google Drive)</label>
-                      <input 
-                        id="submission-video" type="url"
-                        className="form-input"
-                        placeholder="https://youtube.com/watch?v=..."
-                        value={subForm.videoUrl}
-                        onChange={e => setSubForm({...subForm, videoUrl: e.target.value})}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="submission-cover-image" className="form-label">ลิงก์รูปภาพหน้าปกผลงาน / โปสเตอร์ (URL รูปภาพ หรือเลือกภาพตัวอย่าง)</label>
-                      <input 
-                        id="submission-cover-image" type="text"
-                        className="form-input"
-                        placeholder="วางลิงก์รูปภาพ https://... หรือเลือกภาพด้านล่าง"
-                        value={subForm.coverImage}
-                        onChange={e => setSubForm({...subForm, coverImage: e.target.value})}
-                      />
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-                        {[
-                          { label: 'ภาพหุ่นยนต์/AI', path: '/photo_candidates/robotics_engineer.jpg' },
-                          { label: 'ภาพห้องปฏิบัติการ', path: '/photo_candidates/science_lab.jpg' },
-                          { label: 'ภาพทีมวิจัย', path: '/photo_candidates/tech_creators.jpg' }
-                        ].map((preset) => (
-                          <button
-                            key={preset.path}
-                            type="button"
-                            onClick={() => setSubForm({ ...subForm, coverImage: preset.path })}
-                            style={{
-                              padding: '4px 10px',
-                              borderRadius: '999px',
-                              fontSize: '0.75rem',
-                              background: subForm.coverImage === preset.path ? 'rgba(0, 245, 160, 0.22)' : 'rgba(24, 52, 88, 0.72)',
-                              border: `1px solid ${subForm.coverImage === preset.path ? 'var(--emerald-400)' : 'var(--border-subtle)'}`,
-                              color: subForm.coverImage === preset.path ? 'var(--emerald-300)' : 'var(--text-secondary)',
-                              cursor: 'pointer'
+
+                    {/* STEP 1: ข้อมูลผลงานและสังกัด */}
+                    {submissionStep === 1 && (
+                      <div>
+                        <div className="form-group">
+                          <label htmlFor="submission-title-th" className="form-label">ชื่อผลงาน (ไทย) *</label>
+                          <input 
+                            id="submission-title-th" type="text" required
+                            className="form-input"
+                            placeholder="เช่น เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบ Butt Fusion"
+                            value={subForm.titleTh}
+                            onChange={e => {
+                              if (subError) setSubError('');
+                              setSubForm({...subForm, titleTh: e.target.value});
                             }}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="submission-title-en" className="form-label">ชื่อผลงาน (อังกฤษ)</label>
+                          <input 
+                            id="submission-title-en" type="text"
+                            className="form-input"
+                            placeholder="e.g. Automatic HDPE Pipe Butt Fusion Welding Controller and Data Logger"
+                            value={subForm.titleEn}
+                            onChange={e => setSubForm({...subForm, titleEn: e.target.value})}
+                          />
+                        </div>
+                        <div className="responsive-two-col-grid" style={{ gap: '12px' }}>
+                          <div className="form-group">
+                            <label htmlFor="submission-category" className="form-label">หมวดหมู่ *</label>
+                            <select 
+                              id="submission-category" className="form-input"
+                              value={subForm.category}
+                              onChange={e => setSubForm({...subForm, category: e.target.value})}
+                            >
+                              <option value="energy_environment">Energy & Environment (พลังงานและสิ่งแวดล้อม)</option>
+                              <option value="food_agriculture">Food & Agriculture (เกษตรและอาหารแปรรูป)</option>
+                              <option value="social_economy">Social & Economy (เศรษฐกิจและสังคมดิจิทัล)</option>
+                              <option value="medical_device">Medical Device (เครื่องมือแพทย์และสาธารณสุข)</option>
+                              <option value="material">Material (วัสดุศาสตร์และเทคโนโลยีก้าวหน้า)</option>
+                              <option value="others">อื่นๆ (Others) — สิ่งประดิษฐ์และนวัตกรรมทั่วไป</option>
+                            </select>
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="submission-level" className="form-label">ระดับการแข่งขัน *</label>
+                            <select 
+                              id="submission-level" className="form-input"
+                              value={subForm.educationLevel}
+                              onChange={e => setSubForm({...subForm, educationLevel: e.target.value})}
+                            >
+                              <option value="below_higher">ต่ำกว่าอุดมศึกษา (มัธยม / ปวช.)</option>
+                              <option value="higher_and_above">อุดมศึกษาและบุคคลทั่วไป (ป.ตรี-โท-เอก / ประชาชน)</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="responsive-two-col-grid" style={{ gap: '12px' }}>
+                          <div className="form-group">
+                            <label htmlFor="submission-team" className="form-label">ชื่อทีม *</label>
+                            <input 
+                              id="submission-team" type="text"
+                              className="form-input"
+                              placeholder="เช่น เขาชื่ออะไร / KMUTNB Robotics Lab"
+                              value={subForm.teamName}
+                              onChange={e => setSubForm({...subForm, teamName: e.target.value})}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="submission-affiliation" className="form-label">สังกัด (คณะ / โรงเรียน / สถาบัน / หน่วยงาน) *</label>
+                            <input 
+                              id="submission-affiliation" type="text"
+                              className="form-input"
+                              placeholder="เช่น คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ"
+                              value={subForm.affiliation || ''}
+                              onChange={e => setSubForm({...subForm, affiliation: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="submission-advisor" className="form-label">ชื่ออาจารย์ที่ปรึกษา / หน่วยงานรับรอง (ถ้ามี)</label>
+                          <input 
+                            id="submission-advisor" type="text"
+                            className="form-input"
+                            placeholder="เช่น ผศ.ดร.วัฒนา แก้วมณี"
+                            value={subForm.advisorName}
+                            onChange={e => setSubForm({...subForm, advisorName: e.target.value})}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="submission-abstract" className="form-label">รายละเอียดผลงาน *</label>
+                          <textarea 
+                            id="submission-abstract" rows={3}
+                            className="form-input"
+                            placeholder="อธิบายหลักการทำงาน ความคิดสร้างสรรค์ และประโยชน์ของผลงาน..."
+                            value={subForm.abstractTh}
+                            onChange={e => setSubForm({...subForm, abstractTh: e.target.value})}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const err = validateSubmissionStep(subForm, 1, false);
+                              if (err) {
+                                setSubError(err);
+                                return;
+                              }
+                              setSubError('');
+                              setSubmissionStep(2);
+                            }}
+                            className="btn-solid-primary"
                           >
-                            + {preset.label}
+                            <span>ถัดไป: สมาชิกและผู้ประสานงาน</span>
+                            <ArrowRight className="w-4 h-4" />
                           </button>
-                        ))}
+                        </div>
                       </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                    )}
+
+                    {/* STEP 2: สมาชิกทีม & ผู้ประสานงานหลัก-รอง */}
+                    {submissionStep === 2 && (
+                      <div>
+                        <div className="dossier-section-box" style={{ marginBottom: '16px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                            <strong style={{ color: 'var(--emerald-300)', fontSize: '0.92rem' }}>สมาชิกทีม *</strong>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const current = Array.isArray(subForm.members) ? subForm.members : [];
+                                setSubForm({
+                                  ...subForm,
+                                  members: [...current, { fullName: '', role: 'สมาชิก', idCard: '' }]
+                                });
+                              }}
+                              className="btn-outline-cyan"
+                              style={{ padding: '6px 12px', fontSize: '0.78rem', minHeight: '36px' }}
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>เพิ่มสมาชิกทีม</span>
+                            </button>
+                          </div>
+
+                          {(Array.isArray(subForm.members) ? subForm.members : [{ fullName: '', role: 'หัวหน้าทีม', idCard: '' }]).map((member, idx) => {
+                            const mObj = typeof member === 'string' ? { fullName: member, role: idx === 0 ? 'หัวหน้าทีม' : 'สมาชิก', idCard: '' } : member;
+                            return (
+                              <div key={idx} className="member-input-row">
+                                <span className="member-index-badge">{idx + 1}.</span>
+                                <input
+                                  type="text"
+                                  aria-label={`ชื่อสมาชิกคนที่ ${idx + 1}`}
+                                  className="form-input"
+                                  placeholder={idx === 0 ? 'ชื่อ-นามสกุล (หัวหน้าทีม) เช่น ผศ.ดร.วัฒนา แก้วมณี' : 'ชื่อ-นามสกุล สมาชิก'}
+                                  value={mObj.fullName}
+                                  onChange={e => {
+                                    const next = [...(Array.isArray(subForm.members) ? subForm.members : [])];
+                                    next[idx] = { ...mObj, fullName: e.target.value };
+                                    setSubForm({ ...subForm, members: next });
+                                  }}
+                                />
+                                <input
+                                  type="text"
+                                  aria-label={`เลขบัตรประชาชนหรือพาสปอร์ตสมาชิกคนที่ ${idx + 1}`}
+                                  className="form-input"
+                                  style={{ fontFamily: 'var(--font-mono)' }}
+                                  placeholder="เลขบัตรประชาชน / พาสปอร์ต เช่น 5-1601-00029-58-2"
+                                  value={mObj.idCard}
+                                  onChange={e => {
+                                    const next = [...(Array.isArray(subForm.members) ? subForm.members : [])];
+                                    next[idx] = { ...mObj, idCard: formatCitizenIdInput(e.target.value) };
+                                    setSubForm({ ...subForm, members: next });
+                                  }}
+                                />
+                                {(Array.isArray(subForm.members) && subForm.members.length > 1) && (
+                                  <button
+                                    type="button"
+                                    aria-label={`ลบสมาชิกคนที่ ${idx + 1}`}
+                                    onClick={() => {
+                                      const next = subForm.members.filter((_, i) => i !== idx);
+                                      setSubForm({ ...subForm, members: next });
+                                    }}
+                                    className="member-remove-btn"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* ผู้ประสานงานหลัก */}
+                        <div className="dossier-section-box" style={{ marginBottom: '16px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                            <strong style={{ color: 'var(--cyan-300)', fontSize: '0.92rem' }}>ผู้ประสานงานหลัก *</strong>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const firstMember = Array.isArray(subForm.members) && subForm.members[0]
+                                  ? (typeof subForm.members[0] === 'string' ? { fullName: subForm.members[0], idCard: '' } : subForm.members[0])
+                                  : { fullName: '', idCard: '' };
+                                setSubForm({
+                                  ...subForm,
+                                  primaryCoordinator: {
+                                    ...subForm.primaryCoordinator,
+                                    name: firstMember.fullName || user?.fullName || '',
+                                    idCard: firstMember.idCard || '',
+                                    email: subForm.primaryCoordinator?.email || user?.email || ''
+                                  }
+                                });
+                              }}
+                              className="btn-outline-cyan"
+                              style={{ padding: '4px 10px', fontSize: '0.74rem', minHeight: '32px' }}
+                            >
+                              ใช้ข้อมูลเดียวกับหัวหน้าทีม
+                            </button>
+                          </div>
+                          <div className="responsive-two-col-grid" style={{ gap: '10px' }}>
+                            <div className="form-group" style={{ marginBottom: '8px' }}>
+                              <label htmlFor="primary-coord-name" className="form-label">ชื่อ-นามสกุล *</label>
+                              <input
+                                id="primary-coord-name"
+                                type="text"
+                                className="form-input"
+                                placeholder="เช่น ผศ.ดร.วัฒนา แก้วมณี"
+                                value={subForm.primaryCoordinator?.name || ''}
+                                onChange={e => setSubForm({
+                                  ...subForm,
+                                  primaryCoordinator: { ...(subForm.primaryCoordinator || {}), name: e.target.value }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: '8px' }}>
+                              <label htmlFor="primary-coord-id" className="form-label">เลขบัตรประชาชน / พาสปอร์ต</label>
+                              <input
+                                id="primary-coord-id"
+                                type="text"
+                                className="form-input"
+                                style={{ fontFamily: 'var(--font-mono)' }}
+                                placeholder="5-1601-00029-58-2"
+                                value={subForm.primaryCoordinator?.idCard || ''}
+                                onChange={e => setSubForm({
+                                  ...subForm,
+                                  primaryCoordinator: { ...(subForm.primaryCoordinator || {}), idCard: formatCitizenIdInput(e.target.value) }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label htmlFor="primary-coord-phone" className="form-label">โทรศัพท์ *</label>
+                              <input
+                                id="primary-coord-phone"
+                                type="tel"
+                                className="form-input"
+                                placeholder="064-274-9888"
+                                value={subForm.primaryCoordinator?.phone || ''}
+                                onChange={e => setSubForm({
+                                  ...subForm,
+                                  primaryCoordinator: { ...(subForm.primaryCoordinator || {}), phone: e.target.value }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label htmlFor="primary-coord-email" className="form-label">อีเมล *</label>
+                              <input
+                                id="primary-coord-email"
+                                type="email"
+                                className="form-input"
+                                placeholder="wattana.k@fte.kmutnb.ac.th"
+                                value={subForm.primaryCoordinator?.email || ''}
+                                onChange={e => setSubForm({
+                                  ...subForm,
+                                  primaryCoordinator: { ...(subForm.primaryCoordinator || {}), email: e.target.value }
+                                })}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* ผู้ประสานงานรอง */}
+                        <div className="dossier-section-box" style={{ marginBottom: '16px' }}>
+                          <strong style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block', marginBottom: '10px' }}>
+                            ผู้ประสานงานรอง (สำรองติดต่อ - ถ้ามี)
+                          </strong>
+                          <div className="responsive-two-col-grid" style={{ gap: '10px' }}>
+                            <div className="form-group" style={{ marginBottom: '8px' }}>
+                              <label htmlFor="secondary-coord-name" className="form-label">ชื่อ-นามสกุล</label>
+                              <input
+                                id="secondary-coord-name"
+                                type="text"
+                                className="form-input"
+                                placeholder="ชื่อ-นามสกุล ผู้ประสานงานรอง"
+                                value={subForm.secondaryCoordinator?.name || ''}
+                                onChange={e => setSubForm({
+                                  ...subForm,
+                                  secondaryCoordinator: { ...(subForm.secondaryCoordinator || {}), name: e.target.value }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: '8px' }}>
+                              <label htmlFor="secondary-coord-id" className="form-label">เลขบัตรประชาชน / พาสปอร์ต</label>
+                              <input
+                                id="secondary-coord-id"
+                                type="text"
+                                className="form-input"
+                                style={{ fontFamily: 'var(--font-mono)' }}
+                                placeholder="5-1601-00029-58-2"
+                                value={subForm.secondaryCoordinator?.idCard || ''}
+                                onChange={e => setSubForm({
+                                  ...subForm,
+                                  secondaryCoordinator: { ...(subForm.secondaryCoordinator || {}), idCard: formatCitizenIdInput(e.target.value) }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label htmlFor="secondary-coord-phone" className="form-label">โทรศัพท์</label>
+                              <input
+                                id="secondary-coord-phone"
+                                type="tel"
+                                className="form-input"
+                                placeholder="064-274-9888"
+                                value={subForm.secondaryCoordinator?.phone || ''}
+                                onChange={e => setSubForm({
+                                  ...subForm,
+                                  secondaryCoordinator: { ...(subForm.secondaryCoordinator || {}), phone: e.target.value }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                              <label htmlFor="secondary-coord-email" className="form-label">อีเมล</label>
+                              <input
+                                id="secondary-coord-email"
+                                type="email"
+                                className="form-input"
+                                placeholder="wattana.kaewmanee@gmail.com"
+                                value={subForm.secondaryCoordinator?.email || ''}
+                                onChange={e => setSubForm({
+                                  ...subForm,
+                                  secondaryCoordinator: { ...(subForm.secondaryCoordinator || {}), email: e.target.value }
+                                })}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', marginTop: '12px' }}>
+                          <button type="button" onClick={() => setSubmissionStep(1)} className="btn-outline-cyan">
+                            <span>ย้อนกลับ</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const err = validateSubmissionStep(subForm, 2, false);
+                              if (err) {
+                                setSubError(err);
+                                return;
+                              }
+                              setSubError('');
+                              setSubmissionStep(3);
+                            }}
+                            className="btn-solid-primary"
+                          >
+                            <span>ถัดไป: แนบไฟล์ประกอบผลงาน</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* STEP 3: ไฟล์ประกอบผลงาน 5 รายการ */}
+                    {submissionStep === 3 && (
+                      <div>
+                        <div className="form-group">
+                          <label htmlFor="submission-document-url" className="form-label">
+                            1. ไฟล์ PDF แบบฟอร์มเสนอผลงานประกวดสิ่งประดิษฐ์และนวัตกรรม * <span style={{ color: 'var(--emerald-300)', fontSize: '0.76rem' }}>(จำเป็น)</span>
+                          </label>
+                          <input 
+                            id="submission-document-url" type="url"
+                            className="form-input"
+                            placeholder="https://drive.google.com/file/d/... (ลิงก์ PDF ข้อเสนอโครงการ)"
+                            value={subForm.proposalPdfUrl || subForm.documentUrl || ''}
+                            onChange={e => setSubForm({...subForm, proposalPdfUrl: e.target.value, documentUrl: e.target.value})}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="submission-video" className="form-label">
+                            2. คลิป VDO นำเสนอผลงาน (ความยาว 2 - 3 นาที) * <span style={{ color: 'var(--emerald-300)', fontSize: '0.76rem' }}>(จำเป็น)</span>
+                          </label>
+                          <input 
+                            id="submission-video" type="url"
+                            className="form-input"
+                            placeholder="https://youtube.com/watch?v=... หรือ Google Drive"
+                            value={subForm.videoUrl}
+                            onChange={e => setSubForm({...subForm, videoUrl: e.target.value})}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="submission-cover-image" className="form-label">
+                            3. Image (รูปภาพผลงาน / ชิ้นงานต้นแบบ) * <span style={{ color: 'var(--emerald-300)', fontSize: '0.76rem' }}>(จำเป็น)</span>
+                          </label>
+                          <input 
+                            id="submission-cover-image" type="text"
+                            className="form-input"
+                            placeholder="วางลิงก์รูปภาพ https://... หรือเลือกภาพตัวอย่างด้านล่าง"
+                            value={subForm.coverImage}
+                            onChange={e => setSubForm({...subForm, coverImage: e.target.value})}
+                          />
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                            {[
+                              { label: 'ภาพหุ่นยนต์/AI', path: '/photo_candidates/robotics_engineer.jpg' },
+                              { label: 'ภาพห้องปฏิบัติการ', path: '/photo_candidates/science_lab.jpg' },
+                              { label: 'ภาพทีมวิจัย', path: '/photo_candidates/tech_creators.jpg' }
+                            ].map((preset) => (
+                              <button
+                                key={preset.path}
+                                type="button"
+                                onClick={() => setSubForm({ ...subForm, coverImage: preset.path })}
+                                style={{
+                                  padding: '4px 10px',
+                                  borderRadius: '999px',
+                                  fontSize: '0.75rem',
+                                  background: subForm.coverImage === preset.path ? 'rgba(0, 245, 160, 0.22)' : 'rgba(24, 52, 88, 0.72)',
+                                  border: `1px solid ${subForm.coverImage === preset.path ? 'var(--emerald-400)' : 'var(--border-subtle)'}`,
+                                  color: subForm.coverImage === preset.path ? 'var(--emerald-300)' : 'var(--text-secondary)',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                + {preset.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="responsive-two-col-grid" style={{ gap: '12px' }}>
+                          <div className="form-group">
+                            <label htmlFor="submission-poster-url" className="form-label">
+                              4. Poster (โปสเตอร์นำเสนอผลงาน) <span style={{ color: 'var(--gold-300)', fontSize: '0.75rem' }}>(แนบเพิ่มเติมทีหลังได้)</span>
+                            </label>
+                            <input 
+                              id="submission-poster-url" type="text"
+                              className="form-input"
+                              placeholder="https://drive.google.com/... (ส่งเพิ่มเมื่อเข้ารอบ 2 ได้)"
+                              value={subForm.posterUrl || ''}
+                              onChange={e => setSubForm({...subForm, posterUrl: e.target.value})}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="submission-presentation-url" className="form-label">
+                              5. Presentation (สไลด์นำเสนอ PDF/PPT) <span style={{ color: 'var(--gold-300)', fontSize: '0.75rem' }}>(แนบเพิ่มเติมทีหลังได้)</span>
+                            </label>
+                            <input 
+                              id="submission-presentation-url" type="text"
+                              className="form-input"
+                              placeholder="https://drive.google.com/... (ส่งเพิ่มเมื่อเข้ารอบได้)"
+                              value={subForm.presentationUrl || ''}
+                              onChange={e => setSubForm({...subForm, presentationUrl: e.target.value})}
+                            />
+                          </div>
+                        </div>
+                        <div style={{ marginBottom: '12px' }}>
+                          <button type="button" onClick={() => setSubmissionStep(2)} className="btn-text" style={{ color: 'var(--cyan-300)', fontSize: '0.82rem' }}>
+                            ← ย้อนกลับไปแก้ไขข้อมูลสมาชิกและผู้ประสานงาน
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '20px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
                       <button type="button" disabled={submissionLoading} onClick={() => handleSubmission(true)} className="btn-outline-cyan" style={{ flex: 1 }}>
                         <Save className="w-4 h-4" />
                         <span>{submissionLoading ? 'กำลังบันทึก...' : 'บันทึกแบบร่าง'}</span>
@@ -2868,23 +3948,23 @@ export default function App() {
         </div>
       )}
 
-      {/* --- MODAL 2: STATUS CHECK --- */}
+      {/* --- MODAL 2: STATUS CHECK & OFFICIAL SUBMISSION DOSSIER --- */}
       {showStatusModal && (
         <div className="modal-overlay" onClick={() => setShowStatusModal(false)}>
-          <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="status-modal-title" onClick={e => e.stopPropagation()}>
+          <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="status-modal-title" style={{ maxWidth: '820px' }} onClick={e => e.stopPropagation()}>
             <button aria-label="ปิดหน้าต่างตรวจสอบสถานะ" className="modal-close-btn" onClick={() => setShowStatusModal(false)}>
               <X className="w-5 h-5" />
             </button>
 
-            <h3 id="status-modal-title" style={{ fontSize: '1.4rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 id="status-modal-title" style={{ fontSize: '1.35rem', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Search className="w-5 h-5 text-cyan-300" />
-              <span>ตรวจสอบสถานะการสมัคร</span>
+              <span>ตรวจสอบสถานะและรายละเอียดผลงาน</span>
             </h3>
-            <p style={{ fontSize: '0.85rem', marginBottom: '20px' }}>
-              กรอกรหัสติดตามผลงานเพื่อดูสถานะการพิจารณา (เช่น KMUTNB-2569-0001)
+            <p style={{ fontSize: '0.84rem', marginBottom: '12px' }}>
+              กรอกรหัสผลงานเพื่อดูรายละเอียดใบสมัคร สถานะการเข้ารอบ และไฟล์ประกอบผลงาน
             </p>
 
-            <form onSubmit={handleStatusCheck} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+            <form onSubmit={handleStatusCheck} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
               <label htmlFor="status-search" className="form-label" style={{ position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}>รหัสติดตามผลงาน</label>
               <input 
                 id="status-search" type="text" required
@@ -2898,6 +3978,32 @@ export default function App() {
                 <span>ค้นหา</span>
               </button>
             </form>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px', fontSize: '0.78rem' }}>
+              <span style={{ color: 'var(--text-muted)' }}>ตัวอย่างรหัสผลงาน:</span>
+              {['KMUTNB-2569-0002', 'KMUTNB-2569-0001'].map(sampleCode => (
+                <button
+                  key={sampleCode}
+                  type="button"
+                  onClick={() => {
+                    setTrackingSearch(sampleCode);
+                    executeStatusSearch(sampleCode);
+                  }}
+                  style={{
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.75rem',
+                    background: 'rgba(24, 52, 88, 0.8)',
+                    border: '1px solid var(--border-cyan)',
+                    color: 'var(--cyan-300)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {sampleCode}
+                </button>
+              ))}
+            </div>
 
             {statusLoading && <div role="status" aria-live="polite" style={{ textAlign: 'center', color: 'var(--cyan-300)', fontSize: '0.88rem', padding: '16px' }}>กำลังค้นหาข้อมูล...</div>}
 
@@ -2920,22 +4026,214 @@ export default function App() {
             )}
 
             {statusResult && (
-              <div
-                style={{
-                  background: 'rgba(24, 52, 88, 0.82)',
-                  border: '1px solid var(--border-cyan)',
-                  borderRadius: '14px',
-                  padding: '18px',
-                  fontSize: '0.85rem',
-                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15)'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--emerald-300)', fontWeight: 700 }}>{statusResult.trackingCode}</span>
-                  <span className="badge-category">{statusResult.status}</span>
+              <div className="dossier-card">
+                <div className="dossier-header">
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>รายละเอียดผลงาน</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginTop: '2px' }}>
+                      <strong style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', color: 'var(--emerald-300)' }}>
+                        รหัสผลงาน: {statusResult.trackingCode}
+                      </strong>
+                      <span className="badge-category">{statusResult.status}</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    <strong>วันที่สมัคร:</strong> {statusResult.submittedAt}
+                  </div>
                 </div>
-                <div style={{ fontSize: '1.02rem', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>{statusResult.titleTh}</div>
-                <div style={{ color: 'var(--text-secondary)', marginBottom: '12px' }}>ทีม: {statusResult.teamName}</div>
+
+                {/* ข้อมูลหลักของผลงาน */}
+                <div className="dossier-grid" style={{ marginBottom: '14px' }}>
+                  <div className="dossier-field">
+                    <span className="dossier-label">ชื่อทีม</span>
+                    <strong className="dossier-value">{statusResult.teamName}</strong>
+                  </div>
+                  <div className="dossier-field">
+                    <span className="dossier-label">หมวดหมู่</span>
+                    <strong className="dossier-value">{statusResult.categoryNameTh}</strong>
+                  </div>
+                  <div className="dossier-field" style={{ gridColumn: '1 / -1' }}>
+                    <span className="dossier-label">สังกัด</span>
+                    <strong className="dossier-value">{statusResult.affiliation}</strong>
+                  </div>
+                  <div className="dossier-field" style={{ gridColumn: '1 / -1' }}>
+                    <span className="dossier-label">ชื่อผลงาน (ไทย)</span>
+                    <strong className="dossier-value" style={{ color: 'var(--text-primary)', fontSize: '0.98rem' }}>{statusResult.titleTh}</strong>
+                  </div>
+                  {statusResult.titleEn && (
+                    <div className="dossier-field" style={{ gridColumn: '1 / -1' }}>
+                      <span className="dossier-label">ชื่อผลงาน (อังกฤษ)</span>
+                      <strong className="dossier-value" style={{ color: 'var(--cyan-300)' }}>{statusResult.titleEn}</strong>
+                    </div>
+                  )}
+                  <div className="dossier-field" style={{ gridColumn: '1 / -1' }}>
+                    <span className="dossier-label">รายละเอียดผลงาน</span>
+                    <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: 1.65 }}>
+                      {statusResult.abstractTh}
+                    </p>
+                  </div>
+                </div>
+
+                {/* สมาชิกทีม */}
+                <div className="dossier-section-box" style={{ marginBottom: '14px' }}>
+                  <strong style={{ color: 'var(--emerald-300)', fontSize: '0.88rem', display: 'block', marginBottom: '8px' }}>สมาชิกทีม</strong>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {(statusResult.memberDetails || []).map((m, idx) => (
+                      <div key={idx} style={{ fontSize: '0.83rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', padding: '6px 10px', borderRadius: '8px', background: 'rgba(15, 32, 56, 0.65)' }}>
+                        <span>
+                          <strong>{idx + 1}. ชื่อ :</strong> {m.fullName} {m.role ? `(${m.role})` : ''}
+                        </span>
+                        {m.idCard && (
+                          <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+                            เลขบัตรประชาชน / พาสปอร์ต : {m.idCard}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ผู้ประสานงานหลัก & ผู้ประสานงานรอง */}
+                <div className="responsive-two-col-grid" style={{ gap: '12px', marginBottom: '14px' }}>
+                  <div className="dossier-section-box">
+                    <strong style={{ color: 'var(--cyan-300)', fontSize: '0.86rem', display: 'block', marginBottom: '6px' }}>ผู้ประสานงานหลัก</strong>
+                    <div style={{ fontSize: '0.8rem', lineHeight: 1.65, color: 'var(--text-secondary)' }}>
+                      <div><strong>ชื่อ :</strong> {statusResult.primaryCoordinator?.name || '-'}</div>
+                      {statusResult.primaryCoordinator?.idCard && (
+                        <div><strong>เลขบัตรประชาชน / พาสปอร์ต :</strong> <span style={{ fontFamily: 'var(--font-mono)' }}>{statusResult.primaryCoordinator.idCard}</span></div>
+                      )}
+                      <div><strong>โทร :</strong> {statusResult.primaryCoordinator?.phone || '-'}</div>
+                      <div><strong>อีเมล :</strong> {statusResult.primaryCoordinator?.email || '-'}</div>
+                    </div>
+                  </div>
+                  <div className="dossier-section-box">
+                    <strong style={{ color: 'var(--text-secondary)', fontSize: '0.86rem', display: 'block', marginBottom: '6px' }}>ผู้ประสานงานรอง</strong>
+                    {statusResult.secondaryCoordinator?.name ? (
+                      <div style={{ fontSize: '0.8rem', lineHeight: 1.65, color: 'var(--text-secondary)' }}>
+                        <div><strong>ชื่อ :</strong> {statusResult.secondaryCoordinator.name}</div>
+                        {statusResult.secondaryCoordinator.idCard && (
+                          <div><strong>เลขบัตรประชาชน / พาสปอร์ต :</strong> <span style={{ fontFamily: 'var(--font-mono)' }}>{statusResult.secondaryCoordinator.idCard}</span></div>
+                        )}
+                        <div><strong>โทร :</strong> {statusResult.secondaryCoordinator.phone || '-'}</div>
+                        <div><strong>อีเมล :</strong> {statusResult.secondaryCoordinator.email || '-'}</div>
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ไม่ได้ระบุผู้ประสานงานรอง</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ผลการคัดเลือกรายรอบ */}
+                <div className="dossier-rounds-box" style={{ marginBottom: '14px' }}>
+                  <div className="dossier-round-row">
+                    <span>ผ่านเข้ารอบที่ 2 (รอบการประกวดออนไลน์) :</span>
+                    <strong className={statusResult.rounds?.round2?.status === 'PASSED' ? 'text-emerald-400' : ''}>
+                      {statusResult.rounds?.round2?.status === 'PASSED'
+                        ? 'ผ่าน'
+                        : statusResult.rounds?.round2?.status === 'FAILED'
+                        ? 'ไม่ผ่าน'
+                        : 'รอประกาศผล'}
+                    </strong>
+                  </div>
+                  <div className="dossier-round-row">
+                    <span>ผ่านเข้ารอบที่ 3 (รอบตัดสิน) :</span>
+                    <strong className={statusResult.rounds?.round3?.status === 'PASSED' ? 'text-emerald-400' : ''}>
+                      {statusResult.rounds?.round3?.status === 'PASSED'
+                        ? 'ผ่าน'
+                        : statusResult.rounds?.round3?.status === 'FAILED'
+                        ? 'ไม่ผ่าน'
+                        : 'รอประกาศผล'}
+                    </strong>
+                  </div>
+                  <div className="dossier-round-row">
+                    <span>ผลลัพธ์การแข่งขันรอบ 3 :</span>
+                    <strong style={{ color: 'var(--gold-300)' }}>
+                      {statusResult.rounds?.round3?.result || 'รอประกาศผล'}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* ไฟล์ประกอบผลงาน 5 รายการ */}
+                <div className="dossier-section-box" style={{ marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                    <strong style={{ color: 'var(--emerald-300)', fontSize: '0.88rem' }}>ไฟล์ประกอบผลงาน (5 รายการ)</strong>
+                    <button
+                      type="button"
+                      onClick={() => setShowLateArtifactEditor(prev => !prev)}
+                      className="btn-outline-cyan"
+                      style={{ padding: '5px 12px', fontSize: '0.76rem', minHeight: '34px' }}
+                    >
+                      {showLateArtifactEditor ? 'ซ่อนฟอร์มอัปเดตไฟล์' : '+ แนบ/อัปเดต Poster & Presentation เพิ่มเติม'}
+                    </button>
+                  </div>
+
+                  {lateArtifactNotice && (
+                    <div role="status" style={{ padding: '8px 12px', marginBottom: '10px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(52, 211, 153, 0.45)', color: '#6EE7B7', fontSize: '0.8rem' }}>
+                      {lateArtifactNotice}
+                    </div>
+                  )}
+
+                  {showLateArtifactEditor && (
+                    <form onSubmit={handleSaveLateArtifacts} style={{ padding: '12px', marginBottom: '12px', borderRadius: '10px', background: 'rgba(15, 32, 56, 0.85)', border: '1px solid var(--border-cyan)' }}>
+                      <div className="responsive-two-col-grid" style={{ gap: '10px', marginBottom: '10px' }}>
+                        <div>
+                          <label htmlFor="late-poster-url" className="form-label" style={{ fontSize: '0.78rem' }}>ลิงก์ไฟล์ Poster (สำหรับรอบที่ 2)</label>
+                          <input
+                            id="late-poster-url"
+                            type="text"
+                            className="form-input"
+                            placeholder="https://drive.google.com/..."
+                            value={lateArtifactsForm.posterUrl}
+                            onChange={e => setLateArtifactsForm({ ...lateArtifactsForm, posterUrl: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="late-presentation-url" className="form-label" style={{ fontSize: '0.78rem' }}>ลิงก์ไฟล์ Presentation (สไลด์นำเสนอ)</label>
+                          <input
+                            id="late-presentation-url"
+                            type="text"
+                            className="form-input"
+                            placeholder="https://drive.google.com/..."
+                            value={lateArtifactsForm.presentationUrl}
+                            onChange={e => setLateArtifactsForm({ ...lateArtifactsForm, presentationUrl: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                      <button type="submit" disabled={lateArtifactSaving} className="btn-solid-primary" style={{ padding: '8px 16px', fontSize: '0.82rem' }}>
+                        <Save className="w-4 h-4" />
+                        <span>{lateArtifactSaving ? 'กำลังบันทึก...' : 'บันทึกไฟล์เพิ่มเติม'}</span>
+                      </button>
+                    </form>
+                  )}
+
+                  <div className="dossier-artifact-list">
+                    {[
+                      { label: 'ไฟล์ PDF แบบฟอร์มเสนอผลงานประกวดสิ่งประดิษฐ์และนวัตกรรม', url: statusResult.artifacts?.proposalPdfUrl },
+                      { label: 'คลิป VDO นำเสนอผลงาน', url: statusResult.artifacts?.videoUrl },
+                      { label: 'Poster', url: statusResult.artifacts?.posterUrl },
+                      { label: 'Image', url: statusResult.artifacts?.imageUrl },
+                      { label: 'Presentation', url: statusResult.artifacts?.presentationUrl }
+                    ].map((art, idx) => (
+                      <div key={idx} className="dossier-artifact-item">
+                        <span>{idx + 1}. {art.label}</span>
+                        {art.url ? (
+                          <a
+                            href={getAssetUrl(art.url)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="dossier-artifact-link"
+                          >
+                            <span>เปิดดูไฟล์</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        ) : (
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem' }}>ยังไม่ได้แนบ (แนบเพิ่มเติมภายหลังได้)</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div
                   style={{
                     background: 'rgba(15, 32, 56, 0.78)',
@@ -2985,6 +4283,7 @@ export default function App() {
               <div className="winner-modal-video-stage">
                 {modalVideoInfo.type === 'file' ? (
                   <video
+                    ref={(selectedWinnerModal.id === EVENT_HIGHLIGHT_2569.id || selectedWinnerModal.id === EVENT_HIGHLIGHT_HYPE_2569.id) ? modalVideoRef : undefined}
                     key={modalVideoInfo.src}
                     src={modalVideoInfo.src}
                     poster={modalPosterUrl}
@@ -2992,6 +4291,20 @@ export default function App() {
                     autoPlay
                     playsInline
                     className="winner-modal-video-player"
+                    onLoadedMetadata={(e) => {
+                      if ((selectedWinnerModal.id === EVENT_HIGHLIGHT_2569.id || selectedWinnerModal.id === EVENT_HIGHLIGHT_HYPE_2569.id) && highlightSeekTime > 0) {
+                        e.currentTarget.currentTime = highlightSeekTime;
+                      }
+                    }}
+                    onTimeUpdate={(e) => {
+                      if (selectedWinnerModal.id === EVENT_HIGHLIGHT_2569.id || selectedWinnerModal.id === EVENT_HIGHLIGHT_HYPE_2569.id) {
+                        const modalVer = selectedWinnerModal.id === EVENT_HIGHLIGHT_HYPE_2569.id ? 'hype' : 'full';
+                        const ch = getHighlightChapterByTime(e.currentTarget.currentTime, modalVer);
+                        if (ch !== activeHighlightChapter) {
+                          setActiveHighlightChapter(ch);
+                        }
+                      }
+                    }}
                   />
                 ) : modalVideoInfo.type === 'embed' ? (
                   <iframe
@@ -3034,6 +4347,25 @@ export default function App() {
                   </div>
                 )}
               </div>
+
+              {(selectedWinnerModal.id === EVENT_HIGHLIGHT_2569.id || selectedWinnerModal.id === EVENT_HIGHLIGHT_HYPE_2569.id) && (
+                <div className="event-highlight-chapters" style={{ marginBottom: '18px' }} role="group" aria-label="เลือกช่วงเวลาสำคัญในวิดีโอไฮไลท์">
+                  {(selectedWinnerModal.id === EVENT_HIGHLIGHT_HYPE_2569.id ? EVENT_HIGHLIGHT_HYPE_CHAPTERS : EVENT_HIGHLIGHT_CHAPTERS).map((ch) => (
+                    <button
+                      key={ch.id}
+                      type="button"
+                      onClick={() => handleJumpToHighlightChapter(ch, { inModal: true })}
+                      className={`event-chapter-chip ${activeHighlightChapter === ch.id ? 'active' : ''}`}
+                    >
+                      <span className="event-chapter-time">
+                        <Play className="w-3 h-3" style={{ fill: 'currentColor' }} />
+                        <span>{ch.timeLabel}</span>
+                      </span>
+                      <span className="event-chapter-label">{ch.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               <h2 id="winner-modal-title" style={{ fontSize: '1.45rem', lineHeight: 1.4, marginBottom: '6px', color: 'var(--text-primary)' }}>
                 {selectedWinnerModal.titleTh}
