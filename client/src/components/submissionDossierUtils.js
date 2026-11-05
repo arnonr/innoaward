@@ -573,6 +573,9 @@ export function normalizeStatusDossier(raw) {
   };
 
   return {
+    id: String(merged.id || ''),
+    userId: String(merged.userId || ''),
+    canEditArtifacts: Boolean(merged.canEditArtifacts),
     trackingCode: code || 'KMUTNB-2570-0001',
     submittedAt: formattedDate,
     teamName: merged.teamName || 'ทีมสร้างสรรค์นวัตกรรม',

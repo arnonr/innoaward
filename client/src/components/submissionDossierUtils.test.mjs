@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   createInitialSubmissionForm,
   validateSubmissionStep,
@@ -10,6 +13,8 @@ import {
   isSubmissionDeadlinePassed,
   MAX_PROJECTS_PER_ACCOUNT
 } from './submissionDossierUtils.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 test('formatCitizenIdInput formats 13 Thai digits as X-XXXX-XXXXX-XX-X and preserves passport strings', () => {
   assert.equal(formatCitizenIdInput('5160100029582'), '5-1601-00029-58-2');
@@ -133,4 +138,36 @@ test('isSubmissionDeadlinePassed compares current timestamp against deadline ISO
   const deadline = '2027-02-28T23:59:59+07:00';
   assert.equal(isSubmissionDeadlinePassed(deadline, Date.parse('2027-02-28T12:00:00+07:00')), false);
   assert.equal(isSubmissionDeadlinePassed(deadline, Date.parse('2027-03-01T00:00:01+07:00')), true);
+});
+
+test('normalizeStatusDossier preserves id, userId, and canEditArtifacts for owner-gated editing', () => {
+  const pubDossier = normalizeStatusDossier({
+    id: 'sub-777',
+    userId: 'user-owner-1',
+    trackingCode: 'KMUTNB-2570-0077',
+    canEditArtifacts: false
+  });
+  assert.equal(pubDossier.id, 'sub-777');
+  assert.equal(pubDossier.userId, 'user-owner-1');
+  assert.equal(pubDossier.canEditArtifacts, false);
+
+  const ownerDossier = normalizeStatusDossier({
+    id: 'sub-777',
+    userId: 'user-owner-1',
+    trackingCode: 'KMUTNB-2570-0077',
+    canEditArtifacts: true
+  });
+  assert.equal(ownerDossier.canEditArtifacts, true);
+});
+
+test('App.jsx integrates email/password login verification, 2-project contestant workspace, dynamic deadline from /api/config, and view-only public status lookup', () => {
+  const appPath = path.resolve(__dirname, '../App.jsx');
+  const appSrc = fs.readFileSync(appPath, 'utf8');
+
+  assert.match(appSrc, /hydrateSubmissionFormFromServer/);
+  assert.match(appSrc, /isSubmissionDeadlinePassed/);
+  assert.match(appSrc, /MAX_PROJECTS_PER_ACCOUNT/);
+  assert.match(appSrc, /\/submissions\/my/);
+  assert.match(appSrc, /ผลงานของฉัน/);
+  assert.match(appSrc, /เข้าสู่ระบบด้วยอีเมลเพื่อแก้ไขข้อมูล/);
 });

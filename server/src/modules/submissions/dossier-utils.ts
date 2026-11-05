@@ -129,6 +129,8 @@ export function formatDossierResponse(found: any, isOwnerOrAdmin: boolean) {
 
   return {
     id: found.id,
+    userId: found.userId,
+    canEditArtifacts: Boolean(isOwnerOrAdmin),
     trackingCode: found.trackingCode,
     titleTh: found.titleTh,
     titleEn: found.titleEn || '',

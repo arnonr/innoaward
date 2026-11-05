@@ -18,7 +18,10 @@ import {
   validateSubmissionStep,
   buildSubmissionApiPayload,
   normalizeStatusDossier,
-  formatCitizenIdInput
+  formatCitizenIdInput,
+  hydrateSubmissionFormFromServer,
+  isSubmissionDeadlinePassed,
+  MAX_PROJECTS_PER_ACCOUNT
 } from './components/submissionDossierUtils';
 
 
@@ -486,8 +489,10 @@ const ANNOUNCEMENTS = [
   }
 ];
 
-// Target deadline: 28 กุมภาพันธ์ 2570 เวลา 23:59:59 น.
-const TARGET_DEADLINE = new Date('2027-02-28T23:59:59+07:00').getTime();
+// Default target deadline (can be overridden by VITE_SUBMISSION_DEADLINE or GET /api/config)
+const DEFAULT_SUBMISSION_DEADLINE_ISO =
+  import.meta.env.VITE_SUBMISSION_DEADLINE || '2027-02-28T23:59:59+07:00';
+const TARGET_DEADLINE = new Date(DEFAULT_SUBMISSION_DEADLINE_ISO).getTime();
 
 export default function App() {
   // Navigation & View Routing State
@@ -563,7 +568,36 @@ export default function App() {
   const [copiedTrackingCode, setCopiedTrackingCode] = useState(false);
   const [isPausedHeroStage, setIsPausedHeroStage] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
   const [submissionLoading, setSubmissionLoading] = useState(false);
+  const [mySubmissions, setMySubmissions] = useState([]);
+  const [mySubmissionsLoading, setMySubmissionsLoading] = useState(false);
+  const [submissionDeadlineIso, setSubmissionDeadlineIso] = useState(DEFAULT_SUBMISSION_DEADLINE_ISO);
+
+  const deadlinePassed = isSubmissionDeadlinePassed(submissionDeadlineIso);
+
+  const fetchMySubmissions = (tokenOverride = authToken) => {
+    const activeToken = tokenOverride || authToken;
+    if (!activeToken) {
+      setMySubmissions([]);
+      return;
+    }
+    setMySubmissionsLoading(true);
+    fetch(`${API_BASE}/submissions/my`, {
+      headers: { Authorization: `Bearer ${activeToken}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data)) {
+          setMySubmissions(data.data);
+          if (data.data.length > 0 && !subForm.id && !subForm.titleTh) {
+            setSubForm(hydrateSubmissionFormFromServer(data.data[0]));
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setMySubmissionsLoading(false));
+  };
 
   // Restore draft submission from localStorage if available
   useEffect(() => {
@@ -577,6 +611,12 @@ export default function App() {
       }
     } catch {}
   }, []);
+
+  useEffect(() => {
+    if (authToken) {
+      fetchMySubmissions(authToken);
+    }
+  }, [authToken]);
 
   // Navigate Helper
   const navigateTo = (view, subSection = null) => {
@@ -597,9 +637,10 @@ export default function App() {
   };
 
   // Real-time Countdown Engine
-  const calculateTimeLeft = () => {
+  const calculateTimeLeft = (deadlineStr = submissionDeadlineIso) => {
     const now = new Date().getTime();
-    const diff = TARGET_DEADLINE - now;
+    const targetMs = new Date(deadlineStr || DEFAULT_SUBMISSION_DEADLINE_ISO).getTime() || TARGET_DEADLINE;
+    const diff = targetMs - now;
 
     if (diff > 0) {
       return {
@@ -613,7 +654,7 @@ export default function App() {
     }
   };
 
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft(DEFAULT_SUBMISSION_DEADLINE_ISO));
   const [hoveredDomainIndex, setHoveredDomainIndex] = useState(null);
   const [displayedDomainIndex, setDisplayedDomainIndex] = useState(-1);
   const [detailDomainModal, setDetailDomainModal] = useState(null);
@@ -624,6 +665,15 @@ export default function App() {
       setCurrentView(parseRoute());
     };
     window.addEventListener('hashchange', handleHashChange);
+
+    fetch(`${API_BASE}/config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data?.event?.submissionDeadline) {
+          setSubmissionDeadlineIso(data.event.submissionDeadline);
+        }
+      })
+      .catch(() => {});
 
     fetch(`${API_BASE}/winners`)
       .then(res => res.json())
@@ -650,16 +700,18 @@ export default function App() {
       })
       .catch(err => console.warn('Using local fallback for announcements:', err));
 
-    setTimeLeft(calculateTimeLeft());
-    const interval = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
-      clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    setTimeLeft(calculateTimeLeft(submissionDeadlineIso));
+    const interval = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(submissionDeadlineIso));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [submissionDeadlineIso]);
 
   useEffect(() => {
     const hasOpenModal = showPortalModal || showStatusModal || selectedWinnerModal || detailDomainModal;
@@ -766,9 +818,26 @@ export default function App() {
     return true;
   });
 
+  const handleLogout = () => {
+    setUser(null);
+    setAuthToken('');
+    setMySubmissions([]);
+    setSubForm(createInitialSubmissionForm());
+    setSubSuccess(null);
+    setAuthError('');
+    setSubError('');
+    setDraftNotice('');
+    setPortalTab('login');
+    try {
+      localStorage.removeItem('innoaward_token');
+      localStorage.removeItem('innoaward_user');
+    } catch {}
+  };
+
   const handleAuthRegister = (e) => {
     e.preventDefault();
     if (authLoading) return;
+    setAuthError('');
     setAuthLoading(true);
     fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
@@ -783,15 +852,16 @@ export default function App() {
             setAuthToken(data.token);
             localStorage.setItem('innoaward_token', data.token);
             localStorage.setItem('innoaward_user', JSON.stringify(data.user));
+            fetchMySubmissions(data.token);
           }
           setPortalTab('submission');
           confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+        } else {
+          setAuthError(data.message || 'ไม่สามารถลงทะเบียนได้ กรุณาตรวจสอบข้อมูลอีกครั้ง');
         }
       })
       .catch(() => {
-        setUser({ fullName: regForm.fullName, email: regForm.email });
-        setPortalTab('submission');
-        confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+        setAuthError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ยืนยันตัวตนได้ กรุณาลองใหม่อีกครั้ง');
       })
       .finally(() => setAuthLoading(false));
   };
@@ -799,14 +869,16 @@ export default function App() {
   const handleAuthLogin = (e) => {
     e.preventDefault();
     if (authLoading) return;
-    if (!regForm.email.trim()) {
+    if (!regForm.email.trim() || !regForm.password) {
+      setAuthError('กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน');
       return;
     }
+    setAuthError('');
     setAuthLoading(true);
     fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: regForm.email, password: regForm.password || 'kmutnb-2027' })
+      body: JSON.stringify({ email: regForm.email, password: regForm.password })
     })
       .then(res => res.json())
       .then(data => {
@@ -816,22 +888,31 @@ export default function App() {
             setAuthToken(data.token);
             localStorage.setItem('innoaward_token', data.token);
             localStorage.setItem('innoaward_user', JSON.stringify(data.user));
+            fetchMySubmissions(data.token);
           }
           setPortalTab('submission');
         } else {
-          setUser({ fullName: regForm.email.split('@')[0] || 'ผู้เข้าแข่งขัน', email: regForm.email });
-          setPortalTab('submission');
+          setAuthError(data.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง โปรดลองใหม่อีกครั้ง');
         }
       })
       .catch(() => {
-        setUser({ fullName: regForm.email.split('@')[0] || 'ผู้เข้าแข่งขัน', email: regForm.email });
-        setPortalTab('submission');
+        setAuthError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ยืนยันตัวตนได้ กรุณาลองใหม่อีกครั้ง');
       })
       .finally(() => setAuthLoading(false));
   };
 
   const handleSubmission = (isDraft = false) => {
     if (submissionLoading) return;
+
+    if (deadlinePassed && user?.role !== 'ADMIN') {
+      setSubError('ปิดรับสมัครและสิ้นสุดเวลาแก้ไขข้อมูลใบสมัครแล้ว (หากต้องการแนบโปสเตอร์หรือสไลด์นำเสนอ กรุณากดดูแฟ้มสถานะของโครงการ)');
+      return;
+    }
+
+    if (!subForm.id && mySubmissions.length >= MAX_PROJECTS_PER_ACCOUNT && user?.role !== 'ADMIN') {
+      setSubError(`บัญชีของคุณสร้างผลงานครบโควตาสูงสุด ${MAX_PROJECTS_PER_ACCOUNT} โครงการแล้ว (กรุณาเลือกแก้ไขโครงการเดิมจากรายการผลงานของฉันด้านบน)`);
+      return;
+    }
 
     if (isDraft) {
       const draftErr = validateSubmissionStep(subForm, 0, true);
@@ -841,11 +922,39 @@ export default function App() {
       }
       try {
         localStorage.setItem('kmutnb_draft_submission', JSON.stringify(subForm));
-        setDraftNotice('บันทึกแบบร่างสำเร็จเรียบร้อยแล้ว! ข้อมูลถูกเก็บไว้ในเครื่องของคุณและสามารถแก้ไขหรือส่งต่อได้ตลอดเวลา');
+      } catch {}
+
+      if (authToken) {
+        setSubmissionLoading(true);
         setSubError('');
-      } catch (err) {
-        setSubError('ไม่สามารถบันทึกแบบร่างได้ กรุณาลองใหม่อีกครั้ง');
+        const draftPayload = buildSubmissionApiPayload(subForm, true, user?.id || 'guest-user');
+        fetch(`${API_BASE}/submissions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`
+          },
+          body: JSON.stringify(draftPayload)
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.data) {
+              setSubForm(hydrateSubmissionFormFromServer(data.data));
+              fetchMySubmissions(authToken);
+              setDraftNotice(`บันทึกแบบร่างขึ้นระบบบัญชีสำเร็จ (${data.data.trackingCode})! คุณสามารถล็อกอินกลับมาแก้ไขต่อได้จนถึงวันปิดรับสมัคร`);
+            } else {
+              setSubError(data.message || 'ไม่สามารถบันทึกแบบร่างได้');
+            }
+          })
+          .catch(() => {
+            setDraftNotice('บันทึกแบบร่างไว้ในเครื่องเรียบร้อยแล้ว');
+          })
+          .finally(() => setSubmissionLoading(false));
+        return;
       }
+
+      setDraftNotice('บันทึกแบบร่างสำเร็จเรียบร้อยแล้ว! ข้อมูลถูกเก็บไว้ในเครื่องของคุณและสามารถแก้ไขหรือส่งต่อได้ตลอดเวลา');
+      setSubError('');
       return;
     }
 
@@ -869,23 +978,29 @@ export default function App() {
       const submissionRecord = normalizeStatusDossier({
         ...apiPayload,
         ...(serverData || {}),
+        userId: user?.id || serverData?.userId || '',
+        canEditArtifacts: true,
         trackingCode: code,
         submittedAt: new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }),
         status: 'SUBMITTED',
         rounds: {
-          round1: { label: 'รอบคัดเลือกเอกสาร', status: 'PENDING' },
-          round2: { label: 'รอบการประกวดออนไลน์', status: 'PENDING' },
-          round3: { label: 'รอบตัดสิน', status: 'PENDING', result: 'รอประกาศผล' }
+          round1: { label: 'รอบคัดเลือกเอกสาร', status: serverData?.round1Status || 'PENDING' },
+          round2: { label: 'รอบการประกวดออนไลน์', status: serverData?.round2Status || 'PENDING' },
+          round3: { label: 'รอบตัดสิน', status: serverData?.round3Status || 'PENDING', result: serverData?.round3Result || 'รอประกาศผล' }
         },
         feedback: 'เอกสารข้อเสนอโครงการได้รับการบันทึกในระบบเรียบร้อยแล้ว อยู่ระหว่างการตรวจสอบคุณสมบัติและเอกสารโดยคณะกรรมการ'
       });
 
       try {
         const history = JSON.parse(localStorage.getItem('kmutnb_submissions_history') || '[]');
-        localStorage.setItem('kmutnb_submissions_history', JSON.stringify([submissionRecord, ...history]));
+        const filtered = history.filter(item => item.trackingCode !== code);
+        localStorage.setItem('kmutnb_submissions_history', JSON.stringify([submissionRecord, ...filtered]));
         localStorage.removeItem('kmutnb_draft_submission');
       } catch {}
 
+      if (authToken) {
+        fetchMySubmissions(authToken);
+      }
       setSubSuccess(submissionRecord);
       setSubForm(createInitialSubmissionForm());
       setSubmissionStep(1);
@@ -904,6 +1019,8 @@ export default function App() {
       .then(data => {
         if (data.success && data.data?.trackingCode) {
           finishSuccessSubmission(data.data.trackingCode, data.data);
+        } else if (data.message) {
+          setSubError(data.message);
         } else {
           const mockCode = `KMUTNB-2570-${Math.floor(1000 + Math.random() * 9000)}`;
           finishSuccessSubmission(mockCode);
@@ -1031,8 +1148,13 @@ export default function App() {
       .then(data => {
         if (data.success && data.data) {
           setStatusResult(normalizeStatusDossier(data.data));
+          if (authToken) {
+            fetchMySubmissions(authToken);
+          }
           setLateArtifactNotice('บันทึกไฟล์ Poster และ Presentation เพิ่มเติมเรียบร้อยแล้ว!');
           setShowLateArtifactEditor(false);
+        } else if (data.message) {
+          setStatusError(data.message);
         } else {
           applyUpdatedArtifacts(lateArtifactsForm.posterUrl.trim(), lateArtifactsForm.presentationUrl.trim());
         }
@@ -3275,13 +3397,13 @@ export default function App() {
 
             <div className="modal-tabs">
               <button 
-                onClick={() => setPortalTab('register')}
+                onClick={() => { setAuthError(''); setPortalTab('register'); }}
                 className={`modal-tab-btn ${portalTab === 'register' ? 'active' : ''}`}
               >
                 ลงทะเบียนบัญชีใหม่
               </button>
               <button 
-                onClick={() => setPortalTab('login')}
+                onClick={() => { setAuthError(''); setPortalTab('login'); }}
                 className={`modal-tab-btn ${portalTab === 'login' ? 'active' : ''}`}
               >
                 เข้าสู่ระบบ
@@ -3292,10 +3414,28 @@ export default function App() {
                   className={`modal-tab-btn ${portalTab === 'submission' ? 'active' : ''}`}
                   style={{ color: 'var(--gold-300)' }}
                 >
-                  ยื่นแบบเสนอผลงาน
+                  ผลงานของฉัน & ยื่นใบสมัคร ({mySubmissions.length}/{MAX_PROJECTS_PER_ACCOUNT})
                 </button>
               )}
             </div>
+
+            {authError && (portalTab === 'register' || portalTab === 'login') && (
+              <div
+                role="alert"
+                style={{
+                  padding: '12px 16px',
+                  marginBottom: '16px',
+                  borderRadius: '10px',
+                  background: 'rgba(225, 29, 72, 0.16)',
+                  border: '1px solid rgba(251, 113, 133, 0.5)',
+                  color: '#FDA4AF',
+                  fontSize: '0.85rem',
+                  fontWeight: 500
+                }}
+              >
+                {authError}
+              </div>
+            )}
 
             {/* TAB: REGISTER */}
             {portalTab === 'register' && (
@@ -3390,6 +3530,152 @@ export default function App() {
             {/* TAB: SUBMISSION */}
             {portalTab === 'submission' && (
               <div>
+                {/* Contestant Account Bar & My Projects Workspace (Max 2 Projects) */}
+                {user && (
+                  <div style={{ marginBottom: '20px', padding: '14px 16px', borderRadius: '12px', background: 'rgba(15, 32, 56, 0.78)', border: '1px solid var(--border-cyan)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '12px' }}>
+                      <div>
+                        <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          บัญชีผู้สมัคร: {user.fullName || user.email}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                          {user.email} • โควตาผลงานของฉัน: <strong style={{ color: 'var(--cyan-300)' }}>{mySubmissions.length} / {MAX_PROJECTS_PER_ACCOUNT} โครงการ</strong>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {!deadlinePassed && mySubmissions.length < MAX_PROJECTS_PER_ACCOUNT && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSubSuccess(null);
+                              setSubError('');
+                              setDraftNotice('');
+                              setSubForm(createInitialSubmissionForm());
+                              setSubmissionStep(1);
+                            }}
+                            className="btn-outline-cyan"
+                            style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>+ สร้างโครงการใหม่</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="btn-text"
+                          style={{ padding: '6px 10px', fontSize: '0.78rem', color: '#FDA4AF' }}
+                        >
+                          ออกจากระบบ
+                        </button>
+                      </div>
+                    </div>
+
+                    {mySubmissionsLoading ? (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>กำลังโหลดรายการผลงานของคุณ...</div>
+                    ) : mySubmissions.length > 0 ? (
+                      <div style={{ display: 'grid', gap: '10px' }}>
+                        {mySubmissions.map((proj, idx) => {
+                          const isSelected = subForm.id === proj.id;
+                          return (
+                            <div
+                              key={proj.id || idx}
+                              style={{
+                                padding: '12px 14px',
+                                borderRadius: '10px',
+                                background: isSelected ? 'rgba(6, 182, 212, 0.14)' : 'rgba(9, 19, 36, 0.75)',
+                                border: isSelected ? '1px solid var(--cyan-400)' : '1px solid var(--border-subtle)',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                gap: '10px'
+                              }}
+                            >
+                              <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: 700, color: 'var(--cyan-300)' }}>
+                                    {proj.trackingCode}
+                                  </span>
+                                  <span style={{
+                                    fontSize: '0.7rem',
+                                    padding: '2px 8px',
+                                    borderRadius: '999px',
+                                    background: proj.status === 'DRAFT' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                                    color: proj.status === 'DRAFT' ? '#FCD34D' : '#6EE7B7',
+                                    fontWeight: 600
+                                  }}>
+                                    {proj.status === 'DRAFT' ? 'ฉบับร่าง (DRAFT)' : 'ส่งแล้ว (SUBMITTED)'}
+                                  </span>
+                                </div>
+                                <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                  {proj.titleTh || 'ยังไม่ได้ระบุชื่อผลงาน'}
+                                </div>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                                  รอบที่ 1: {proj.rounds?.round1?.status === 'PASSED' ? 'ผ่าน' : proj.rounds?.round1?.status === 'FAILED' ? 'ไม่ผ่าน' : 'รอผล'} •
+                                  รอบที่ 2: {proj.rounds?.round2?.status === 'PASSED' ? 'ผ่าน' : proj.rounds?.round2?.status === 'FAILED' ? 'ไม่ผ่าน' : 'รอผล'} •
+                                  รอบที่ 3: {proj.rounds?.round3?.result || (proj.rounds?.round3?.status === 'PASSED' ? 'ผ่าน' : 'รอผล')}
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                {!deadlinePassed && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSubSuccess(null);
+                                      setSubError('');
+                                      setDraftNotice(`กำลังแก้ไขโครงการ ${proj.trackingCode} (สามารถแก้ไขข้อมูลและบันทึกซ้ำได้จนถึงวันปิดรับสมัคร)`);
+                                      setSubForm(hydrateSubmissionFormFromServer(proj));
+                                      setSubmissionStep(1);
+                                    }}
+                                    className="btn-outline-cyan"
+                                    style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                                  >
+                                    แก้ไขข้อมูลใบสมัคร
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setShowPortalModal(false);
+                                    setTrackingSearch(proj.trackingCode);
+                                    setShowStatusModal(true);
+                                    executeStatusSearch(proj.trackingCode);
+                                  }}
+                                  className="btn-solid-primary"
+                                  style={{ padding: '6px 12px', fontSize: '0.78rem' }}
+                                >
+                                  ดูแฟ้มสถานะ & แนบไฟล์เพิ่ม
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        ยังไม่มีผลงานในบัญชีนี้ กรุณากรอกใบสมัคร 3 ขั้นตอนด้านล่าง (ส่งได้สูงสุด {MAX_PROJECTS_PER_ACCOUNT} โครงการ)
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {deadlinePassed && (
+                  <div
+                    role="alert"
+                    style={{
+                      padding: '12px 16px',
+                      marginBottom: '16px',
+                      borderRadius: '10px',
+                      background: 'rgba(245, 158, 11, 0.16)',
+                      border: '1px solid rgba(251, 191, 36, 0.5)',
+                      color: '#FDE68A',
+                      fontSize: '0.84rem'
+                    }}
+                  >
+                    ขณะนี้พ้นกำหนดวันปิดรับสมัครและแก้ไขข้อมูลฟอร์มหลักแล้ว — หากคุณผ่านการคัดเลือกและต้องการแนบลิงก์ <strong>Poster</strong> หรือ <strong>Presentation</strong> เพิ่มเติม กรุณากดปุ่ม <strong>“ดูแฟ้มสถานะ & แนบไฟล์เพิ่ม”</strong> ของโครงการด้านบน
+                  </div>
+                )}
                 {subSuccess ? (
                   <div style={{ textAlign: 'center', padding: '24px 0' }}>
                     <CheckCircle2 className="w-14 h-14 text-emerald-400" style={{ margin: '0 auto 16px' }} />
@@ -4213,14 +4499,49 @@ export default function App() {
                 <div className="dossier-section-box" style={{ marginBottom: '14px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
                     <strong style={{ color: 'var(--emerald-300)', fontSize: '0.88rem' }}>ไฟล์ประกอบผลงาน (5 รายการ)</strong>
-                    <button
-                      type="button"
-                      onClick={() => setShowLateArtifactEditor(prev => !prev)}
-                      className="btn-outline-cyan"
-                      style={{ padding: '5px 12px', fontSize: '0.76rem', minHeight: '34px' }}
-                    >
-                      {showLateArtifactEditor ? 'ซ่อนฟอร์มอัปเดตไฟล์' : '+ แนบ/อัปเดต Poster & Presentation เพิ่มเติม'}
-                    </button>
+                    {user && (statusResult.canEditArtifacts || statusResult.userId === user.id || user.role === 'ADMIN') ? (
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {!deadlinePassed && statusResult.id && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSubForm(hydrateSubmissionFormFromServer(statusResult));
+                              setSubmissionStep(1);
+                              setSubSuccess(null);
+                              setShowStatusModal(false);
+                              setShowPortalModal(true);
+                              setPortalTab('submission');
+                            }}
+                            className="btn-outline-cyan"
+                            style={{ padding: '5px 12px', fontSize: '0.76rem', minHeight: '34px' }}
+                          >
+                            แก้ไขข้อมูลใบสมัคร (3 ขั้นตอน)
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setShowLateArtifactEditor(prev => !prev)}
+                          className="btn-outline-cyan"
+                          style={{ padding: '5px 12px', fontSize: '0.76rem', minHeight: '34px' }}
+                        >
+                          {showLateArtifactEditor ? 'ซ่อนฟอร์มอัปเดตไฟล์' : '+ แนบ/อัปเดต Poster & Presentation เพิ่มเติม'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowStatusModal(false);
+                          setShowPortalModal(true);
+                          setPortalTab('login');
+                        }}
+                        className="btn-outline-cyan"
+                        style={{ padding: '5px 12px', fontSize: '0.76rem', minHeight: '34px' }}
+                      >
+                        <LogIn className="w-3.5 h-3.5" />
+                        <span>เข้าสู่ระบบด้วยอีเมลเพื่อแก้ไขข้อมูล / แนบไฟล์เพิ่มเติม</span>
+                      </button>
+                    )}
                   </div>
 
                   {lateArtifactNotice && (
@@ -4229,7 +4550,7 @@ export default function App() {
                     </div>
                   )}
 
-                  {showLateArtifactEditor && (
+                  {showLateArtifactEditor && user && (statusResult.canEditArtifacts || statusResult.userId === user.id || user.role === 'ADMIN') && (
                     <form onSubmit={handleSaveLateArtifacts} style={{ padding: '12px', marginBottom: '12px', borderRadius: '10px', background: 'rgba(15, 32, 56, 0.85)', border: '1px solid var(--border-cyan)' }}>
                       <div className="responsive-two-col-grid" style={{ gap: '10px', marginBottom: '10px' }}>
                         <div>
