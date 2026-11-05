@@ -50,6 +50,12 @@ enum AnnouncementType {
   WINNERS
 }
 
+enum EvaluationRound {
+  ROUND_1
+  ROUND_2
+  ROUND_3
+}
+
 model CompetitionYear {
   id               String                    @id @default(cuid())
   year             Int                       @unique // 2569, 2568, 2567, 2566
@@ -64,10 +70,12 @@ model CompetitionYear {
   eventDate        DateTime?
   isCurrent        Boolean                   @default(false)
   status           CompetitionStatus         @default(OPEN_FOR_SUBMISSION)
+  rubricConfig     Json?
   
   categories       CompetitionYearCategory[]
   submissions      Submission[]
   announcements    Announcement[]
+  judgeAssignments JudgeCategoryAssignment[]
   
   createdAt        DateTime                  @default(now())
   updatedAt        DateTime                  @updatedAt
@@ -88,8 +96,9 @@ model Category {
   orderIndex     Int                       @default(0)
   isActive       Boolean                   @default(true)
   
-  yearCategories CompetitionYearCategory[]
-  submissions    Submission[]
+  yearCategories   CompetitionYearCategory[]
+  submissions      Submission[]
+  judgeAssignments JudgeCategoryAssignment[]
   
   createdAt      DateTime                  @default(now())
   updatedAt      DateTime                  @updatedAt
@@ -144,9 +153,11 @@ model User {
   institution      String?        @default("มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ")
   educationLevelId String
   educationLevel   EducationLevel @relation(fields: [educationLevelId], references: [id])
-  role             Role           @default(CONTESTANT)
+  role             Role                      @default(CONTESTANT)
   submissions      Submission[]
-  createdAt        DateTime       @default(now())
+  judgeAssignments JudgeCategoryAssignment[]
+  evaluations      SubmissionEvaluation[]
+  createdAt        DateTime                  @default(now())
   updatedAt        DateTime       @updatedAt
 
   @@map("users")
@@ -208,6 +219,7 @@ model Submission {
   image                     String?                  @default("")
 
   members                   TeamMember[]
+  evaluations               SubmissionEvaluation[]
 
   submittedAt               DateTime?
   createdAt                 DateTime                 @default(now())
@@ -275,4 +287,39 @@ model AnnouncementRoster {
 
   @@index([announcementId])
   @@map("announcement_rosters")
+}
+
+model JudgeCategoryAssignment {
+  id                String          @id @default(cuid())
+  competitionYearId String
+  competitionYear   CompetitionYear @relation(fields: [competitionYearId], references: [id], onDelete: Cascade)
+  judgeId           String
+  judge             User            @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  categoryId        String
+  category          Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt         DateTime        @default(now())
+
+  @@unique([competitionYearId, judgeId, categoryId])
+  @@index([competitionYearId, judgeId])
+  @@index([competitionYearId, categoryId])
+  @@map("judge_category_assignments")
+}
+
+model SubmissionEvaluation {
+  id            String          @id @default(cuid())
+  submissionId  String
+  submission    Submission      @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  judgeId       String
+  judge         User            @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  round         EvaluationRound
+  scores        Json
+  weightedTotal Float
+  comment       String?         @db.Text @default("")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@unique([submissionId, judgeId, round])
+  @@index([submissionId, round])
+  @@index([judgeId, round])
+  @@map("submission_evaluations")
 }

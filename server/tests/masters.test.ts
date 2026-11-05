@@ -131,4 +131,134 @@ describe("Masters & Config API Modules", () => {
       }
     }
   });
+
+  test("PATCH /api/config/rubric, POST /api/config/categories, and POST /api/config/years support multi-year rubric and dynamic categories", async () => {
+    const adminEmail = `admin-multiyear-${Date.now()}@kmutnb.ac.th`;
+    const regRes = await app.handle(
+      new Request("http://localhost/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: adminEmail,
+          password: "AdminPassword2027!",
+          fullName: "Admin MultiYear Tester",
+          educationLevel: "higher_and_above",
+        }),
+      })
+    );
+    const regJson = await regRes.json();
+    await prisma.user.update({
+      where: { id: regJson.user.id },
+      data: { role: Role.ADMIN },
+    });
+    const adminToken = regJson.token;
+
+    // 1. PATCH /api/config/rubric rejects weights summing to 90 (400)
+    const badRubricRes = await app.handle(
+      new Request("http://localhost/api/config/rubric", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          year: 2570,
+          criteria: [
+            { id: "c1", titleTh: "ความคิดสร้างสรรค์", weight: 50 },
+            { id: "c2", titleTh: "ความสมบูรณ์ต้นแบบ", weight: 40 },
+          ],
+        }),
+      })
+    );
+    expect(badRubricRes.status).toBe(400);
+
+    // 2. PATCH /api/config/rubric accepts weights summing to 100 (200)
+    const validRubricRes = await app.handle(
+      new Request("http://localhost/api/config/rubric", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          year: 2570,
+          criteria: [
+            { id: "creativity", titleTh: "ความคิดสร้างสรรค์และความใหม่ของนวัตกรรม", weight: 30 },
+            { id: "prototype", titleTh: "ความสมบูรณ์และประสิทธิภาพของชิ้นงานต้นแบบ", weight: 25 },
+            { id: "impact", titleTh: "การนำไปใช้งานจริงและผลกระทบที่วัดผลได้", weight: 20 },
+            { id: "sustainability", titleTh: "ศักยภาพเชิงพาณิชย์ สังคม และความยั่งยืน", weight: 15 },
+            { id: "presentation", titleTh: "ความชัดเจนของเอกสาร โปสเตอร์ และการนำเสนอ", weight: 10 },
+          ],
+        }),
+      })
+    );
+    expect(validRubricRes.status).toBe(200);
+    const validRubricJson = await validRubricRes.json();
+    expect(validRubricJson.success).toBe(true);
+    expect(validRubricJson.rubricConfig[0].weight).toBe(30);
+
+    const dynamicCatCode = `ai_robotics_${Date.now()}`;
+    const testFutureYear = 2599;
+    try {
+      // 3. POST /api/config/categories adds a 6th category dynamically for year 2570
+      const addCatRes = await app.handle(
+        new Request("http://localhost/api/config/categories", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            year: 2570,
+            code: dynamicCatCode,
+            nameTh: "AI & Robotics (ปัญญาประดิษฐ์และหุ่นยนต์อัจฉริยะ)",
+            nameEn: "AI & Robotics",
+            descriptionTh: "นวัตกรรมหุ่นยนต์และระบบอัตโนมัติอัจฉริยะ",
+            color: "#8B5CF6",
+            isActive: true,
+          }),
+        })
+      );
+      expect(addCatRes.status).toBe(200);
+
+      const cfgRes = await app.handle(new Request("http://localhost/api/config?year=2570"));
+      const cfgJson = await cfgRes.json();
+      expect(cfgJson.categories.some((c: any) => c.id === dynamicCatCode)).toBe(true);
+      expect(Array.isArray(cfgJson.rubricConfig)).toBe(true);
+      expect(cfgJson.rubricConfig[0].weight).toBe(30);
+      expect(Array.isArray(cfgJson.years)).toBe(true);
+
+      // 4. POST /api/config/years creates future competition year and clones active categories + rubric
+      const newYearRes = await app.handle(
+        new Request("http://localhost/api/config/years", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            year: testFutureYear,
+            yearAd: testFutureYear - 543,
+            titleTh: `โครงการประกวดสิ่งประดิษฐ์ ประจำปี ${testFutureYear}`,
+            setAsCurrent: false,
+          }),
+        })
+      );
+      expect(newYearRes.status).toBe(200);
+      const newYearJson = await newYearRes.json();
+      expect(newYearJson.success).toBe(true);
+      expect(newYearJson.data.year).toBe(testFutureYear);
+
+      const futureCfgRes = await app.handle(
+        new Request(`http://localhost/api/config?year=${testFutureYear}`)
+      );
+      const futureCfgJson = await futureCfgRes.json();
+      expect(futureCfgJson.event.year).toBe(testFutureYear);
+      expect(futureCfgJson.categories.some((c: any) => c.id === dynamicCatCode)).toBe(true);
+      expect(futureCfgJson.rubricConfig[0].weight).toBe(30);
+    } finally {
+      await prisma.competitionYear.deleteMany({ where: { year: testFutureYear } });
+      await prisma.category.deleteMany({ where: { code: dynamicCatCode } });
+    }
+  });
 });
