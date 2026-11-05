@@ -2,10 +2,13 @@ import { test, expect, describe, beforeAll, afterAll } from "bun:test";
 import { Elysia } from "elysia";
 import { mastersController } from "../src/modules/masters/masters.controller";
 import { configController } from "../src/modules/config/config.controller";
+import { authController } from "../src/modules/auth/auth.controller";
 import { prisma } from "../src/lib/prisma";
+import { Role } from "@prisma/client";
 
 describe("Masters & Config API Modules", () => {
   const app = new Elysia()
+    .use(authController)
     .use(mastersController)
     .use(configController);
 
@@ -68,5 +71,64 @@ describe("Masters & Config API Modules", () => {
     expect(json.prizes[0].title).toContain("40,000");
     expect(json.prizes[1].title).toContain("30,000");
     expect(json.prizes.every((p: any) => !p.title.includes("โล่"))).toBe(true);
+  });
+
+  test("PATCH /api/config/deadline rejects non-admin and allows ADMIN to update submissionDeadline", async () => {
+    const unauthRes = await app.handle(
+      new Request("http://localhost/api/config/deadline", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ submissionDeadline: "2027-03-15T16:59:59.000Z" }),
+      })
+    );
+    expect([401, 403]).toContain(unauthRes.status);
+
+    // Register a user and promote to ADMIN
+    const adminEmail = `admin-deadline-${Date.now()}@kmutnb.ac.th`;
+    const regRes = await app.handle(
+      new Request("http://localhost/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: adminEmail,
+          password: "AdminPassword2027!",
+          fullName: "Admin Deadline Tester",
+          educationLevel: "higher_and_above",
+        }),
+      })
+    );
+    const regJson = await regRes.json();
+    await prisma.user.update({
+      where: { id: regJson.user.id },
+      data: { role: Role.ADMIN },
+    });
+
+    const currentYearBefore = await prisma.competitionYear.findFirst({
+      where: { isCurrent: true },
+    });
+
+    try {
+      const adminRes = await app.handle(
+        new Request("http://localhost/api/config/deadline", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${regJson.token}`,
+          },
+          body: JSON.stringify({ submissionDeadline: "2027-03-15T16:59:59.000Z" }),
+        })
+      );
+      expect(adminRes.status).toBe(200);
+      const adminJson = await adminRes.json();
+      expect(adminJson.success).toBe(true);
+      expect(adminJson.submissionDeadline).toBe("2027-03-15T16:59:59.000Z");
+    } finally {
+      if (currentYearBefore) {
+        await prisma.competitionYear.update({
+          where: { id: currentYearBefore.id },
+          data: { submissionEnd: currentYearBefore.submissionEnd },
+        });
+      }
+    }
   });
 });

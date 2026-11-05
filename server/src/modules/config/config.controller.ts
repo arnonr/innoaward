@@ -1,7 +1,10 @@
-import { Elysia } from 'elysia';
+import { Elysia, t } from 'elysia';
 import { prisma } from '../../lib/prisma';
+import { authPlugin } from '../../middlewares/auth.middleware';
+import { Role } from '@prisma/client';
 
 export const configController = new Elysia()
+  .use(authPlugin)
   // Healthcheck with Database Ping
   .get('/api/health', async () => {
     let dbStatus = 'connected';
@@ -63,7 +66,10 @@ export const configController = new Elysia()
         grandPrize: currentYear?.grandPrize || 'ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี',
         eventDate: currentYear?.eventDate?.toISOString() || '2027-06-25T01:30:00.000Z',
         submissionStart: currentYear?.submissionStart?.toISOString() || '2026-10-31T17:00:00.000Z',
-        submissionDeadline: currentYear?.submissionEnd?.toISOString() || '2027-02-28T16:59:59.000Z',
+        submissionDeadline:
+          currentYear?.submissionEnd?.toISOString() ||
+          process.env.SUBMISSION_DEADLINE ||
+          '2027-02-28T16:59:59.000Z',
         organizer: 'อุทยานเทคโนโลยี มจพ.',
       },
       categories: categoriesFormatted,
@@ -80,4 +86,50 @@ export const configController = new Elysia()
         },
       ],
     };
-  });
+  })
+
+  // Update Submission Deadline (Admin Only)
+  .patch(
+    '/api/config/deadline',
+    async ({ body, currentUser, set }) => {
+      if (!currentUser) {
+        set.status = 401;
+        return { success: false, message: 'กรุณาเข้าสู่ระบบก่อนดำเนินการ' };
+      }
+      if (currentUser.role !== Role.ADMIN) {
+        set.status = 403;
+        return { success: false, message: 'เฉพาะผู้ดูแลระบบ (ADMIN) เท่านั้นที่สามารถแก้ไขวันปิดรับสมัครได้' };
+      }
+
+      const parsedDate = new Date(body.submissionDeadline);
+      if (Number.isNaN(parsedDate.getTime())) {
+        set.status = 400;
+        return { success: false, message: 'รูปแบบวันที่ไม่ถูกต้อง (กรุณาระบุเป็น ISO 8601)' };
+      }
+
+      const currentYear = await prisma.competitionYear.findFirst({
+        where: { isCurrent: true },
+      });
+
+      if (!currentYear) {
+        set.status = 404;
+        return { success: false, message: 'ไม่พบข้อมูลปีการแข่งขันปัจจุบัน' };
+      }
+
+      const updated = await prisma.competitionYear.update({
+        where: { id: currentYear.id },
+        data: { submissionEnd: parsedDate },
+      });
+
+      return {
+        success: true,
+        message: 'อัปเดตวันปิดรับสมัครเรียบร้อยแล้ว',
+        submissionDeadline: updated.submissionEnd?.toISOString() || parsedDate.toISOString(),
+      };
+    },
+    {
+      body: t.Object({
+        submissionDeadline: t.String({ minLength: 4 }),
+      }),
+    }
+  );

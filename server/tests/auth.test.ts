@@ -92,6 +92,22 @@ describe("Authentication Module (/api/auth)", () => {
     expect(json.success).toBe(false);
   });
 
+  test("POST /api/auth/login fails with 401 for unregistered email", async () => {
+    const response = await app.handle(
+      new Request("http://localhost/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: `nonexistent-${Date.now()}@kmutnb.ac.th`,
+          password: "AnyPassword123!",
+        }),
+      })
+    );
+    expect(response.status).toBe(401);
+    const json = await response.json();
+    expect(json.success).toBe(false);
+  });
+
   test("GET /api/auth/me returns current user profile when valid token provided", async () => {
     const response = await app.handle(
       new Request("http://localhost/api/auth/me", {

@@ -100,43 +100,26 @@ export const authController = new Elysia({ prefix: '/api/auth' })
       const { email, password } = body;
       const normalizedEmail = email.toLowerCase().trim();
 
-      let user = await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { email: normalizedEmail },
         include: { educationLevel: true },
       });
 
-      if (user) {
-        if (password) {
-          const isValid = await verifyPassword(password, user.passwordHash);
-          if (!isValid) {
-            set.status = 401;
-            return {
-              success: false,
-              message: 'รหัสผ่านไม่ถูกต้อง โปรดลองใหม่อีกครั้ง',
-            };
-          }
-        }
-      } else {
-        // Auto demo contestant account creation if user not found for seamless contest testing
-        const defaultLevel = await prisma.educationLevel.findFirst({
-          where: { code: 'higher_and_above' },
-        });
+      if (!user || !password) {
+        set.status = 401;
+        return {
+          success: false,
+          message: 'ไม่พบบัญชีอีเมลนี้ หรือรหัสผ่านไม่ถูกต้อง โปรดลองใหม่อีกครั้ง',
+        };
+      }
 
-        const rawPassword = password || 'Contestant2026!';
-        const passwordHash = await hashPassword(rawPassword);
-
-        user = await prisma.user.create({
-          data: {
-            email: normalizedEmail,
-            passwordHash,
-            fullName: 'นักนวัตกรรม พระจอมเกล้าฯ',
-            phone: '081-234-5678',
-            institution: 'มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
-            educationLevelId: defaultLevel!.id,
-            role: Role.CONTESTANT,
-          },
-          include: { educationLevel: true },
-        });
+      const isValid = await verifyPassword(password, user.passwordHash);
+      if (!isValid) {
+        set.status = 401;
+        return {
+          success: false,
+          message: 'รหัสผ่านไม่ถูกต้อง โปรดลองใหม่อีกครั้ง',
+        };
       }
 
       const token = await jwt.sign({
