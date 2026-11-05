@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-judging-3rounds-20261105-193130/candidate.json",
+    "sha256": "67c1af82ffd07c29f7f562513a4483c0471bb3d804cfd9c0f03d10ebbe69ef73",
+    "bytes": 10070
+  },
+  "artifact": {
+    "path": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-judging-3rounds-20261105-193130/judging-3rounds-workflow.html",
+    "sha256": "18f241411785cb99b96ce838e81c131d337aeaaa7091f00e6d3953a2e9ddb1cb",
+    "bytes": 836213
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-judging-3rounds-20261105-193130/judging-3rounds-workflow.finalize.json",
+    "summaryReceipt": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-judging-3rounds-20261105-193130/judging-3rounds-workflow.finalize-summary.json",
+    "browserCheckReceipt": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-judging-3rounds-20261105-193130/judging-3rounds-workflow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-05T11:25:54.129Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1981,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

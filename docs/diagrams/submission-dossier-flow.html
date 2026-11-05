@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KMUTNB Innovation Awards 2027 — Submission &amp; Dossier Flow</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;family=Instrument+Serif:ital@0;1&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f7f6f2;
+      --color-paper-2: #eeece6;
+      --color-ink: #0b192c;
+      --color-muted: #334155;
+      --color-soft: #475569;
+      --color-rule: rgba(11, 25, 44, 0.12);
+      --color-accent: #c2410c;
+      --color-accent-tint: rgba(194, 65, 12, 0.08);
+      --color-link: #047857;
+      --font-sans: 'DM Sans', 'Noto Sans Thai', 'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Noto Sans Thai', serif;
+      --font-mono: 'Geist Mono', 'Noto Sans Thai', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      min-height: 100vh;
+      padding: 2.5rem 2rem;
+      color: var(--color-ink);
+    }
+
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .header-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 0.6rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.85rem, 2.8vw + 1rem, 2.6rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 0.6rem;
+      color: var(--color-ink);
+    }
+
+    .subtitle {
+      font-size: 0.98rem;
+      line-height: 1.6;
+      color: var(--color-muted);
+      max-width: 78ch;
+    }
+
+    .diagram-container {
+      width: 100%;
+      background: var(--color-paper-2);
+      border-radius: 8px;
+      border: 1px solid var(--color-rule);
+      padding: 1.25rem;
+      overflow-x: auto;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 1280px;
+      display: block;
+    }
+
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 0.9fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .cards { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 6px;
+      border: 1px solid var(--color-rule);
+      padding: 1.25rem;
+    }
+
+    .card .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.45rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(11, 25, 44, 0.08);
+    }
+
+    .card-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .card-dot.ink { background: var(--color-ink); }
+    .card-dot.muted { background: var(--color-link); }
+    .card-dot.coral { background: var(--color-accent); }
+
+    .card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-ink);
+    }
+
+    .card p, .card ul {
+      color: var(--color-muted);
+      font-size: 0.84rem;
+      line-height: 1.6;
+      list-style: none;
+    }
+
+    .card li {
+      margin-bottom: 0.35rem;
+      padding-left: 0.95rem;
+      position: relative;
+    }
+
+    .card li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: rgba(11, 25, 44, 0.35);
+      font-size: 0.75rem;
+    }
+
+    .footer {
+      margin-top: 2rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(11, 25, 44, 0.10);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      color: var(--color-soft);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <p class="header-eyebrow">KMUTNB INNOVATION AWARDS 2027 · SUBMISSION &amp; DOSSIER ARCHITECTURE</p>
+      <h1>Flow ระบบรับสมัคร ส่งผลงาน และตรวจสอบสถานะรายรอบ (3-Step Submission &amp; Dossier)</h1>
+      <p class="subtitle">แผนผังการทำงานตั้งแต่ผู้สมัครกรอกข้อมูลทั้ง 3 ขั้นตอน การแยกโหมดบันทึกร่าง (Draft) กับการส่งผลงานจริง (Final Submit) การออกรหัสติดตามผลงาน การคุ้มครองข้อมูลส่วนบุคคล (PDPA Masking) และการแนบไฟล์ Poster / Presentation เพิ่มเติมภายหลัง</p>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="submission-flow-title submission-flow-desc">
+        <title id="submission-flow-title">Flow ระบบรับสมัครและส่งผลงาน KMUTNB Innovation Awards 2027</title>
+        <desc id="submission-flow-desc">แผนผัง Flowchart แสดงขั้นตอนการกรอกใบสมัคร 3 ขั้นตอน การตรวจสอบไฟล์บังคับ การบันทึกร่าง การออกรหัส KMUTNB-2570-XXXX และการตรวจสอบสถานะผลงาน 3 รอบพร้อมแนบไฟล์เพิ่มเติมทีหลัง</desc>
+        <defs>
+          <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.9" fill="rgba(11,25,44,0.10)"/>
+          </pattern>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#334155"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#c2410c"/>
+          </marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#047857"/>
+          </marker>
+        </defs>
+
+        <!-- Clean paper background + subtle editorial grid -->
+        <rect width="1280" height="720" fill="#f7f6f2"/>
+        <rect width="1280" height="720" fill="url(#dots)" opacity="0.55"/>
+
+        <!-- ============================================================
+             1. ARROWS (drawn first so lines sit behind all nodes)
+             ============================================================ -->
+        <!-- Arrow 1: Start (Node 1) -> Step 1 (Node 2) -->
+        <line x1="224" y1="112" x2="288" y2="112" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Arrow 2: Step 1 (Node 2) -> Step 2 (Node 3) -->
+        <line x1="512" y1="112" x2="576" y2="112" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Arrow 3: Step 2 (Node 3) -> Step 3 (Node 4) -->
+        <line x1="832" y1="112" x2="896" y2="112" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Arrow 4: Step 3 (Node 4) -> Decision Diamond (Node 5) -->
+        <line x1="1056" y1="152" x2="1056" y2="224" stroke="#334155" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- Arrow 5: Decision Diamond (Node 5) -> Save Draft (Node 6) -->
+        <line x1="936" y1="280" x2="768" y2="280" stroke="#334155" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+
+        <!-- Arrow 6: Save Draft (Node 6) -> Resume Edit at Step 2/3 (Node 3) -->
+        <line x1="640" y1="248" x2="640" y2="152" stroke="#047857" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+
+        <!-- Arrow 7 (Happy Path): Decision Diamond (Node 5) -> Issue Tracking Code & Save Dossier (Node 7) -->
+        <line x1="1056" y1="336" x2="1056" y2="424" stroke="#c2410c" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+        <!-- Arrow 8 (Happy Path): Save Dossier (Node 7) -> Official Dossier Modal & Late Artifact Updater (Node 8) -->
+        <line x1="848" y1="472" x2="704" y2="472" stroke="#c2410c" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+        <!-- ============================================================
+             2. ARROW LABELS (opaque paper mask with >= 8px gap from line)
+             ============================================================ -->
+        <!-- Label on Arrow 2 (y=112, mask bottom=104 -> 8px gap) -->
+        <rect x="520" y="92" width="48" height="12" rx="2" fill="#f7f6f2"/>
+        <text x="544" y="101" fill="#475569" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NEXT</text>
+
+        <!-- Label on Arrow 3 (y=112, mask bottom=104 -> 8px gap) -->
+        <rect x="840" y="92" width="48" height="12" rx="2" fill="#f7f6f2"/>
+        <text x="864" y="101" fill="#475569" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NEXT</text>
+
+        <!-- Label beside Arrow 4 (x=1056, mask left=1064 -> 8px gap) -->
+        <rect x="1064" y="180" width="88" height="12" rx="2" fill="#f7f6f2"/>
+        <text x="1108" y="189" fill="#475569" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VALIDATE</text>
+
+        <!-- Label above Arrow 5 (y=280, mask bottom=272 -> 8px gap) -->
+        <rect x="808" y="260" width="88" height="12" rx="2" fill="#f7f6f2"/>
+        <text x="852" y="269" fill="#475569" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SAVE DRAFT</text>
+
+        <!-- Label beside Arrow 6 (x=640, mask left=648 -> 8px gap) -->
+        <rect x="648" y="192" width="88" height="12" rx="2" fill="#f7f6f2"/>
+        <text x="692" y="201" fill="#047857" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">RESUME EDIT</text>
+
+        <!-- Label beside Arrow 7 (x=1056, mask left=1064 -> 8px gap) -->
+        <rect x="1064" y="372" width="104" height="12" rx="2" fill="#f7f6f2"/>
+        <text x="1116" y="381" fill="#c2410c" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">FINAL SUBMIT</text>
+
+        <!-- Label above Arrow 8 (y=472, mask bottom=464 -> 8px gap) -->
+        <rect x="728" y="452" width="96" height="12" rx="2" fill="#f7f6f2"/>
+        <text x="776" y="461" fill="#c2410c" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TRACK STATUS</text>
+
+        <!-- ============================================================
+             3. NODES (all coordinates & sizes on 4px grid)
+             ============================================================ -->
+
+        <!-- Node 1: Start Oval (x=48, y=80, w=176, h=64) -->
+        <rect x="48" y="80" width="176" height="64" rx="20" fill="#f7f6f2"/>
+        <rect x="48" y="80" width="176" height="64" rx="20" fill="rgba(11,25,44,0.04)" stroke="rgba(11,25,44,0.35)" stroke-width="1"/>
+        <text x="136" y="108" fill="#0b192c" font-size="12" font-weight="600" font-family="'DM Sans', 'Noto Sans Thai', sans-serif" text-anchor="middle">ผู้สมัครเปิดฟอร์ม</text>
+        <text x="136" y="126" fill="#334155" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">PORTAL · SUBMISSION</text>
+
+        <!-- Node 2: Step 1 Rectangle (x=288, y=72, w=224, h=80) -->
+        <rect x="288" y="72" width="224" height="80" rx="6" fill="#ffffff" stroke="#0b192c" stroke-width="1"/>
+        <rect x="296" y="80" width="44" height="12" rx="2" fill="transparent" stroke="rgba(11,25,44,0.40)" stroke-width="0.8"/>
+        <text x="318" y="89" fill="#0b192c" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">STEP 1</text>
+        <text x="400" y="112" fill="#0b192c" font-size="12" font-weight="600" font-family="'DM Sans', 'Noto Sans Thai', sans-serif" text-anchor="middle">1. ข้อมูลผลงานและสังกัด</text>
+        <text x="400" y="130" fill="#334155" font-size="9" font-family="'Geist Mono', 'Noto Sans Thai', monospace" text-anchor="middle">ชื่อทีม · หมวดหมู่ · สังกัด · บทคัดย่อ</text>
+
+        <!-- Node 3: Step 2 Rectangle (x=576, y=72, w=256, h=80) -->
+        <rect x="576" y="72" width="256" height="80" rx="6" fill="#ffffff" stroke="#0b192c" stroke-width="1"/>
+        <rect x="584" y="80" width="44" height="12" rx="2" fill="transparent" stroke="rgba(11,25,44,0.40)" stroke-width="0.8"/>
+        <text x="606" y="89" fill="#0b192c" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">STEP 2</text>
+        <text x="704" y="112" fill="#0b192c" font-size="12" font-weight="600" font-family="'DM Sans', 'Noto Sans Thai', sans-serif" text-anchor="middle">2. สมาชิกทีม &amp; ผู้ประสานงาน</text>
+        <text x="704" y="130" fill="#334155" font-size="9" font-family="'Geist Mono', 'Noto Sans Thai', monospace" text-anchor="middle">ชื่อ · บทบาท · เลขบัตร · ผู้ประสานงานหลัก/รอง</text>
+
+        <!-- Node 4: Step 3 Rectangle (x=896, y=72, w=320, h=80) -->
+        <rect x="896" y="72" width="320" height="80" rx="6" fill="#ffffff" stroke="#0b192c" stroke-width="1"/>
+        <rect x="904" y="80" width="44" height="12" rx="2" fill="transparent" stroke="rgba(11,25,44,0.40)" stroke-width="0.8"/>
+        <text x="926" y="89" fill="#0b192c" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">STEP 3</text>
+        <text x="1056" y="112" fill="#0b192c" font-size="12" font-weight="600" font-family="'DM Sans', 'Noto Sans Thai', sans-serif" text-anchor="middle">3. ไฟล์ประกอบผลงานครบ 5 รายการ</text>
+        <text x="1056" y="130" fill="#334155" font-size="9" font-family="'Geist Mono', 'Noto Sans Thai', monospace" text-anchor="middle">บังคับ: PDF, VDO, Image · แนบทีหลังได้: Poster, Slides</text>
+
+        <!-- Node 5: Decision Diamond (center 1056,280; w=240, h=112) -->
+        <polygon points="1056,224 1176,280 1056,336 936,280" fill="#ffffff" stroke="#0b192c" stroke-width="1"/>
+        <text x="1056" y="276" fill="#0b192c" font-size="12" font-weight="600" font-family="'DM Sans', 'Noto Sans Thai', sans-serif" text-anchor="middle">เลือกโหมดการบันทึก</text>
+        <text x="1056" y="294" fill="#334155" font-size="9" font-family="'Geist Mono', 'Noto Sans Thai', monospace" text-anchor="middle">PDF + VDO + Image ครบ?</text>
+
+        <!-- Node 6: Draft Oval (x=512, y=248, w=256, h=64) -->
+        <rect x="512" y="248" width="256" height="64" rx="20" fill="#f7f6f2"/>
+        <rect x="512" y="248" width="256" height="64" rx="20" fill="rgba(4,120,87,0.06)" stroke="#047857" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="640" y="276" fill="#0b192c" font-size="12" font-weight="600" font-family="'DM Sans', 'Noto Sans Thai', sans-serif" text-anchor="middle">บันทึกแบบร่าง (DRAFT)</text>
+        <text x="640" y="294" fill="#334155" font-size="9" font-family="'Geist Mono', 'Noto Sans Thai', monospace" text-anchor="middle">เก็บสถานะ DRAFT · แก้ไขต่อได้ทุกเมื่อ</text>
+
+        <!-- Node 7 (Focal 1): Create Submission & Tracking Code (x=848, y=424, w=384, h=96) -->
+        <rect x="848" y="424" width="384" height="96" rx="6" fill="#f7f6f2"/>
+        <rect x="848" y="424" width="384" height="96" rx="6" fill="rgba(194,65,12,0.08)" stroke="#c2410c" stroke-width="1.2"/>
+        <rect x="856" y="432" width="128" height="12" rx="2" fill="transparent" stroke="rgba(194,65,12,0.50)" stroke-width="0.8"/>
+        <text x="920" y="441" fill="#c2410c" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">POST /API/SUBMISSIONS</text>
+        <text x="1040" y="468" fill="#0b192c" font-size="12" font-weight="600" font-family="'DM Sans', 'Noto Sans Thai', sans-serif" text-anchor="middle">ออกรหัส KMUTNB-2570-XXXX &amp; บันทึก Dossier</text>
+        <text x="1040" y="486" fill="#334155" font-size="9" font-family="'Geist Mono', 'Noto Sans Thai', monospace" text-anchor="middle">สถานะ SUBMITTED · ล็อกผลรอบ 1, 2, 3 เริ่มต้น = PENDING</text>
+        <text x="1040" y="502" fill="#475569" font-size="9" font-family="'Geist Mono', 'Noto Sans Thai', monospace" text-anchor="middle">บันทึกสมาชิก (TeamMember) + ผู้ประสานงานหลัก/รองลง PostgreSQL</text>
+
+        <!-- Node 8 (Focal 2): Official Dossier View, 3-Round Status & Late Artifact Updater (x=80, y=424, w=624, h=96) -->
+        <rect x="80" y="424" width="624" height="96" rx="20" fill="#f7f6f2"/>
+        <rect x="80" y="424" width="624" height="96" rx="20" fill="rgba(194,65,12,0.08)" stroke="#c2410c" stroke-width="1.2"/>
+        <text x="392" y="456" fill="#0b192c" font-size="12" font-weight="600" font-family="'DM Sans', 'Noto Sans Thai', sans-serif" text-anchor="middle">หน้ารายละเอียดผลงาน (Official Dossier) · ผลคัดเลือก 3 รอบ &amp; แนบไฟล์เพิ่มทีหลัง</text>
+        <text x="392" y="476" fill="#334155" font-size="9" font-family="'Geist Mono', 'Noto Sans Thai', monospace" text-anchor="middle">GET /api/submissions/status/:code · แสดงผลรอบ 1 (เอกสาร), รอบ 2 (ออนไลน์), รอบ 3 (ชิงชนะเลิศ) + PDPA Masking</text>
+        <text x="392" y="496" fill="#047857" font-size="9" font-family="'Geist Mono', 'Noto Sans Thai', monospace" text-anchor="middle">PATCH /api/submissions/tracking/:code/artifacts · แนบหรือแก้ไขลิงก์ Poster และ Presentation เพิ่มเติมภายหลังได้ทันที</text>
+
+        <!-- ============================================================
+             4. LEGEND STRIP (Horizontal bottom strip at y=632..700)
+             ============================================================ -->
+        <line x1="48" y1="624" x2="1232" y2="624" stroke="rgba(11,25,44,0.12)" stroke-width="0.8"/>
+        <text x="48" y="644" fill="#334155" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND · SHAPE &amp; LINE SEMANTICS</text>
+
+        <!-- Legend Item 1: Start / End Oval -->
+        <rect x="48" y="660" width="28" height="12" rx="6" fill="rgba(11,25,44,0.04)" stroke="rgba(11,25,44,0.35)" stroke-width="1"/>
+        <text x="84" y="670" fill="#334155" font-size="9" font-family="'DM Sans', 'Noto Sans Thai', sans-serif">จุดเริ่มต้น / สิ้นสุด (Oval)</text>
+
+        <!-- Legend Item 2: Form Step Rectangle -->
+        <rect x="264" y="660" width="28" height="12" rx="2" fill="#ffffff" stroke="#0b192c" stroke-width="1"/>
+        <text x="300" y="670" fill="#334155" font-size="9" font-family="'DM Sans', 'Noto Sans Thai', sans-serif">ขั้นตอนการกรอกข้อมูล (Step 1–3)</text>
+
+        <!-- Legend Item 3: Decision Diamond -->
+        <polygon points="504,666 516,660 528,666 516,672" fill="#ffffff" stroke="#0b192c" stroke-width="1"/>
+        <text x="536" y="670" fill="#334155" font-size="9" font-family="'DM Sans', 'Noto Sans Thai', sans-serif">เงื่อนไขตรวจสอบ (Decision)</text>
+
+        <!-- Legend Item 4: Focal / Happy Path -->
+        <line x1="712" y1="666" x2="744" y2="666" stroke="#c2410c" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <text x="752" y="670" fill="#334155" font-size="9" font-family="'DM Sans', 'Noto Sans Thai', sans-serif">เส้นทางส่งผลงานจริง &amp; Dossier (Happy Path)</text>
+
+        <!-- Legend Item 5: Optional / Draft Loop -->
+        <line x1="1016" y1="666" x2="1048" y2="666" stroke="#047857" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+        <text x="1056" y="670" fill="#334155" font-size="9" font-family="'DM Sans', 'Noto Sans Thai', sans-serif">บันทึกร่าง &amp; กลับมาแก้ไขต่อ (Draft Loop)</text>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <p class="eyebrow">3-STEP SUBMISSION FORM</p>
+        <div class="card-header">
+          <span class="card-dot ink"></span>
+          <h3>โครงสร้างข้อมูลครบตามใบรายละเอียดผลงาน</h3>
+        </div>
+        <ul>
+          <li><strong>Step 1:</strong> ชื่อผลงาน (ไทย/อังกฤษ), ชื่อทีม, หมวดหมู่ 5+1 กลุ่ม, ระดับการศึกษา, สังกัด และรายละเอียดผลงาน</li>
+          <li><strong>Step 2:</strong> รายชื่อสมาชิกทีมแบบเพิ่ม/ลบได้ (ชื่อ, บทบาท, เลขบัตร 13 หลัก/พาสปอร์ต) พร้อมผู้ประสานงานหลักและรอง</li>
+          <li><strong>Step 3:</strong> ลิงก์ไฟล์ประกอบผลงานครบ 5 รายการ</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <p class="eyebrow">FLEXIBLE ARTIFACT POLICY</p>
+        <div class="card-header">
+          <span class="card-dot coral"></span>
+          <h3>ส่งจริงใช้ 3 ไฟล์หลัก · แนบเพิ่มทีหลังได้ 2 ไฟล์</h3>
+        </div>
+        <ul>
+          <li><strong>บังคับเมื่อกดส่งผลงานจริง:</strong> 1) PDF แบบฟอร์มเสนอผลงาน 2) คลิป VDO นำเสนอ 3) รูปภาพผลงาน (Image)</li>
+          <li><strong>แนบเพิ่มเติมภายหลังได้:</strong> 4) Poster และ 5) Presentation (ผู้สมัครอัปเดตผ่านหน้าตรวจสถานะได้ตลอดด้วยรหัสติดตามผลงาน)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <p class="eyebrow">MULTI-ROUND &amp; PDPA SECURITY</p>
+        <div class="card-header">
+          <span class="card-dot muted"></span>
+          <h3>ผลคัดเลือก 3 รอบ &amp; คุ้มครองข้อมูลส่วนบุคคล</h3>
+        </div>
+        <ul>
+          <li><strong>3 รอบการแข่งขัน:</strong> รอบที่ 1 (คัดเลือกเอกสาร), รอบที่ 2 (ประกวดออนไลน์), รอบที่ 3 (รอบตัดสิน + รางวัลที่ได้รับ)</li>
+          <li><strong>PDPA Masking:</strong> ปิดบังเลขบัตร (`5-1601-XXXXX-XX-X`), เบอร์โทร และอีเมลอัตโนมัติเมื่อค้นหาสาธารณะ</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>flowchart · kmutnb innovation awards 2027 submission &amp; dossier flow</span>
+      <span>docs/diagrams/submission-dossier-flow.html</span>
+    </div>
+  </div>
+</body>
+</html>

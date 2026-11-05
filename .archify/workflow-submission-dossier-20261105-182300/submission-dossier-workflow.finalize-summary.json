@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-submission-dossier-20261105-182300/candidate.json",
+    "sha256": "ded680a23f91d7bbffa498d0e5b558141ead8bcf949a95548073871c1a7842b6",
+    "bytes": 15344
+  },
+  "artifact": {
+    "path": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-submission-dossier-20261105-182300/submission-dossier-workflow.html",
+    "sha256": "9808f71b41fdb4b3f72bb3ca265b22c633ff5a8dc02657d9612434a9ed114a95",
+    "bytes": 852424
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-submission-dossier-20261105-182300/submission-dossier-workflow.finalize.json",
+    "summaryReceipt": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-submission-dossier-20261105-182300/submission-dossier-workflow.finalize-summary.json",
+    "browserCheckReceipt": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-submission-dossier-20261105-182300/submission-dossier-workflow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-05T11:25:54.129Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2016,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "KMUTNB Innovation Awards — Screening & 3-Round Judging Flow",
+    "quality_profile": "showcase",
+    "output": ".archify/workflow-judging-3rounds-20261105-193130/judging-3rounds-workflow.html",
+    "repository": {
+      "url": "git@github.com:arnonr/innoaward.git",
+      "link_mode": "local-only",
+      "revision": "a59a18416148f236a2eff2e1dc9510caa35bee16"
+    }
+  },
+  "lanes": [
+    { "id": "contestant", "label": "Contestant" },
+    { "id": "judge", "label": "Admin & Judges" },
+    { "id": "api", "label": "Judging API" },
+    { "id": "db", "label": "PostgreSQL & Public" }
+  ],
+  "phases": [
+    { "id": "screening", "label": "0. ตรวจคัดกรอง", "fromCol": 0, "toCol": 0, "variant": "default" },
+    { "id": "round1", "label": "1. ตัดสินรอบที่ 1", "fromCol": 1, "toCol": 1, "variant": "emphasis" },
+    { "id": "round2", "label": "2. ตัดสินรอบที่ 2 (ส่ง POSTER)", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "round3", "label": "3. ตัดสินรอบชิงชนะเลิศ", "fromCol": 4, "toCol": 5, "variant": "security" }
+  ],
+  "mainPath": [
+    "sub_ready",
+    "screen_check",
+    "judge_r1",
+    "api_r1",
+    "db_r1",
+    "api_artifacts",
+    "judge_r2",
+    "db_r2",
+    "judge_r3",
+    "api_award",
+    "hall_of_fame"
+  ],
+  "nodes": [
+    {
+      "id": "sub_ready",
+      "lane": "contestant",
+      "col": 0,
+      "type": "frontend",
+      "label": "ส่งใบสมัครสมบูรณ์",
+      "sublabel": "Proposal + คลิป + ภาพ",
+      "tag": "SUBMITTED",
+      "sources": [
+        { "path": "client/src/App.jsx", "line": 904, "end_line": 965, "label": "handleSubmission" }
+      ]
+    },
+    {
+      "id": "screen_check",
+      "lane": "judge",
+      "col": 0,
+      "type": "security",
+      "label": "ตรวจคัดกรองเบื้องต้น",
+      "sublabel": "ความถูกต้องเอกสาร",
+      "tag": "UNDER_REVIEW",
+      "sources": [
+        { "path": "server/prisma/schema.prisma", "line": 16, "end_line": 24, "label": "UNDER_REVIEW" }
+      ]
+    },
+    {
+      "id": "judge_r1",
+      "lane": "judge",
+      "col": 1,
+      "type": "security",
+      "label": "ตัดสินรอบที่ 1",
+      "sublabel": "Proposal + คลิป 3 นาที",
+      "tag": "Round 1",
+      "sources": [
+        { "path": "client/src/components/domainCatalog.js", "line": 31, "end_line": 47, "label": "initialCriteria" }
+      ]
+    },
+    {
+      "id": "api_r1",
+      "lane": "api",
+      "col": 1,
+      "type": "backend",
+      "label": "PATCH /:id/status",
+      "sublabel": "round1Status: PASSED",
+      "sources": [
+        { "path": "server/src/modules/submissions/submissions.controller.ts", "line": 414, "end_line": 470, "label": "updateStatus" }
+      ]
+    },
+    {
+      "id": "db_r1",
+      "lane": "db",
+      "col": 1,
+      "type": "database",
+      "label": "ผ่านรอบที่ 1",
+      "sublabel": "PASSED_FIRST_ROUND",
+      "sources": [
+        { "path": "server/prisma/schema.prisma", "line": 16, "end_line": 30, "label": "RoundStatus" }
+      ]
+    },
+    {
+      "id": "poster_upload",
+      "lane": "contestant",
+      "col": 2,
+      "type": "frontend",
+      "label": "ส่งไฟล์ POSTER",
+      "sublabel": "ผู้ผ่านรอบ 1 ต้องส่งเพิ่ม",
+      "tag": "บังคับส่ง Poster",
+      "sources": [
+        { "path": "client/src/App.jsx", "line": 1106, "end_line": 1166, "label": "handleSaveLateArtifacts" }
+      ]
+    },
+    {
+      "id": "api_artifacts",
+      "lane": "api",
+      "col": 2,
+      "type": "backend",
+      "label": "PATCH /artifacts",
+      "sublabel": "บันทึก posterUrl",
+      "sources": [
+        { "path": "server/src/modules/submissions/submissions.controller.ts", "line": 332, "end_line": 411, "label": "patchArtifacts" }
+      ]
+    },
+    {
+      "id": "judge_r2",
+      "lane": "judge",
+      "col": 3,
+      "type": "security",
+      "label": "ตัดสินรอบที่ 2",
+      "sublabel": "ตรวจ Poster + ออนไลน์",
+      "tag": "Round 2",
+      "sources": [
+        { "path": "server/src/modules/submissions/submissions.controller.ts", "line": 414, "end_line": 465, "label": "round2Status" }
+      ]
+    },
+    {
+      "id": "db_r2",
+      "lane": "db",
+      "col": 3,
+      "type": "database",
+      "label": "ผ่านเข้ารอบชิงฯ",
+      "sublabel": "FINALIST + Roster",
+      "sources": [
+        { "path": "server/src/modules/announcements/announcements.controller.ts", "line": 7, "end_line": 76, "label": "FINALISTS" }
+      ]
+    },
+    {
+      "id": "onsite_pitch",
+      "lane": "contestant",
+      "col": 4,
+      "type": "frontend",
+      "label": "นำเสนอรอบชิงฯ",
+      "sublabel": "สาธิตชิ้นงานจริง มจพ.",
+      "sources": [
+        { "path": "client/src/App.jsx", "line": 996, "end_line": 1003, "label": "round3 Dossier" }
+      ]
+    },
+    {
+      "id": "judge_r3",
+      "lane": "judge",
+      "col": 4,
+      "type": "security",
+      "label": "ตัดสินรอบชิงชนะเลิศ",
+      "sublabel": "เคาะรางวัล AwardTier",
+      "tag": "Final Round",
+      "sources": [
+        { "path": "server/prisma/schema.prisma", "line": 32, "end_line": 37, "label": "AwardTier" }
+      ]
+    },
+    {
+      "id": "api_award",
+      "lane": "api",
+      "col": 5,
+      "type": "backend",
+      "label": "บันทึกผลรางวัล",
+      "sublabel": "status: AWARDED",
+      "sources": [
+        { "path": "server/src/modules/submissions/submissions.controller.ts", "line": 437, "end_line": 465, "label": "awardUpdate" }
+      ]
+    },
+    {
+      "id": "hall_of_fame",
+      "lane": "db",
+      "col": 5,
+      "type": "database",
+      "label": "Hall of Fame",
+      "sublabel": "GET /api/winners",
+      "tag": "ถ้วยพระราชทานฯ",
+      "sources": [
+        { "path": "server/src/modules/winners/winners.controller.ts", "line": 7, "end_line": 90, "label": "winnersGallery" }
+      ]
+    }
+  ],
+  "edges": [
+    { "id": "e1", "from": "sub_ready", "to": "screen_check", "variant": "default", "role": "main" },
+    { "id": "e2", "from": "screen_check", "to": "judge_r1", "label": "ถูกต้อง", "variant": "emphasis", "role": "main" },
+    { "id": "e3", "from": "judge_r1", "to": "api_r1", "variant": "emphasis", "role": "main" },
+    { "id": "e4", "from": "api_r1", "to": "db_r1", "variant": "default", "role": "main" },
+    { "id": "e5", "from": "db_r1", "to": "api_artifacts", "label": "เข้ารอบ 2", "variant": "emphasis", "role": "main" },
+    { "id": "e6", "from": "poster_upload", "to": "api_artifacts", "variant": "dashed", "role": "branch", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "e7", "from": "api_artifacts", "to": "judge_r2", "label": "มี Poster", "variant": "emphasis", "role": "main" },
+    { "id": "e8", "from": "judge_r2", "to": "db_r2", "label": "ผ่านรอบ 2", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "e9", "from": "db_r2", "to": "judge_r3", "label": "ชิงชนะเลิศ", "variant": "security", "role": "main" },
+    { "id": "e10", "from": "onsite_pitch", "to": "judge_r3", "variant": "default", "role": "branch" },
+    { "id": "e11", "from": "judge_r3", "to": "api_award", "label": "เคาะรางวัล", "variant": "security", "role": "main" },
+    { "id": "e12", "from": "api_award", "to": "hall_of_fame", "variant": "security", "role": "main" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "4 ขั้นตอนหลัก (ตรวจคัดกรอง + ตัดสิน 3 รอบ)",
+      "items": [
+        "0. ตรวจคัดกรองความถูกต้อง (Screening): เจ้าหน้าที่ตรวจความครบถ้วนของเอกสารและคุณสมบัติผู้สมัคร (SUBMITTED -> UNDER_REVIEW / REJECTED)",
+        "1. ตัดสินรอบที่ 1 (Round 1): คณะกรรมการพิจารณา Proposal PDF (<= 10 หน้า) และคลิปวิดีโอสาธิต 2-3 นาที -> บันทึก round1Status: PASSED (PASSED_FIRST_ROUND)",
+        "2. ตัดสินรอบที่ 2 (Round 2 + ส่ง POSTER): ผู้ผ่านรอบที่ 1 ต้องแนบไฟล์ POSTER (และสไลด์นำเสนอ) ผ่าน PATCH /artifacts ก่อนเข้าสู่การตัดสินรอบที่ 2 -> บันทึก round2Status: PASSED (FINALIST)",
+        "3. ตัดสินรอบชิงชนะเลิศ (Final Round): นำชิ้นงานต้นแบบมาสาธิตจริงและ Pitching ต่อคณะกรรมการ -> กำหนด AwardTier และขึ้น Hall of Fame (AWARDED)"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "เงื่อนไขการส่ง POSTER ในรอบที่ 2",
+      "items": [
+        "ในขั้นตอนส่งใบสมัครแรกเริ่ม (ก่อนปิดรับสมัคร) บังคับเฉพาะ Proposal PDF, คลิปวิดีโอ, และภาพถ่ายชิ้นงาน",
+        "เมื่อผ่านการตัดสินรอบที่ 1 (PASSED_FIRST_ROUND) ผู้เข้าแข่งขันล็อกอินด้วยอีเมล + รหัสผ่าน เพื่อส่งไฟล์ POSTER (posterUrl) และสไลด์นำเสนอผ่าน PATCH /api/submissions/tracking/:trackingCode/artifacts",
+        "กรรมการรอบที่ 2 ใช้ไฟล์ POSTER ควบคู่กับการนำเสนอออนไลน์ในการคัดเลือกสู่รอบชิงชนะเลิศ (FINALIST)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "ส่วนต่อยอดสำหรับระบบกรรมการ (Judge Workspace)",
+      "items": [
+        "เพิ่มหน้าคัดกรองเอกสารสำหรับเจ้าหน้าที่ (Admin Screening Queue) และหน้าประเมินสำหรับกรรมการแยกตามรอบที่ 1, รอบที่ 2 (ตรวจว่าส่ง POSTER แล้ว), และรอบชิงชนะเลิศ",
+        "เพิ่มระบบให้คะแนนตามเกณฑ์ (Scoring Rubric) แยกตามกรรมการแต่ละท่านก่อนสรุปผลผ่านเข้ารอบ"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "25237482-39fe-4016-bbde-ab9914d0941d",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-judging-3rounds-20261105-193130/candidate.json",
+  "output": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-judging-3rounds-20261105-193130/judging-3rounds-workflow.html",
+  "specification": {
+    "sha256": "59cc69c558bf3a5539e4145c2eca421aca5566880a045dc59965e934e22b1256",
+    "bytes": 11250
+  },
+  "artifact": {
+    "sha256": "a6dfd3040c0612bfd029f919ab96c283c919b448734aae3751b799b76117a945",
+    "bytes": 840082
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "3d7a211a-afcd-4bb9-b5ce-97d32d1be070",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-submission-dossier-20261105-182300/candidate.json",
+  "output": "/Users/macbook-arnon/Projects/innoaward/.archify/workflow-submission-dossier-20261105-182300/submission-dossier-workflow.html",
+  "specification": {
+    "sha256": "ded680a23f91d7bbffa498d0e5b558141ead8bcf949a95548073871c1a7842b6",
+    "bytes": 15344
+  },
+  "artifact": {
+    "sha256": "9808f71b41fdb4b3f72bb3ca265b22c633ff5a8dc02657d9612434a9ed114a95",
+    "bytes": 852424
+  }
+}

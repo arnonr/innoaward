@@ -1,0 +1,518 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "ระบบรับสมัคร ส่งผลงาน และตรวจสอบสถานะรายรอบ (KMUTNB Innovation Awards 2027)",
+    "quality_profile": "showcase",
+    "output": ".archify/workflow-submission-dossier-20261105-182300/submission-dossier-workflow.html",
+    "repository": {
+      "url": "git@github.com:arnonr/innoaward.git",
+      "link_mode": "local-only",
+      "revision": "9e320536c2ee97f93e20b0464acc7e85e64a4fdc"
+    }
+  },
+  "lanes": [
+    {
+      "id": "validation",
+      "label": "ตรวจข้อมูล & สำรอง",
+      "variant": "exception"
+    },
+    {
+      "id": "ui",
+      "label": "หน้าเว็บผู้สมัคร (UI)"
+    },
+    {
+      "id": "api",
+      "label": "Elysia API & PDPA"
+    },
+    {
+      "id": "db",
+      "label": "PostgreSQL (Prisma)"
+    }
+  ],
+  "phases": [
+    {
+      "id": "step1_2",
+      "label": "กรอกข้อมูล & สมาชิก",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "step3_submit",
+      "label": "แนบไฟล์ & ส่งผลงาน",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "dossier_rounds",
+      "label": "ตรวจสถานะ 3 รอบ & แนบทีหลัง",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "mainPath": [
+    "step1_project",
+    "step2_team",
+    "step3_artifacts",
+    "submit_api",
+    "submit_success",
+    "status_api",
+    "dossier_modal",
+    "late_artifacts_ui",
+    "late_artifacts_api",
+    "update_artifacts_db"
+  ],
+  "nodes": [
+    {
+      "id": "step1_project",
+      "lane": "ui",
+      "col": 0,
+      "type": "frontend",
+      "label": "1. ข้อมูลโครงการ",
+      "sublabel": "ชื่อผลงาน & ประเภท",
+      "tag": "Step 1/3",
+      "sources": [
+        {
+          "path": "client/src/components/submissionDossierUtils.js",
+          "line": 250,
+          "end_line": 282,
+          "label": "createInitialSubmissionForm"
+        },
+        {
+          "path": "client/src/App.jsx",
+          "line": 3480,
+          "end_line": 3595,
+          "label": "Step 1 Project Info UI"
+        }
+      ]
+    },
+    {
+      "id": "draft_save",
+      "lane": "validation",
+      "col": 0,
+      "type": "security",
+      "label": "บันทึกแบบร่าง",
+      "sublabel": "เก็บสถานะ DRAFT",
+      "tag": "Draft",
+      "sources": [
+        {
+          "path": "client/src/App.jsx",
+          "line": 830,
+          "end_line": 868,
+          "label": "handleSaveDraft"
+        },
+        {
+          "path": "client/src/components/submissionDossierUtils.js",
+          "line": 293,
+          "end_line": 304,
+          "label": "validateSubmissionStep (draft)"
+        }
+      ]
+    },
+    {
+      "id": "step2_team",
+      "lane": "ui",
+      "col": 1,
+      "type": "frontend",
+      "label": "2. ทีม & ที่ปรึกษา",
+      "sublabel": "เลขบัตร 13 หลัก",
+      "tag": "Step 2/3",
+      "sources": [
+        {
+          "path": "client/src/components/submissionDossierUtils.js",
+          "line": 284,
+          "end_line": 291,
+          "label": "formatCitizenIdInput"
+        },
+        {
+          "path": "client/src/App.jsx",
+          "line": 3596,
+          "end_line": 3745,
+          "label": "Step 2 Team & Advisor UI"
+        }
+      ]
+    },
+    {
+      "id": "step_validator",
+      "lane": "validation",
+      "col": 1,
+      "type": "security",
+      "label": "ตรวจความถูกต้อง",
+      "sublabel": "เลขบัตร/อีเมล/โทร",
+      "tag": "Validator",
+      "sources": [
+        {
+          "path": "client/src/components/submissionDossierUtils.js",
+          "line": 305,
+          "end_line": 348,
+          "label": "validateSubmissionStep"
+        }
+      ]
+    },
+    {
+      "id": "step3_artifacts",
+      "lane": "ui",
+      "col": 2,
+      "type": "frontend",
+      "label": "3. แนบไฟล์หลัก",
+      "sublabel": "PDF + คลิปวิดีโอ",
+      "tag": "Step 3/3",
+      "sources": [
+        {
+          "path": "client/src/components/submissionDossierUtils.js",
+          "line": 350,
+          "end_line": 412,
+          "label": "buildSubmissionApiPayload"
+        },
+        {
+          "path": "client/src/App.jsx",
+          "line": 3746,
+          "end_line": 3875,
+          "label": "Step 3 Artifacts & PDPA UI"
+        }
+      ]
+    },
+    {
+      "id": "submit_api",
+      "lane": "api",
+      "col": 2,
+      "type": "backend",
+      "label": "POST /submissions",
+      "sublabel": "ออกรหัส 2570-XXXX",
+      "tag": "REST API",
+      "sources": [
+        {
+          "path": "server/src/modules/submissions/submissions.controller.ts",
+          "line": 21,
+          "end_line": 256,
+          "label": "POST /api/submissions"
+        }
+      ]
+    },
+    {
+      "id": "persist_db",
+      "lane": "db",
+      "col": 2,
+      "type": "database",
+      "label": "บันทึกฐานข้อมูล",
+      "sublabel": "Submission & ทีม",
+      "tag": "PostgreSQL",
+      "sources": [
+        {
+          "path": "server/prisma/schema.prisma",
+          "line": 155,
+          "end_line": 235,
+          "label": "Submission & TeamMember Models"
+        }
+      ]
+    },
+    {
+      "id": "submit_success",
+      "lane": "ui",
+      "col": 3,
+      "type": "frontend",
+      "label": "รับรหัสติดตาม",
+      "sublabel": "Tracking Code",
+      "tag": "Confirmed",
+      "sources": [
+        {
+          "path": "client/src/App.jsx",
+          "line": 869,
+          "end_line": 917,
+          "label": "handleSubmission & finishSuccess"
+        }
+      ]
+    },
+    {
+      "id": "status_api",
+      "lane": "api",
+      "col": 3,
+      "type": "backend",
+      "label": "GET /status/:code",
+      "sublabel": "ปิดบังข้อมูล PDPA",
+      "tag": "PDPA API",
+      "sources": [
+        {
+          "path": "server/src/modules/submissions/submissions.controller.ts",
+          "line": 260,
+          "end_line": 292,
+          "label": "GET /status/:trackingCode"
+        },
+        {
+          "path": "server/src/modules/submissions/dossier-utils.ts",
+          "line": 20,
+          "end_line": 53,
+          "label": "maskIdCard / maskPhone / maskEmail"
+        }
+      ]
+    },
+    {
+      "id": "round_eval_db",
+      "lane": "db",
+      "col": 3,
+      "type": "database",
+      "label": "ประเมินผล 3 รอบ",
+      "sublabel": "คัดกรอง/Pitch/ชิง",
+      "tag": "3 Rounds",
+      "sources": [
+        {
+          "path": "server/src/modules/submissions/submissions.controller.ts",
+          "line": 361,
+          "end_line": 416,
+          "label": "PATCH /api/submissions/:id/status"
+        },
+        {
+          "path": "server/src/modules/submissions/dossier-utils.ts",
+          "line": 126,
+          "end_line": 209,
+          "label": "formatDossierResponse"
+        }
+      ]
+    },
+    {
+      "id": "dossier_modal",
+      "lane": "ui",
+      "col": 4,
+      "type": "frontend",
+      "label": "แฟ้มผลงาน 3 รอบ",
+      "sublabel": "สถานะรอบ & เอกสาร",
+      "tag": "Dossier",
+      "sources": [
+        {
+          "path": "client/src/App.jsx",
+          "line": 919,
+          "end_line": 987,
+          "label": "executeStatusSearch"
+        },
+        {
+          "path": "client/src/App.jsx",
+          "line": 3978,
+          "end_line": 4200,
+          "label": "Official Submission Dossier Modal"
+        }
+      ]
+    },
+    {
+      "id": "offline_fallback",
+      "lane": "validation",
+      "col": 4,
+      "type": "security",
+      "label": "ข้อมูลสำรอง",
+      "sublabel": "Cache & รหัส 2569",
+      "tag": "Fallback",
+      "sources": [
+        {
+          "path": "client/src/components/submissionDossierUtils.js",
+          "line": 414,
+          "end_line": 512,
+          "label": "normalizeStatusDossier & FALLBACK"
+        }
+      ]
+    },
+    {
+      "id": "late_artifacts_ui",
+      "lane": "ui",
+      "col": 5,
+      "type": "frontend",
+      "label": "แนบไฟล์ทีหลัง",
+      "sublabel": "โปสเตอร์ & สไลด์",
+      "tag": "Late Upload",
+      "sources": [
+        {
+          "path": "client/src/App.jsx",
+          "line": 989,
+          "end_line": 1044,
+          "label": "handleSaveLateArtifacts"
+        },
+        {
+          "path": "client/src/App.jsx",
+          "line": 4201,
+          "end_line": 4268,
+          "label": "Late Artifact Attachment Form"
+        }
+      ]
+    },
+    {
+      "id": "late_artifacts_api",
+      "lane": "api",
+      "col": 5,
+      "type": "backend",
+      "label": "PATCH /artifacts",
+      "sublabel": "ตรวจ URL ปลอดภัย",
+      "tag": "PATCH API",
+      "sources": [
+        {
+          "path": "server/src/modules/submissions/submissions.controller.ts",
+          "line": 295,
+          "end_line": 358,
+          "label": "PATCH /tracking/:code/artifacts"
+        }
+      ]
+    },
+    {
+      "id": "update_artifacts_db",
+      "lane": "db",
+      "col": 5,
+      "type": "database",
+      "label": "อัปเดตไฟล์แนบ",
+      "sublabel": "บันทึกลิงก์ใหม่",
+      "tag": "Updated",
+      "sources": [
+        {
+          "path": "server/src/modules/submissions/submissions.controller.ts",
+          "line": 325,
+          "end_line": 355,
+          "label": "prisma.submission.update (artifacts)"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "step1_project",
+      "to": "step2_team",
+      "label": "ถัดไป",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e2",
+      "from": "step1_project",
+      "to": "draft_save",
+      "label": "บันทึกแบบร่าง",
+      "role": "branch",
+      "variant": "dashed"
+    },
+    {
+      "id": "e3",
+      "from": "step2_team",
+      "to": "step_validator",
+      "label": "ตรวจรูปแบบ",
+      "role": "branch",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "route": "straight"
+    },
+    {
+      "id": "e4",
+      "from": "step2_team",
+      "to": "step3_artifacts",
+      "label": "ข้อมูลครบ",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e5",
+      "from": "step3_artifacts",
+      "to": "submit_api",
+      "label": "ส่งใบสมัคร",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e6",
+      "from": "submit_api",
+      "to": "persist_db",
+      "label": "บันทึกข้อมูล",
+      "role": "branch",
+      "variant": "default"
+    },
+    {
+      "id": "e7",
+      "from": "submit_api",
+      "to": "submit_success",
+      "label": "คืนรหัสติดตาม",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e8",
+      "from": "submit_success",
+      "to": "status_api",
+      "label": "ตรวจสอบสถานะ",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e9",
+      "from": "round_eval_db",
+      "to": "status_api",
+      "label": "ผลคัดเลือก 3 รอบ",
+      "role": "branch",
+      "variant": "dashed"
+    },
+    {
+      "id": "e10",
+      "from": "status_api",
+      "to": "dossier_modal",
+      "label": "แฟ้มผลงาน PDPA",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e11",
+      "from": "offline_fallback",
+      "to": "dossier_modal",
+      "label": "ข้อมูลสำรอง",
+      "role": "branch",
+      "variant": "dashed"
+    },
+    {
+      "id": "e12",
+      "from": "dossier_modal",
+      "to": "late_artifacts_ui",
+      "label": "แนบไฟล์เพิ่ม",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e13",
+      "from": "late_artifacts_ui",
+      "to": "late_artifacts_api",
+      "label": "ส่งลิงก์ใหม่",
+      "role": "main",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e14",
+      "from": "late_artifacts_api",
+      "to": "update_artifacts_db",
+      "label": "อัปเดตแฟ้มผลงาน",
+      "role": "main",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "1. ระบบรับสมัครแบบ 3 ขั้นตอน (3-Step Form)",
+      "items": [
+        "Step 1 ข้อมูลโครงการ: ชื่อผลงาน ไทย/อังกฤษ, ประเภท 3 ด้าน, ระดับการศึกษา 2 กลุ่ม, บทคัดย่อ และ SDGs",
+        "Step 2 ทีมและที่ปรึกษา: หัวหน้าทีม, เลขบัตรประชาชน 13 หลัก (X-XXXX-XXXXX-XX-X), สมาชิกทีม และอาจารย์ที่ปรึกษา",
+        "รองรับการบันทึกแบบร่าง (Save Draft) เพื่อกลับมาแก้ไขต่อได้ก่อนส่งจริง"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "2. การแนบไฟล์หลัก & แนบเพิ่มเติมทีหลัง",
+      "items": [
+        "บังคับแนบตอนส่งใบสมัคร: เอกสารข้อเสนอโครงการ (PDF) และลิงก์วิดีโอสาธิตผลงาน (3-5 นาที)",
+        "แนบเพิ่มเติมทีหลังได้: โปสเตอร์ A0/A1 (PDF) และสไลด์นำเสนอ (Canva / Slides / PowerPoint)",
+        "อัปเดตผ่านหน้าตรวจสถานะด้วยรหัสติดตาม (PATCH /api/submissions/tracking/:trackingCode/artifacts)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "3. การตรวจสถานะ 3 รอบ & มาตรฐาน PDPA",
+      "items": [
+        "รอบที่ 1 คัดกรองเอกสารและคลิปวิดีโอ -> รอบที่ 2 นำเสนอผลงาน (Pitching) -> รอบที่ 3 ชิงชนะเลิศและตัดสินรางวัล",
+        "ปิดบังข้อมูลส่วนบุคคลตาม PDPA อัตโนมัติ (เลขบัตรประชาชน เบอร์โทร และอีเมล) ใน API ตรวจสอบสถานะสาธารณะ",
+        "ดึงข้อมูลล่าสุดจากเซิร์ฟเวอร์เป็นหลัก พร้อมระบบสำรองออฟไลน์ (Local Cache & ข้อมูลตัวอย่าง 2569)"
+      ]
+    }
+  ]
+}
