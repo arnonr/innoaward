@@ -247,8 +247,13 @@ const FALLBACK_DOSSIERS = {
   }
 };
 
+export const MAX_PROJECTS_PER_ACCOUNT = 2;
+
 export function createInitialSubmissionForm() {
   return {
+    id: '',
+    trackingCode: '',
+    status: 'DRAFT',
     titleTh: '',
     titleEn: '',
     category: 'energy_environment',
@@ -382,7 +387,10 @@ export function buildSubmissionApiPayload(form, isDraft = false, userId = 'guest
     email: String(form?.secondaryCoordinator?.email || '').trim()
   };
 
+  const trimmedId = String(form?.id || '').trim();
+
   return {
+    ...(trimmedId ? { id: trimmedId } : {}),
     titleTh: String(form?.titleTh || '').trim(),
     titleEn: String(form?.titleEn || '').trim(),
     category: form?.category || 'energy_environment',
@@ -410,6 +418,92 @@ export function buildSubmissionApiPayload(form, isDraft = false, userId = 'guest
     isDraft: Boolean(isDraft),
     userId: userId || 'guest-user'
   };
+}
+
+export function hydrateSubmissionFormFromServer(record) {
+  const base = createInitialSubmissionForm();
+  if (!record || typeof record !== 'object') return base;
+
+  const categoryCode =
+    typeof record.category === 'object' && record.category !== null
+      ? record.category.code || 'energy_environment'
+      : record.category || 'energy_environment';
+
+  const levelCode =
+    typeof record.educationLevel === 'object' && record.educationLevel !== null
+      ? record.educationLevel.code || 'higher_and_above'
+      : record.educationLevel || 'higher_and_above';
+
+  const rawMembers =
+    Array.isArray(record.memberDetails) && record.memberDetails.length > 0
+      ? record.memberDetails
+      : Array.isArray(record.members)
+      ? record.members
+      : [];
+
+  const members =
+    rawMembers.length > 0
+      ? rawMembers.map((m, idx) => {
+          if (typeof m === 'string') {
+            return { fullName: m, role: idx === 0 ? 'หัวหน้าทีม' : 'สมาชิก', idCard: '' };
+          }
+          return {
+            fullName: String(m?.fullName || '').trim(),
+            role: String(m?.role || (idx === 0 ? 'หัวหน้าทีม' : 'สมาชิก')).trim(),
+            idCard: formatCitizenIdInput(m?.idCard || '')
+          };
+        })
+      : base.members;
+
+  const proposalPdfUrl =
+    record.artifacts?.proposalPdfUrl || record.proposalPdfUrl || record.documentUrl || '';
+  const videoUrl = record.artifacts?.videoUrl || record.videoUrl || '';
+  const posterUrl = record.artifacts?.posterUrl || record.posterUrl || '';
+  const coverImage =
+    record.artifacts?.imageUrl || record.coverImage || record.image || '';
+  const presentationUrl =
+    record.artifacts?.presentationUrl || record.presentationUrl || '';
+
+  return {
+    ...base,
+    id: String(record.id || ''),
+    trackingCode: String(record.trackingCode || ''),
+    status: String(record.status || 'SUBMITTED'),
+    titleTh: String(record.titleTh || ''),
+    titleEn: String(record.titleEn || ''),
+    category: categoryCode,
+    educationLevel: levelCode,
+    teamName: String(record.teamName || ''),
+    affiliation: String(record.affiliation || record.institution || ''),
+    advisorName: String(record.advisorName || ''),
+    abstractTh: String(record.abstractTh || ''),
+    members,
+    primaryCoordinator: {
+      name: String(record.primaryCoordinator?.name || record.primaryCoordName || ''),
+      idCard: formatCitizenIdInput(record.primaryCoordinator?.idCard || record.primaryCoordIdCard || ''),
+      phone: String(record.primaryCoordinator?.phone || record.primaryCoordPhone || ''),
+      email: String(record.primaryCoordinator?.email || record.primaryCoordEmail || '')
+    },
+    secondaryCoordinator: {
+      name: String(record.secondaryCoordinator?.name || record.secondaryCoordName || ''),
+      idCard: formatCitizenIdInput(record.secondaryCoordinator?.idCard || record.secondaryCoordIdCard || ''),
+      phone: String(record.secondaryCoordinator?.phone || record.secondaryCoordPhone || ''),
+      email: String(record.secondaryCoordinator?.email || record.secondaryCoordEmail || '')
+    },
+    proposalPdfUrl,
+    documentUrl: proposalPdfUrl,
+    videoUrl,
+    posterUrl,
+    coverImage,
+    presentationUrl
+  };
+}
+
+export function isSubmissionDeadlinePassed(deadlineIso, nowMs = Date.now()) {
+  if (!deadlineIso) return false;
+  const parsed = new Date(deadlineIso).getTime();
+  if (Number.isNaN(parsed)) return false;
+  return nowMs > parsed;
 }
 
 export function normalizeStatusDossier(raw) {

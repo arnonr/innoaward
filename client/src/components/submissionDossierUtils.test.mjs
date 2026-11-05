@@ -5,7 +5,10 @@ import {
   validateSubmissionStep,
   buildSubmissionApiPayload,
   normalizeStatusDossier,
-  formatCitizenIdInput
+  formatCitizenIdInput,
+  hydrateSubmissionFormFromServer,
+  isSubmissionDeadlinePassed,
+  MAX_PROJECTS_PER_ACCOUNT
 } from './submissionDossierUtils.js';
 
 test('formatCitizenIdInput formats 13 Thai digits as X-XXXX-XXXXX-XX-X and preserves passport strings', () => {
@@ -55,4 +58,79 @@ test('normalizeStatusDossier produces complete 3-round, coordinator, member, and
   const dossier6 = normalizeStatusDossier({ trackingCode: 'KMUTNB-2569-0006' });
   assert.equal(dossier6.teamName, 'GeoWeld');
   assert.equal(dossier6.rounds.round3.result, 'รางวัลชมเชย');
+});
+
+test('buildSubmissionApiPayload preserves existing submission id and MAX_PROJECTS_PER_ACCOUNT is 2', () => {
+  assert.equal(MAX_PROJECTS_PER_ACCOUNT, 2);
+  const form = {
+    ...createInitialSubmissionForm(),
+    id: 'sub-existing-01',
+    titleTh: 'โครงการทดสอบแก้ไข',
+    teamName: 'ทีมทดสอบ',
+    category: 'medical_device',
+    educationLevel: 'higher_and_above'
+  };
+  const payload = buildSubmissionApiPayload(form, true, 'user-01');
+  assert.equal(payload.id, 'sub-existing-01');
+  assert.equal(payload.isDraft, true);
+  assert.equal(payload.userId, 'user-01');
+});
+
+test('hydrateSubmissionFormFromServer maps server submission record back into editable 3-step subForm', () => {
+  const serverRecord = {
+    id: 'sub-999',
+    trackingCode: 'KMUTNB-2570-0099',
+    status: 'SUBMITTED',
+    titleTh: 'ระบบตรวจสอบรอยร้าวคอนกรีต',
+    titleEn: 'Concrete Crack Inspector',
+    category: { code: 'social_economy' },
+    educationLevel: { code: 'below_higher' },
+    teamName: 'ROAD AI',
+    affiliation: 'โรงเรียนเตรียมวิศวกรรมศาสตร์ ไทย-เยอรมัน',
+    advisorName: 'อ.สมชาย ที่ปรึกษา',
+    abstractTh: 'บทคัดย่อระบบตรวจสอบรอยร้าว',
+    members: [
+      { fullName: 'นายเอก นวัตกรรม', role: 'หัวหน้าทีม', idCard: '1100100234567' },
+      { fullName: 'นางสาวโท วิจัย', role: 'สมาชิก', idCard: '2100100234568' }
+    ],
+    primaryCoordinator: {
+      name: 'นายเอก นวัตกรรม',
+      idCard: '1-1001-00234-56-7',
+      phone: '081-111-2222',
+      email: 'aek@kmutnb.ac.th'
+    },
+    secondaryCoordinator: {
+      name: 'อ.สมชาย ที่ปรึกษา',
+      idCard: '',
+      phone: '089-333-4444',
+      email: 'somchai@kmutnb.ac.th'
+    },
+    artifacts: {
+      proposalPdfUrl: 'https://drive.google.com/prop.pdf',
+      videoUrl: 'https://youtube.com/watch?v=abc',
+      posterUrl: 'https://drive.google.com/poster.pdf',
+      imageUrl: '/road-ai-poster.jpg',
+      presentationUrl: 'https://drive.google.com/slides.pdf'
+    }
+  };
+
+  const hydrated = hydrateSubmissionFormFromServer(serverRecord);
+  assert.equal(hydrated.id, 'sub-999');
+  assert.equal(hydrated.trackingCode, 'KMUTNB-2570-0099');
+  assert.equal(hydrated.status, 'SUBMITTED');
+  assert.equal(hydrated.category, 'social_economy');
+  assert.equal(hydrated.educationLevel, 'below_higher');
+  assert.equal(hydrated.members.length, 2);
+  assert.equal(hydrated.members[0].idCard, '1-1001-00234-56-7');
+  assert.equal(hydrated.primaryCoordinator.email, 'aek@kmutnb.ac.th');
+  assert.equal(hydrated.proposalPdfUrl, 'https://drive.google.com/prop.pdf');
+  assert.equal(hydrated.posterUrl, 'https://drive.google.com/poster.pdf');
+  assert.equal(hydrated.presentationUrl, 'https://drive.google.com/slides.pdf');
+  assert.equal(hydrated.coverImage, '/road-ai-poster.jpg');
+});
+
+test('isSubmissionDeadlinePassed compares current timestamp against deadline ISO accurately', () => {
+  const deadline = '2027-02-28T23:59:59+07:00';
+  assert.equal(isSubmissionDeadlinePassed(deadline, Date.parse('2027-02-28T12:00:00+07:00')), false);
+  assert.equal(isSubmissionDeadlinePassed(deadline, Date.parse('2027-03-01T00:00:01+07:00')), true);
 });
