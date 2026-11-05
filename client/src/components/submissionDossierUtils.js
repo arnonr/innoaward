@@ -607,3 +607,80 @@ export function normalizeStatusDossier(raw) {
     feedback: merged.feedback || 'เอกสารข้อเสนอโครงการได้รับการบันทึกในระบบเรียบร้อยแล้ว อยู่ระหว่างการพิจารณาจากคณะกรรมการ'
   };
 }
+
+export const DEFAULT_RUBRIC_CRITERIA = [
+  {
+    id: 'creativity',
+    titleTh: 'ความคิดสร้างสรรค์และความใหม่ของนวัตกรรม',
+    titleEn: 'Creativity & Novelty',
+    weight: 25
+  },
+  {
+    id: 'prototype',
+    titleTh: 'ความสมบูรณ์และประสิทธิภาพของชิ้นงานต้นแบบ',
+    titleEn: 'Prototype Readiness & Performance',
+    weight: 25
+  },
+  {
+    id: 'impact',
+    titleTh: 'การนำไปใช้งานจริงและผลกระทบที่วัดผลได้',
+    titleEn: 'Practical Application & Measurable Impact',
+    weight: 20
+  },
+  {
+    id: 'sustainability',
+    titleTh: 'ศักยภาพเชิงพาณิชย์ สังคม และความยั่งยืน',
+    titleEn: 'Commercial, Social & Sustainability Potential',
+    weight: 15
+  },
+  {
+    id: 'presentation',
+    titleTh: 'ความชัดเจนของเอกสาร โปสเตอร์ และการนำเสนอ',
+    titleEn: 'Clarity of Documentation, Poster & Presentation',
+    weight: 15
+  }
+];
+
+export const RUBRIC_SCORE_LEVELS = [
+  { score: 5, label: 'ดีเยี่ยม' },
+  { score: 4, label: 'ดีมาก' },
+  { score: 3, label: 'ปานกลาง' },
+  { score: 2, label: 'พอใช้' },
+  { score: 1, label: 'ต้องปรับปรุง' }
+];
+
+export function calculateWeightedRubricScore(scores = {}, criteria = DEFAULT_RUBRIC_CRITERIA) {
+  const list = Array.isArray(criteria) && criteria.length > 0 ? criteria : DEFAULT_RUBRIC_CRITERIA;
+  let total = 0;
+  for (const item of list) {
+    const val = Number(scores?.[item.id]);
+    const weight = Number(item.weight) || 0;
+    if (Number.isFinite(val) && val >= 1 && val <= 5) {
+      total += (val / 5) * weight;
+    }
+  }
+  return Math.round(total * 100) / 100;
+}
+
+export function validateRubricWeights(criteria = []) {
+  if (!Array.isArray(criteria) || criteria.length === 0) {
+    return 'กรุณาระบุหัวข้อเกณฑ์การให้คะแนนอย่างน้อย 1 ข้อ';
+  }
+  let sum = 0;
+  for (let i = 0; i < criteria.length; i++) {
+    const item = criteria[i];
+    if (!item || !String(item.titleTh || '').trim()) {
+      return `กรุณาระบุชื่อเกณฑ์ข้อที่ ${i + 1}`;
+    }
+    const w = Number(item.weight);
+    if (!Number.isFinite(w) || w <= 0) {
+      return `ค่าน้ำหนักของ "${item.titleTh}" ต้องมากกว่า 0%`;
+    }
+    sum += w;
+  }
+  if (Math.round(sum * 100) / 100 !== 100) {
+    return `ผลรวมค่าน้ำหนักของทุกเกณฑ์ต้องเท่ากับ 100% พอดี (ปัจจุบันรวมได้ ${sum}%)`;
+  }
+  return '';
+}
+

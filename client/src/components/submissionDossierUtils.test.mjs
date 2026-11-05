@@ -11,7 +11,11 @@ import {
   formatCitizenIdInput,
   hydrateSubmissionFormFromServer,
   isSubmissionDeadlinePassed,
-  MAX_PROJECTS_PER_ACCOUNT
+  MAX_PROJECTS_PER_ACCOUNT,
+  DEFAULT_RUBRIC_CRITERIA,
+  RUBRIC_SCORE_LEVELS,
+  calculateWeightedRubricScore,
+  validateRubricWeights
 } from './submissionDossierUtils.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -172,4 +176,46 @@ test('App.jsx integrates email/password login verification, 2-project contestant
   assert.match(appSrc, /เข้าสู่ระบบด้วยอีเมลเพื่อแก้ไขข้อมูล/);
   assert.match(appSrc, /localStorage\.removeItem\('kmutnb_draft_submission'\)/);
   assert.match(appSrc, /<fieldset\s+disabled=\{deadlinePassed && user\?\.role !== 'ADMIN'\}/);
+});
+
+test('calculateWeightedRubricScore and validateRubricWeights compute weighted 1..5 scores out of 100 and validate weights sum to 100%', () => {
+  assert.equal(Array.isArray(DEFAULT_RUBRIC_CRITERIA), true);
+  assert.equal(DEFAULT_RUBRIC_CRITERIA.length, 5);
+  assert.equal(RUBRIC_SCORE_LEVELS.length, 5);
+
+  const allFives = {
+    creativity: 5,
+    prototype: 5,
+    impact: 5,
+    sustainability: 5,
+    presentation: 5
+  };
+  assert.equal(calculateWeightedRubricScore(allFives, DEFAULT_RUBRIC_CRITERIA), 100);
+
+  const allOnes = {
+    creativity: 1,
+    prototype: 1,
+    impact: 1,
+    sustainability: 1,
+    presentation: 1
+  };
+  assert.equal(calculateWeightedRubricScore(allOnes, DEFAULT_RUBRIC_CRITERIA), 20);
+
+  const mixed = {
+    creativity: 5,
+    prototype: 4,
+    impact: 4,
+    sustainability: 4,
+    presentation: 5
+  };
+  assert.equal(calculateWeightedRubricScore(mixed, DEFAULT_RUBRIC_CRITERIA), 88);
+
+  assert.equal(validateRubricWeights(DEFAULT_RUBRIC_CRITERIA), '');
+  assert.match(
+    validateRubricWeights([
+      { id: 'c1', titleTh: 'เกณฑ์ที่ 1', weight: 60 },
+      { id: 'c2', titleTh: 'เกณฑ์ที่ 2', weight: 30 }
+    ]),
+    /100%/
+  );
 });
