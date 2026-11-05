@@ -1,0 +1,364 @@
+export const CATEGORY_LABELS_TH = {
+  energy_environment: 'Energy & Environment (พลังงานและสิ่งแวดล้อม)',
+  food_agriculture: 'Food & Agriculture (เกษตรและอาหารแปรรูป)',
+  social_economy: 'Social & Economy (เศรษฐกิจและสังคมดิจิทัล)',
+  medical_device: 'Medical Device (เครื่องมือแพทย์และสาธารณสุข)',
+  material: 'Material (วัสดุศาสตร์และเทคโนโลยีก้าวหน้า)',
+  others: 'อื่นๆ (Others) — สิ่งประดิษฐ์และนวัตกรรมทั่วไป'
+};
+
+export const LEVEL_LABELS_TH = {
+  below_higher: 'ระดับต่ำกว่าอุดมศึกษา',
+  higher_and_above: 'ระดับอุดมศึกษาและบุคคลทั่วไป'
+};
+
+const FALLBACK_DOSSIERS = {
+  'KMUTNB-2569-0001': {
+    trackingCode: 'KMUTNB-2569-0001',
+    submittedAt: '10 เมษายน 2569',
+    teamName: 'OsseBioMix',
+    category: 'medical_device',
+    categoryNameTh: CATEGORY_LABELS_TH.medical_device,
+    educationLevel: 'higher_and_above',
+    educationLevelNameTh: LEVEL_LABELS_TH.higher_and_above,
+    affiliation: 'คณะวิทยาศาสตร์ประยุกต์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    titleTh: 'ไทเทเนียมที่พิมพ์ 3 มิติเคลือบด้วยไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพสำหรับการประยุกต์ใช้ทางด้านศัลยกรรมกระดูก',
+    titleEn: '3D-Printed Titanium Coated with Bioactive Hyaluronic Acid Hydrogel for Orthopedic Applications',
+    abstractTh: 'นวัตกรรมวัสดุการแพทย์ขั้นสูง ไทเทเนียมที่ผ่านกระบวนการพิมพ์ 3 มิติร่วมกับการเคลือบไฮโดรเจลกรดไฮยาลูรอนิกที่มีฤทธิ์ทางชีวภาพ ช่วยเร่งการยึดติดของเซลล์กระดูกและลดการอักเสบติดเชื้อสำหรับการผ่าตัดทางศัลยกรรมกระดูก',
+    memberDetails: [
+      { orderIndex: 1, fullName: 'ทีมวิจัย OsseBioMix', role: 'หัวหน้าทีม', idCard: '1-1001-XXXXX-XX-X' }
+    ],
+    primaryCoordinator: {
+      name: 'หัวหน้าโครงการ OsseBioMix',
+      idCard: '1-1001-XXXXX-XX-X',
+      phone: '02-555-2000',
+      email: 'ossebiomix@sci.kmutnb.ac.th'
+    },
+    secondaryCoordinator: {
+      name: '',
+      idCard: '',
+      phone: '',
+      email: ''
+    },
+    rounds: {
+      round1: { label: 'รอบคัดเลือกเอกสาร', status: 'PASSED' },
+      round2: { label: 'รอบการประกวดออนไลน์', status: 'PASSED' },
+      round3: { label: 'รอบตัดสิน', status: 'PASSED', result: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)' }
+    },
+    artifacts: {
+      proposalPdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
+      videoUrl: '/Osbi_ver2.mp4',
+      posterUrl: '/osbi-poster.jpg',
+      imageUrl: '/osbi-poster.jpg',
+      presentationUrl: '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf'
+    },
+    status: 'AWARDED',
+    feedback: 'ได้รับรางวัลชนะเลิศประจำปี 2569 พร้อมถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี'
+  },
+  'KMUTNB-2569-0002': {
+    trackingCode: 'KMUTNB-2569-0002',
+    submittedAt: '12 เมษายน 2569',
+    teamName: 'เขาชื่ออะไร',
+    category: 'energy_environment',
+    categoryNameTh: CATEGORY_LABELS_TH.energy_environment,
+    educationLevel: 'higher_and_above',
+    educationLevelNameTh: LEVEL_LABELS_TH.higher_and_above,
+    affiliation: 'คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    titleTh: 'เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบ Butt Fusion',
+    titleEn: 'Automatic HDPE Pipe Butt Fusion Welding Controller and Data Logger',
+    abstractTh: 'อุปกรณ์ควบคุมและบันทึกข้อมูลการเชื่อมท่อพอลิเอทิลีนความหนาแน่นสูง (HDPE) แบบหลอมชนอัตโนมัติ เพื่อเพิ่มความแม่นยำ มาตรฐานความปลอดภัย และตรวจสอบย้อนกลับของคุณภาพแนวเชื่อมในงานวิศวกรรมระบบท่อ',
+    memberDetails: [
+      { orderIndex: 1, fullName: 'ผศ.ดร.วัฒนา แก้วมณี', role: 'หัวหน้าทีม', idCard: '5-1601-00029-58-2' }
+    ],
+    primaryCoordinator: {
+      name: 'ผศ.ดร.วัฒนา แก้วมณี',
+      idCard: '5-1601-00029-58-2',
+      phone: '064-274-9888',
+      email: 'wattana.k@fte.kmutnb.ac.th'
+    },
+    secondaryCoordinator: {
+      name: 'ผศ.ดร.วัฒนา แก้วมณี',
+      idCard: '5-1601-00029-58-2',
+      phone: '064-274-9888',
+      email: 'wattana.kaewmanee@gmail.com'
+    },
+    rounds: {
+      round1: { label: 'รอบคัดเลือกเอกสาร', status: 'PASSED' },
+      round2: { label: 'รอบการประกวดออนไลน์', status: 'PASSED' },
+      round3: { label: 'รอบตัดสิน', status: 'PASSED', result: 'รางวัลรองชนะเลิศอันดับ 1' }
+    },
+    artifacts: {
+      proposalPdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
+      videoUrl: '/hdpe-welding.mp4',
+      posterUrl: '/hdpe-poster.jpg',
+      imageUrl: '/hdpe-poster.jpg',
+      presentationUrl: '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf'
+    },
+    status: 'AWARDED',
+    feedback: 'ผ่านการพิจารณาทั้งรอบประกวดออนไลน์และรอบตัดสิน ได้รับรางวัลรองชนะเลิศอันดับ 1 ประจำปี 2569'
+  }
+};
+
+export function createInitialSubmissionForm() {
+  return {
+    titleTh: '',
+    titleEn: '',
+    category: 'energy_environment',
+    educationLevel: 'higher_and_above',
+    teamName: '',
+    affiliation: '',
+    advisorName: '',
+    abstractTh: '',
+    members: [
+      { fullName: '', role: 'หัวหน้าทีม', idCard: '' }
+    ],
+    primaryCoordinator: {
+      name: '',
+      idCard: '',
+      phone: '',
+      email: ''
+    },
+    secondaryCoordinator: {
+      name: '',
+      idCard: '',
+      phone: '',
+      email: ''
+    },
+    proposalPdfUrl: '',
+    videoUrl: '',
+    posterUrl: '',
+    coverImage: '',
+    presentationUrl: '',
+    documentUrl: ''
+  };
+}
+
+export function formatCitizenIdInput(value) {
+  const raw = String(value || '').trim();
+  const digitsOnly = raw.replace(/\D/g, '');
+  if (/^[\d-]+$/.test(raw) && digitsOnly.length === 13) {
+    return `${digitsOnly[0]}-${digitsOnly.slice(1, 5)}-${digitsOnly.slice(5, 10)}-${digitsOnly.slice(10, 12)}-${digitsOnly[12]}`;
+  }
+  return raw;
+}
+
+export function validateSubmissionStep(form, step, isDraft = false) {
+  if (isDraft) {
+    if (!String(form?.titleTh || '').trim()) {
+      return 'กรุณาระบุชื่อผลงาน (ภาษาไทย) เป็นอย่างน้อยเพื่อบันทึกแบบร่าง';
+    }
+    return '';
+  }
+
+  if (!step || step === 1) {
+    if (!String(form?.titleTh || '').trim()) {
+      return 'กรุณาระบุชื่อผลงานสิ่งประดิษฐ์/นวัตกรรม (ภาษาไทย)';
+    }
+    if (!String(form?.teamName || '').trim()) {
+      return 'กรุณาระบุชื่อทีม';
+    }
+    if (!String(form?.affiliation || '').trim()) {
+      return 'กรุณาระบุสังกัด (คณะ / โรงเรียน / สถาบัน / หน่วยงาน)';
+    }
+    if (!String(form?.abstractTh || '').trim()) {
+      return 'กรุณากรอกรายละเอียดผลงาน / บทคัดย่อ';
+    }
+  }
+
+  if (!step || step === 2) {
+    const validMembers = Array.isArray(form?.members)
+      ? form.members.filter(m => String(typeof m === 'string' ? m : m?.fullName || '').trim())
+      : [];
+    if (validMembers.length === 0) {
+      return 'กรุณาระบุชื่อสมาชิกทีมอย่างน้อย 1 ท่าน (หัวหน้าทีม)';
+    }
+    const pc = form?.primaryCoordinator || {};
+    if (!String(pc.name || '').trim()) {
+      return 'กรุณาระบุชื่อผู้ประสานงานหลัก';
+    }
+    if (!String(pc.phone || '').trim()) {
+      return 'กรุณาระบุเบอร์โทรศัพท์ของผู้ประสานงานหลัก';
+    }
+    if (!String(pc.email || '').trim()) {
+      return 'กรุณาระบุอีเมลของผู้ประสานงานหลัก';
+    }
+  }
+
+  if (!step || step === 3) {
+    const proposal = String(form?.proposalPdfUrl || form?.documentUrl || '').trim();
+    if (!proposal) {
+      return 'กรุณาระบุลิงก์ไฟล์ PDF แบบฟอร์มเสนอผลงานประกวดสิ่งประดิษฐ์และนวัตกรรม';
+    }
+    if (!String(form?.videoUrl || '').trim()) {
+      return 'กรุณาระบุลิงก์คลิป VDO นำเสนอผลงาน';
+    }
+    if (!String(form?.coverImage || '').trim()) {
+      return 'กรุณาระบุลิงก์รูปภาพผลงาน (Image) หรือเลือกภาพตัวอย่าง';
+    }
+  }
+
+  return '';
+}
+
+export function buildSubmissionApiPayload(form, isDraft = false, userId = 'guest-user') {
+  const proposalPdfUrl = String(form?.proposalPdfUrl || form?.documentUrl || '').trim();
+  const videoUrl = String(form?.videoUrl || '').trim();
+  const posterUrl = String(form?.posterUrl || '').trim();
+  const imageUrl = String(form?.coverImage || '').trim();
+  const presentationUrl = String(form?.presentationUrl || '').trim();
+
+  const members = (Array.isArray(form?.members) ? form.members : [])
+    .map((m, idx) => {
+      if (typeof m === 'string') {
+        return { fullName: m.trim(), role: idx === 0 ? 'หัวหน้าทีม' : 'สมาชิก', idCard: '' };
+      }
+      return {
+        fullName: String(m?.fullName || '').trim(),
+        role: String(m?.role || (idx === 0 ? 'หัวหน้าทีม' : 'สมาชิก')).trim(),
+        idCard: formatCitizenIdInput(m?.idCard || '')
+      };
+    })
+    .filter(m => m.fullName);
+
+  const primaryCoordinator = {
+    name: String(form?.primaryCoordinator?.name || '').trim(),
+    idCard: formatCitizenIdInput(form?.primaryCoordinator?.idCard || ''),
+    phone: String(form?.primaryCoordinator?.phone || '').trim(),
+    email: String(form?.primaryCoordinator?.email || '').trim()
+  };
+
+  const secondaryCoordinator = {
+    name: String(form?.secondaryCoordinator?.name || '').trim(),
+    idCard: formatCitizenIdInput(form?.secondaryCoordinator?.idCard || ''),
+    phone: String(form?.secondaryCoordinator?.phone || '').trim(),
+    email: String(form?.secondaryCoordinator?.email || '').trim()
+  };
+
+  return {
+    titleTh: String(form?.titleTh || '').trim(),
+    titleEn: String(form?.titleEn || '').trim(),
+    category: form?.category || 'energy_environment',
+    educationLevel: form?.educationLevel || 'higher_and_above',
+    teamName: String(form?.teamName || '').trim(),
+    affiliation: String(form?.affiliation || '').trim(),
+    advisorName: String(form?.advisorName || '').trim(),
+    abstractTh: String(form?.abstractTh || '').trim(),
+    members,
+    primaryCoordinator,
+    secondaryCoordinator,
+    files: {
+      proposalPdfUrl,
+      videoUrl,
+      posterUrl,
+      imageUrl,
+      presentationUrl
+    },
+    proposalPdfUrl,
+    documentUrl: proposalPdfUrl,
+    videoUrl,
+    posterUrl,
+    coverImage: imageUrl,
+    presentationUrl,
+    isDraft: Boolean(isDraft),
+    userId: userId || 'guest-user'
+  };
+}
+
+export function normalizeStatusDossier(raw) {
+  const code = String(raw?.trackingCode || '').toUpperCase().trim();
+  const preset = FALLBACK_DOSSIERS[code] || {};
+  const merged = { ...preset, ...(raw || {}) };
+
+  const categoryCode = merged.category || 'energy_environment';
+  const levelCode = merged.educationLevel || 'higher_and_above';
+
+  let formattedDate = merged.submittedAt || '4 พฤศจิกายน 2569';
+  if (formattedDate && typeof formattedDate === 'string' && formattedDate.includes('T')) {
+    try {
+      formattedDate = new Date(formattedDate).toLocaleDateString('th-TH', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch {}
+  }
+
+  let memberDetails = [];
+  if (Array.isArray(merged.memberDetails) && merged.memberDetails.length > 0) {
+    memberDetails = merged.memberDetails;
+  } else if (Array.isArray(merged.members) && merged.members.length > 0) {
+    memberDetails = merged.members.map((m, idx) => {
+      if (typeof m === 'string') {
+        return { orderIndex: idx + 1, fullName: m, role: idx === 0 ? 'หัวหน้าทีม' : 'สมาชิก', idCard: '' };
+      }
+      return {
+        orderIndex: idx + 1,
+        fullName: m.fullName || '',
+        role: m.role || (idx === 0 ? 'หัวหน้าทีม' : 'สมาชิก'),
+        idCard: m.idCard || ''
+      };
+    });
+  } else if (preset.memberDetails) {
+    memberDetails = preset.memberDetails;
+  } else {
+    memberDetails = [
+      { orderIndex: 1, fullName: merged.teamName || 'หัวหน้าทีม', role: 'หัวหน้าทีม', idCard: '' }
+    ];
+  }
+
+  const rounds = merged.rounds || {
+    round1: {
+      label: 'รอบคัดเลือกเอกสาร',
+      status: merged.round1Status || (merged.status === 'AWARDED' ? 'PASSED' : 'PENDING')
+    },
+    round2: {
+      label: 'รอบการประกวดออนไลน์',
+      status: merged.round2Status || (merged.status === 'AWARDED' ? 'PASSED' : 'PENDING')
+    },
+    round3: {
+      label: 'รอบตัดสิน',
+      status: merged.round3Status || (merged.status === 'AWARDED' ? 'PASSED' : 'PENDING'),
+      result: merged.round3Result || ''
+    }
+  };
+
+  const artifacts = {
+    proposalPdfUrl: merged.artifacts?.proposalPdfUrl || merged.proposalPdfUrl || merged.documentUrl || '',
+    videoUrl: merged.artifacts?.videoUrl || merged.videoUrl || '',
+    posterUrl: merged.artifacts?.posterUrl || merged.posterUrl || '',
+    imageUrl: merged.artifacts?.imageUrl || merged.coverImage || merged.image || '',
+    presentationUrl: merged.artifacts?.presentationUrl || merged.presentationUrl || ''
+  };
+
+  return {
+    trackingCode: code || 'KMUTNB-2570-0001',
+    submittedAt: formattedDate,
+    teamName: merged.teamName || 'ทีมสร้างสรรค์นวัตกรรม',
+    category: categoryCode,
+    categoryNameTh: merged.categoryNameTh || CATEGORY_LABELS_TH[categoryCode] || categoryCode,
+    educationLevel: levelCode,
+    educationLevelNameTh: merged.educationLevelNameTh || LEVEL_LABELS_TH[levelCode] || levelCode,
+    affiliation: merged.affiliation || merged.institution || 'ไม่ระบุสังกัด',
+    advisorName: merged.advisorName || '',
+    titleTh: merged.titleTh || 'โครงงานสิ่งประดิษฐ์และนวัตกรรม',
+    titleEn: merged.titleEn || '',
+    abstractTh: merged.abstractTh || 'ไม่มีรายละเอียดเพิ่มเติม',
+    memberDetails,
+    primaryCoordinator: {
+      name: merged.primaryCoordinator?.name || preset.primaryCoordinator?.name || '',
+      idCard: merged.primaryCoordinator?.idCard || preset.primaryCoordinator?.idCard || '',
+      phone: merged.primaryCoordinator?.phone || preset.primaryCoordinator?.phone || '',
+      email: merged.primaryCoordinator?.email || preset.primaryCoordinator?.email || ''
+    },
+    secondaryCoordinator: {
+      name: merged.secondaryCoordinator?.name || preset.secondaryCoordinator?.name || '',
+      idCard: merged.secondaryCoordinator?.idCard || preset.secondaryCoordinator?.idCard || '',
+      phone: merged.secondaryCoordinator?.phone || preset.secondaryCoordinator?.phone || '',
+      email: merged.secondaryCoordinator?.email || preset.secondaryCoordinator?.email || ''
+    },
+    rounds,
+    artifacts,
+    status: merged.status || 'SUBMITTED',
+    feedback: merged.feedback || 'เอกสารข้อเสนอโครงการได้รับการบันทึกในระบบเรียบร้อยแล้ว อยู่ระหว่างการพิจารณาจากคณะกรรมการ'
+  };
+}
