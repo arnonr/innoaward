@@ -1,9 +1,17 @@
-import { Elysia, t } from 'elysia';
+import { Elysia } from 'elysia';
 import { prisma } from '../../lib/prisma';
-import { authPlugin, requireAuth } from '../../middlewares/auth.middleware';
+import { authPlugin } from '../../middlewares/auth.middleware';
 import { generateTrackingCode } from '../../lib/tracking';
-import { submissionPayloadSchema, updateStatusSchema } from './submissions.schema';
-import { SubmissionStatus, AwardTier, Role } from '@prisma/client';
+import {
+  submissionPayloadSchema,
+  updateArtifactsSchema,
+  updateStatusSchema,
+} from './submissions.schema';
+import {
+  formatDossierResponse,
+  normalizeMembersInput,
+} from './dossier-utils';
+import { SubmissionStatus, RoundStatus, AwardTier, Role } from '@prisma/client';
 
 export const submissionsController = new Elysia({ prefix: '/api/submissions' })
   .use(authPlugin)
@@ -33,12 +41,31 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         });
       }
 
-      // 2. Resolve Category
-      const category = await prisma.category.findFirst({
+      // 2. Resolve Category (support "others" without altering active 5-domain catalog)
+      let category = await prisma.category.findFirst({
         where: {
           OR: [{ code: payload.category }, { id: payload.category }],
         },
       });
+
+      if (!category && payload.category === 'others') {
+        category = await prisma.category.upsert({
+          where: { code: 'others' },
+          update: {},
+          create: {
+            code: 'others',
+            nameTh: 'อื่นๆ (Others) — สิ่งประดิษฐ์และนวัตกรรมทั่วไป',
+            nameEn: 'Others',
+            descriptionTh: 'สิ่งประดิษฐ์และนวัตกรรมสร้างสรรค์ทั่วไปนอกเหนือจาก 5 สาขาหลัก',
+            descriptionEn: 'General creative inventions and innovations outside the 5 main domains.',
+            icon: 'Box',
+            color: '#06B6D4',
+            bgImage: '/domain-material.jpg',
+            orderIndex: 6,
+            isActive: false,
+          },
+        });
+      }
 
       if (!category) {
         set.status = 400;
@@ -91,18 +118,60 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
       const isDraft = payload.isDraft === true;
       const status = isDraft ? SubmissionStatus.DRAFT : SubmissionStatus.SUBMITTED;
 
-      // Extract Members Array
-      let rawMembers: string[] = [];
-      if (Array.isArray(payload.members)) {
-        rawMembers = payload.members.filter(Boolean);
-      } else if (typeof payload.members === 'string') {
-        rawMembers = payload.members.split(',').map((m) => m.trim()).filter(Boolean);
-      }
-      if (rawMembers.length === 0) {
-        rawMembers = [payload.authorName || currentUser?.fullName || 'หัวหน้าทีม'];
-      }
+      // Normalize Members
+      const normalizedMembers = normalizeMembersInput(
+        payload.members,
+        payload.authorName || currentUser?.fullName || 'หัวหน้าทีม'
+      );
 
-      // 6. Create or Update Submission
+      // Extract Coordinator & File fields
+      const affiliation = payload.affiliation || payload.institution || '';
+      const proposalPdfUrl =
+        payload.files?.proposalPdfUrl || payload.proposalPdfUrl || payload.documentUrl || '';
+      const videoUrl = payload.files?.videoUrl || payload.videoUrl || '';
+      const posterUrl = payload.files?.posterUrl || payload.posterUrl || '';
+      const coverImage = payload.files?.imageUrl || payload.coverImage || '';
+      const presentationUrl = payload.files?.presentationUrl || payload.presentationUrl || '';
+
+      const primaryCoord = payload.primaryCoordinator || {};
+      const secondaryCoord = payload.secondaryCoordinator || {};
+
+      const commonData = {
+        competitionYearId: compYear!.id,
+        categoryId: category.id,
+        competitionYearCategoryId: yearCategory?.id,
+        educationLevelId: educationLevel.id,
+        titleTh: payload.titleTh,
+        titleEn: payload.titleEn || '',
+        teamName: payload.teamName || 'ทีมสร้างสรรค์นวัตกรรม',
+        affiliation,
+        institution: affiliation,
+        advisorName: payload.advisorName || '',
+        abstractTh: payload.abstractTh || '',
+        abstractEn: payload.abstractEn || '',
+        proposalPdfUrl,
+        documentUrl: proposalPdfUrl,
+        coverImage,
+        image: coverImage,
+        videoUrl,
+        posterUrl,
+        presentationUrl,
+        primaryCoordName: primaryCoord.name || '',
+        primaryCoordIdCard: primaryCoord.idCard || '',
+        primaryCoordPhone: primaryCoord.phone || '',
+        primaryCoordEmail: primaryCoord.email || '',
+        secondaryCoordName: secondaryCoord.name || '',
+        secondaryCoordIdCard: secondaryCoord.idCard || '',
+        secondaryCoordPhone: secondaryCoord.phone || '',
+        secondaryCoordEmail: secondaryCoord.email || '',
+        status,
+        submittedAt: isDraft ? undefined : new Date(),
+        feedback: isDraft
+          ? 'ฉบับร่าง (ยังไม่ได้ส่งผลงานฉบับสมบูรณ์)'
+          : 'ยื่นผลงานเรียบร้อยแล้ว อยู่ระหว่างตรวจสอบเอกสาร',
+      };
+
+      // 6. Create or Update Submission (round1/2/3 statuses are never set by contestants)
       let submission;
       if (payload.id) {
         const existing = await prisma.submission.findUnique({
@@ -112,42 +181,17 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         if (existing) {
           submission = await prisma.submission.update({
             where: { id: payload.id },
-            data: {
-              competitionYearId: compYear!.id,
-              categoryId: category.id,
-              competitionYearCategoryId: yearCategory?.id,
-              educationLevelId: educationLevel.id,
-              titleTh: payload.titleTh,
-              titleEn: payload.titleEn || '',
-              teamName: payload.teamName || 'ทีมสร้างสรรค์นวัตกรรม',
-              advisorName: payload.advisorName || '',
-              abstractTh: payload.abstractTh || '',
-              abstractEn: payload.abstractEn || '',
-              coverImage: payload.coverImage || '',
-              videoUrl: payload.videoUrl || '',
-              documentUrl: payload.documentUrl || '',
-              status,
-              submittedAt: isDraft ? undefined : new Date(),
-              feedback: isDraft
-                ? 'ฉบับร่าง (ยังไม่ได้ส่งผลงานฉบับสมบูรณ์)'
-                : 'ยื่นผลงานเรียบร้อยแล้ว อยู่ระหว่างตรวจสอบเอกสาร',
-            },
-            include: {
-              category: true,
-              educationLevel: true,
-              competitionYear: true,
-              members: true,
-            },
+            data: commonData,
           });
 
-          // Recreate members
           await prisma.teamMember.deleteMany({ where: { submissionId: submission.id } });
-          for (let i = 0; i < rawMembers.length; i++) {
+          for (let i = 0; i < normalizedMembers.length; i++) {
             await prisma.teamMember.create({
               data: {
                 submissionId: submission.id,
-                fullName: rawMembers[i],
-                role: i === 0 ? 'หัวหน้าทีม' : 'สมาชิก',
+                fullName: normalizedMembers[i].fullName,
+                role: normalizedMembers[i].role,
+                idCard: normalizedMembers[i].idCard,
                 orderIndex: i + 1,
               },
             });
@@ -162,42 +206,23 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
           data: {
             trackingCode,
             userId: targetUserId,
-            competitionYearId: compYear!.id,
-            categoryId: category.id,
-            competitionYearCategoryId: yearCategory?.id,
-            educationLevelId: educationLevel.id,
-            titleTh: payload.titleTh,
-            titleEn: payload.titleEn || '',
-            teamName: payload.teamName || 'ทีมสร้างสรรค์นวัตกรรม',
-            advisorName: payload.advisorName || '',
-            abstractTh: payload.abstractTh || '',
-            abstractEn: payload.abstractEn || '',
-            coverImage: payload.coverImage || '',
-            videoUrl: payload.videoUrl || '',
-            documentUrl: payload.documentUrl || '',
-            status,
-            submittedAt: isDraft ? undefined : new Date(),
-            feedback: isDraft
-              ? 'ฉบับร่าง (ยังไม่ได้ส่งผลงานฉบับสมบูรณ์)'
-              : 'ยื่นผลงานเรียบร้อยแล้ว อยู่ระหว่างตรวจสอบเอกสาร',
+            ...commonData,
+            round1Status: RoundStatus.PENDING,
+            round2Status: RoundStatus.PENDING,
+            round3Status: RoundStatus.PENDING,
+            round3Result: '',
             members: {
-              create: rawMembers.map((m, idx) => ({
-                fullName: m,
-                role: idx === 0 ? 'หัวหน้าทีม' : 'สมาชิก',
+              create: normalizedMembers.map((m, idx) => ({
+                fullName: m.fullName,
+                role: m.role,
+                idCard: m.idCard,
                 orderIndex: idx + 1,
               })),
             },
           },
-          include: {
-            category: true,
-            educationLevel: true,
-            competitionYear: true,
-            members: { orderBy: { orderIndex: 'asc' } },
-          },
         });
       }
 
-      // Re-fetch with fresh members list
       const fresh = await prisma.submission.findUnique({
         where: { id: submission.id },
         include: {
@@ -219,8 +244,8 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
     }
   )
 
-  // Quick Status Check by Tracking Code
-  .get('/status/:trackingCode', async ({ params, set }) => {
+  // Quick Status Check by Tracking Code (with PDPA masking for public lookup)
+  .get('/status/:trackingCode', async ({ params, currentUser, set }) => {
     const code = params.trackingCode.toUpperCase().trim();
 
     const found = await prisma.submission.findUnique({
@@ -241,32 +266,143 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
       };
     }
 
+    const isOwnerOrAdmin = Boolean(
+      currentUser &&
+        (currentUser.id === found.userId ||
+          currentUser.role === Role.ADMIN ||
+          currentUser.role === Role.JUDGE)
+    );
+
     return {
       success: true,
-      data: {
-        id: found.id,
-        trackingCode: found.trackingCode,
-        titleTh: found.titleTh,
-        titleEn: found.titleEn,
-        category: found.category.code,
-        categoryNameTh: found.category.nameTh,
-        categoryNameEn: found.category.nameEn,
-        educationLevel: found.educationLevel.code,
-        educationLevelNameTh: found.educationLevel.nameTh,
-        teamName: found.teamName,
-        advisorName: found.advisorName,
-        status: found.status,
-        coverImage: found.coverImage || found.image,
-        videoUrl: found.videoUrl,
-        documentUrl: found.documentUrl,
-        submittedAt: found.submittedAt,
-        updatedAt: found.updatedAt,
-        year: found.competitionYear.year,
-        members: found.members.map((m) => m.fullName),
-        feedback: found.feedback || 'เอกสารเรียบร้อย อยู่ระหว่างการพิจารณาจากคณะกรรมการ',
-      },
+      data: formatDossierResponse(found, isOwnerOrAdmin),
     };
   })
+
+  // Post-Submission Artifact Update (Poster & Presentation can be attached later)
+  .patch(
+    '/tracking/:trackingCode/artifacts',
+    async ({ params, body, currentUser, set }) => {
+      const code = params.trackingCode.toUpperCase().trim();
+      const found = await prisma.submission.findUnique({
+        where: { trackingCode: code },
+      });
+
+      if (!found) {
+        set.status = 404;
+        return {
+          success: false,
+          message: 'ไม่พบรหัสติดตามผลงานนี้ในระบบ',
+        };
+      }
+
+      const nextProposalPdf =
+        body.proposalPdfUrl !== undefined
+          ? body.proposalPdfUrl
+          : body.documentUrl !== undefined
+          ? body.documentUrl
+          : found.proposalPdfUrl;
+      const nextImage =
+        body.imageUrl !== undefined
+          ? body.imageUrl
+          : body.coverImage !== undefined
+          ? body.coverImage
+          : found.coverImage;
+
+      const updated = await prisma.submission.update({
+        where: { id: found.id },
+        data: {
+          proposalPdfUrl: nextProposalPdf || found.proposalPdfUrl,
+          documentUrl: nextProposalPdf || found.documentUrl,
+          videoUrl: body.videoUrl !== undefined ? body.videoUrl : found.videoUrl,
+          posterUrl: body.posterUrl !== undefined ? body.posterUrl : found.posterUrl,
+          coverImage: nextImage || found.coverImage,
+          image: nextImage || found.image,
+          presentationUrl:
+            body.presentationUrl !== undefined ? body.presentationUrl : found.presentationUrl,
+        },
+        include: {
+          category: true,
+          educationLevel: true,
+          competitionYear: true,
+          members: { orderBy: { orderIndex: 'asc' } },
+        },
+      });
+
+      const isOwnerOrAdmin = Boolean(
+        currentUser &&
+          (currentUser.id === updated.userId ||
+            currentUser.role === Role.ADMIN ||
+            currentUser.role === Role.JUDGE)
+      );
+
+      return {
+        success: true,
+        message: 'อัปเดตไฟล์ประกอบผลงานเรียบร้อยแล้ว',
+        data: formatDossierResponse(updated, isOwnerOrAdmin),
+      };
+    },
+    {
+      body: updateArtifactsSchema,
+    }
+  )
+
+  // Admin / Judge Round & Status Update
+  .patch(
+    '/:id/status',
+    async ({ params, body, currentUser, set }) => {
+      if (!currentUser || (currentUser.role !== Role.ADMIN && currentUser.role !== Role.JUDGE)) {
+        set.status = 403;
+        return { success: false, message: 'เฉพาะผู้ดูแลระบบหรือคณะกรรมการเท่านั้น' };
+      }
+
+      const existing = await prisma.submission.findUnique({ where: { id: params.id } });
+      if (!existing) {
+        set.status = 404;
+        return { success: false, message: 'ไม่พบผลงานที่ระบุ' };
+      }
+
+      const toRoundStatus = (val?: string) => {
+        if (!val) return undefined;
+        const u = val.toUpperCase();
+        if (u === 'PASSED' || u === 'FAILED' || u === 'PENDING') {
+          return u as RoundStatus;
+        }
+        return undefined;
+      };
+
+      const updated = await prisma.submission.update({
+        where: { id: params.id },
+        data: {
+          status: body.status
+            ? (body.status.toUpperCase() as SubmissionStatus)
+            : existing.status,
+          round1Status: toRoundStatus(body.round1Status) ?? existing.round1Status,
+          round2Status: toRoundStatus(body.round2Status) ?? existing.round2Status,
+          round3Status: toRoundStatus(body.round3Status) ?? existing.round3Status,
+          round3Result: body.round3Result ?? existing.round3Result,
+          feedback: body.feedback ?? existing.feedback,
+          awardTier: body.awardTier ? (body.awardTier as AwardTier) : existing.awardTier,
+          awardNameTh: body.awardNameTh ?? existing.awardNameTh,
+          prizeDetails: body.prizeDetails ?? existing.prizeDetails,
+        },
+        include: {
+          category: true,
+          educationLevel: true,
+          competitionYear: true,
+          members: { orderBy: { orderIndex: 'asc' } },
+        },
+      });
+
+      return {
+        success: true,
+        data: formatDossierResponse(updated, true),
+      };
+    },
+    {
+      body: updateStatusSchema,
+    }
+  )
 
   // Get My Submissions for Logged-In Contestant
   .get('/my', async ({ currentUser, set }) => {

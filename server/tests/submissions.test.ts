@@ -111,4 +111,109 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(json.success).toBe(false);
     expect(json.message).toContain("ไม่พบรหัสติดตาม");
   });
+
+  test("POST /api/submissions creates full dossier with affiliation, object members, coordinators, and sanitizes round statuses", async () => {
+    const response = await app.handle(
+      new Request("http://localhost/api/submissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${contestantToken}`,
+        },
+        body: JSON.stringify({
+          titleTh: "เครื่องควบคุมและบันทึกผลการเชื่อมท่อ HDPE แบบอัจฉริยะ",
+          titleEn: "Smart HDPE Pipe Welding Controller",
+          category: "others",
+          educationLevel: "higher_and_above",
+          teamName: "เขาชื่ออะไร",
+          affiliation: "คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+          advisorName: "ผศ.ดร.วัฒนา แก้วมณี",
+          abstractTh: "ระบบควบคุมและบันทึกข้อมูลการเชื่อมท่อ HDPE แบบ Butt Fusion",
+          members: [
+            { fullName: "ผศ.ดร.วัฒนา แก้วมณี", role: "หัวหน้าทีม", idCard: "5-1601-00029-58-2" },
+            { fullName: "นาย นวัตกร วิจัยดี", role: "สมาชิก", idCard: "1100100234567" },
+          ],
+          primaryCoordinator: {
+            name: "ผศ.ดร.วัฒนา แก้วมณี",
+            idCard: "5-1601-00029-58-2",
+            phone: "064-274-9888",
+            email: "wattana.k@fte.kmutnb.ac.th",
+          },
+          secondaryCoordinator: {
+            name: "ผศ.ดร.วัฒนา แก้วมณี",
+            idCard: "AA9876543",
+            phone: "064-274-9888",
+            email: "wattana.kaewmanee@gmail.com",
+          },
+          files: {
+            proposalPdfUrl: "https://drive.google.com/proposal.pdf",
+            videoUrl: "https://youtube.com/watch?v=hdpe123",
+            imageUrl: "/hdpe-poster.jpg",
+            posterUrl: "",
+            presentationUrl: "",
+          },
+          // Attempt privilege escalation (must be ignored by server)
+          round1Status: "PASSED",
+          round2Status: "PASSED",
+          round3Status: "PASSED",
+          round3Result: "รางวัลชนะเลิศ",
+          isDraft: false,
+        }),
+      })
+    );
+
+    expect(response.status).toBe(200);
+    const json = await response.json();
+    expect(json.success).toBe(true);
+    expect(json.data.affiliation).toContain("คณะครุศาสตร์อุตสาหกรรม");
+    expect(json.data.round1Status).toBe("PENDING");
+    expect(json.data.round2Status).toBe("PENDING");
+    expect(json.data.round3Status).toBe("PENDING");
+    expect(json.data.round3Result).toBe("");
+    expect(json.data.members[0].idCard).toBe("5-1601-00029-58-2");
+    createdTrackingCode = json.data.trackingCode;
+  });
+
+  test("GET /api/submissions/status/:trackingCode masks PII for unauthenticated requests and unmasks for owner", async () => {
+    const publicRes = await app.handle(
+      new Request(`http://localhost/api/submissions/status/${createdTrackingCode}`)
+    );
+    expect(publicRes.status).toBe(200);
+    const pubJson = await publicRes.json();
+    expect(pubJson.data.primaryCoordinator.idCard).toBe("5-1601-XXXXX-XX-X");
+    expect(pubJson.data.primaryCoordinator.phone).toBe("064-XXX-9888");
+    expect(pubJson.data.primaryCoordinator.email).toBe("w***@fte.kmutnb.ac.th");
+    expect(pubJson.data.memberDetails[0].idCard).toBe("5-1601-XXXXX-XX-X");
+    expect(pubJson.data.memberDetails[1].idCard).toBe("1-1001-XXXXX-XX-X");
+    expect(pubJson.data.secondaryCoordinator.idCard).toBe("AAXXXXX43");
+
+    const ownerRes = await app.handle(
+      new Request(`http://localhost/api/submissions/status/${createdTrackingCode}`, {
+        headers: { Authorization: `Bearer ${contestantToken}` },
+      })
+    );
+    const ownerJson = await ownerRes.json();
+    expect(ownerJson.data.primaryCoordinator.idCard).toBe("5-1601-00029-58-2");
+    expect(ownerJson.data.primaryCoordinator.phone).toBe("064-274-9888");
+    expect(ownerJson.data.primaryCoordinator.email).toBe("wattana.k@fte.kmutnb.ac.th");
+  });
+
+  test("PATCH /api/submissions/tracking/:trackingCode/artifacts allows attaching Poster and Presentation later", async () => {
+    const patchRes = await app.handle(
+      new Request(`http://localhost/api/submissions/tracking/${createdTrackingCode}/artifacts`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          posterUrl: "https://drive.google.com/poster-round2.pdf",
+          presentationUrl: "https://drive.google.com/slides-round3.pdf",
+        }),
+      })
+    );
+    expect(patchRes.status).toBe(200);
+    const patchJson = await patchRes.json();
+    expect(patchJson.success).toBe(true);
+    expect(patchJson.data.artifacts.posterUrl).toBe("https://drive.google.com/poster-round2.pdf");
+    expect(patchJson.data.artifacts.presentationUrl).toBe("https://drive.google.com/slides-round3.pdf");
+    expect(patchJson.data.artifacts.proposalPdfUrl).toBe("https://drive.google.com/proposal.pdf");
+  });
 });
