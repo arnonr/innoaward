@@ -684,3 +684,19 @@ export function validateRubricWeights(criteria = []) {
   return '';
 }
 
+export function formatCategoryOptionLabel(cat = {}) {
+  const nameTh = String(cat?.nameTh || '').trim();
+  const nameEn = String(cat?.nameEn || '').trim();
+  if (!nameTh && !nameEn) return String(cat?.code || '');
+  if (!nameEn) return nameTh;
+  if (!nameTh) return nameEn;
+  if (
+    nameTh.toLowerCase().includes(nameEn.toLowerCase()) ||
+    nameTh.includes('(')
+  ) {
+    return nameTh;
+  }
+  return `${nameTh} (${nameEn})`;
+}
+
+

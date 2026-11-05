@@ -25,7 +25,8 @@ import {
   DEFAULT_RUBRIC_CRITERIA,
   RUBRIC_SCORE_LEVELS,
   calculateWeightedRubricScore,
-  validateRubricWeights
+  validateRubricWeights,
+  formatCategoryOptionLabel
 } from './components/submissionDossierUtils';
 
 
@@ -3837,7 +3838,14 @@ export default function App() {
       {/* --- MODAL 1: ENTERPRISE AUTH & SUBMISSION PORTAL --- */}
       {showPortalModal && (
         <div className="modal-overlay" onClick={() => setShowPortalModal(false)}>
-          <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="portal-modal-title" onClick={e => e.stopPropagation()}>
+          <div
+            className="modal-box"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="portal-modal-title"
+            style={{ maxWidth: portalTab === 'submission' ? '860px' : '640px', width: '95vw' }}
+            onClick={e => e.stopPropagation()}
+          >
             <button aria-label="ปิดหน้าต่างสมัครและส่งผลงาน" className="modal-close-btn" onClick={() => setShowPortalModal(false)}>
               <X className="w-5 h-5" />
             </button>
@@ -4270,7 +4278,7 @@ export default function App() {
                             onChange={e => setSubForm({...subForm, titleEn: e.target.value})}
                           />
                         </div>
-                        <div className="responsive-two-col-grid" style={{ gap: '12px' }}>
+                        <div className="responsive-two-col-grid" style={{ gap: '14px' }}>
                           <div className="form-group">
                             <label htmlFor="submission-category" className="form-label">หมวดหมู่ *</label>
                             <select 
@@ -4280,7 +4288,7 @@ export default function App() {
                             >
                               {dynamicCategories.map(cat => (
                                 <option key={cat.code} value={cat.code}>
-                                  {cat.nameEn ? `${cat.nameEn} (${cat.nameTh})` : cat.nameTh}
+                                  {formatCategoryOptionLabel(cat)}
                                 </option>
                               ))}
                             </select>
@@ -4297,7 +4305,7 @@ export default function App() {
                             </select>
                           </div>
                         </div>
-                        <div className="responsive-two-col-grid" style={{ gap: '12px' }}>
+                        <div className="responsive-two-col-grid" style={{ gap: '14px' }}>
                           <div className="form-group">
                             <label htmlFor="submission-team" className="form-label">ชื่อทีม *</label>
                             <input 
@@ -4309,24 +4317,24 @@ export default function App() {
                             />
                           </div>
                           <div className="form-group">
-                            <label htmlFor="submission-affiliation" className="form-label">สังกัด (คณะ / โรงเรียน / สถาบัน / หน่วยงาน) *</label>
+                            <label htmlFor="submission-advisor" className="form-label">ชื่ออาจารย์ที่ปรึกษา / หน่วยงานรับรอง (ถ้ามี)</label>
                             <input 
-                              id="submission-affiliation" type="text"
+                              id="submission-advisor" type="text"
                               className="form-input"
-                              placeholder="เช่น คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ"
-                              value={subForm.affiliation || ''}
-                              onChange={e => setSubForm({...subForm, affiliation: e.target.value})}
+                              placeholder="เช่น ผศ.ดร.วัฒนา แก้วมณี"
+                              value={subForm.advisorName}
+                              onChange={e => setSubForm({...subForm, advisorName: e.target.value})}
                             />
                           </div>
                         </div>
                         <div className="form-group">
-                          <label htmlFor="submission-advisor" className="form-label">ชื่ออาจารย์ที่ปรึกษา / หน่วยงานรับรอง (ถ้ามี)</label>
+                          <label htmlFor="submission-affiliation" className="form-label">สังกัด (คณะ / โรงเรียน / สถาบัน / หน่วยงาน) *</label>
                           <input 
-                            id="submission-advisor" type="text"
+                            id="submission-affiliation" type="text"
                             className="form-input"
-                            placeholder="เช่น ผศ.ดร.วัฒนา แก้วมณี"
-                            value={subForm.advisorName}
-                            onChange={e => setSubForm({...subForm, advisorName: e.target.value})}
+                            placeholder="เช่น คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ"
+                            value={subForm.affiliation || ''}
+                            onChange={e => setSubForm({...subForm, affiliation: e.target.value})}
                           />
                         </div>
                         <div className="form-group">
@@ -4471,8 +4479,8 @@ export default function App() {
                               ใช้ข้อมูลเดียวกับหัวหน้าทีม
                             </button>
                           </div>
-                          <div className="responsive-two-col-grid" style={{ gap: '10px' }}>
-                            <div className="form-group" style={{ marginBottom: '8px' }}>
+                          <div className="responsive-two-col-grid" style={{ gap: '12px', gridTemplateColumns: '1.4fr 1fr', marginBottom: '10px' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="primary-coord-name" className="form-label">ชื่อ-นามสกุล *</label>
                               <input
                                 id="primary-coord-name"
@@ -4486,7 +4494,7 @@ export default function App() {
                                 })}
                               />
                             </div>
-                            <div className="form-group" style={{ marginBottom: '8px' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="primary-coord-id" className="form-label">เลขบัตรประชาชน / พาสปอร์ต</label>
                               <input
                                 id="primary-coord-id"
@@ -4501,6 +4509,8 @@ export default function App() {
                                 })}
                               />
                             </div>
+                          </div>
+                          <div className="responsive-two-col-grid" style={{ gap: '12px', gridTemplateColumns: '0.85fr 1.55fr' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="primary-coord-phone" className="form-label">โทรศัพท์ *</label>
                               <input
@@ -4537,8 +4547,8 @@ export default function App() {
                           <strong style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block', marginBottom: '10px' }}>
                             ผู้ประสานงานรอง (สำรองติดต่อ - ถ้ามี)
                           </strong>
-                          <div className="responsive-two-col-grid" style={{ gap: '10px' }}>
-                            <div className="form-group" style={{ marginBottom: '8px' }}>
+                          <div className="responsive-two-col-grid" style={{ gap: '12px', gridTemplateColumns: '1.4fr 1fr', marginBottom: '10px' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="secondary-coord-name" className="form-label">ชื่อ-นามสกุล</label>
                               <input
                                 id="secondary-coord-name"
@@ -4552,7 +4562,7 @@ export default function App() {
                                 })}
                               />
                             </div>
-                            <div className="form-group" style={{ marginBottom: '8px' }}>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="secondary-coord-id" className="form-label">เลขบัตรประชาชน / พาสปอร์ต</label>
                               <input
                                 id="secondary-coord-id"
@@ -4567,6 +4577,8 @@ export default function App() {
                                 })}
                               />
                             </div>
+                          </div>
+                          <div className="responsive-two-col-grid" style={{ gap: '12px', gridTemplateColumns: '0.85fr 1.55fr' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="secondary-coord-phone" className="form-label">โทรศัพท์</label>
                               <input

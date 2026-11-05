@@ -15,7 +15,8 @@ import {
   DEFAULT_RUBRIC_CRITERIA,
   RUBRIC_SCORE_LEVELS,
   calculateWeightedRubricScore,
-  validateRubricWeights
+  validateRubricWeights,
+  formatCategoryOptionLabel
 } from './submissionDossierUtils.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -241,5 +242,34 @@ test('App.jsx integrates Judge & Admin Workspace modal, weighted 1-5 rubric eval
   assert.match(appSrc, /data\?\.rubricConfig/);
   assert.match(appSrc, /lvl\.label \|\| lvl\.labelTh/);
   assert.match(appSrc, /descriptionTh:\s*newCategoryForm\.description/);
+  assert.match(appSrc, /formatCategoryOptionLabel/);
+  assert.match(appSrc, /portalTab === 'submission'\s*\?\s*'860px'/);
+});
+
+test('formatCategoryOptionLabel avoids duplicating English name when nameTh already contains parentheses or English prefix', () => {
+  assert.equal(
+    formatCategoryOptionLabel({
+      code: 'energy_environment',
+      nameTh: 'Energy & Environment (พลังงานและสิ่งแวดล้อม)',
+      nameEn: 'Energy & Environment'
+    }),
+    'Energy & Environment (พลังงานและสิ่งแวดล้อม)'
+  );
+  assert.equal(
+    formatCategoryOptionLabel({
+      code: 'energy_environment',
+      nameTh: 'พลังงานและสิ่งแวดล้อม',
+      nameEn: 'Energy & Environment'
+    }),
+    'พลังงานและสิ่งแวดล้อม (Energy & Environment)'
+  );
+  assert.equal(
+    formatCategoryOptionLabel({
+      code: 'ai_robotics',
+      nameTh: 'ปัญญาประดิษฐ์และหุ่นยนต์อัตโนมัติ',
+      nameEn: ''
+    }),
+    'ปัญญาประดิษฐ์และหุ่นยนต์อัตโนมัติ'
+  );
 });
 
