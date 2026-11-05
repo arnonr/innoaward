@@ -648,14 +648,17 @@ export default function App() {
         if (data?.event?.year && !yearParam) {
           setSelectedJudgeYear(Number(data.event.year));
         }
-        if (Array.isArray(data?.availableYears) && data.availableYears.length > 0) {
-          setAvailableYears(data.availableYears);
+        const yearsList = data?.years || data?.availableYears;
+        if (Array.isArray(yearsList) && yearsList.length > 0) {
+          setAvailableYears(yearsList);
         }
-        if (Array.isArray(data?.masters?.categories) && data.masters.categories.length > 0) {
-          setDynamicCategories(data.masters.categories);
+        const categoriesList = data?.categories || data?.masters?.categories;
+        if (Array.isArray(categoriesList) && categoriesList.length > 0) {
+          setDynamicCategories(categoriesList);
         }
-        if (Array.isArray(data?.rubric?.criteria) && data.rubric.criteria.length > 0) {
-          setRubricCriteria(data.rubric.criteria);
+        const rubricList = data?.rubricConfig || data?.rubric?.criteria;
+        if (Array.isArray(rubricList) && rubricList.length > 0) {
+          setRubricCriteria(rubricList);
         }
       })
       .catch(() => {});
@@ -675,8 +678,9 @@ export default function App() {
       .then(data => {
         if (data.success) {
           setJudgingSubmissions(Array.isArray(data.data) ? data.data : []);
-          if (Array.isArray(data.rubric?.criteria) && data.rubric.criteria.length > 0) {
-            setRubricCriteria(data.rubric.criteria);
+          const workspaceRubric = data.rubricConfig || data.rubric?.criteria;
+          if (Array.isArray(workspaceRubric) && workspaceRubric.length > 0) {
+            setRubricCriteria(workspaceRubric);
           }
         } else {
           setJudgingError(data.message || 'ไม่สามารถดึงรายการผลงานสำหรับประเมินได้');
@@ -703,7 +707,9 @@ export default function App() {
       : 'ROUND_1';
     setActiveEvalSubmission(sub);
     setEvalRound(targetRound);
-    const existing = (sub.myEvaluations || []).find(ev => ev.round === targetRound);
+    const existing = Array.isArray(sub.myEvaluations)
+      ? sub.myEvaluations.find(ev => ev.round === targetRound)
+      : sub.myEvaluations?.[targetRound];
     if (existing && existing.scores) {
       setEvalScores(existing.scores);
       setEvalComment(existing.comment || '');
@@ -738,7 +744,8 @@ export default function App() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setJudgingNotice(`บันทึกคะแนน ${evalRound} สำเร็จ (คะแนนรวมถ่วงน้ำหนัก ${data.data.weightedTotal} / 100)`);
+          const savedTotal = data.data?.weightedTotal ?? data.evaluation?.weightedTotal ?? calculateWeightedRubricScore(evalScores, rubricCriteria);
+          setJudgingNotice(`บันทึกคะแนน ${evalRound} สำเร็จ (คะแนนรวมถ่วงน้ำหนัก ${savedTotal} / 100)`);
           setActiveEvalSubmission(null);
           fetchJudgingWorkspace(selectedJudgeYear, authToken);
         } else {
@@ -783,7 +790,11 @@ export default function App() {
         Authorization: `Bearer ${authToken}`
       },
       body: JSON.stringify({
-        ...newJudgeForm,
+        email: newJudgeForm.email,
+        fullName: newJudgeForm.fullName,
+        password: newJudgeForm.password || undefined,
+        institution: newJudgeForm.institution || undefined,
+        categories: newJudgeForm.categoryCodes,
         year: selectedJudgeYear
       })
     })
@@ -801,7 +812,7 @@ export default function App() {
   };
 
   const handleToggleJudgeCategory = (judge, categoryCode) => {
-    const currentCodes = (judge.assignedCategories || []).map(c => c.code);
+    const currentCodes = (judge.assignedCategories || []).map(c => (typeof c === 'string' ? c : c?.code)).filter(Boolean);
     const nextCodes = currentCodes.includes(categoryCode)
       ? currentCodes.filter(c => c !== categoryCode)
       : [...currentCodes, categoryCode];
@@ -814,7 +825,7 @@ export default function App() {
       },
       body: JSON.stringify({
         year: selectedJudgeYear,
-        categoryCodes: nextCodes
+        categories: nextCodes
       })
     })
       .then(res => res.json())
@@ -852,7 +863,10 @@ export default function App() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setRubricCriteria(data.data.criteria);
+          const updatedRubric = data.rubricConfig || data.data?.criteria;
+          if (Array.isArray(updatedRubric)) {
+            setRubricCriteria(updatedRubric);
+          }
           setJudgingNotice(`บันทึกเกณฑ์รูบริกและค่าน้ำหนักประจำปี ${selectedJudgeYear} เรียบร้อยแล้ว (รวม 100%)`);
         } else {
           setJudgingError(data.message || 'ไม่สามารถบันทึกเกณฑ์รูบริกได้');
@@ -872,7 +886,10 @@ export default function App() {
         Authorization: `Bearer ${authToken}`
       },
       body: JSON.stringify({
-        ...newCategoryForm,
+        code: newCategoryForm.code,
+        nameTh: newCategoryForm.nameTh,
+        nameEn: newCategoryForm.nameEn || undefined,
+        descriptionTh: newCategoryForm.description || undefined,
         year: selectedJudgeYear,
         isActive: true
       })
@@ -908,8 +925,9 @@ export default function App() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setSubmissionDeadlineIso(data.data.submissionDeadline);
-          setJudgingNotice(`อัปเดตวันปิดรับสมัครปี ${selectedJudgeYear} เป็น ${data.data.submissionDeadline} สำเร็จ`);
+          const updatedDeadline = data.submissionDeadline || data.data?.submissionDeadline || deadlineEditValue;
+          setSubmissionDeadlineIso(updatedDeadline);
+          setJudgingNotice(`อัปเดตวันปิดรับสมัครปี ${selectedJudgeYear} เป็น ${updatedDeadline} สำเร็จ`);
         } else {
           setJudgingError(data.message || 'ไม่สามารถอัปเดตวันปิดรับสมัครได้');
         }
@@ -929,7 +947,7 @@ export default function App() {
       },
       body: JSON.stringify({
         year: selectedJudgeYear,
-        round: publishRoundForm.round,
+        stage: publishRoundForm.round,
         title: publishRoundForm.title || undefined
       })
     })
@@ -972,7 +990,7 @@ export default function App() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          const createdYear = Number(data.data.year);
+          const createdYear = Number(data.data?.year || newYearForm.year);
           setSelectedJudgeYear(createdYear);
           fetchConfigForYear(createdYear);
           fetchJudgingWorkspace(createdYear, authToken);
@@ -5635,7 +5653,7 @@ export default function App() {
                                     cursor: 'pointer'
                                   }}
                                 >
-                                  {lvl.score} ({lvl.labelTh})
+                                  {lvl.score} ({lvl.label || lvl.labelTh})
                                 </button>
                               );
                             })}
@@ -5684,7 +5702,8 @@ export default function App() {
                     })
                     .map(sub => {
                       const activeSummaryRound = ['ROUND_1', 'ROUND_2', 'ROUND_3'].includes(judgeRoundFilter) ? judgeRoundFilter : 'ROUND_1';
-                      const roundStats = sub.evaluationSummary?.[activeSummaryRound] || { count: 0, averageWeightedTotal: null };
+                      const rawStats = sub.roundSummaries?.[activeSummaryRound] || sub.evaluationSummary?.[activeSummaryRound] || { count: 0, avgScore: null };
+                      const roundAvg = rawStats.avgScore ?? rawStats.averageWeightedTotal ?? null;
                       return (
                         <div
                           key={sub.id}
@@ -5732,9 +5751,9 @@ export default function App() {
                                 <div>
                                   ค่าเฉลี่ย {activeSummaryRound}:{' '}
                                   <strong style={{ color: 'var(--gold-300)', fontSize: '0.96rem' }}>
-                                    {roundStats.averageWeightedTotal !== null ? `${roundStats.averageWeightedTotal} / 100` : 'ยังไม่มีผลประเมิน'}
+                                    {roundAvg !== null ? `${roundAvg} / 100` : 'ยังไม่มีผลประเมิน'}
                                   </strong>{' '}
-                                  ({roundStats.count} กรรมการ)
+                                  ({rawStats.count || 0} กรรมการ)
                                 </div>
                               </div>
 
@@ -5884,7 +5903,7 @@ export default function App() {
                       </div>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
                         {dynamicCategories.map(cat => {
-                          const assigned = (judge.assignedCategories || []).some(c => c.code === cat.code);
+                          const assigned = (judge.assignedCategories || []).some(c => (typeof c === 'string' ? c === cat.code : c?.code === cat.code));
                           return (
                             <button
                               key={cat.code}

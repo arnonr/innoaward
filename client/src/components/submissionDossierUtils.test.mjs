@@ -234,5 +234,12 @@ test('App.jsx integrates Judge & Admin Workspace modal, weighted 1-5 rubric eval
   assert.match(appSrc, /\/config\/years/);
   assert.match(appSrc, /dynamicCategories/);
   assert.match(appSrc, /ส่ง POSTER แล้ว/);
+  assert.match(appSrc, /sub\.myEvaluations\?\.\[targetRound\]/);
+  assert.match(appSrc, /stage:\s*publishRoundForm\.round/);
+  assert.match(appSrc, /categories:\s*nextCodes/);
+  assert.match(appSrc, /sub\.roundSummaries\?\.\[activeSummaryRound\]/);
+  assert.match(appSrc, /data\?\.rubricConfig/);
+  assert.match(appSrc, /lvl\.label \|\| lvl\.labelTh/);
+  assert.match(appSrc, /descriptionTh:\s*newCategoryForm\.description/);
 });
 
