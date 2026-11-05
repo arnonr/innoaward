@@ -285,6 +285,7 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(ownerJson.data.primaryCoordinator.idCard).toBe("5-1601-00029-58-2");
     expect(ownerJson.data.primaryCoordinator.phone).toBe("064-274-9888");
     expect(ownerJson.data.primaryCoordinator.email).toBe("wattana.k@fte.kmutnb.ac.th");
+    expect(pubJson.data.userId).toBe("");
 
     // GET /api/submissions/:id also masks PII for unauthenticated requests
     const byIdPublicRes = await app.handle(
@@ -312,7 +313,46 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(hijackRes.status).toBe(403);
   });
 
-  test("PATCH /api/submissions/tracking/:trackingCode/artifacts requires owner auth and allows attaching Poster/Presentation even after deadline", async () => {
+  test("PATCH /api/submissions/tracking/:trackingCode/artifacts requires owner auth (401/403) and ignores spoofed payload.userId on POST /api/submissions", async () => {
+    const otherEmail = `other-${Date.now()}@kmutnb.ac.th`;
+    const otherRegRes = await app.handle(
+      new Request("http://localhost/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: otherEmail,
+          password: "Contestant2026!",
+          fullName: "ผู้แข่งขัน อีกราย",
+          educationLevel: "higher_and_above",
+        }),
+      })
+    );
+    const otherRegJson = await otherRegRes.json();
+    const otherToken = otherRegJson.token;
+    const otherUserId = otherRegJson.user.id;
+
+    // Unauthenticated caller attempting to spoof otherUserId in payload.userId cannot attribute project to otherUserId
+    await app.handle(
+      new Request("http://localhost/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: otherUserId,
+          titleTh: "Spoofed Project",
+          category: "others",
+          educationLevel: "higher_and_above",
+          teamName: "Spoofer",
+        }),
+      })
+    );
+    const otherMyRes = await app.handle(
+      new Request("http://localhost/api/submissions/my", {
+        headers: { Authorization: `Bearer ${otherToken}` },
+      })
+    );
+    const otherMyJson = await otherMyRes.json();
+    expect(otherMyJson.data.length).toBe(0);
+
     const unauthPatch = await app.handle(
       new Request(`http://localhost/api/submissions/tracking/${createdTrackingCode}/artifacts`, {
         method: "PATCH",
@@ -323,6 +363,20 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
       })
     );
     expect(unauthPatch.status).toBe(401);
+
+    const otherUserPatch = await app.handle(
+      new Request(`http://localhost/api/submissions/tracking/${createdTrackingCode}/artifacts`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${otherToken}`,
+        },
+        body: JSON.stringify({
+          posterUrl: "https://drive.google.com/other-user.pdf",
+        }),
+      })
+    );
+    expect(otherUserPatch.status).toBe(403);
 
     const patchRes = await app.handle(
       new Request(`http://localhost/api/submissions/tracking/${createdTrackingCode}/artifacts`, {

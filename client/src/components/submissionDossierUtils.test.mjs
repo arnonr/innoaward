@@ -170,4 +170,6 @@ test('App.jsx integrates email/password login verification, 2-project contestant
   assert.match(appSrc, /\/submissions\/my/);
   assert.match(appSrc, /ผลงานของฉัน/);
   assert.match(appSrc, /เข้าสู่ระบบด้วยอีเมลเพื่อแก้ไขข้อมูล/);
+  assert.match(appSrc, /localStorage\.removeItem\('kmutnb_draft_submission'\)/);
+  assert.match(appSrc, /<fieldset\s+disabled=\{deadlinePassed && user\?\.role !== 'ADMIN'\}/);
 });

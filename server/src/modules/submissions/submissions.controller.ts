@@ -114,8 +114,9 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         return { success: false, message: 'ไม่พบระดับการศึกษาที่ระบุ' };
       }
 
-      // 5. Resolve User
-      let targetUserId = currentUser?.id || payload.userId;
+      // 5. Resolve User (only ADMIN may attribute a submission to an arbitrary payload.userId)
+      let targetUserId =
+        currentUser?.role === Role.ADMIN ? payload.userId || currentUser.id : currentUser?.id;
       if (!targetUserId || targetUserId === 'guest-user') {
         let defaultUser = await prisma.user.findFirst({
           where: { role: Role.CONTESTANT },

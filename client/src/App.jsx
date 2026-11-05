@@ -590,9 +590,18 @@ export default function App() {
       .then(data => {
         if (data.success && Array.isArray(data.data)) {
           setMySubmissions(data.data);
-          if (data.data.length > 0 && !subForm.id && !subForm.titleTh) {
-            setSubForm(hydrateSubmissionFormFromServer(data.data[0]));
-          }
+          setSubForm(prev => {
+            const belongsToCurrentUser = prev.id && data.data.some(s => s.id === prev.id);
+            if (prev.id && !belongsToCurrentUser) {
+              return data.data.length > 0
+                ? hydrateSubmissionFormFromServer(data.data[0])
+                : createEmptySubmissionForm();
+            }
+            if (data.data.length > 0 && !prev.id && !prev.titleTh) {
+              return hydrateSubmissionFormFromServer(data.data[0]);
+            }
+            return prev;
+          });
         }
       })
       .catch(() => {})
@@ -822,7 +831,7 @@ export default function App() {
     setUser(null);
     setAuthToken('');
     setMySubmissions([]);
-    setSubForm(createInitialSubmissionForm());
+    setSubForm(createEmptySubmissionForm());
     setSubSuccess(null);
     setAuthError('');
     setSubError('');
@@ -831,6 +840,7 @@ export default function App() {
     try {
       localStorage.removeItem('innoaward_token');
       localStorage.removeItem('innoaward_user');
+      localStorage.removeItem('kmutnb_draft_submission');
     } catch {}
   };
 
@@ -3722,7 +3732,7 @@ export default function App() {
                     </button>
                   </div>
                 ) : (
-                  <div>
+                  <fieldset disabled={deadlinePassed && user?.role !== 'ADMIN'} style={{ border: 'none', padding: 0, margin: 0, minInlineSize: 0 }}>
                     {/* 3-Step Submission Stepper */}
                     <div className="submission-stepper" role="tablist" aria-label="ขั้นตอนการกรอกใบสมัคร">
                       {[
@@ -4263,16 +4273,16 @@ export default function App() {
                     )}
 
                     <div style={{ display: 'flex', gap: '12px', marginTop: '20px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
-                      <button type="button" disabled={submissionLoading} onClick={() => handleSubmission(true)} className="btn-outline-cyan" style={{ flex: 1 }}>
+                      <button type="button" disabled={submissionLoading || (deadlinePassed && user?.role !== 'ADMIN')} onClick={() => handleSubmission(true)} className="btn-outline-cyan" style={{ flex: 1 }}>
                         <Save className="w-4 h-4" />
                         <span>{submissionLoading ? 'กำลังบันทึก...' : 'บันทึกแบบร่าง'}</span>
                       </button>
-                      <button type="button" disabled={submissionLoading || timeLeft.expired} onClick={() => handleSubmission(false)} className="btn-solid-primary" style={{ flex: 1 }}>
+                      <button type="button" disabled={submissionLoading || timeLeft.expired || (deadlinePassed && user?.role !== 'ADMIN')} onClick={() => handleSubmission(false)} className="btn-solid-primary" style={{ flex: 1 }}>
                         <Send className="w-4 h-4" />
                         <span>{submissionLoading ? 'กำลังส่ง...' : 'ส่งผลงานฉบับสมบูรณ์'}</span>
                       </button>
                     </div>
-                  </div>
+                  </fieldset>
                 )}
               </div>
             )}
