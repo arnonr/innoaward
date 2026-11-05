@@ -4278,7 +4278,7 @@ export default function App() {
                             onChange={e => setSubForm({...subForm, titleEn: e.target.value})}
                           />
                         </div>
-                        <div className="responsive-two-col-grid" style={{ gap: '14px' }}>
+                        <div className="responsive-two-col-grid" style={{ gap: '16px' }}>
                           <div className="form-group">
                             <label htmlFor="submission-category" className="form-label">หมวดหมู่ *</label>
                             <select 
@@ -4305,7 +4305,7 @@ export default function App() {
                             </select>
                           </div>
                         </div>
-                        <div className="responsive-two-col-grid" style={{ gap: '14px' }}>
+                        <div className="responsive-two-col-grid" style={{ gap: '16px' }}>
                           <div className="form-group">
                             <label htmlFor="submission-team" className="form-label">ชื่อทีม *</label>
                             <input 
@@ -4347,7 +4347,7 @@ export default function App() {
                             onChange={e => setSubForm({...subForm, abstractTh: e.target.value})}
                           />
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '18px' }}>
                           <button
                             type="button"
                             onClick={() => {
@@ -4371,9 +4371,12 @@ export default function App() {
                     {/* STEP 2: สมาชิกทีม & ผู้ประสานงานหลัก-รอง */}
                     {submissionStep === 2 && (
                       <div>
-                        <div className="dossier-section-box" style={{ marginBottom: '16px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
-                            <strong style={{ color: 'var(--emerald-300)', fontSize: '0.92rem' }}>สมาชิกทีม *</strong>
+                        <div className="dossier-section-box" style={{ marginBottom: '20px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid rgba(148, 163, 184, 0.14)', flexWrap: 'wrap', gap: '10px' }}>
+                            <div>
+                              <strong style={{ color: 'var(--emerald-300)', fontSize: '0.95rem', display: 'block' }}>สมาชิกทีม *</strong>
+                              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>ระบุรายชื่อหัวหน้าทีมและสมาชิกผู้ร่วมพัฒนาผลงาน</span>
+                            </div>
                             <button
                               type="button"
                               onClick={() => {
@@ -4384,11 +4387,18 @@ export default function App() {
                                 });
                               }}
                               className="btn-outline-cyan"
-                              style={{ padding: '6px 12px', fontSize: '0.78rem', minHeight: '36px' }}
+                              style={{ padding: '7px 14px', fontSize: '0.8rem', minHeight: '38px' }}
                             >
                               <Plus className="w-3.5 h-3.5" />
                               <span>เพิ่มสมาชิกทีม</span>
                             </button>
+                          </div>
+
+                          <div className="member-column-headers" aria-hidden="true">
+                            <span>ลำดับ</span>
+                            <span>ชื่อ-นามสกุล (คำนำหน้า + ชื่อ-สกุล) *</span>
+                            <span>เลขบัตรประชาชน / พาสปอร์ต</span>
+                            <span>บทบาทในทีม</span>
                           </div>
 
                           {(Array.isArray(subForm.members) ? subForm.members : [{ fullName: '', role: 'หัวหน้าทีม', idCard: '' }]).map((member, idx) => {
@@ -4400,7 +4410,7 @@ export default function App() {
                                   type="text"
                                   aria-label={`ชื่อสมาชิกคนที่ ${idx + 1}`}
                                   className="form-input"
-                                  placeholder={idx === 0 ? 'ชื่อ-นามสกุล (หัวหน้าทีม) เช่น ผศ.ดร.วัฒนา แก้วมณี' : 'ชื่อ-นามสกุล สมาชิก'}
+                                  placeholder={idx === 0 ? 'เช่น ผศ.ดร.วัฒนา แก้วมณี (หัวหน้าทีม)' : 'เช่น นายสมชาย ใจดี'}
                                   value={mObj.fullName}
                                   onChange={e => {
                                     const next = [...(Array.isArray(subForm.members) ? subForm.members : [])];
@@ -4413,7 +4423,7 @@ export default function App() {
                                   aria-label={`เลขบัตรประชาชนหรือพาสปอร์ตสมาชิกคนที่ ${idx + 1}`}
                                   className="form-input"
                                   style={{ fontFamily: 'var(--font-mono)' }}
-                                  placeholder="เลขบัตรประชาชน / พาสปอร์ต เช่น 5-1601-00029-58-2"
+                                  placeholder="เช่น 5-1601-00029-58-2"
                                   value={mObj.idCard}
                                   onChange={e => {
                                     const next = [...(Array.isArray(subForm.members) ? subForm.members : [])];
@@ -4454,9 +4464,12 @@ export default function App() {
                         </div>
 
                         {/* ผู้ประสานงานหลัก */}
-                        <div className="dossier-section-box" style={{ marginBottom: '16px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
-                            <strong style={{ color: 'var(--cyan-300)', fontSize: '0.92rem' }}>ผู้ประสานงานหลัก *</strong>
+                        <div className="dossier-section-box" style={{ marginBottom: '20px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid rgba(148, 163, 184, 0.14)', flexWrap: 'wrap', gap: '10px' }}>
+                            <div>
+                              <strong style={{ color: 'var(--cyan-300)', fontSize: '0.95rem', display: 'block' }}>ผู้ประสานงานหลัก *</strong>
+                              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>ผู้รับการติดต่อหลักเกี่ยวกับผลการคัดเลือกและกำหนดการนำเสนอ</span>
+                            </div>
                             <button
                               type="button"
                               onClick={() => {
@@ -4474,12 +4487,12 @@ export default function App() {
                                 });
                               }}
                               className="btn-outline-cyan"
-                              style={{ padding: '4px 10px', fontSize: '0.74rem', minHeight: '32px' }}
+                              style={{ padding: '6px 12px', fontSize: '0.78rem', minHeight: '36px' }}
                             >
                               ใช้ข้อมูลเดียวกับหัวหน้าทีม
                             </button>
                           </div>
-                          <div className="responsive-two-col-grid" style={{ gap: '12px', gridTemplateColumns: '1.4fr 1fr', marginBottom: '10px' }}>
+                          <div className="responsive-two-col-grid" style={{ gap: '16px', gridTemplateColumns: '1.35fr 1fr', marginBottom: '16px' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="primary-coord-name" className="form-label">ชื่อ-นามสกุล *</label>
                               <input
@@ -4510,7 +4523,7 @@ export default function App() {
                               />
                             </div>
                           </div>
-                          <div className="responsive-two-col-grid" style={{ gap: '12px', gridTemplateColumns: '0.85fr 1.55fr' }}>
+                          <div className="responsive-two-col-grid" style={{ gap: '16px', gridTemplateColumns: '0.9fr 1.45fr' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="primary-coord-phone" className="form-label">โทรศัพท์ *</label>
                               <input
@@ -4543,11 +4556,14 @@ export default function App() {
                         </div>
 
                         {/* ผู้ประสานงานรอง */}
-                        <div className="dossier-section-box" style={{ marginBottom: '16px' }}>
-                          <strong style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', display: 'block', marginBottom: '10px' }}>
-                            ผู้ประสานงานรอง (สำรองติดต่อ - ถ้ามี)
-                          </strong>
-                          <div className="responsive-two-col-grid" style={{ gap: '12px', gridTemplateColumns: '1.4fr 1fr', marginBottom: '10px' }}>
+                        <div className="dossier-section-box" style={{ marginBottom: '20px' }}>
+                          <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid rgba(148, 163, 184, 0.14)' }}>
+                            <strong style={{ color: 'var(--text-secondary)', fontSize: '0.94rem', display: 'block' }}>
+                              ผู้ประสานงานรอง (สำรองติดต่อ - ถ้ามี)
+                            </strong>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>ผู้รับการติดต่อสำรองกรณีไม่สามารถติดต่อผู้ประสานงานหลักได้</span>
+                          </div>
+                          <div className="responsive-two-col-grid" style={{ gap: '16px', gridTemplateColumns: '1.35fr 1fr', marginBottom: '16px' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="secondary-coord-name" className="form-label">ชื่อ-นามสกุล</label>
                               <input
@@ -4578,7 +4594,7 @@ export default function App() {
                               />
                             </div>
                           </div>
-                          <div className="responsive-two-col-grid" style={{ gap: '12px', gridTemplateColumns: '0.85fr 1.55fr' }}>
+                          <div className="responsive-two-col-grid" style={{ gap: '16px', gridTemplateColumns: '0.9fr 1.45fr' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                               <label htmlFor="secondary-coord-phone" className="form-label">โทรศัพท์</label>
                               <input
@@ -4610,7 +4626,7 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', marginTop: '12px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginTop: '18px' }}>
                           <button type="button" onClick={() => setSubmissionStep(1)} className="btn-outline-cyan">
                             <span>ย้อนกลับ</span>
                           </button>
@@ -4672,7 +4688,7 @@ export default function App() {
                             value={subForm.coverImage}
                             onChange={e => setSubForm({...subForm, coverImage: e.target.value})}
                           />
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
                             {[
                               { label: 'ภาพหุ่นยนต์/AI', path: '/photo_candidates/robotics_engineer.jpg' },
                               { label: 'ภาพห้องปฏิบัติการ', path: '/photo_candidates/science_lab.jpg' },
@@ -4683,9 +4699,9 @@ export default function App() {
                                 type="button"
                                 onClick={() => setSubForm({ ...subForm, coverImage: preset.path })}
                                 style={{
-                                  padding: '4px 10px',
+                                  padding: '5px 12px',
                                   borderRadius: '999px',
-                                  fontSize: '0.75rem',
+                                  fontSize: '0.76rem',
                                   background: subForm.coverImage === preset.path ? 'rgba(0, 245, 160, 0.22)' : 'rgba(24, 52, 88, 0.72)',
                                   border: `1px solid ${subForm.coverImage === preset.path ? 'var(--emerald-400)' : 'var(--border-subtle)'}`,
                                   color: subForm.coverImage === preset.path ? 'var(--emerald-300)' : 'var(--text-secondary)',
@@ -4697,34 +4713,32 @@ export default function App() {
                             ))}
                           </div>
                         </div>
-                        <div className="responsive-two-col-grid" style={{ gap: '12px' }}>
-                          <div className="form-group">
-                            <label htmlFor="submission-poster-url" className="form-label">
-                              4. Poster (โปสเตอร์นำเสนอผลงาน) <span style={{ color: 'var(--gold-300)', fontSize: '0.75rem' }}>(แนบเพิ่มเติมทีหลังได้)</span>
-                            </label>
-                            <input 
-                              id="submission-poster-url" type="text"
-                              className="form-input"
-                              placeholder="https://drive.google.com/... (ส่งเพิ่มเมื่อเข้ารอบ 2 ได้)"
-                              value={subForm.posterUrl || ''}
-                              onChange={e => setSubForm({...subForm, posterUrl: e.target.value})}
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label htmlFor="submission-presentation-url" className="form-label">
-                              5. Presentation (สไลด์นำเสนอ PDF/PPT) <span style={{ color: 'var(--gold-300)', fontSize: '0.75rem' }}>(แนบเพิ่มเติมทีหลังได้)</span>
-                            </label>
-                            <input 
-                              id="submission-presentation-url" type="text"
-                              className="form-input"
-                              placeholder="https://drive.google.com/... (ส่งเพิ่มเมื่อเข้ารอบได้)"
-                              value={subForm.presentationUrl || ''}
-                              onChange={e => setSubForm({...subForm, presentationUrl: e.target.value})}
-                            />
-                          </div>
+                        <div className="form-group">
+                          <label htmlFor="submission-poster-url" className="form-label">
+                            4. Poster (โปสเตอร์นำเสนอผลงาน) <span style={{ color: 'var(--gold-300)', fontSize: '0.76rem' }}>(แนบเพิ่มเติมภายหลังเมื่อเข้ารอบที่ 2 ได้)</span>
+                          </label>
+                          <input 
+                            id="submission-poster-url" type="text"
+                            className="form-input"
+                            placeholder="https://drive.google.com/... (ส่งเพิ่มเมื่อเข้ารอบที่ 2 ได้)"
+                            value={subForm.posterUrl || ''}
+                            onChange={e => setSubForm({...subForm, posterUrl: e.target.value})}
+                          />
                         </div>
-                        <div style={{ marginBottom: '12px' }}>
-                          <button type="button" onClick={() => setSubmissionStep(2)} className="btn-text" style={{ color: 'var(--cyan-300)', fontSize: '0.82rem' }}>
+                        <div className="form-group">
+                          <label htmlFor="submission-presentation-url" className="form-label">
+                            5. Presentation (สไลด์นำเสนอ PDF/PPT) <span style={{ color: 'var(--gold-300)', fontSize: '0.76rem' }}>(แนบเพิ่มเติมภายหลังเมื่อเข้ารอบได้)</span>
+                          </label>
+                          <input 
+                            id="submission-presentation-url" type="text"
+                            className="form-input"
+                            placeholder="https://drive.google.com/... (ส่งเพิ่มเมื่อเข้ารอบได้)"
+                            value={subForm.presentationUrl || ''}
+                            onChange={e => setSubForm({...subForm, presentationUrl: e.target.value})}
+                          />
+                        </div>
+                        <div style={{ marginBottom: '14px' }}>
+                          <button type="button" onClick={() => setSubmissionStep(2)} className="btn-text" style={{ color: 'var(--cyan-300)', fontSize: '0.84rem' }}>
                             ← ย้อนกลับไปแก้ไขข้อมูลสมาชิกและผู้ประสานงาน
                           </button>
                         </div>

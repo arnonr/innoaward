@@ -4034,30 +4034,33 @@ button:disabled {
 }
 
 .modal-checklist-card {
-  background: rgba(249, 115, 22, 0.15);
+  background: rgba(249, 115, 22, 0.12);
   border: 1px solid var(--border-orange);
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 20px;
-  font-size: 0.82rem;
+  border-radius: 14px;
+  padding: 16px 52px 16px 20px;
+  margin-bottom: 22px;
+  font-size: 0.84rem;
 }
 
 .modal-checklist-card strong {
   color: var(--orange-400);
-  display: block;
-  margin-bottom: 6px;
-  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.88rem;
 }
 
 .modal-checklist-card ol {
-  padding-left: 18px;
+  padding-left: 20px;
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.65;
+  margin: 0;
 }
 
 /* Inputs */
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .form-label {
@@ -4065,20 +4068,23 @@ button:disabled {
   font-size: 0.84rem;
   font-weight: 500;
   color: var(--text-secondary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  line-height: 1.45;
 }
 
 .form-input {
   width: 100%;
+  min-height: 44px;
   background: var(--bg-base);
   border: 1px solid var(--border-medium);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px 14px;
   color: var(--text-primary);
   font-family: var(--font-en), var(--font-th);
   font-size: 0.9rem;
+  line-height: 1.4;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-input:focus {
@@ -5208,18 +5214,19 @@ button:disabled {
 .submission-stepper {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 12px;
+  margin-bottom: 22px;
 }
 
 .submission-step-btn {
-  min-height: 44px;
-  padding: 10px 14px;
-  border-radius: 10px;
+  min-height: 46px;
+  padding: 10px 16px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(15, 23, 42, 0.55);
   color: var(--text-secondary);
   font-family: var(--font-th), var(--font-en);
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -5235,20 +5242,35 @@ button:disabled {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(56, 189, 248, 0.18));
   border-color: var(--emerald-400);
   color: #FFFFFF;
-  box-shadow: 0 0 18px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.22);
+}
+
+.member-column-headers {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1.65fr) minmax(0, 1.15fr) 140px auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .member-input-row {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1.55fr) minmax(0, 1.15fr) minmax(130px, 0.75fr) auto;
-  gap: 10px;
+  grid-template-columns: 42px minmax(0, 1.65fr) minmax(0, 1.15fr) 140px auto;
+  gap: 12px;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.member-input-row:last-child {
+  margin-bottom: 0;
 }
 
 .member-index-badge {
-  height: 40px;
-  border-radius: 8px;
+  height: 44px;
+  border-radius: 10px;
   background: rgba(56, 189, 248, 0.14);
   border: 1px solid rgba(56, 189, 248, 0.3);
   color: var(--emerald-300);
@@ -5256,14 +5278,14 @@ button:disabled {
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 700;
 }
 
 .member-remove-btn {
   min-width: 44px;
   min-height: 44px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid rgba(239, 68, 68, 0.35);
   background: rgba(239, 68, 68, 0.12);
   color: #FCA5A5;
@@ -5276,11 +5298,11 @@ button:disabled {
 .dossier-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  background: rgba(15, 23, 42, 0.75);
+  gap: 18px;
+  background: rgba(15, 23, 42, 0.78);
   border: 1px solid rgba(16, 185, 129, 0.32);
-  border-radius: 14px;
-  padding: 18px;
+  border-radius: 16px;
+  padding: 22px;
   text-align: left;
 }
 
@@ -5319,10 +5341,10 @@ button:disabled {
 }
 
 .dossier-section-box {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 12px 14px;
+  background: rgba(15, 32, 56, 0.52);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  padding: 20px 22px;
 }
 
 .dossier-rounds-box {
@@ -5379,9 +5401,12 @@ button:disabled {
   .submission-stepper {
     grid-template-columns: 1fr;
   }
+  .member-column-headers {
+    display: none;
+  }
   .member-input-row {
     grid-template-columns: 1fr;
-    padding: 10px;
+    padding: 12px;
     background: rgba(15, 23, 42, 0.45);
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.08);
