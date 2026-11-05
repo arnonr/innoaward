@@ -887,6 +887,8 @@ export default function App() {
       } catch {}
 
       setSubSuccess(submissionRecord);
+      setSubForm(createInitialSubmissionForm());
+      setSubmissionStep(1);
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     };
 
@@ -933,23 +935,22 @@ export default function App() {
       });
     };
 
-    // 1. Check local submissions history first
-    try {
-      const history = JSON.parse(localStorage.getItem('kmutnb_submissions_history') || '[]');
-      const matched = history.find(item => item.trackingCode.toLowerCase() === query.toLowerCase());
-      if (matched) {
-        setStatusLoading(false);
-        applyStatusDossier(matched);
-        return;
-      }
-    } catch {}
-
     const checkFallback = () => {
+      // 1. Check local submissions history (for offline-created submissions)
+      try {
+        const history = JSON.parse(localStorage.getItem('kmutnb_submissions_history') || '[]');
+        const matched = history.find(item => item.trackingCode.toLowerCase() === query.toLowerCase());
+        if (matched) {
+          applyStatusDossier(matched);
+          return;
+        }
+      } catch {}
+
+      // 2. Built-in 2569 official winners fallback (KMUTNB-2569-0001 .. KMUTNB-2569-0006)
       const qUpper = query.toUpperCase();
-      if (qUpper.includes('2569-0002')) {
-        applyStatusDossier({ trackingCode: 'KMUTNB-2569-0002' });
-      } else if (qUpper.includes('2569-0001')) {
-        applyStatusDossier({ trackingCode: 'KMUTNB-2569-0001' });
+      const match2569 = qUpper.match(/2569-000([1-6])/);
+      if (match2569) {
+        applyStatusDossier({ trackingCode: `KMUTNB-2569-000${match2569[1]}` });
       } else if (qUpper.startsWith('KMUTNB-2570-') || qUpper.startsWith('KMUTNB-2569-')) {
         applyStatusDossier({
           trackingCode: qUpper,
@@ -3638,6 +3639,20 @@ export default function App() {
                                     setSubForm({ ...subForm, members: next });
                                   }}
                                 />
+                                <select
+                                  aria-label={`บทบาทสมาชิกคนที่ ${idx + 1}`}
+                                  className="form-input"
+                                  value={mObj.role || (idx === 0 ? 'หัวหน้าทีม' : 'สมาชิก')}
+                                  onChange={e => {
+                                    const next = [...(Array.isArray(subForm.members) ? subForm.members : [])];
+                                    next[idx] = { ...mObj, role: e.target.value };
+                                    setSubForm({ ...subForm, members: next });
+                                  }}
+                                >
+                                  <option value="หัวหน้าทีม" style={{ background: '#0F172A' }}>หัวหน้าทีม</option>
+                                  <option value="สมาชิก" style={{ background: '#0F172A' }}>สมาชิก</option>
+                                  <option value="ที่ปรึกษา" style={{ background: '#0F172A' }}>ที่ปรึกษา</option>
+                                </select>
                                 {(Array.isArray(subForm.members) && subForm.members.length > 1) && (
                                   <button
                                     type="button"
@@ -4125,6 +4140,16 @@ export default function App() {
 
                 {/* ผลการคัดเลือกรายรอบ */}
                 <div className="dossier-rounds-box" style={{ marginBottom: '14px' }}>
+                  <div className="dossier-round-row">
+                    <span>ผ่านเข้ารอบที่ 1 (รอบคัดเลือกเอกสาร) :</span>
+                    <strong className={statusResult.rounds?.round1?.status === 'PASSED' ? 'text-emerald-400' : ''}>
+                      {statusResult.rounds?.round1?.status === 'PASSED'
+                        ? 'ผ่าน'
+                        : statusResult.rounds?.round1?.status === 'FAILED'
+                        ? 'ไม่ผ่าน'
+                        : 'รอประกาศผล'}
+                    </strong>
+                  </div>
                   <div className="dossier-round-row">
                     <span>ผ่านเข้ารอบที่ 2 (รอบการประกวดออนไลน์) :</span>
                     <strong className={statusResult.rounds?.round2?.status === 'PASSED' ? 'text-emerald-400' : ''}>

@@ -42,11 +42,17 @@ test('validateSubmissionStep requires Proposal PDF, Video, and Image on final su
   assert.equal(payload.primaryCoordinator.email, 'wattana.k@fte.kmutnb.ac.th');
 });
 
-test('normalizeStatusDossier produces complete 3-round, coordinator, member, and 5-artifact structure for KMUTNB-2569-0002 fallback', () => {
+test('normalizeStatusDossier produces complete 3-round, coordinator, member, and 5-artifact structure for KMUTNB-2569-0001..0006 fallback', () => {
   const dossier = normalizeStatusDossier({ trackingCode: 'KMUTNB-2569-0002' });
   assert.equal(dossier.teamName, 'เขาชื่ออะไร');
+  assert.equal(dossier.rounds.round1.status, 'PASSED');
   assert.equal(dossier.rounds.round2.status, 'PASSED');
   assert.equal(dossier.rounds.round3.status, 'PASSED');
   assert.equal(dossier.rounds.round3.result, 'รางวัลรองชนะเลิศอันดับ 1');
   assert.equal(dossier.primaryCoordinator.name, 'ผศ.ดร.วัฒนา แก้วมณี');
+  assert.equal(dossier.primaryCoordinator.idCard, '5-1601-XXXXX-XX-X');
+
+  const dossier6 = normalizeStatusDossier({ trackingCode: 'KMUTNB-2569-0006' });
+  assert.equal(dossier6.teamName, 'GeoWeld');
+  assert.equal(dossier6.rounds.round3.result, 'รางวัลชมเชย');
 });

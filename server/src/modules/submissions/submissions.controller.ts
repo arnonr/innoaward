@@ -179,6 +179,18 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         });
 
         if (existing) {
+          const canUpdateExisting = Boolean(
+            currentUser &&
+              (currentUser.id === existing.userId || currentUser.role === Role.ADMIN)
+          );
+          if (!canUpdateExisting) {
+            set.status = 403;
+            return {
+              success: false,
+              message: 'ไม่มีสิทธิ์แก้ไขผลงานของผู้ใช้อื่น',
+            };
+          }
+
           submission = await prisma.submission.update({
             where: { id: payload.id },
             data: commonData,
@@ -296,30 +308,28 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         };
       }
 
-      const nextProposalPdf =
-        body.proposalPdfUrl !== undefined
-          ? body.proposalPdfUrl
-          : body.documentUrl !== undefined
-          ? body.documentUrl
-          : found.proposalPdfUrl;
-      const nextImage =
-        body.imageUrl !== undefined
-          ? body.imageUrl
-          : body.coverImage !== undefined
-          ? body.coverImage
-          : found.coverImage;
+      const pickUrl = (val: string | undefined, prev: string | null) =>
+        val && val.trim() ? val.trim() : prev || '';
+
+      const nextProposalPdf = pickUrl(
+        body.proposalPdfUrl !== undefined ? body.proposalPdfUrl : body.documentUrl,
+        found.proposalPdfUrl || found.documentUrl
+      );
+      const nextImage = pickUrl(
+        body.imageUrl !== undefined ? body.imageUrl : body.coverImage,
+        found.coverImage || found.image
+      );
 
       const updated = await prisma.submission.update({
         where: { id: found.id },
         data: {
-          proposalPdfUrl: nextProposalPdf || found.proposalPdfUrl,
-          documentUrl: nextProposalPdf || found.documentUrl,
-          videoUrl: body.videoUrl !== undefined ? body.videoUrl : found.videoUrl,
-          posterUrl: body.posterUrl !== undefined ? body.posterUrl : found.posterUrl,
-          coverImage: nextImage || found.coverImage,
-          image: nextImage || found.image,
-          presentationUrl:
-            body.presentationUrl !== undefined ? body.presentationUrl : found.presentationUrl,
+          proposalPdfUrl: nextProposalPdf,
+          documentUrl: nextProposalPdf,
+          videoUrl: pickUrl(body.videoUrl, found.videoUrl),
+          posterUrl: pickUrl(body.posterUrl, found.posterUrl),
+          coverImage: nextImage,
+          image: nextImage,
+          presentationUrl: pickUrl(body.presentationUrl, found.presentationUrl),
         },
         include: {
           category: true,
@@ -382,7 +392,9 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
           round3Status: toRoundStatus(body.round3Status) ?? existing.round3Status,
           round3Result: body.round3Result ?? existing.round3Result,
           feedback: body.feedback ?? existing.feedback,
-          awardTier: body.awardTier ? (body.awardTier as AwardTier) : existing.awardTier,
+          awardTier: body.awardTier
+            ? (body.awardTier.toUpperCase() as AwardTier)
+            : existing.awardTier,
           awardNameTh: body.awardNameTh ?? existing.awardNameTh,
           prizeDetails: body.prizeDetails ?? existing.prizeDetails,
         },
@@ -428,8 +440,8 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
     };
   })
 
-  // Get Single Submission by ID
-  .get('/:id', async ({ params, set }) => {
+  // Get Single Submission by ID (with PDPA masking for public lookup)
+  .get('/:id', async ({ params, currentUser, set }) => {
     const found = await prisma.submission.findUnique({
       where: { id: params.id },
       include: {
@@ -445,8 +457,15 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
       return { success: false, message: 'ไม่พบผลงานที่ระบุ' };
     }
 
+    const isOwnerOrAdmin = Boolean(
+      currentUser &&
+        (currentUser.id === found.userId ||
+          currentUser.role === Role.ADMIN ||
+          currentUser.role === Role.JUDGE)
+    );
+
     return {
       success: true,
-      data: found,
+      data: formatDossierResponse(found, isOwnerOrAdmin),
     };
   });

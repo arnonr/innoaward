@@ -68,19 +68,19 @@ const FALLBACK_DOSSIERS = {
     titleEn: 'Automatic HDPE Pipe Butt Fusion Welding Controller and Data Logger',
     abstractTh: 'อุปกรณ์ควบคุมและบันทึกข้อมูลการเชื่อมท่อพอลิเอทิลีนความหนาแน่นสูง (HDPE) แบบหลอมชนอัตโนมัติ เพื่อเพิ่มความแม่นยำ มาตรฐานความปลอดภัย และตรวจสอบย้อนกลับของคุณภาพแนวเชื่อมในงานวิศวกรรมระบบท่อ',
     memberDetails: [
-      { orderIndex: 1, fullName: 'ผศ.ดร.วัฒนา แก้วมณี', role: 'หัวหน้าทีม', idCard: '5-1601-00029-58-2' }
+      { orderIndex: 1, fullName: 'ผศ.ดร.วัฒนา แก้วมณี', role: 'หัวหน้าทีม', idCard: '5-1601-XXXXX-XX-X' }
     ],
     primaryCoordinator: {
       name: 'ผศ.ดร.วัฒนา แก้วมณี',
-      idCard: '5-1601-00029-58-2',
-      phone: '064-274-9888',
-      email: 'wattana.k@fte.kmutnb.ac.th'
+      idCard: '5-1601-XXXXX-XX-X',
+      phone: '064-XXX-9888',
+      email: 'w***@fte.kmutnb.ac.th'
     },
     secondaryCoordinator: {
       name: 'ผศ.ดร.วัฒนา แก้วมณี',
-      idCard: '5-1601-00029-58-2',
-      phone: '064-274-9888',
-      email: 'wattana.kaewmanee@gmail.com'
+      idCard: '5-1601-XXXXX-XX-X',
+      phone: '064-XXX-9888',
+      email: 'w***@gmail.com'
     },
     rounds: {
       round1: { label: 'รอบคัดเลือกเอกสาร', status: 'PASSED' },
@@ -96,6 +96,154 @@ const FALLBACK_DOSSIERS = {
     },
     status: 'AWARDED',
     feedback: 'ผ่านการพิจารณาทั้งรอบประกวดออนไลน์และรอบตัดสิน ได้รับรางวัลรองชนะเลิศอันดับ 1 ประจำปี 2569'
+  },
+  'KMUTNB-2569-0003': {
+    trackingCode: 'KMUTNB-2569-0003',
+    submittedAt: '14 เมษายน 2569',
+    teamName: 'Growell',
+    category: 'medical_device',
+    categoryNameTh: CATEGORY_LABELS_TH.medical_device,
+    educationLevel: 'higher_and_above',
+    educationLevelNameTh: LEVEL_LABELS_TH.higher_and_above,
+    affiliation: 'คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    titleTh: 'นวัตกรรมด้ามจับฝึกการทรงตัวพร้อมระบบเซนเซอร์และปัญญาประดิษฐ์ (Growell)',
+    titleEn: 'Growell: Smart Balance Training Handle with Sensor Array and AI Analytics',
+    abstractTh: 'นวัตกรรมอุปกรณ์ฟื้นฟูสมรรถภาพและการฝึกการทรงตัวอัจฉริยะ ผสานเซนเซอร์ตรวจจับแรงกดและระบบปัญญาประดิษฐ์เพื่อวิเคราะห์สมดุลร่างกายแบบเรียลไทม์สำหรับผู้สูงอายุและผู้ป่วยกายภาพบำบัด',
+    memberDetails: [
+      { orderIndex: 1, fullName: 'หัวหน้าทีม Growell', role: 'หัวหน้าทีม', idCard: '1-1002-XXXXX-XX-X' }
+    ],
+    primaryCoordinator: {
+      name: 'หัวหน้าทีม Growell',
+      idCard: '1-1002-XXXXX-XX-X',
+      phone: '02-XXX-2000',
+      email: 'g***@eng.kmutnb.ac.th'
+    },
+    secondaryCoordinator: { name: '', idCard: '', phone: '', email: '' },
+    rounds: {
+      round1: { label: 'รอบคัดเลือกเอกสาร', status: 'PASSED' },
+      round2: { label: 'รอบการประกวดออนไลน์', status: 'PASSED' },
+      round3: { label: 'รอบตัดสิน', status: 'PASSED', result: 'รางวัลรองชนะเลิศอันดับ 2' }
+    },
+    artifacts: {
+      proposalPdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
+      videoUrl: '/Growell.mp4',
+      posterUrl: '/growell-poster.jpg',
+      imageUrl: '/growell-poster.jpg',
+      presentationUrl: '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf'
+    },
+    status: 'AWARDED',
+    feedback: 'ผ่านการพิจารณาทั้งรอบประกวดออนไลน์และรอบตัดสิน ได้รับรางวัลรองชนะเลิศอันดับ 2 ประจำปี 2569'
+  },
+  'KMUTNB-2569-0004': {
+    trackingCode: 'KMUTNB-2569-0004',
+    submittedAt: '15 เมษายน 2569',
+    teamName: 'C.L.A.R.A',
+    category: 'social_economy',
+    categoryNameTh: CATEGORY_LABELS_TH.social_economy,
+    educationLevel: 'below_higher',
+    educationLevelNameTh: LEVEL_LABELS_TH.below_higher,
+    affiliation: 'โรงเรียนสาธิตแห่งมหาวิทยาลัยเกษตรศาสตร์ โครงการการศึกษาพหุภาษา ศูนย์วิจัยและพัฒนาการศึกษา',
+    titleTh: 'C.L.A.R.A — ระบบปัญญาประดิษฐ์ช่วยเหลือและวิเคราะห์การเรียนรู้เชิงโต้ตอบอัจฉริยะ',
+    titleEn: 'C.L.A.R.A: Cognitive Learning & Adaptive Response Assistant',
+    abstractTh: 'แพลตฟอร์มผู้ช่วยอัจฉริยะด้านการศึกษาและการเรียนรู้เชิงโต้ตอบ พัฒนาโดยเยาวชนระดับมัธยมศึกษาเพื่อยกระดับการเข้าถึงองค์ความรู้และวิเคราะห์พัฒนาการของผู้เรียนรายบุคคลด้วยเทคโนโลยี AI',
+    memberDetails: [
+      { orderIndex: 1, fullName: 'หัวหน้าทีม C.L.A.R.A', role: 'หัวหน้าทีม', idCard: '1-2001-XXXXX-XX-X' }
+    ],
+    primaryCoordinator: {
+      name: 'ผู้ประสานงานทีม C.L.A.R.A',
+      idCard: '1-2001-XXXXX-XX-X',
+      phone: '038-XXX-200',
+      email: 'c***@kus.ac.th'
+    },
+    secondaryCoordinator: { name: '', idCard: '', phone: '', email: '' },
+    rounds: {
+      round1: { label: 'รอบคัดเลือกเอกสาร', status: 'PASSED' },
+      round2: { label: 'รอบการประกวดออนไลน์', status: 'PASSED' },
+      round3: { label: 'รอบตัดสิน', status: 'PASSED', result: 'รางวัลชมเชย' }
+    },
+    artifacts: {
+      proposalPdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
+      videoUrl: '/clara.mp4',
+      posterUrl: '/clara-poster.jpg',
+      imageUrl: '/clara-poster.jpg',
+      presentationUrl: '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf'
+    },
+    status: 'AWARDED',
+    feedback: 'ผ่านการพิจารณาทั้งรอบประกวดออนไลน์และรอบตัดสิน ได้รับรางวัลชมเชย ประจำปี 2569'
+  },
+  'KMUTNB-2569-0005': {
+    trackingCode: 'KMUTNB-2569-0005',
+    submittedAt: '16 เมษายน 2569',
+    teamName: 'PIONEER V',
+    category: 'social_economy',
+    categoryNameTh: CATEGORY_LABELS_TH.social_economy,
+    educationLevel: 'below_higher',
+    educationLevelNameTh: LEVEL_LABELS_TH.below_higher,
+    affiliation: 'โรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย ปทุมธานี',
+    titleTh: 'ระบบตรวจจับความผิดปกติของถนนแบบเรียลไทม์ด้วยเทคโนโลยีปัญญาประดิษฐ์และการสร้างแผนที่อัจฉริยะ',
+    titleEn: 'Real-Time Road Anomaly Detection and Smart Mapping System Using AI',
+    abstractTh: 'ระบบตรวจจับหลุมบ่อและความชำรุดของพื้นผิวจราจรแบบเรียลไทม์ด้วยคอมพิวเตอร์วิทัศน์ (Computer Vision) เชื่อมต่อพิกัดแผนที่อัจฉริยะเพื่อแจ้งเตือนหน่วยงานซ่อมบำรุงและเพิ่มความปลอดภัยบนท้องถนน',
+    memberDetails: [
+      { orderIndex: 1, fullName: 'หัวหน้าทีม PIONEER V', role: 'หัวหน้าทีม', idCard: '1-1301-XXXXX-XX-X' }
+    ],
+    primaryCoordinator: {
+      name: 'ผู้ประสานงานทีม PIONEER V',
+      idCard: '1-1301-XXXXX-XX-X',
+      phone: '02-XXX-8288',
+      email: 'p***@pccpt.ac.th'
+    },
+    secondaryCoordinator: { name: '', idCard: '', phone: '', email: '' },
+    rounds: {
+      round1: { label: 'รอบคัดเลือกเอกสาร', status: 'PASSED' },
+      round2: { label: 'รอบการประกวดออนไลน์', status: 'PASSED' },
+      round3: { label: 'รอบตัดสิน', status: 'PASSED', result: 'รางวัลชมเชย' }
+    },
+    artifacts: {
+      proposalPdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
+      videoUrl: '/road-ai.mp4',
+      posterUrl: '/road-ai-poster.jpg',
+      imageUrl: '/road-ai-poster.jpg',
+      presentationUrl: '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf'
+    },
+    status: 'AWARDED',
+    feedback: 'ผ่านการพิจารณาทั้งรอบประกวดออนไลน์และรอบตัดสิน ได้รับรางวัลชมเชย ประจำปี 2569'
+  },
+  'KMUTNB-2569-0006': {
+    trackingCode: 'KMUTNB-2569-0006',
+    submittedAt: '17 เมษายน 2569',
+    teamName: 'GeoWeld',
+    category: 'material',
+    categoryNameTh: CATEGORY_LABELS_TH.material,
+    educationLevel: 'higher_and_above',
+    educationLevelNameTh: LEVEL_LABELS_TH.higher_and_above,
+    affiliation: 'วิทยาลัยเทคโนโลยีอุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
+    titleTh: 'ชุดหัวเชื่อมและอุปกรณ์จับยึดสำหรับการเชื่อมแผ่นธรณีสังเคราะห์ (Geomembrane)',
+    titleEn: 'Specialized Welding Nozzle and Clamping Fixture for Geomembrane Liners',
+    abstractTh: 'นวัตกรรมชุดหัวเชื่อมความร้อนและอุปกรณ์จับยึดแผ่นธรณีสังเคราะห์ (Geomembrane) ที่ออกแบบตามหลักวิศวกรรมวัสดุศาสตร์ ช่วยให้รอยเชื่อมสม่ำเสมอ ลดการรั่วซึมในบ่อกักเก็บน้ำและงานวิศวกรรมสิ่งแวดล้อม',
+    memberDetails: [
+      { orderIndex: 1, fullName: 'หัวหน้าทีม GeoWeld', role: 'หัวหน้าทีม', idCard: '1-1005-XXXXX-XX-X' }
+    ],
+    primaryCoordinator: {
+      name: 'หัวหน้าทีม GeoWeld',
+      idCard: '1-1005-XXXXX-XX-X',
+      phone: '02-XXX-2000',
+      email: 'g***@cit.kmutnb.ac.th'
+    },
+    secondaryCoordinator: { name: '', idCard: '', phone: '', email: '' },
+    rounds: {
+      round1: { label: 'รอบคัดเลือกเอกสาร', status: 'PASSED' },
+      round2: { label: 'รอบการประกวดออนไลน์', status: 'PASSED' },
+      round3: { label: 'รอบตัดสิน', status: 'PASSED', result: 'รางวัลชมเชย' }
+    },
+    artifacts: {
+      proposalPdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
+      videoUrl: '/geoweld.mp4',
+      posterUrl: '/geoweld-poster.jpg',
+      imageUrl: '/geoweld-poster.jpg',
+      presentationUrl: '/docs/KMUTNB_Innovation_Awards_2026_Winners.pdf'
+    },
+    status: 'AWARDED',
+    feedback: 'ผ่านการพิจารณาทั้งรอบประกวดออนไลน์และรอบตัดสิน ได้รับรางวัลชมเชย ประจำปี 2569'
   }
 };
 

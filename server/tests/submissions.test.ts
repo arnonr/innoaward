@@ -196,6 +196,31 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(ownerJson.data.primaryCoordinator.idCard).toBe("5-1601-00029-58-2");
     expect(ownerJson.data.primaryCoordinator.phone).toBe("064-274-9888");
     expect(ownerJson.data.primaryCoordinator.email).toBe("wattana.k@fte.kmutnb.ac.th");
+
+    // GET /api/submissions/:id also masks PII for unauthenticated requests
+    const byIdPublicRes = await app.handle(
+      new Request(`http://localhost/api/submissions/${pubJson.data.id}`)
+    );
+    expect(byIdPublicRes.status).toBe(200);
+    const byIdPubJson = await byIdPublicRes.json();
+    expect(byIdPubJson.data.primaryCoordinator.idCard).toBe("5-1601-XXXXX-XX-X");
+    expect(byIdPubJson.data.memberDetails[0].idCard).toBe("5-1601-XXXXX-XX-X");
+
+    // Unauthenticated POST /api/submissions attempting to overwrite existing id returns 403
+    const hijackRes = await app.handle(
+      new Request("http://localhost/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: pubJson.data.id,
+          titleTh: "Hijacked Title",
+          category: "others",
+          educationLevel: "higher_and_above",
+          teamName: "Hijacker",
+        }),
+      })
+    );
+    expect(hijackRes.status).toBe(403);
   });
 
   test("PATCH /api/submissions/tracking/:trackingCode/artifacts allows attaching Poster and Presentation later", async () => {
@@ -215,5 +240,20 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(patchJson.data.artifacts.posterUrl).toBe("https://drive.google.com/poster-round2.pdf");
     expect(patchJson.data.artifacts.presentationUrl).toBe("https://drive.google.com/slides-round3.pdf");
     expect(patchJson.data.artifacts.proposalPdfUrl).toBe("https://drive.google.com/proposal.pdf");
+
+    // Sending empty posterUrl does not wipe existing posterUrl
+    const partialRes = await app.handle(
+      new Request(`http://localhost/api/submissions/tracking/${createdTrackingCode}/artifacts`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          posterUrl: "",
+          presentationUrl: "https://drive.google.com/slides-round3-v2.pdf",
+        }),
+      })
+    );
+    const partialJson = await partialRes.json();
+    expect(partialJson.data.artifacts.posterUrl).toBe("https://drive.google.com/poster-round2.pdf");
+    expect(partialJson.data.artifacts.presentationUrl).toBe("https://drive.google.com/slides-round3-v2.pdf");
   });
 });
