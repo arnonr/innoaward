@@ -2058,7 +2058,7 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 16px;
+  padding: 5px 6px 5px 16px;
   border-radius: 999px;
   background: rgba(6, 16, 32, 0.88);
   border: 1px solid rgba(56, 189, 248, 0.36);
@@ -2080,13 +2080,77 @@ button:disabled {
 }
 
 .hero-stage-pause-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-left: 2px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(14, 165, 233, 0.08));
+  border: 1px solid rgba(56, 189, 248, 0.42);
+  color: #E0F2FE;
+  font-family: var(--font-th), var(--font-en);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
   cursor: pointer;
   pointer-events: auto;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-stage-pause-btn .hero-stage-pause-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--cyan-300);
+  fill: currentColor;
+  filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.55));
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .hero-stage-pause-btn:hover {
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(56, 189, 248, 0.5);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.28), rgba(0, 245, 160, 0.16));
+  border-color: rgba(125, 211, 252, 0.78);
+  color: #FFFFFF;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 0 14px rgba(56, 189, 248, 0.35);
+  transform: translateY(-0.5px);
+}
+
+.hero-stage-pause-btn:hover .hero-stage-pause-icon {
+  color: #FFFFFF;
+  transform: scale(1.08);
+}
+
+.hero-stage-pause-btn:active {
+  transform: translateY(0);
+}
+
+.hero-stage-pause-btn.is-paused {
+  background: linear-gradient(135deg, rgba(0, 245, 160, 0.2), rgba(16, 185, 129, 0.12));
+  border-color: rgba(0, 245, 160, 0.55);
+  color: #ECFDF5;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 14px rgba(0, 245, 160, 0.28);
+}
+
+.hero-stage-pause-btn.is-paused .hero-stage-pause-icon {
+  color: var(--emerald-400);
+  filter: drop-shadow(0 0 6px rgba(0, 245, 160, 0.65));
+}
+
+.hero-stage-pause-btn.is-paused:hover {
+  background: linear-gradient(135deg, rgba(0, 245, 160, 0.32), rgba(56, 189, 248, 0.2));
+  border-color: rgba(110, 231, 183, 0.85);
+  color: #FFFFFF;
 }
 
 .hero-control-dock {
@@ -5061,6 +5125,15 @@ button:disabled {
     padding: 6px 12px;
     gap: 6px;
     font-size: 0.65rem;
+  }
+  .hero-stage-pause-btn {
+    padding: 3px 9px;
+    font-size: 0.64rem;
+    gap: 4px;
+  }
+  .hero-stage-pause-btn .hero-stage-pause-icon {
+    width: 10px;
+    height: 10px;
   }
   .hero-dock-countdown {
     flex-direction: column;

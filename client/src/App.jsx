@@ -1863,11 +1863,15 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setIsPausedHeroStage((prev) => !prev)}
-                    className="hero-stage-pause-btn ml-2 inline-flex items-center gap-1 text-xs py-1 px-2.5 rounded-full border border-white/20 bg-black/40 hover:bg-black/70 text-slate-200 transition-colors pointer-events-auto"
+                    className={`hero-stage-pause-btn ${isPausedHeroStage ? 'is-paused' : ''}`}
                     aria-label={isPausedHeroStage ? 'เล่นการเคลื่อนไหว 3D ต่อ' : 'หยุดการเคลื่อนไหว 3D ชั่วคราว'}
                     title={isPausedHeroStage ? 'เล่นต่อ' : 'หยุดชั่วคราว'}
                   >
-                    {isPausedHeroStage ? <Play className="w-3.5 h-3.5 text-cyan-400" /> : <Pause className="w-3.5 h-3.5 text-amber-300" />}
+                    {isPausedHeroStage ? (
+                      <Play className="hero-stage-pause-icon" />
+                    ) : (
+                      <Pause className="hero-stage-pause-icon" />
+                    )}
                     <span>{isPausedHeroStage ? 'เล่นต่อ' : 'หยุด 3D'}</span>
                   </button>
                 </div>

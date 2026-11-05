@@ -57,3 +57,13 @@ npm run dev
 ## 📄 License & Copyright
 
 © 2026 อุทยานเทคโนโลยี มจพ. All Rights Reserved.
+
+cd /var/www/html/innoaward/server
+bun install
+bunx prisma db push
+bunx prisma generate
+bun run seed
+
+cd /var/www/html/innoaward/client
+npm install
+npm run build
