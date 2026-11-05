@@ -234,17 +234,21 @@ function createOverviewGlassTexture() {
   ctx.restore();
 
   // Thai Mission Subtitle
-  ctx.fillStyle = 'rgba(241, 245, 249, 0.92)';
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.92)';
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = '#FFFFFF';
   fillFittedText(
     ctx,
     'เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมระดับประเทศ ประจำปี 2570 ขับเคลื่อนอนาคตด้วยเทคโนโลยี',
     168,
     672,
     1080,
-    '500',
-    26,
+    '600',
+    30,
     '"Noto Sans Thai", "DM Sans", sans-serif'
   );
+  ctx.restore();
 
   // Interactive Glass Pill Button inside the 3D window
   drawRoundedRect(ctx, 168, 712, 446, 68, 34);
@@ -966,7 +970,7 @@ export default function HeroThreeStage({
     // 3. ACT 1: MAIN HOLOGRAPHIC GLASS STAGE (z = 0)
     // ============================================================
     const overviewGroup = new THREE.Group();
-    overviewGroup.position.set(0, 0.54, 0);
+    overviewGroup.position.set(0, 0.25, 0);
     scene.add(overviewGroup);
 
     const overviewTex = createOverviewGlassTexture();
@@ -1100,7 +1104,7 @@ export default function HeroThreeStage({
     });
     disposableMaterials.push(breakthroughMat);
     const breakthroughMesh = new THREE.Mesh(breakthroughGeo, breakthroughMat);
-    breakthroughMesh.position.set(0, 0.54, -4.2);
+    breakthroughMesh.position.set(0, 0.25, -4.2);
     breakthroughMesh.renderOrder = 20;
     breakthroughMesh.visible = false;
     scene.add(breakthroughMesh);
@@ -1267,8 +1271,8 @@ export default function HeroThreeStage({
     };
 
     const initPortrait = getPortraitOffsets(config.aspect);
-    const currentCamPos = new THREE.Vector3(0, 0.24 + initPortrait.liftPosY, 7.55 + initPortrait.pullbackZ);
-    const currentLookAt = new THREE.Vector3(0, -0.16 + initPortrait.liftLookY, 0);
+    const currentCamPos = new THREE.Vector3(0, 0.24 + initPortrait.liftPosY, 8.75 + initPortrait.pullbackZ);
+    const currentLookAt = new THREE.Vector3(0, 0.02 + initPortrait.liftLookY, 0);
     camera.position.copy(currentCamPos);
     camera.lookAt(currentLookAt);
     let currentOrbitAngle = 0;
@@ -1344,9 +1348,11 @@ export default function HeroThreeStage({
       // Update Act 2 Breakthrough Kinetic Hologram
       const camDistToBreakthrough = currentCamPos.z - breakthroughMesh.position.z;
       const fallbackBtPortal =
-        timeline.act === 'orbit' || camDistToBreakthrough < 2.2
-          ? Math.min(1, Math.max(0, (2.6 - camDistToBreakthrough) / 1.1))
-          : 0;
+        timeline.act === 'orbit'
+          ? 1
+          : camDistToBreakthrough < 2.2
+            ? Math.min(1, Math.max(0, (2.6 - camDistToBreakthrough) / 1.1))
+            : 0;
       const breakthroughPortal =
         typeof timeline.breakthroughPortal === 'number'
           ? timeline.breakthroughPortal

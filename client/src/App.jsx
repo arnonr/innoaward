@@ -1103,6 +1103,18 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    if (playingCardId === activeHighlightItem.id && highlightInlineVideoRef.current) {
+      const videoEl = highlightInlineVideoRef.current;
+      if (highlightSeekTime > 0 && videoEl.readyState >= 1 && Math.abs(videoEl.currentTime - highlightSeekTime) > 0.5) {
+        videoEl.currentTime = highlightSeekTime;
+      }
+      if (videoEl.paused) {
+        videoEl.play().catch(() => {});
+      }
+    }
+  }, [playingCardId, activeHighlightItem.id, highlightSeekTime]);
+
   const renderEventHighlightShowcase = ({ isHallOfFame = false } = {}) => {
     const posterUrl = getWinnerPosterUrl(activeHighlightItem);
     const videoInfo = getWinnerVideoInfo(activeHighlightItem);
@@ -1111,7 +1123,13 @@ export default function App() {
     const handleActivateInline = (e) => {
       if (e) e.stopPropagation();
       setHighlightSeekTime(0);
-      setPlayingCardId(activeHighlightItem.id);
+      setActiveHighlightChapter(highlightVersion === 'hype' ? 'hook' : 'opening');
+      if (playingCardId === activeHighlightItem.id && highlightInlineVideoRef.current) {
+        highlightInlineVideoRef.current.currentTime = 0;
+        highlightInlineVideoRef.current.play().catch(() => {});
+      } else {
+        setPlayingCardId(activeHighlightItem.id);
+      }
     };
 
     return (
@@ -1128,18 +1146,20 @@ export default function App() {
             >
               {isPlayingInline ? (
                 <video
-                  key={videoInfo.src}
+                  key={`inline-player-${videoInfo.src}`}
                   ref={highlightInlineVideoRef}
                   src={videoInfo.src}
                   poster={posterUrl}
                   controls
                   autoPlay
                   playsInline
+                  preload="auto"
                   className="winner-card-video-player"
                   onLoadedMetadata={(e) => {
                     if (highlightSeekTime > 0) {
                       e.currentTarget.currentTime = highlightSeekTime;
                     }
+                    e.currentTarget.play().catch(() => {});
                   }}
                   onTimeUpdate={(e) => {
                     const ch = getHighlightChapterByTime(e.currentTarget.currentTime, highlightVersion);
@@ -1152,7 +1172,7 @@ export default function App() {
               ) : (
                 <>
                   <video
-                    key={videoInfo.src}
+                    key={`preview-${videoInfo.src}`}
                     src={videoInfo.src}
                     poster={posterUrl}
                     muted
@@ -1165,7 +1185,7 @@ export default function App() {
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.pause();
-                      e.currentTarget.load();
+                      e.currentTarget.currentTime = 0;
                     }}
                   />
                   <div className="winner-video-stage-scrim" aria-hidden="true" />
@@ -1380,13 +1400,17 @@ export default function App() {
           {isPlayingInline ? (
             videoInfo.type === 'file' ? (
               <video
-                key={videoInfo.src}
+                key={`inline-player-${cardKey}-${videoInfo.src}`}
                 src={videoInfo.src}
                 poster={posterUrl}
                 controls
                 autoPlay
                 playsInline
+                preload="auto"
                 className="winner-card-video-player"
+                onLoadedMetadata={(e) => {
+                  e.currentTarget.play().catch(() => {});
+                }}
                 onEnded={() => setPlayingCardId(null)}
               />
             ) : (
@@ -1402,6 +1426,7 @@ export default function App() {
             <>
               {videoInfo.type === 'file' ? (
                 <video
+                  key={`preview-${cardKey}-${videoInfo.src}`}
                   src={videoInfo.src}
                   poster={posterUrl}
                   muted
@@ -1414,7 +1439,7 @@ export default function App() {
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.pause();
-                    e.currentTarget.load();
+                    e.currentTarget.currentTime = 0;
                   }}
                 />
               ) : (
@@ -1812,19 +1837,21 @@ export default function App() {
 
             {/* Permanent Anchored Hero Editorial Identity (Never lost when 3D rotates) */}
             <div className="hero-editorial-overlay">
-              <div className="badge-royal inline-flex items-center gap-2 mb-2">
+              <div className="badge-royal inline-flex items-center gap-2 mb-1.5">
                 <Crown className="w-4 h-4 text-amber-300" />
                 <span>ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</span>
               </div>
               <h1 className="hero-editorial-main-title">KMUTNB INNOVATION AWARDS 2027</h1>
               <p className="hero-editorial-subtitle">
-                เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2570 • เงินรางวัลรวม 180,000 บาท
+                <span>เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2570</span>
+                <span className="hero-editorial-subtitle-sep" aria-hidden="true">•</span>
+                <span className="hero-editorial-subtitle-prize">เงินรางวัลรวม 180,000 บาท</span>
               </p>
             </div>
 
             <div className="pro-container hero-hologram-container">
               {/* Unobstructed 3D Stage Viewport Area */}
-              <div className="hero-hologram-viewport-space" aria-hidden="true">
+              <div className="hero-hologram-viewport-space">
                 <div className="hero-stage-camera-pill">
                   <span className="hud-dot" />
                   <span>
@@ -4309,17 +4336,19 @@ export default function App() {
                 {modalVideoInfo.type === 'file' ? (
                   <video
                     ref={(selectedWinnerModal.id === EVENT_HIGHLIGHT_2569.id || selectedWinnerModal.id === EVENT_HIGHLIGHT_HYPE_2569.id) ? modalVideoRef : undefined}
-                    key={modalVideoInfo.src}
+                    key={`modal-player-${modalVideoInfo.src}`}
                     src={modalVideoInfo.src}
                     poster={modalPosterUrl}
                     controls
                     autoPlay
                     playsInline
+                    preload="auto"
                     className="winner-modal-video-player"
                     onLoadedMetadata={(e) => {
                       if ((selectedWinnerModal.id === EVENT_HIGHLIGHT_2569.id || selectedWinnerModal.id === EVENT_HIGHLIGHT_HYPE_2569.id) && highlightSeekTime > 0) {
                         e.currentTarget.currentTime = highlightSeekTime;
                       }
+                      e.currentTarget.play().catch(() => {});
                     }}
                     onTimeUpdate={(e) => {
                       if (selectedWinnerModal.id === EVENT_HIGHLIGHT_2569.id || selectedWinnerModal.id === EVENT_HIGHLIGHT_HYPE_2569.id) {

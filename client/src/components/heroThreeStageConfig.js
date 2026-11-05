@@ -497,7 +497,7 @@ export function getDomainOrbitPose(
   const normAngle = Math.atan2(Math.sin(rawAngle), Math.cos(rawAngle));
   const x = Math.sin(normAngle) * radiusX;
   const z = centerZ + Math.cos(normAngle) * radiusZ;
-  const y = 0.54 + Math.sin(normAngle * 2.0) * 0.14;
+  const y = 0.25 + Math.sin(normAngle * 2.0) * 0.12;
 
   // Frontness: 1 when at front center (normAngle = 0), 0 when at back (|normAngle| = PI)
   const frontness = 0.5 + 0.5 * Math.cos(normAngle);
@@ -589,10 +589,11 @@ export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
       act: 'overview',
       activeCardIndex: -1,
       portalOpen: 0,
+      breakthroughPortal: 0,
       electricIntensity: 1.0,
       orbitAngle: 0,
-      cameraTargetPos: { x: 0, y: 0.24, z: 7.35 },
-      cameraLookAt: { x: 0, y: -0.16, z: 0 },
+      cameraTargetPos: { x: 0, y: 0.24, z: 8.55 },
+      cameraLookAt: { x: 0, y: 0.02, z: 0 },
     };
   }
 
@@ -609,10 +610,11 @@ export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
       act: 'orbit',
       activeCardIndex: activeTarget,
       portalOpen: 1,
+      breakthroughPortal: 1,
       electricIntensity: 1.0,
       orbitAngle: targetOrbitAngle,
-      cameraTargetPos: { x: 0, y: 0.24, z: -1.65 },
-      cameraLookAt: { x: 0, y: -0.12, z: -7.5 },
+      cameraTargetPos: { x: 0, y: 0.24, z: -0.75 },
+      cameraLookAt: { x: 0, y: 0.02, z: -7.5 },
     };
   }
 
@@ -624,16 +626,17 @@ export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
   if (t < 6.5) {
     const progress = t / 6.5;
     const swayX = Math.sin(progress * Math.PI * 2) * 0.32;
-    const zoomZ = 7.55 - smoothstep01(progress) * 0.5;
+    const zoomZ = 8.75 - smoothstep01(progress) * 0.45;
     return {
       mode: 'auto',
       act: 'overview',
       activeCardIndex: -1,
       portalOpen: 0,
+      breakthroughPortal: 0,
       electricIntensity: 1.0,
       orbitAngle: 0,
       cameraTargetPos: { x: swayX, y: 0.24, z: zoomZ },
-      cameraLookAt: { x: 0, y: -0.16, z: 0 },
+      cameraLookAt: { x: 0, y: 0.02, z: 0 },
     };
   }
 
@@ -650,7 +653,7 @@ export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
     if (btElapsed < 0.9) {
       // Phase 2A (0..0.9s): Fast fly-through Main Glass Portal up to Breakthrough Hologram (z = +1.45 looking at -4.2)
       const pA = smoothstep01(btElapsed / 0.9);
-      camZ = 7.05 - pA * 5.6; // 7.05 -> 1.45
+      camZ = 8.3 - pA * 6.85; // 8.3 -> 1.45
       lookZ = 0.0 - pA * 4.2;
     } else if (btElapsed < 2.8) {
       // Phase 2B (0.9..2.8s): 1.9s kinetic push-in hold on Breakthrough Headline
@@ -660,7 +663,7 @@ export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
     } else {
       // Phase 2C (2.8..3.7s): Fast portal burst through Breakthrough Hologram into Orbital Chamber
       const pC = smoothstep01((btElapsed - 2.8) / 0.9);
-      camZ = 0.75 - pC * 2.4; // 0.75 -> -1.65
+      camZ = 0.75 - pC * 1.5; // 0.75 -> -0.75
       lookZ = -4.2 - pC * 3.6; // -4.2 -> -7.8
       breakthroughPortal = smoothstep01(Math.min(1, (btElapsed - 2.7) / 0.65));
     }
@@ -673,8 +676,8 @@ export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
       breakthroughPortal,
       electricIntensity: 1.22,
       orbitAngle: 0,
-      cameraTargetPos: { x: Math.sin(p * Math.PI * 2) * 0.16, y: 0.24 + Math.sin(p * Math.PI) * 0.1, z: camZ },
-      cameraLookAt: { x: 0, y: -0.15, z: lookZ },
+      cameraTargetPos: { x: Math.sin(p * Math.PI * 2) * 0.16, y: 0.24 + Math.sin(p * Math.PI) * 0.08, z: camZ },
+      cameraLookAt: { x: 0, y: 0.02, z: lookZ },
     };
   }
 
@@ -705,15 +708,15 @@ export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
       cameraTargetPos: {
         x: Math.sin(orbitElapsed * 0.85) * 0.24,
         y: 0.24,
-        z: -1.65,
+        z: -0.75,
       },
-      cameraLookAt: { x: 0, y: -0.12, z: -7.8 },
+      cameraLookAt: { x: 0, y: 0.02, z: -7.8 },
     };
   }
 
   // Return Transition: 29.7s .. 32.0s (2.3s) — Snappy warp back to Main Holographic Stage
   const retP = smoothstep01((t - 29.7) / 2.3);
-  const camZ = -1.65 + retP * 9.2;
+  const camZ = -0.75 + retP * 9.5;
   const lookZ = -7.8 + retP * 7.8;
   return {
     mode: 'auto',
@@ -724,6 +727,6 @@ export function getShowreelTimelineState(elapsedSeconds, activeTarget = null) {
     electricIntensity: 1.08,
     orbitAngle: -count * stepAngle,
     cameraTargetPos: { x: 0, y: 0.24, z: camZ },
-    cameraLookAt: { x: 0, y: -0.16, z: lookZ },
+    cameraLookAt: { x: 0, y: 0.02, z: lookZ },
   };
 }

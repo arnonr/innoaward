@@ -217,12 +217,14 @@ test('getShowreelTimelineState sequences overview -> breakthrough -> orbit acros
   assert.equal(lockedOverview.act, 'overview');
   assert.equal(lockedOverview.activeCardIndex, -1);
   assert.equal(lockedOverview.portalOpen, 0);
+  assert.equal(lockedOverview.breakthroughPortal, 0);
 
   // Interactive override: lock onto specific Domain (0..4)
   const lockedDomain2 = getShowreelTimelineState(1.5, 2);
   assert.equal(lockedDomain2.act, 'orbit');
   assert.equal(lockedDomain2.activeCardIndex, 2);
   assert.equal(lockedDomain2.portalOpen, 1);
+  assert.equal(lockedDomain2.breakthroughPortal, 1);
 });
 
 test('getDomainOrbitPose positions the active front domain closest to the camera with frontness = 1', () => {
