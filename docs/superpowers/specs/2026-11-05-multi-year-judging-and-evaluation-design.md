@@ -20,11 +20,12 @@ Build a complete, reusable **Multi-Year Judging, Evaluation & Result Publishing 
 ## 2. Goals, Non-Goals, and Anti-Goals
 
 ### Goals
-- **Multi-year architecture (`CompetitionYear`-scoped):**
-  - Every judge assignment (`JudgeCategoryAssignment`), rubric configuration (`CompetitionYear.rubricConfig`), submission (`Submission`), and announcement (`Announcement`) belongs to a specific `CompetitionYear`.
-  - Admin can create a new `CompetitionYear` or switch the active year (`isCurrent: true`) via `POST /api/config/years`, automatically seeding the 5 `CompetitionYearCategory` links and cloning the rubric configuration from the previous year.
+- **Multi-year & Dynamic Category architecture (`CompetitionYear`-scoped):**
+  - Every judge assignment (`JudgeCategoryAssignment`), rubric configuration (`CompetitionYear.rubricConfig`), active category list (`CompetitionYearCategory`), submission (`Submission`), and announcement (`Announcement`) belongs to a specific `CompetitionYear`.
+  - The number of innovation categories in any year is **fully dynamic** (can be 3, 5, 6, 7, or more). Admin can add new categories to the catalog, edit category names/descriptions, or toggle which categories are active (`isActive`) for a given `CompetitionYear` via `POST /api/config/categories`.
+  - Admin can create a new `CompetitionYear` or switch the active year (`isCurrent: true`) via `POST /api/config/years`, automatically cloning active `CompetitionYearCategory` links and the rubric configuration from the previous year.
 - **Category-based Judge Management (`JudgeCategoryAssignment`):**
-  - Admin can create/update `Role.JUDGE` accounts (`POST /api/judging/judges`) and assign each judge to 1 or more of the 5 innovation categories (`energy_environment`, `food_agriculture`, `social_economy`, `medical_device`, `material`) for a given `CompetitionYear`.
+  - Admin can create/update `Role.JUDGE` accounts (`POST /api/judging/judges`) and assign each judge to 1 or more of the active innovation categories (`CompetitionYearCategory`) for a given `CompetitionYear`.
   - Judges automatically see all non-draft, non-rejected submissions in their assigned categories for that competition year—no per-submission manual assignment is required.
 - **Weighted 1–5 Rubric Scoring (`rubricConfig` & `SubmissionEvaluation`):**
   - Each criterion has a `weight` percentage (`> 0`), with all criteria weights summing to `100`.
@@ -167,7 +168,10 @@ Stored in `CompetitionYear.rubricConfig` (and used as fallback when `rubricConfi
      - Validates `criteria.length >= 1`, each `weight > 0`, and `Math.round(sum(weight)) === 100`. Updates `CompetitionYear.rubricConfig`.
    - `POST /api/config/years` (`Role.ADMIN` only):
      - Body: `{ year: number, yearAd?: number, titleTh?: string, titleEn?: string, submissionDeadline?: string, setAsCurrent?: boolean }`
-     - Upserts the `CompetitionYear`, binds all 5 active `Category` records into `CompetitionYearCategory`, copies `rubricConfig` from the previous current year (or `DEFAULT_RUBRIC_CONFIG`), and if `setAsCurrent !== false`, marks previous years `isCurrent: false` and the new year `isCurrent: true`.
+     - Upserts the `CompetitionYear`, clones active `CompetitionYearCategory` links from the previous current year (or binds all active `Category` records), copies `rubricConfig` from the previous current year (or `DEFAULT_RUBRIC_CONFIG`), and if `setAsCurrent !== false`, marks previous years `isCurrent: false` and the new year `isCurrent: true`.
+   - `POST /api/config/categories` (`Role.ADMIN` only):
+     - Body: `{ year?: number, code: string, nameTh: string, nameEn?: string, descriptionTh?: string, color?: string, isActive?: boolean }`
+     - Upserts a `Category` in the master catalog and upserts its `CompetitionYearCategory` link (`isActive: body.isActive ?? true`) for the target `CompetitionYear`. This allows any competition year to have 3, 5, 6, 7, or any number of innovation categories without code changes.
 
 2. **Judging, Screening, Judge Assignment & Result Publishing (`server/src/modules/judging/judging.controller.ts`):**
    - `GET /api/judging/judges?year=2570` (`Role.ADMIN` only):
@@ -212,10 +216,11 @@ When a user is logged in with `user.role === 'ADMIN'` or `user.role === 'JUDGE'`
      - **Year Selector (`2570`, `2569`, ...), Stage Filter (`0. คัดกรองเบื้องต้น`, `1. ตัดสินรอบที่ 1`, `2. ตัดสินรอบที่ 2 (ตรวจ POSTER)`, `3. ตัดสินรอบชิงชนะเลิศ`), Category Filter, Education Level Filter.**
      - Shows each project card with links to all 5 artifacts (`Proposal PDF`, `Video`, `Cover Image`, `Poster PDF` with a clear badge `"ส่ง POSTER แล้ว"` / `"ยังไม่ส่ง POSTER"`, `Presentation`), average scores per round (`ROUND_1`, `ROUND_2`, `ROUND_3`), and a **"ให้คะแนน Rubric (1–5)"** drawer/panel where judges click `1 | 2 | 3 | 4 | 5` for each weighted criterion, see their live calculated score out of `100`, enter feedback, and save.
      - For `ADMIN`: includes quick action controls on each project to pass/reject Stage 0 screening (`UNDER_REVIEW` / `REJECTED`), pass/fail `ROUND_1` (`PASSED_FIRST_ROUND`), pass/fail `ROUND_2` (`FINALIST`), or assign `AwardTier` + `AWARDED` in `ROUND_3`.
-   - **Tab 2: จัดการกรรมการประจำปี (Judge Management & 5-Domain Assignment)** *(Visible to `ADMIN`)*
-     - Add/edit judge accounts (`email`, `password`, `fullName`, `institution`) and toggle checkboxes for the 5 innovation categories (`Energy`, `Food`, `Social`, `Medical`, `Material`) for the selected `CompetitionYear`.
-   - **Tab 3: ตั้งค่าเกณฑ์คะแนน, วันปิดรับสมัคร & ปีการแข่งขัน (Rubric, Deadline & Multi-Year Setup)** *(Visible to `ADMIN`)*
-     - Edit the 5 rubric criteria titles and `%` weights (validating total = `100%`).
+   - **Tab 2: จัดการกรรมการประจำปี (Judge Management & Dynamic Category Assignment)** *(Visible to `ADMIN`)*
+     - Add/edit judge accounts (`email`, `password`, `fullName`, `institution`) and toggle checkboxes dynamically rendered from the active `CompetitionYearCategory` list of the selected `CompetitionYear` (supporting any number of categories: 3, 5, 6, 7+).
+   - **Tab 3: ตั้งค่ากลุ่มนวัตกรรม, เกณฑ์คะแนน, วันปิดรับสมัคร & ปีการแข่งขัน (Categories, Rubric, Deadline & Multi-Year Setup)** *(Visible to `ADMIN`)*
+     - Add new innovation categories or toggle active/inactive categories for the selected competition year (`POST /api/config/categories`), and use that dynamic category list in the Contestant Submission Form and Judge/Admin filters.
+     - Edit the rubric criteria titles and `%` weights (validating total = `100%`).
      - Adjust `submissionDeadline` date/time (`PATCH /api/config/deadline`).
      - One-click **"ประกาศผลขึ้นหน้าเว็บไซต์"** buttons for Round 1, Round 2 (`FINALISTS`), and Final Round (`WINNERS`).
      - **"เปิดปีการแข่งขันถัดไป (Create Next Competition Year)"** form (`POST /api/config/years`, e.g. `2571`) so next year's competition can be launched from the UI without touching code.
