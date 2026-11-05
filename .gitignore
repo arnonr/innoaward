@@ -31,3 +31,4 @@ Thumbs.db
 # Large video files (kept locally)
 *.mp4
 video/
+server/uploads/

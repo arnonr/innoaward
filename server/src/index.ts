@@ -8,6 +8,7 @@ import { announcementsController } from './modules/announcements/announcements.c
 import { mastersController } from './modules/masters/masters.controller';
 import { configController } from './modules/config/config.controller';
 import { judgingController } from './modules/judging/judging.controller';
+import { uploadsController } from './modules/uploads/uploads.controller';
 
 const PORT = Number(process.env.PORT) || 3001;
 
@@ -73,7 +74,8 @@ export const app = new Elysia()
   .use(winnersController)
   .use(announcementsController)
   .use(mastersController)
-  .use(judgingController);
+  .use(judgingController)
+  .use(uploadsController);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT);
