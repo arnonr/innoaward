@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import HeroThreeStage from './components/HeroThreeStage';
 import DomainLivingCardBg from './components/DomainLivingCardBg';
+import ArtifactUploadField from './components/ArtifactUploadField';
+import { resolveServerUploadUrl } from './components/artifactUploadUtils';
 import { DOMAIN_CATALOG, getDomainSampleWinners } from './components/domainCatalog';
 import {
   createInitialSubmissionForm,
@@ -30,32 +32,11 @@ import {
 } from './components/submissionDossierUtils';
 
 
-// Helper for public asset paths considering Vite BASE_URL (e.g. /innoawards/ on production)
-const getAssetUrl = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:') || path.startsWith('blob:')) {
-    return path;
-  }
-  const rawBase = import.meta.env.BASE_URL || '/';
-  const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
-  
-  // If path already starts with base (e.g. /innoawards/...), return as is
-  if (base !== '/' && path.startsWith(base)) {
-    return path;
-  }
-  
-  // Also check if path without leading slash starts with base without leading slash (e.g. innoawards/...)
-  const baseNoSlash = base.replace(/^\/+|\/+$/g, '');
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  
-  if (baseNoSlash && cleanPath.startsWith(baseNoSlash + '/')) {
-    return `/${cleanPath}`;
-  }
-  
-  return `${base}${cleanPath}`;
-};
-
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001/api';
+
+// Helper for public asset paths and server-uploaded artifact paths
+const getAssetUrl = (path) =>
+  resolveServerUploadUrl(path, API_BASE, import.meta.env.BASE_URL || '/');
 
 // Official Brand Logos (Direct Official Image Assets)
 const FacebookLogo = ({ size = 24, className = "" }) => (
@@ -4653,41 +4634,49 @@ export default function App() {
                     {/* STEP 3: ไฟล์ประกอบผลงาน 5 รายการ */}
                     {submissionStep === 3 && (
                       <div>
-                        <div className="form-group">
-                          <label htmlFor="submission-document-url" className="form-label">
-                            1. ไฟล์ PDF แบบฟอร์มเสนอผลงานประกวดสิ่งประดิษฐ์และนวัตกรรม * <span style={{ color: 'var(--emerald-300)', fontSize: '0.76rem' }}>(จำเป็น)</span>
-                          </label>
-                          <input 
-                            id="submission-document-url" type="url"
-                            className="form-input"
-                            placeholder="https://drive.google.com/file/d/... (ลิงก์ PDF ข้อเสนอโครงการ)"
-                            value={subForm.proposalPdfUrl || subForm.documentUrl || ''}
-                            onChange={e => setSubForm({...subForm, proposalPdfUrl: e.target.value, documentUrl: e.target.value})}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="submission-video" className="form-label">
-                            2. คลิป VDO นำเสนอผลงาน (ความยาว 2 - 3 นาที) * <span style={{ color: 'var(--emerald-300)', fontSize: '0.76rem' }}>(จำเป็น)</span>
-                          </label>
-                          <input 
-                            id="submission-video" type="url"
-                            className="form-input"
-                            placeholder="https://youtube.com/watch?v=... หรือ Google Drive"
-                            value={subForm.videoUrl}
-                            onChange={e => setSubForm({...subForm, videoUrl: e.target.value})}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="submission-cover-image" className="form-label">
-                            3. Image (รูปภาพผลงาน / ชิ้นงานต้นแบบ) * <span style={{ color: 'var(--emerald-300)', fontSize: '0.76rem' }}>(จำเป็น)</span>
-                          </label>
-                          <input 
-                            id="submission-cover-image" type="text"
-                            className="form-input"
-                            placeholder="วางลิงก์รูปภาพ https://... หรือเลือกภาพตัวอย่างด้านล่าง"
-                            value={subForm.coverImage}
-                            onChange={e => setSubForm({...subForm, coverImage: e.target.value})}
-                          />
+                        <ArtifactUploadField
+                          slot="proposal"
+                          id="submission-document-url"
+                          label="1. ไฟล์ PDF แบบฟอร์มเสนอผลงานประกวดสิ่งประดิษฐ์และนวัตกรรม *"
+                          badgeText="(จำเป็น)"
+                          badgeColor="var(--emerald-300)"
+                          value={subForm.proposalPdfUrl || subForm.documentUrl || ''}
+                          onChange={(url) =>
+                            setSubForm({ ...subForm, proposalPdfUrl: url, documentUrl: url })
+                          }
+                          apiBase={API_BASE}
+                          authToken={authToken}
+                          year={selectedJudgeYear || '2569'}
+                          resolveUrl={getAssetUrl}
+                        />
+
+                        <ArtifactUploadField
+                          slot="video"
+                          id="submission-video"
+                          label="2. คลิป VDO นำเสนอผลงาน (ความยาว 2 - 3 นาที) *"
+                          badgeText="(จำเป็น)"
+                          badgeColor="var(--emerald-300)"
+                          value={subForm.videoUrl || ''}
+                          onChange={(url) => setSubForm({ ...subForm, videoUrl: url })}
+                          apiBase={API_BASE}
+                          authToken={authToken}
+                          year={selectedJudgeYear || '2569'}
+                          resolveUrl={getAssetUrl}
+                        />
+
+                        <ArtifactUploadField
+                          slot="image"
+                          id="submission-cover-image"
+                          label="3. Image (รูปภาพผลงาน / ชิ้นงานต้นแบบ) *"
+                          badgeText="(จำเป็น)"
+                          badgeColor="var(--emerald-300)"
+                          value={subForm.coverImage || ''}
+                          onChange={(url) => setSubForm({ ...subForm, coverImage: url })}
+                          apiBase={API_BASE}
+                          authToken={authToken}
+                          year={selectedJudgeYear || '2569'}
+                          resolveUrl={getAssetUrl}
+                        >
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
                             {[
                               { label: 'ภาพหุ่นยนต์/AI', path: '/photo_candidates/robotics_engineer.jpg' },
@@ -4712,31 +4701,36 @@ export default function App() {
                               </button>
                             ))}
                           </div>
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="submission-poster-url" className="form-label">
-                            4. Poster (โปสเตอร์นำเสนอผลงาน) <span style={{ color: 'var(--gold-300)', fontSize: '0.76rem' }}>(แนบเพิ่มเติมภายหลังเมื่อเข้ารอบที่ 2 ได้)</span>
-                          </label>
-                          <input 
-                            id="submission-poster-url" type="text"
-                            className="form-input"
-                            placeholder="https://drive.google.com/... (ส่งเพิ่มเมื่อเข้ารอบที่ 2 ได้)"
-                            value={subForm.posterUrl || ''}
-                            onChange={e => setSubForm({...subForm, posterUrl: e.target.value})}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="submission-presentation-url" className="form-label">
-                            5. Presentation (สไลด์นำเสนอ PDF/PPT) <span style={{ color: 'var(--gold-300)', fontSize: '0.76rem' }}>(แนบเพิ่มเติมภายหลังเมื่อเข้ารอบได้)</span>
-                          </label>
-                          <input 
-                            id="submission-presentation-url" type="text"
-                            className="form-input"
-                            placeholder="https://drive.google.com/... (ส่งเพิ่มเมื่อเข้ารอบได้)"
-                            value={subForm.presentationUrl || ''}
-                            onChange={e => setSubForm({...subForm, presentationUrl: e.target.value})}
-                          />
-                        </div>
+                        </ArtifactUploadField>
+
+                        <ArtifactUploadField
+                          slot="poster"
+                          id="submission-poster-url"
+                          label="4. Poster (โปสเตอร์นำเสนอผลงาน)"
+                          badgeText="(แนบเพิ่มเติมภายหลังเมื่อเข้ารอบที่ 2 ได้)"
+                          badgeColor="var(--gold-300)"
+                          value={subForm.posterUrl || ''}
+                          onChange={(url) => setSubForm({ ...subForm, posterUrl: url })}
+                          apiBase={API_BASE}
+                          authToken={authToken}
+                          year={selectedJudgeYear || '2569'}
+                          resolveUrl={getAssetUrl}
+                        />
+
+                        <ArtifactUploadField
+                          slot="presentation"
+                          id="submission-presentation-url"
+                          label="5. Presentation (สไลด์นำเสนอ PDF/PPT)"
+                          badgeText="(แนบเพิ่มเติมภายหลังเมื่อเข้ารอบได้)"
+                          badgeColor="var(--gold-300)"
+                          value={subForm.presentationUrl || ''}
+                          onChange={(url) => setSubForm({ ...subForm, presentationUrl: url })}
+                          apiBase={API_BASE}
+                          authToken={authToken}
+                          year={selectedJudgeYear || '2569'}
+                          resolveUrl={getAssetUrl}
+                        />
+
                         <div style={{ marginBottom: '14px' }}>
                           <button type="button" onClick={() => setSubmissionStep(2)} className="btn-text" style={{ color: 'var(--cyan-300)', fontSize: '0.84rem' }}>
                             ← ย้อนกลับไปแก้ไขข้อมูลสมาชิกและผู้ประสานงาน
@@ -5034,31 +5028,37 @@ export default function App() {
                   )}
 
                   {showLateArtifactEditor && user && (statusResult.canEditArtifacts || statusResult.userId === user.id || user.role === 'ADMIN') && (
-                    <form onSubmit={handleSaveLateArtifacts} style={{ padding: '12px', marginBottom: '12px', borderRadius: '10px', background: 'rgba(15, 32, 56, 0.85)', border: '1px solid var(--border-cyan)' }}>
-                      <div className="responsive-two-col-grid" style={{ gap: '10px', marginBottom: '10px' }}>
-                        <div>
-                          <label htmlFor="late-poster-url" className="form-label" style={{ fontSize: '0.78rem' }}>ลิงก์ไฟล์ Poster (สำหรับรอบที่ 2)</label>
-                          <input
-                            id="late-poster-url"
-                            type="text"
-                            className="form-input"
-                            placeholder="https://drive.google.com/..."
-                            value={lateArtifactsForm.posterUrl}
-                            onChange={e => setLateArtifactsForm({ ...lateArtifactsForm, posterUrl: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <label htmlFor="late-presentation-url" className="form-label" style={{ fontSize: '0.78rem' }}>ลิงก์ไฟล์ Presentation (สไลด์นำเสนอ)</label>
-                          <input
-                            id="late-presentation-url"
-                            type="text"
-                            className="form-input"
-                            placeholder="https://drive.google.com/..."
-                            value={lateArtifactsForm.presentationUrl}
-                            onChange={e => setLateArtifactsForm({ ...lateArtifactsForm, presentationUrl: e.target.value })}
-                          />
-                        </div>
-                      </div>
+                    <form onSubmit={handleSaveLateArtifacts} style={{ padding: '16px', marginBottom: '16px', borderRadius: '12px', background: 'rgba(15, 32, 56, 0.85)', border: '1px solid var(--border-cyan)' }}>
+                      <ArtifactUploadField
+                        slot="poster"
+                        id="late-poster-url"
+                        label="ไฟล์ Poster (สำหรับรอบที่ 2)"
+                        badgeText="(อัปโหลด PDF หรือรูปภาพ)"
+                        badgeColor="var(--cyan-300)"
+                        value={lateArtifactsForm.posterUrl || ''}
+                        onChange={(url) =>
+                          setLateArtifactsForm({ ...lateArtifactsForm, posterUrl: url })
+                        }
+                        apiBase={API_BASE}
+                        authToken={authToken}
+                        year={selectedJudgeYear || '2569'}
+                        resolveUrl={getAssetUrl}
+                      />
+                      <ArtifactUploadField
+                        slot="presentation"
+                        id="late-presentation-url"
+                        label="ไฟล์ Presentation (สไลด์นำเสนอ)"
+                        badgeText="(อัปโหลด PDF หรือ PowerPoint)"
+                        badgeColor="var(--cyan-300)"
+                        value={lateArtifactsForm.presentationUrl || ''}
+                        onChange={(url) =>
+                          setLateArtifactsForm({ ...lateArtifactsForm, presentationUrl: url })
+                        }
+                        apiBase={API_BASE}
+                        authToken={authToken}
+                        year={selectedJudgeYear || '2569'}
+                        resolveUrl={getAssetUrl}
+                      />
                       <button type="submit" disabled={lateArtifactSaving} className="btn-solid-primary" style={{ padding: '8px 16px', fontSize: '0.82rem' }}>
                         <Save className="w-4 h-4" />
                         <span>{lateArtifactSaving ? 'กำลังบันทึก...' : 'บันทึกไฟล์เพิ่มเติม'}</span>
@@ -5755,17 +5755,17 @@ export default function App() {
                               </div>
                               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '8px', fontSize: '0.78rem' }}>
                                 {sub.artifacts?.proposalPdfUrl && (
-                                  <a href={sub.artifacts.proposalPdfUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--cyan-300)' }}>
+                                  <a href={getAssetUrl(sub.artifacts.proposalPdfUrl)} target="_blank" rel="noreferrer" style={{ color: 'var(--cyan-300)' }}>
                                     เปิด Proposal PDF
                                   </a>
                                 )}
                                 {sub.artifacts?.videoUrl && (
-                                  <a href={sub.artifacts.videoUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--emerald-300)' }}>
+                                  <a href={getAssetUrl(sub.artifacts.videoUrl)} target="_blank" rel="noreferrer" style={{ color: 'var(--emerald-300)' }}>
                                     เปิด Video Pitch
                                   </a>
                                 )}
                                 {sub.artifacts?.posterUrl && (
-                                  <a href={sub.artifacts.posterUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--gold-300)' }}>
+                                  <a href={getAssetUrl(sub.artifacts.posterUrl)} target="_blank" rel="noreferrer" style={{ color: 'var(--gold-300)' }}>
                                     เปิดไฟล์ POSTER (รอบที่ 2)
                                   </a>
                                 )}

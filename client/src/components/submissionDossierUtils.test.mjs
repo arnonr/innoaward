@@ -273,3 +273,17 @@ test('formatCategoryOptionLabel avoids duplicating English name when nameTh alre
   );
 });
 
+test('App.jsx integrates ArtifactUploadField across all 5 submission artifact slots and Round 2 late-upload form', () => {
+  const appPath = path.resolve(__dirname, '../App.jsx');
+  const appSrc = fs.readFileSync(appPath, 'utf8');
+
+  assert.match(appSrc, /import ArtifactUploadField from '\.\/components\/ArtifactUploadField'/);
+  assert.match(appSrc, /resolveServerUploadUrl/);
+  assert.match(appSrc, /slot="proposal"/);
+  assert.match(appSrc, /slot="video"/);
+  assert.match(appSrc, /slot="image"/);
+  assert.match(appSrc, /slot="poster"/);
+  assert.match(appSrc, /slot="presentation"/);
+});
+
+
