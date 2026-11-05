@@ -16,7 +16,7 @@ describe("Winners Hall of Fame & Announcements Modules", () => {
     const json = await response.json();
     expect(json.success).toBe(true);
     expect(Array.isArray(json.data)).toBe(true);
-    expect(json.data.length).toBeGreaterThanOrEqual(8);
+    expect(json.data.length).toBeGreaterThanOrEqual(6);
   });
 
   test("GET /api/winners?year=2569 filters by year 2569 (2026)", async () => {

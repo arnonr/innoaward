@@ -110,57 +110,45 @@ function createOverviewGlassTexture() {
   ctx.fillRect(1050, 110, 960, 860);
 
   // ============================================================
-  // 1. TOP HOLOGRAPHIC BROWSER / COMMAND BAR
+  // 1. TOP CEREMONIAL & UNIVERSITY HEADER (Prestige & Honor)
   // ============================================================
-  ctx.fillStyle = 'rgba(15, 35, 66, 0.88)';
+  ctx.fillStyle = 'rgba(15, 35, 66, 0.90)';
   drawRoundedRect(ctx, 32, 32, W - 64, 84, 28);
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(103, 232, 249, 0.25)';
+  ctx.strokeStyle = 'rgba(103, 232, 249, 0.32)';
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Window traffic dots
-  const dotColors = ['#FB7185', '#FBBF24', '#34D399'];
-  dotColors.forEach((col, idx) => {
-    ctx.beginPath();
-    ctx.arc(82 + idx * 32, 74, 10, 0, Math.PI * 2);
-    ctx.fillStyle = col;
-    ctx.fill();
-  });
-
-  // URL Address Pill
-  drawRoundedRect(ctx, 210, 48, 720, 52, 26);
-  ctx.fillStyle = 'rgba(6, 15, 30, 0.78)';
+  // University Badge Pill (Left)
+  drawRoundedRect(ctx, 56, 48, 540, 52, 26);
+  ctx.fillStyle = 'rgba(6, 15, 30, 0.85)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.32)';
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  ctx.font = '600 22px "JetBrains Mono", "Inter", monospace';
+  ctx.font = '700 22px "DM Sans", sans-serif';
   ctx.fillStyle = '#38BDF8';
-  ctx.fillText('https://', 242, 82);
+  ctx.fillText('KMUTNB', 82, 82);
+  ctx.font = '600 18px "Noto Sans Thai", "DM Sans", sans-serif';
   ctx.fillStyle = '#F8FAFC';
-  ctx.fillText('technopark.kmutnb.ac.th/innoawards', 345, 82);
+  ctx.fillText('• อุทยานเทคโนโลยี มจพ. (Techno Park)', 185, 81);
 
-  // Top nav items inside glass chrome
-  const navItems = ['Overview', '5 Domains', 'Royal Trophy', 'Guidelines'];
+  // Official Standards & Domains summary (Center)
+  const navItems = ['5 สาขานวัตกรรม + อื่นๆ', 'เกณฑ์ตัดสิน 100 คะแนน', 'เงินรางวัลรวม 180,000 บาท'];
   navItems.forEach((label, idx) => {
-    const nx = 985 + idx * 170;
-    ctx.font = idx === 0 ? '700 22px "Inter", sans-serif' : '500 22px "Inter", sans-serif';
-    ctx.fillStyle = idx === 0 ? '#00F5A0' : 'rgba(226, 232, 240, 0.72)';
-    ctx.fillText(label, nx, 82);
-    if (idx === 0) {
-      ctx.fillStyle = '#00F5A0';
-      ctx.fillRect(nx, 96, 98, 4);
-    }
+    const nx = 635 + idx * 280;
+    ctx.font = '600 18px "Noto Sans Thai", "DM Sans", sans-serif';
+    ctx.fillStyle = idx === 0 ? '#00F5A0' : 'rgba(226, 232, 240, 0.85)';
+    ctx.fillText(label, nx, 81);
   });
 
-  // Live Submission Status Pill on top right
-  drawRoundedRect(ctx, W - 340, 48, 282, 52, 26);
-  const ctaGrad = ctx.createLinearGradient(W - 340, 48, W - 58, 100);
-  ctaGrad.addColorStop(0, 'rgba(0, 245, 160, 0.24)');
-  ctaGrad.addColorStop(1, 'rgba(0, 217, 245, 0.28)');
+  // Live Registration Status Pill (Top Right)
+  drawRoundedRect(ctx, W - 320, 48, 264, 52, 26);
+  const ctaGrad = ctx.createLinearGradient(W - 320, 48, W - 56, 100);
+  ctaGrad.addColorStop(0, 'rgba(0, 245, 160, 0.28)');
+  ctaGrad.addColorStop(1, 'rgba(0, 217, 245, 0.32)');
   ctx.fillStyle = ctaGrad;
   ctx.fill();
   ctx.strokeStyle = '#00F5A0';
@@ -168,40 +156,23 @@ function createOverviewGlassTexture() {
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.arc(W - 306, 74, 7, 0, Math.PI * 2);
+  ctx.arc(W - 288, 74, 6, 0, Math.PI * 2);
   ctx.fillStyle = '#00F5A0';
   ctx.fill();
 
-  ctx.font = '700 20px "JetBrains Mono", monospace';
+  ctx.font = '700 18px "Noto Sans Thai", "DM Sans", sans-serif';
   ctx.fillStyle = '#FFFFFF';
-  ctx.fillText('LIVE // OPEN 2027', W - 284, 81);
+  ctx.fillText('เปิดรับสมัคร 2570', W - 268, 80);
 
   // ============================================================
-  // 2. LEFT HOLOGRAPHIC SIDEBAR RAIL (Matching Pinterest UI)
+  // 2. CLEAN ARCHITECTURAL STAGE ACCENTS
   // ============================================================
-  drawRoundedRect(ctx, 40, 136, 76, H - 176, 24);
-  ctx.fillStyle = 'rgba(10, 25, 48, 0.78)';
-  ctx.fill();
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
   ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(56, 140);
+  ctx.lineTo(56, H - 70);
   ctx.stroke();
-
-  for (let i = 0; i < 6; i += 1) {
-    const iy = 186 + i * 94;
-    drawRoundedRect(ctx, 54, iy, 48, 48, 14);
-    ctx.fillStyle = i === 0 ? 'rgba(0, 217, 245, 0.28)' : 'rgba(255, 255, 255, 0.05)';
-    ctx.fill();
-    ctx.strokeStyle = i === 0 ? '#00D9F5' : 'rgba(148, 163, 184, 0.25)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Minimalist vector glyphs inside rail buttons
-    ctx.beginPath();
-    ctx.arc(78, iy + 24, 9, 0, Math.PI * 2);
-    ctx.strokeStyle = i === 0 ? '#00F5A0' : '#94A3B8';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-  }
 
   // ============================================================
   // 3. HERO KINETIC TYPOGRAPHY BLOCK (LEFT-CENTER)
@@ -223,7 +194,7 @@ function createOverviewGlassTexture() {
     880,
     '700',
     23,
-    '"Prompt", "IBM Plex Sans Thai", sans-serif'
+    '"Noto Sans Thai", "DM Sans", sans-serif'
   );
   ctx.fillStyle = '#FFFBEB';
   fillFittedText(
@@ -234,14 +205,14 @@ function createOverviewGlassTexture() {
     880,
     '600',
     20,
-    '"Prompt", "IBM Plex Sans Thai", sans-serif'
+    '"Noto Sans Thai", "DM Sans", sans-serif'
   );
 
   // Giant Stacked Headline: KMUTNB / INNOVATION / AWARDS 2027
   ctx.save();
   ctx.shadowColor = 'rgba(0, 217, 245, 0.35)';
   ctx.shadowBlur = 28;
-  ctx.font = '800 94px "Plus Jakarta Sans", "Inter", sans-serif';
+  ctx.font = '800 94px "DM Sans", sans-serif';
   ctx.fillStyle = '#F8FAFC';
   ctx.fillText('KMUTNB', 164, 348);
 
@@ -249,7 +220,7 @@ function createOverviewGlassTexture() {
   innoGrad.addColorStop(0, '#67E8F9');
   innoGrad.addColorStop(0.55, '#00D9F5');
   innoGrad.addColorStop(1, '#00F5A0');
-  ctx.font = '900 132px "Plus Jakarta Sans", "Inter", sans-serif';
+  ctx.font = '900 132px "DM Sans", sans-serif';
   ctx.fillStyle = innoGrad;
   ctx.fillText('INNOVATION', 160, 482);
 
@@ -257,7 +228,7 @@ function createOverviewGlassTexture() {
   awardGrad.addColorStop(0, '#FDE68A');
   awardGrad.addColorStop(0.5, '#FBBF24');
   awardGrad.addColorStop(1, '#F97316');
-  ctx.font = '800 106px "Plus Jakarta Sans", "Inter", sans-serif';
+  ctx.font = '800 106px "DM Sans", sans-serif';
   ctx.fillStyle = awardGrad;
   ctx.fillText('AWARDS 2027', 164, 604);
   ctx.restore();
@@ -272,7 +243,7 @@ function createOverviewGlassTexture() {
     1080,
     '500',
     26,
-    '"Prompt", "IBM Plex Sans Thai", sans-serif'
+    '"Noto Sans Thai", "DM Sans", sans-serif'
   );
 
   // Interactive Glass Pill Button inside the 3D window
@@ -295,7 +266,7 @@ function createOverviewGlassTexture() {
     370,
     '700',
     24,
-    '"Prompt", "Inter", sans-serif'
+    '"Noto Sans Thai", "DM Sans", sans-serif'
   );
 
   // ============================================================
@@ -303,20 +274,20 @@ function createOverviewGlassTexture() {
   // ============================================================
   const bottomCards = [
     {
-      kicker: 'GRAND HONOR // 01',
+      kicker: 'เกียรติยศสูงสุด • ROYAL HONOR',
       title: 'ถ้วยพระราชทานฯ',
       sub: 'สูงสุดแห่งเกียรติยศระดับประเทศ',
       accent: '#FBBF24',
     },
     {
-      kicker: 'TOTAL PRIZE // 02',
+      kicker: 'เงินรางวัลรวม • PRIZE POOL',
       title: '180,000 THB',
       sub: 'เงินรางวัลรวมทั้ง 2 ระดับ (12 รางวัล)',
       accent: '#00F5A0',
     },
     {
-      kicker: 'TARGET DOMAINS // 03',
-      title: '5 สาขานวัตกรรม',
+      kicker: 'สาขาการแข่งขัน • TARGET DOMAINS',
+      title: '5 สาขา + อื่นๆ',
       sub: 'เปิดรับ 2 ระดับการศึกษาทั่วประเทศ',
       accent: '#38BDF8',
     },
@@ -723,12 +694,18 @@ export default function HeroThreeStage({
   onDomainChange,
   onSelectDomain,
   onSelectOverview,
+  isPaused = false,
 }) {
   const containerRef = useRef(null);
   const activeDomainRef = useRef(activeDomainIndex);
   const onDomainChangeRef = useRef(onDomainChange);
   const onSelectDomainRef = useRef(onSelectDomain);
   const onSelectOverviewRef = useRef(onSelectOverview);
+  const isPausedRef = useRef(isPaused);
+
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
 
   useEffect(() => {
     activeDomainRef.current = activeDomainIndex;
@@ -1054,6 +1031,15 @@ export default function HeroThreeStage({
     mainGlassMesh.userData = { type: 'overview' };
     overviewGroup.add(mainGlassMesh);
 
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        if (isDisposed) return;
+        const freshOverviewTex = createOverviewGlassTexture();
+        mainGlassUniforms.uPanelTex.value = freshOverviewTex;
+        disposableTextures.push(freshOverviewTex);
+      }).catch(() => {});
+    }
+
     // Floating Right 3D Sub-Card (THE ROYAL INNOVATION AWARD) at z = +0.22
     const spotlightTex = createSpotlightSubCardTexture();
     disposableTextures.push(spotlightTex);
@@ -1297,7 +1283,9 @@ export default function HeroThreeStage({
       }
       const deltaSec = Math.min(0.05, Math.max(0, (now - lastFrameTime) / 1000));
       lastFrameTime = now;
-      elapsed += deltaSec;
+      if (!isPausedRef.current) {
+        elapsed += deltaSec;
+      }
 
       const { speedFactor, parallaxFactor, breathFactor } = getMotionFactor(prefersReducedMotion);
 

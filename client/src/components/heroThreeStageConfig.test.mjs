@@ -142,7 +142,7 @@ test('getStageResponsiveConfig and getMotionFactor handle mobile/desktop and red
   assert.equal(mobile.uvScaleX < 1, true);
 
   assert.deepEqual(getMotionFactor(true), {
-    speedFactor: 0.25,
+    speedFactor: 0,
     parallaxFactor: 0,
     breathFactor: 0,
   });

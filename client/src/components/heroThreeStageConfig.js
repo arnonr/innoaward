@@ -200,7 +200,7 @@ export function resolveDomainIndexById(domainIdOrIndex) {
 }
 
 const REDUCED_MOTION_FACTOR = Object.freeze({
-  speedFactor: 0.25,
+  speedFactor: 0,
   parallaxFactor: 0,
   breathFactor: 0,
 });
