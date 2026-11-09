@@ -3818,7 +3818,7 @@ export default function App() {
 
       {/* --- MODAL 1: ENTERPRISE AUTH & SUBMISSION PORTAL --- */}
       {showPortalModal && (
-        <div className="modal-overlay" onClick={() => setShowPortalModal(false)}>
+        <div className="modal-overlay">
           <div
             className="modal-box"
             role="dialog"
@@ -4759,7 +4759,7 @@ export default function App() {
 
       {/* --- MODAL 2: STATUS CHECK & OFFICIAL SUBMISSION DOSSIER --- */}
       {showStatusModal && (
-        <div className="modal-overlay" onClick={() => setShowStatusModal(false)}>
+        <div className="modal-overlay">
           <div className="modal-box" role="dialog" aria-modal="true" aria-labelledby="status-modal-title" style={{ maxWidth: '820px' }} onClick={e => e.stopPropagation()}>
             <button aria-label="ปิดหน้าต่างตรวจสอบสถานะ" className="modal-close-btn" onClick={() => setShowStatusModal(false)}>
               <X className="w-5 h-5" />
@@ -5116,7 +5116,7 @@ export default function App() {
         const modalVideoInfo = getWinnerVideoInfo(selectedWinnerModal);
         const modalPosterUrl = getWinnerPosterUrl(selectedWinnerModal);
         return (
-          <div className="modal-overlay" onClick={() => setSelectedWinnerModal(null)}>
+          <div className="modal-overlay">
             <div className="modal-box winner-video-modal-box" role="dialog" aria-modal="true" aria-labelledby="winner-modal-title" style={{ maxWidth: '860px' }} onClick={e => e.stopPropagation()}>
               <button aria-label="ปิดหน้าต่างรายละเอียดผลงาน" className="modal-close-btn" onClick={() => setSelectedWinnerModal(null)}>
                 <X className="w-5 h-5" />
@@ -5313,7 +5313,7 @@ export default function App() {
           2
         );
         return (
-          <div className="modal-overlay" onClick={() => setDetailDomainModal(null)}>
+          <div className="modal-overlay">
             <div
               className="modal-box"
               role="dialog"
@@ -5464,7 +5464,7 @@ export default function App() {
 
       {/* --- MODAL 5: MULTI-YEAR JUDGE & ADMIN EVALUATION WORKSPACE --- */}
       {showJudgingModal && (
-        <div className="modal-overlay" onClick={() => setShowJudgingModal(false)}>
+        <div className="modal-overlay">
           <div
             className="modal-box"
             role="dialog"

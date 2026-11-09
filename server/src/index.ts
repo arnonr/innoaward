@@ -11,6 +11,7 @@ import { judgingController } from './modules/judging/judging.controller';
 import { uploadsController } from './modules/uploads/uploads.controller';
 
 const PORT = Number(process.env.PORT) || 3001;
+const MAX_UPLOAD_BODY_BYTES = 350 * 1024 * 1024; // 350 MB for 2-3 min video uploads
 
 export const app = new Elysia()
   .use(
@@ -75,10 +76,26 @@ export const app = new Elysia()
   .use(announcementsController)
   .use(mastersController)
   .use(judgingController)
-  .use(uploadsController);
+  .use(uploadsController)
+  // Support subpath-prefixed reverse proxies (/innoawards/api/*)
+  .group('/innoawards', (subpath) =>
+    subpath
+      .use(configController)
+      .use(authController)
+      .use(submissionsController)
+      .use(winnersController)
+      .use(announcementsController)
+      .use(mastersController)
+      .use(judgingController)
+      .use(uploadsController)
+  );
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT);
+  app.listen({
+    port: PORT,
+    maxRequestBodySize: MAX_UPLOAD_BODY_BYTES,
+    idleTimeout: 255,
+  });
   console.log(`🚀 KMUTNB Innovation Awards 2027 PostgreSQL Engine running at http://${app.server?.hostname}:${app.server?.port}`);
   console.log(`📑 Interactive Swagger UI available at http://${app.server?.hostname}:${app.server?.port}/swagger`);
 }

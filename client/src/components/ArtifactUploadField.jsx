@@ -39,7 +39,7 @@ export default function ArtifactUploadField({
   const [uploadedMeta, setUploadedMeta] = useState(null);
 
   const uploadFileToServer = useCallback(
-    (file) => {
+    async (file) => {
       const check = validateArtifactFile(file, slot);
       if (!check.valid) {
         setUploadError(check.error);
@@ -50,60 +50,149 @@ export default function ArtifactUploadField({
       setUploading(true);
       setProgress(1);
 
+      const endpoint = `${String(apiBase).replace(/\/+$/, '')}/uploads/artifact`;
+      const CHUNK_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB per chunk to avoid 502/413/OOM on large videos
+
+      const sendFormDataWithXhr = (formData, onChunkProgress) =>
+        new Promise((resolve) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', endpoint, true);
+
+          if (authToken) {
+            xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
+          }
+
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable && event.total > 0 && onChunkProgress) {
+              onChunkProgress(event.loaded, event.total);
+            }
+          };
+
+          xhr.onload = () => {
+            let parsed = null;
+            try {
+              parsed = JSON.parse(xhr.responseText || '{}');
+            } catch {
+              parsed = null;
+            }
+            resolve({ status: xhr.status, parsed, networkError: false });
+          };
+
+          xhr.onerror = () => {
+            resolve({ status: 0, parsed: null, networkError: true });
+          };
+
+          xhr.send(formData);
+        });
+
+      const handleSuccessResponse = (parsed) => {
+        setUploading(false);
+        setProgress(100);
+        setUploadedMeta({
+          originalName: parsed.data.originalName || file.name,
+          size: parsed.data.size || file.size,
+          mimeType: parsed.data.mimeType || file.type,
+        });
+        if (onChange) {
+          onChange(parsed.data.url);
+        }
+      };
+
+      const handleFailureResponse = (status, parsed, networkError) => {
+        setUploading(false);
+        setProgress(0);
+        if (networkError) {
+          setUploadError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดไฟล์ได้ กรุณาลองใหม่อีกครั้ง');
+        } else if (status === 413) {
+          setUploadError(
+            'ไฟล์มีขนาดใหญ่เกินกว่าที่เซิร์ฟเวอร์กำหนด (413 Payload Too Large — กรุณาตรวจสอบค่า client_max_body_size ของ Nginx)'
+          );
+        } else if (status === 502 || status === 504) {
+          setUploadError(
+            `เซิร์ฟเวอร์ตอบกลับขัดข้องระหว่างอัปโหลดไฟล์ขนาดใหญ่ (รหัสสถานะ ${status}) กรุณารีสตาร์ทเซิร์ฟเวอร์ Backend และลองใหม่อีกครั้ง`
+          );
+        } else {
+          setUploadError(
+            parsed?.message || `อัปโหลดไฟล์ไม่สำเร็จ (รหัสสถานะ ${status || 'Network Error'})`
+          );
+        }
+      };
+
+      // Use chunked upload for files > 2 MB (e.g. 2-3 min videos, large PDFs/presentations)
+      if (file.size > CHUNK_SIZE_BYTES) {
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE_BYTES);
+        const uploadId = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+        for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+          const start = chunkIndex * CHUNK_SIZE_BYTES;
+          const end = Math.min(file.size, start + CHUNK_SIZE_BYTES);
+          const blobSlice = file.slice(start, end);
+          const chunkFile = new File([blobSlice], file.name, {
+            type: file.type || 'application/octet-stream',
+          });
+
+          const formData = new FormData();
+          formData.append('slot', slot);
+          formData.append('year', String(year || '2569'));
+          formData.append('uploadId', uploadId);
+          formData.append('chunkIndex', String(chunkIndex));
+          formData.append('totalChunks', String(totalChunks));
+          formData.append('originalName', file.name);
+          formData.append('totalSize', String(file.size));
+          formData.append('file', chunkFile);
+
+          let result = null;
+          for (let attempt = 0; attempt < 3; attempt++) {
+            result = await sendFormDataWithXhr(formData, (loaded) => {
+              const overallLoaded = start + loaded;
+              const pct = Math.min(99, Math.max(1, Math.round((overallLoaded / file.size) * 100)));
+              setProgress(pct);
+            });
+            if (
+              !result.networkError &&
+              result.status !== 502 &&
+              result.status !== 503 &&
+              result.status !== 504
+            ) {
+              break;
+            }
+          }
+
+          const { status, parsed, networkError } = result;
+          const isLastChunk = chunkIndex + 1 === totalChunks;
+
+          if (status >= 200 && status < 300 && parsed?.success) {
+            if (isLastChunk && parsed?.data?.url) {
+              handleSuccessResponse(parsed);
+              return;
+            }
+          } else {
+            handleFailureResponse(status, parsed, networkError);
+            return;
+          }
+        }
+        return;
+      }
+
+      // Single-shot upload for files <= 2 MB
       const formData = new FormData();
       formData.append('slot', slot);
       formData.append('year', String(year || '2569'));
       formData.append('file', file);
 
-      const xhr = new XMLHttpRequest();
-      const endpoint = `${String(apiBase).replace(/\/+$/, '')}/uploads/artifact`;
-      xhr.open('POST', endpoint, true);
-
-      if (authToken) {
-        xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
-      }
-
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable && event.total > 0) {
-          const pct = Math.min(99, Math.max(1, Math.round((event.loaded / event.total) * 100)));
+      const { status, parsed, networkError } = await sendFormDataWithXhr(
+        formData,
+        (loaded, total) => {
+          const pct = Math.min(99, Math.max(1, Math.round((loaded / total) * 100)));
           setProgress(pct);
         }
-      };
+      );
 
-      xhr.onload = () => {
-        setUploading(false);
-        let parsed = null;
-        try {
-          parsed = JSON.parse(xhr.responseText || '{}');
-        } catch {
-          parsed = null;
-        }
-
-        if (xhr.status >= 200 && xhr.status < 300 && parsed?.success && parsed?.data?.url) {
-          setProgress(100);
-          setUploadedMeta({
-            originalName: parsed.data.originalName || file.name,
-            size: parsed.data.size || file.size,
-            mimeType: parsed.data.mimeType || file.type,
-          });
-          if (onChange) {
-            onChange(parsed.data.url);
-          }
-        } else {
-          setProgress(0);
-          setUploadError(
-            parsed?.message || `อัปโหลดไฟล์ไม่สำเร็จ (รหัสสถานะ ${xhr.status || 'Network Error'})`
-          );
-        }
-      };
-
-      xhr.onerror = () => {
-        setUploading(false);
-        setProgress(0);
-        setUploadError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดไฟล์ได้ กรุณาลองใหม่อีกครั้ง');
-      };
-
-      xhr.send(formData);
+      if (status >= 200 && status < 300 && parsed?.success && parsed?.data?.url) {
+        handleSuccessResponse(parsed);
+      } else {
+        handleFailureResponse(status, parsed, networkError);
+      }
     },
     [apiBase, authToken, onChange, slot, year]
   );

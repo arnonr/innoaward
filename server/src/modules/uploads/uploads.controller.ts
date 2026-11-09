@@ -1,5 +1,5 @@
 import { Elysia } from 'elysia';
-import { mkdir } from 'node:fs/promises';
+import { appendFile, mkdir, rename, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { authPlugin } from '../../middlewares/auth.middleware';
 
@@ -65,11 +65,33 @@ function sanitizeBaseName(rawName: string): string {
   return cleaned || 'artifact';
 }
 
+async function extractUploadFields(
+  body: unknown,
+  request: Request
+): Promise<Record<string, unknown> | null> {
+  if (body && typeof body === 'object' && !(body instanceof ReadableStream)) {
+    const record = body as Record<string, unknown>;
+    if ('slot' in record || 'file' in record) {
+      return record;
+    }
+  }
+  try {
+    const formData = await request.formData();
+    const out: Record<string, unknown> = {};
+    formData.forEach((value, key) => {
+      out[key] = value;
+    });
+    return out;
+  } catch {
+    return null;
+  }
+}
+
 export const uploadsController = new Elysia({ prefix: '/api/uploads' })
   .use(authPlugin)
 
-  // POST /api/uploads/artifact — Authenticated multipart file upload
-  .post('/artifact', async ({ request, currentUser, set }) => {
+  // POST /api/uploads/artifact — Authenticated multipart file upload (single-shot & chunked)
+  .post('/artifact', async ({ body, request, currentUser, set }) => {
     if (!currentUser || !currentUser.id) {
       set.status = 401;
       return {
@@ -78,10 +100,8 @@ export const uploadsController = new Elysia({ prefix: '/api/uploads' })
       };
     }
 
-    let formData: FormData;
-    try {
-      formData = await request.formData();
-    } catch {
+    const fields = await extractUploadFields(body, request);
+    if (!fields) {
       set.status = 400;
       return {
         success: false,
@@ -89,7 +109,7 @@ export const uploadsController = new Elysia({ prefix: '/api/uploads' })
       };
     }
 
-    const rawSlot = String(formData.get('slot') || '').trim() as ArtifactSlot;
+    const rawSlot = String(fields.slot || '').trim() as ArtifactSlot;
     const rule = SLOT_RULES[rawSlot];
     if (!rule) {
       set.status = 400;
@@ -99,8 +119,8 @@ export const uploadsController = new Elysia({ prefix: '/api/uploads' })
       };
     }
 
-    const fileEntry = formData.get('file');
-    if (!fileEntry || !(fileEntry instanceof File)) {
+    const fileEntry = fields.file;
+    if (!fileEntry || !(fileEntry instanceof Blob)) {
       set.status = 400;
       return {
         success: false,
@@ -108,7 +128,8 @@ export const uploadsController = new Elysia({ prefix: '/api/uploads' })
       };
     }
 
-    const originalName = fileEntry.name || 'uploaded-file';
+    const entryName = 'name' in fileEntry && typeof fileEntry.name === 'string' ? fileEntry.name : '';
+    const originalName = String(fields.originalName || entryName || 'uploaded-file');
     const ext = path.extname(originalName).toLowerCase();
     if (!ext || !rule.extensions.includes(ext)) {
       set.status = 400;
@@ -126,8 +147,8 @@ export const uploadsController = new Elysia({ prefix: '/api/uploads' })
       };
     }
 
+    const maxMb = Math.round(rule.maxSizeBytes / (1024 * 1024));
     if (fileEntry.size > rule.maxSizeBytes) {
-      const maxMb = Math.round(rule.maxSizeBytes / (1024 * 1024));
       set.status = 400;
       return {
         success: false,
@@ -135,11 +156,97 @@ export const uploadsController = new Elysia({ prefix: '/api/uploads' })
       };
     }
 
-    const rawYear = String(formData.get('year') || '2569').trim();
+    const rawYear = String(fields.year || '2569').trim();
     const safeYear = /^\d{4}$/.test(rawYear) ? rawYear : '2569';
 
     const targetDir = path.join(UPLOADS_ROOT, safeYear, rawSlot);
     await mkdir(targetDir, { recursive: true });
+
+    // Chunked Upload Mode (used automatically for large video/PDF files to prevent 502/OOM/proxy timeouts)
+    if (fields.chunkIndex !== undefined && fields.totalChunks !== undefined) {
+      const chunkIndex = Number.parseInt(String(fields.chunkIndex), 10);
+      const totalChunks = Number.parseInt(String(fields.totalChunks), 10);
+      const rawUploadId = String(fields.uploadId || '').trim();
+      const declaredTotalSize = Number(fields.totalSize || fileEntry.size || 0);
+
+      if (
+        !Number.isInteger(chunkIndex) ||
+        chunkIndex < 0 ||
+        !Number.isInteger(totalChunks) ||
+        totalChunks < 1 ||
+        chunkIndex >= totalChunks ||
+        !/^[a-zA-Z0-9_-]{6,64}$/.test(rawUploadId)
+      ) {
+        set.status = 400;
+        return {
+          success: false,
+          message: 'พารามิเตอร์การอัปโหลดแบบแบ่งส่วน (Chunk) ไม่ถูกต้อง',
+        };
+      }
+
+      if (declaredTotalSize > rule.maxSizeBytes) {
+        set.status = 400;
+        return {
+          success: false,
+          message: `ไฟล์มีขนาดใหญ่เกินกำหนดสำหรับ${rule.labelTh} (สูงสุด ${maxMb} MB)`,
+        };
+      }
+
+      const tempPartPath = path.join(targetDir, `.part-${rawUploadId}${ext}`);
+      if (chunkIndex === 0) {
+        await Bun.write(tempPartPath, fileEntry);
+      } else {
+        const chunkBytes = new Uint8Array(await fileEntry.arrayBuffer());
+        await appendFile(tempPartPath, chunkBytes);
+      }
+
+      const partStat = await stat(tempPartPath);
+      if (partStat.size > rule.maxSizeBytes) {
+        await unlink(tempPartPath).catch(() => {});
+        set.status = 400;
+        return {
+          success: false,
+          message: `ไฟล์มีขนาดใหญ่เกินกำหนดสำหรับ${rule.labelTh} (สูงสุด ${maxMb} MB)`,
+        };
+      }
+
+      if (chunkIndex + 1 < totalChunks) {
+        return {
+          success: true,
+          partial: true,
+          message: `อัปโหลดส่วนที่ ${chunkIndex + 1}/${totalChunks} สำเร็จ`,
+          data: {
+            chunkIndex,
+            totalChunks,
+            receivedBytes: partStat.size,
+          },
+        };
+      }
+
+      const safeStem = sanitizeBaseName(originalName);
+      const uniqueSuffix = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
+      const storedFilename = `${uniqueSuffix}-${safeStem}${ext}`;
+      const fullDiskPath = path.join(targetDir, storedFilename);
+
+      await rename(tempPartPath, fullDiskPath);
+
+      const publicUrl = `/api/uploads/files/${safeYear}/${rawSlot}/${storedFilename}`;
+      const mimeType = MIME_BY_EXTENSION[ext] || fileEntry.type || 'application/octet-stream';
+
+      return {
+        success: true,
+        message: `อัปโหลด${rule.labelTh}สำเร็จ`,
+        data: {
+          url: publicUrl,
+          slot: rawSlot,
+          year: safeYear,
+          originalName,
+          storedFilename,
+          size: partStat.size,
+          mimeType,
+        },
+      };
+    }
 
     const safeStem = sanitizeBaseName(originalName);
     const uniqueSuffix = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;

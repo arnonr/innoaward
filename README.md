@@ -63,7 +63,7 @@ bun install
 bunx prisma db push
 bunx prisma generate
 bun run seed
-
+cd
 cd /var/www/html/innoaward/client
 npm install
 npm run build

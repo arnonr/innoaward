@@ -142,4 +142,62 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
     );
     expect([400, 404]).toContain(badRes.status);
   });
+
+  test('reassembles multi-chunk video upload accurately without memory spikes', async () => {
+    const chunk0 = new Uint8Array([10, 20, 30, 40, 50]);
+    const chunk1 = new Uint8Array([60, 70, 80, 90, 100]);
+    const uploadId = `chunktest_${Date.now()}`;
+
+    const form0 = new FormData();
+    form0.append('slot', 'video');
+    form0.append('year', '2569');
+    form0.append('uploadId', uploadId);
+    form0.append('chunkIndex', '0');
+    form0.append('totalChunks', '2');
+    form0.append('originalName', 'chunked_pitch.mp4');
+    form0.append('totalSize', '10');
+    form0.append('file', new File([chunk0], 'chunked_pitch.mp4', { type: 'video/mp4' }));
+
+    const res0 = await app.handle(
+      new Request('http://localhost/api/uploads/artifact', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form0,
+      })
+    );
+    expect(res0.status).toBe(200);
+    const json0 = await res0.json();
+    expect(json0.success).toBe(true);
+    expect(json0.partial).toBe(true);
+
+    const form1 = new FormData();
+    form1.append('slot', 'video');
+    form1.append('year', '2569');
+    form1.append('uploadId', uploadId);
+    form1.append('chunkIndex', '1');
+    form1.append('totalChunks', '2');
+    form1.append('originalName', 'chunked_pitch.mp4');
+    form1.append('totalSize', '10');
+    form1.append('file', new File([chunk1], 'chunked_pitch.mp4', { type: 'video/mp4' }));
+
+    const res1 = await app.handle(
+      new Request('http://localhost/api/uploads/artifact', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form1,
+      })
+    );
+    expect(res1.status).toBe(200);
+    const json1 = await res1.json();
+    expect(json1.success).toBe(true);
+    expect(json1.data.size).toBe(10);
+    expect(json1.data.url).toStartWith('/api/uploads/files/2569/video/');
+
+    const getRes = await app.handle(
+      new Request(`http://localhost${json1.data.url}`, { method: 'GET' })
+    );
+    expect(getRes.status).toBe(200);
+    const fullBytes = new Uint8Array(await getRes.arrayBuffer());
+    expect(Array.from(fullBytes)).toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+  });
 });
