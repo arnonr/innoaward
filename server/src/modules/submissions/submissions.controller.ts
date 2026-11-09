@@ -61,14 +61,33 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         };
       }
 
-      // 2. Resolve Category (support "others" without altering active 5-domain catalog)
+      // 2. Resolve Category (support "others" and label-string matching without altering active 5-domain catalog)
+      const rawCat = String(payload.category || '').trim();
       let category = await prisma.category.findFirst({
         where: {
-          OR: [{ code: payload.category }, { id: payload.category }],
+          OR: [
+            { code: rawCat },
+            { id: rawCat },
+            { nameTh: rawCat },
+            { nameEn: rawCat },
+          ],
         },
       });
 
-      if (!category && payload.category === 'others') {
+      if (!category && rawCat) {
+        const allCategories = await prisma.category.findMany();
+        const lowerCat = rawCat.toLowerCase();
+        category =
+          allCategories.find(
+            (c) =>
+              lowerCat.includes(c.code.toLowerCase()) ||
+              rawCat.includes(c.nameTh) ||
+              c.nameTh.includes(rawCat) ||
+              (c.nameEn && lowerCat.includes(c.nameEn.toLowerCase()))
+          ) || null;
+      }
+
+      if (!category && (rawCat === 'others' || rawCat.includes('อื่นๆ') || rawCat.toLowerCase().includes('other'))) {
         category = await prisma.category.upsert({
           where: { code: 'others' },
           update: {},

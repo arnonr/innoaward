@@ -70,6 +70,7 @@ export const configController = new Elysia()
 
       const categoriesFormatted = (targetYear?.categories || []).map((yc) => ({
         id: yc.category.code,
+        code: yc.category.code,
         categoryId: yc.category.id,
         nameTh: yc.customNameTh || yc.category.nameTh,
         nameEn: yc.category.nameEn,

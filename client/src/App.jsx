@@ -636,7 +636,20 @@ export default function App() {
         }
         const categoriesList = data?.categories || data?.masters?.categories;
         if (Array.isArray(categoriesList) && categoriesList.length > 0) {
-          setDynamicCategories(categoriesList);
+          const normalizedCats = categoriesList.map(c => ({
+            ...c,
+            code: c.code || c.id,
+            id: c.id || c.code
+          }));
+          if (!normalizedCats.some(c => c.code === 'others')) {
+            normalizedCats.push({
+              code: 'others',
+              id: 'others',
+              nameTh: 'อื่นๆ (สิ่งประดิษฐ์และนวัตกรรมทั่วไป)',
+              nameEn: 'Others'
+            });
+          }
+          setDynamicCategories(normalizedCats);
         }
         const rubricList = data?.rubricConfig || data?.rubric?.criteria;
         if (Array.isArray(rubricList) && rubricList.length > 0) {
@@ -4267,11 +4280,14 @@ export default function App() {
                               value={subForm.category}
                               onChange={e => setSubForm({...subForm, category: e.target.value})}
                             >
-                              {dynamicCategories.map(cat => (
-                                <option key={cat.code} value={cat.code}>
-                                  {formatCategoryOptionLabel(cat)}
-                                </option>
-                              ))}
+                              {dynamicCategories.map(cat => {
+                                const catCode = cat.code || cat.id;
+                                return (
+                                  <option key={catCode} value={catCode}>
+                                    {formatCategoryOptionLabel(cat)}
+                                  </option>
+                                );
+                              })}
                             </select>
                           </div>
                           <div className="form-group">
@@ -5597,11 +5613,14 @@ export default function App() {
                       onChange={e => setJudgeCategoryFilter(e.target.value)}
                     >
                       <option value="all">ทุกกลุ่มนวัตกรรมที่รับผิดชอบ</option>
-                      {dynamicCategories.map(cat => (
-                        <option key={cat.code} value={cat.code}>
-                          {cat.nameTh} ({cat.code})
-                        </option>
-                      ))}
+                      {dynamicCategories.map(cat => {
+                        const catCode = cat.code || cat.id;
+                        return (
+                          <option key={catCode} value={catCode}>
+                            {cat.nameTh} ({catCode})
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                   <div>
@@ -5888,10 +5907,11 @@ export default function App() {
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                       {dynamicCategories.map(cat => {
-                        const checked = newJudgeForm.categoryCodes.includes(cat.code);
+                        const catCode = cat.code || cat.id;
+                        const checked = newJudgeForm.categoryCodes.includes(catCode);
                         return (
                           <label
-                            key={cat.code}
+                            key={catCode}
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 10px', borderRadius: '8px', background: checked ? 'rgba(16, 185, 129, 0.22)' : 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-subtle)', fontSize: '0.78rem', cursor: 'pointer' }}
                           >
                             <input
@@ -5901,8 +5921,8 @@ export default function App() {
                                 setNewJudgeForm(prev => ({
                                   ...prev,
                                   categoryCodes: checked
-                                    ? prev.categoryCodes.filter(c => c !== cat.code)
-                                    : [...prev.categoryCodes, cat.code]
+                                    ? prev.categoryCodes.filter(c => c !== catCode)
+                                    : [...prev.categoryCodes, catCode]
                                 }));
                               }}
                             />
@@ -5929,12 +5949,13 @@ export default function App() {
                       </div>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
                         {dynamicCategories.map(cat => {
-                          const assigned = (judge.assignedCategories || []).some(c => (typeof c === 'string' ? c === cat.code : c?.code === cat.code));
+                          const catCode = cat.code || cat.id;
+                          const assigned = (judge.assignedCategories || []).some(c => (typeof c === 'string' ? c === catCode : (c?.code || c?.id) === catCode));
                           return (
                             <button
-                              key={cat.code}
+                              key={catCode}
                               type="button"
-                              onClick={() => handleToggleJudgeCategory(judge, cat.code)}
+                              onClick={() => handleToggleJudgeCategory(judge, catCode)}
                               className={assigned ? 'btn-solid-primary' : 'btn-outline-cyan'}
                               style={{ padding: '4px 10px', fontSize: '0.75rem' }}
                             >
@@ -6002,11 +6023,14 @@ export default function App() {
                     2. จัดการกลุ่มนวัตกรรมแบบยืดหยุ่น (รองรับ 3, 5, 6, 7+ กลุ่มต่อปี) ประจำปี {selectedJudgeYear}
                   </h4>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                    {dynamicCategories.map(cat => (
-                      <span key={cat.code} className="badge-category">
-                        {cat.nameTh} ({cat.code})
-                      </span>
-                    ))}
+                    {dynamicCategories.map(cat => {
+                      const catCode = cat.code || cat.id;
+                      return (
+                        <span key={catCode} className="badge-category">
+                          {cat.nameTh} ({catCode})
+                        </span>
+                      );
+                    })}
                   </div>
                   <div className="responsive-two-col-grid" style={{ gap: '10px', marginBottom: '10px' }}>
                     <input

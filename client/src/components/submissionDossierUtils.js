@@ -249,6 +249,34 @@ const FALLBACK_DOSSIERS = {
 
 export const MAX_PROJECTS_PER_ACCOUNT = 2;
 
+const KNOWN_CATEGORY_PATTERNS = [
+  { code: 'energy_environment', keywords: ['energy_environment', 'energy', 'พลังงาน', 'สิ่งแวดล้อม'] },
+  { code: 'food_agriculture', keywords: ['food_agriculture', 'food', 'agriculture', 'เกษตร', 'อาหาร'] },
+  { code: 'social_economy', keywords: ['social_economy', 'social', 'economy', 'เศรษฐกิจ', 'สังคม'] },
+  { code: 'medical_device', keywords: ['medical_device', 'medical', 'เครื่องมือแพทย์', 'สาธารณสุข', 'สุขภาพ'] },
+  { code: 'material', keywords: ['material', 'วัสดุศาสตร์', 'วัสดุ'] },
+  { code: 'others', keywords: ['others', 'อื่นๆ'] },
+];
+
+export function normalizeCategoryCode(rawCategory) {
+  if (!rawCategory) return 'energy_environment';
+  if (typeof rawCategory === 'object') {
+    return normalizeCategoryCode(rawCategory.code || rawCategory.id || rawCategory.nameTh || rawCategory.nameEn || '');
+  }
+  const str = String(rawCategory).trim();
+  if (!str) return 'energy_environment';
+  const lower = str.toLowerCase();
+  for (const item of KNOWN_CATEGORY_PATTERNS) {
+    if (lower === item.code) return item.code;
+  }
+  for (const item of KNOWN_CATEGORY_PATTERNS) {
+    if (item.keywords.some((kw) => lower.includes(kw))) {
+      return item.code;
+    }
+  }
+  return str;
+}
+
 export function createInitialSubmissionForm() {
   return {
     id: '',
@@ -393,7 +421,7 @@ export function buildSubmissionApiPayload(form, isDraft = false, userId = 'guest
     ...(trimmedId ? { id: trimmedId } : {}),
     titleTh: String(form?.titleTh || '').trim(),
     titleEn: String(form?.titleEn || '').trim(),
-    category: form?.category || 'energy_environment',
+    category: normalizeCategoryCode(form?.category),
     educationLevel: form?.educationLevel || 'higher_and_above',
     teamName: String(form?.teamName || '').trim(),
     affiliation: String(form?.affiliation || '').trim(),
@@ -424,10 +452,7 @@ export function hydrateSubmissionFormFromServer(record) {
   const base = createInitialSubmissionForm();
   if (!record || typeof record !== 'object') return base;
 
-  const categoryCode =
-    typeof record.category === 'object' && record.category !== null
-      ? record.category.code || 'energy_environment'
-      : record.category || 'energy_environment';
+  const categoryCode = normalizeCategoryCode(record.category);
 
   const levelCode =
     typeof record.educationLevel === 'object' && record.educationLevel !== null
