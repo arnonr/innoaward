@@ -11,6 +11,10 @@ export const mastersController = new Elysia({ prefix: '/api/masters' })
           include: { category: true },
           orderBy: { orderIndex: 'asc' },
         },
+        levels: {
+          include: { educationLevel: true },
+          orderBy: { orderIndex: 'asc' },
+        },
       },
     });
 
@@ -20,7 +24,7 @@ export const mastersController = new Elysia({ prefix: '/api/masters' })
     };
   })
 
-  // Get categories configured for a specific competition year (e.g. 2569)
+  // Get categories configured for a specific competition year (e.g. 2570)
   .get(
     '/years/:year/categories',
     async ({ params, set }) => {
@@ -53,6 +57,48 @@ export const mastersController = new Elysia({ prefix: '/api/masters' })
       return {
         success: true,
         data: yearCategories,
+      };
+    },
+    {
+      params: t.Object({
+        year: t.String(),
+      }),
+    }
+  )
+
+  // Get competition levels configured for a specific competition year (e.g. 2570, 2569)
+  .get(
+    '/years/:year/levels',
+    async ({ params, set }) => {
+      const yearInt = parseInt(params.year, 10);
+      if (Number.isNaN(yearInt)) {
+        set.status = 400;
+        return { success: false, message: 'ปีการแข่งขันไม่ถูกต้อง' };
+      }
+
+      const compYear = await prisma.competitionYear.findUnique({
+        where: { year: yearInt },
+      });
+
+      if (!compYear) {
+        set.status = 404;
+        return { success: false, message: `ไม่พบข้อมูลปีการแข่งขัน ${yearInt}` };
+      }
+
+      const yearLevels = await prisma.competitionYearLevel.findMany({
+        where: {
+          competitionYearId: compYear.id,
+          isActive: true,
+        },
+        include: {
+          educationLevel: true,
+        },
+        orderBy: { orderIndex: 'asc' },
+      });
+
+      return {
+        success: true,
+        data: yearLevels,
       };
     },
     {

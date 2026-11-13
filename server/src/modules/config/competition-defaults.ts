@@ -316,21 +316,29 @@ export function formatLevelPrizeSummaryLine(level: {
   trophyShortTh?: string;
   totalPrizeAmount?: number;
 }): string {
-  const trophy = (level.trophyShortTh || KMUTNB_TROPHY_SHORT_TH).trim();
-  const rawItems = Array.isArray(level.prizeBreakdown) ? level.prizeBreakdown : [];
+  const trophy =
+    (typeof level.trophyShortTh === 'string' && level.trophyShortTh.trim()) ||
+    KMUTNB_TROPHY_SHORT_TH;
+  const rawItems = Array.isArray(level.prizeBreakdown)
+    ? level.prizeBreakdown.filter(
+        (raw): raw is Partial<PrizeBreakdownItem> =>
+          Boolean(raw && typeof raw === 'object' && !Array.isArray(raw))
+      )
+    : [];
 
   if (rawItems.length > 0) {
     return rawItems
-      .map((raw) => {
-        const item = raw as Partial<PrizeBreakdownItem>;
-        const labelTh = String(item.labelTh || 'รางวัล').trim();
+      .map((item) => {
+        const labelTh =
+          (typeof item.labelTh === 'string' && item.labelTh.trim()) || 'รางวัล';
         const count = Number(item.count) > 0 ? Number(item.count) : 1;
         const amountEach = Number(item.amountEach) >= 0 ? Number(item.amountEach) : 0;
         const totalAmount =
           Number(item.totalAmount) > 0 ? Number(item.totalAmount) : count * amountEach;
         const defaultHonor =
           item.tier === 'GRAND_WINNER' ? `${trophy} + เกียรติบัตร` : 'เกียรติบัตร';
-        const honorTextTh = String(item.honorTextTh || defaultHonor).trim();
+        const honorTextTh =
+          (typeof item.honorTextTh === 'string' && item.honorTextTh.trim()) || defaultHonor;
 
         if (count > 1) {
           return `${labelTh} (${count} รางวัล) รางวัลละ ${amountEach.toLocaleString('en-US')} บาท (รวม ${totalAmount.toLocaleString('en-US')} บาท) + ${honorTextTh}`;

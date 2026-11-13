@@ -7,6 +7,37 @@ import {
   normalizeRubricConfig,
   validateRubricCriteriaInput,
 } from '../judging/rubric-utils';
+import {
+  CATEGORIES_2570_DEFAULTS,
+  KMUTNB_TROPHY_SHORT_TH,
+  KMUTNB_TROPHY_TITLE_TH,
+  LEVELS_2570_DEFAULTS,
+  PROTOTYPE_RULE_TH,
+  ROYAL_TROPHY_SHORT_TH,
+  ROYAL_TROPHY_TITLE_TH,
+  formatLevelPrizeSummaryLine,
+} from './competition-defaults';
+
+function sanitizePrizeBreakdown(rawBreakdown: unknown): Record<string, unknown>[] {
+  if (!Array.isArray(rawBreakdown)) return [];
+  return rawBreakdown.filter(
+    (raw): raw is Record<string, unknown> =>
+      Boolean(raw && typeof raw === 'object' && !Array.isArray(raw))
+  );
+}
+
+const yearConfigInclude = {
+  categories: {
+    where: { isActive: true },
+    include: { category: true },
+    orderBy: { orderIndex: 'asc' as const },
+  },
+  levels: {
+    where: { isActive: true },
+    include: { educationLevel: true },
+    orderBy: { orderIndex: 'asc' as const },
+  },
+};
 
 export const configController = new Elysia()
   .use(authPlugin)
@@ -36,26 +67,14 @@ export const configController = new Elysia()
       let targetYear = !Number.isNaN(requestedYear)
         ? await prisma.competitionYear.findUnique({
             where: { year: requestedYear },
-            include: {
-              categories: {
-                where: { isActive: true },
-                include: { category: true },
-                orderBy: { orderIndex: 'asc' },
-              },
-            },
+            include: yearConfigInclude,
           })
         : null;
 
       if (!targetYear) {
         targetYear = await prisma.competitionYear.findFirst({
           where: { isCurrent: true },
-          include: {
-            categories: {
-              where: { isActive: true },
-              include: { category: true },
-              orderBy: { orderIndex: 'asc' },
-            },
-          },
+          include: yearConfigInclude,
         });
       }
 
@@ -63,29 +82,87 @@ export const configController = new Elysia()
         orderBy: { year: 'desc' },
       });
 
-      const educationLevels = await prisma.educationLevel.findMany({
-        where: { isActive: true },
-        orderBy: { orderIndex: 'asc' },
-      });
+      const categoriesFormatted = targetYear
+        ? targetYear.categories.map((yc) => ({
+            id: yc.category.code,
+            code: yc.category.code,
+            categoryId: yc.category.id,
+            nameTh: yc.customNameTh || yc.category.nameTh,
+            nameEn: yc.category.nameEn,
+            descriptionTh: yc.customDescription || yc.category.descriptionTh,
+            icon: yc.category.icon,
+            color: yc.category.color,
+            bgImage: yc.category.bgImage,
+            isActive: yc.isActive,
+          }))
+        : CATEGORIES_2570_DEFAULTS.map((spec) => ({
+            id: spec.code,
+            code: spec.code,
+            categoryId: spec.code,
+            nameTh: spec.nameTh,
+            nameEn: spec.nameEn,
+            descriptionTh: spec.descriptionTh,
+            icon: spec.icon,
+            color: spec.color,
+            bgImage: spec.bgImage,
+            isActive: true,
+          }));
 
-      const categoriesFormatted = (targetYear?.categories || []).map((yc) => ({
-        id: yc.category.code,
-        code: yc.category.code,
-        categoryId: yc.category.id,
-        nameTh: yc.customNameTh || yc.category.nameTh,
-        nameEn: yc.category.nameEn,
-        descriptionTh: yc.customDescription || yc.category.descriptionTh,
-        icon: yc.category.icon,
-        color: yc.category.color,
-        bgImage: yc.category.bgImage,
-        isActive: yc.isActive,
-      }));
+      const levelsFormatted = targetYear
+        ? targetYear.levels.map((yl) => {
+            const breakdown = sanitizePrizeBreakdown(yl.prizeBreakdown);
+            const trophyShortTh =
+              (typeof yl.trophyShortTh === 'string' && yl.trophyShortTh.trim()) ||
+              (yl.isRoyalTrophy ? ROYAL_TROPHY_SHORT_TH : KMUTNB_TROPHY_SHORT_TH);
+            const trophyTitleTh =
+              (typeof yl.trophyTitleTh === 'string' && yl.trophyTitleTh.trim()) ||
+              (yl.isRoyalTrophy ? ROYAL_TROPHY_TITLE_TH : KMUTNB_TROPHY_TITLE_TH);
 
-      const levelsFormatted = educationLevels.map((lvl) => ({
-        id: lvl.code,
-        nameTh: lvl.nameTh,
-        nameEn: lvl.nameEn,
-        eligible: lvl.eligibleTh,
+            return {
+              id: yl.educationLevel.code,
+              code: yl.educationLevel.code,
+              educationLevelId: yl.educationLevelId,
+              nameTh: yl.customNameTh || yl.educationLevel.nameTh,
+              nameEn: yl.customNameEn || yl.educationLevel.nameEn,
+              eligible: yl.customEligibleTh || yl.educationLevel.eligibleTh || '',
+              trophyTitleTh,
+              trophyShortTh,
+              isRoyalTrophy: yl.isRoyalTrophy,
+              totalPrizeAmount: yl.totalPrizeAmount,
+              requiresPrototype: yl.requiresPrototype,
+              prototypeRuleTh: yl.prototypeRuleTh || PROTOTYPE_RULE_TH,
+              prizeBreakdown: breakdown,
+            };
+          })
+        : LEVELS_2570_DEFAULTS.map((spec) => ({
+            id: spec.code,
+            code: spec.code,
+            educationLevelId: spec.code,
+            nameTh: spec.nameTh,
+            nameEn: spec.nameEn,
+            eligible: spec.eligibleTh,
+            trophyTitleTh: spec.trophyTitleTh,
+            trophyShortTh: spec.trophyShortTh,
+            isRoyalTrophy: spec.isRoyalTrophy,
+            totalPrizeAmount: spec.totalPrizeAmount,
+            requiresPrototype: spec.requiresPrototype,
+            prototypeRuleTh: spec.prototypeRuleTh,
+            prizeBreakdown: spec.prizeBreakdown,
+          }));
+
+      const totalPrizePool = levelsFormatted.reduce((sum, l) => sum + l.totalPrizeAmount, 0);
+      const totalAwardCount = levelsFormatted.reduce((sum, l) => {
+        if (l.prizeBreakdown.length === 0) return sum + 6;
+        const levelAwards = l.prizeBreakdown.reduce((acc, item: any) => {
+          const count = Number(item.count) > 0 ? Number(item.count) : 1;
+          return acc + count;
+        }, 0);
+        return sum + levelAwards;
+      }, 0);
+
+      const prizes = levelsFormatted.map((l) => ({
+        rank: l.nameTh,
+        title: formatLevelPrizeSummaryLine(l),
       }));
 
       const rubricConfig = normalizeRubricConfig(targetYear?.rubricConfig);
@@ -102,7 +179,7 @@ export const configController = new Elysia()
           themeTh: targetYear?.themeTh || 'นวัตกรรมขับเคลื่อนเศรษฐกิจและสังคมที่ยั่งยืน',
           grandPrize:
             targetYear?.grandPrize ||
-            'ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี',
+            ROYAL_TROPHY_TITLE_TH,
           eventDate: targetYear?.eventDate?.toISOString() || '2027-06-25T01:30:00.000Z',
           submissionStart: targetYear?.submissionStart?.toISOString() || '2026-10-31T17:00:00.000Z',
           submissionDeadline:
@@ -124,19 +201,9 @@ export const configController = new Elysia()
         })),
         categories: categoriesFormatted,
         educationLevels: levelsFormatted,
-        totalPrizePool: 180000,
-        prizes: [
-          {
-            rank: 'ระดับอุดมศึกษาและบุคคลทั่วไป',
-            title:
-              'ชนะเลิศ (1 รางวัล) 40,000 บาท + ถ้วยพระราชทานฯ + เกียรติบัตร | รองชนะเลิศอันดับ 1 (1 รางวัล) 30,000 บาท + เกียรติบัตร | รองชนะเลิศอันดับ 2 (1 รางวัล) 20,000 บาท + เกียรติบัตร | ชมเชย (3 รางวัล) รางวัลละ 5,000 บาท (รวม 15,000 บาท) + เกียรติบัตร',
-          },
-          {
-            rank: 'ระดับต่ำกว่าอุดมศึกษา',
-            title:
-              'ชนะเลิศ (1 รางวัล) 30,000 บาท + ถ้วยพระราชทานฯ + เกียรติบัตร | รองชนะเลิศอันดับ 1 (1 รางวัล) 20,000 บาท + เกียรติบัตร | รองชนะเลิศอันดับ 2 (1 รางวัล) 10,000 บาท + เกียรติบัตร | ชมเชย (3 รางวัล) รางวัลละ 5,000 บาท (รวม 15,000 บาท) + เกียรติบัตร',
-          },
-        ],
+        totalPrizePool,
+        totalAwardCount,
+        prizes,
       };
     },
     {
@@ -351,6 +418,222 @@ export const configController = new Elysia()
     }
   )
 
+  // Add or Update Dynamic Competition Level for a Competition Year (Admin Only)
+  .post(
+    '/api/config/levels',
+    async ({ body, currentUser, set }) => {
+      if (!currentUser) {
+        set.status = 401;
+        return { success: false, message: 'กรุณาเข้าสู่ระบบก่อนดำเนินการ' };
+      }
+      if (currentUser.role !== Role.ADMIN) {
+        set.status = 403;
+        return {
+          success: false,
+          message: 'เฉพาะผู้ดูแลระบบ (ADMIN) เท่านั้นที่สามารถจัดการประเภทการแข่งขันได้',
+        };
+      }
+
+      const cleanCode = body.code
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_]+/g, '_');
+      if (!cleanCode || !body.nameTh.trim()) {
+        set.status = 400;
+        return { success: false, message: 'กรุณาระบุรหัสและชื่อประเภทการแข่งขัน' };
+      }
+
+      const targetYear = body.year
+        ? await prisma.competitionYear.findUnique({ where: { year: body.year } })
+        : await prisma.competitionYear.findFirst({ where: { isCurrent: true } });
+
+      if (!targetYear) {
+        set.status = 404;
+        return { success: false, message: 'ไม่พบข้อมูลปีการแข่งขันที่ระบุ' };
+      }
+
+      let eduLevel = await prisma.educationLevel.findUnique({
+        where: { code: cleanCode },
+      });
+
+      if (!eduLevel) {
+        const existingCount = await prisma.educationLevel.count();
+        eduLevel = await prisma.educationLevel.create({
+          data: {
+            code: cleanCode,
+            nameTh: body.nameTh.trim(),
+            nameEn: body.nameEn?.trim() || body.nameTh.trim(),
+            eligibleTh: body.eligibleTh?.trim() || '',
+            eligibleEn: '',
+            orderIndex: body.orderIndex ?? existingCount + 1,
+            isActive: targetYear.isCurrent ? (body.isActive ?? true) : false,
+          },
+        });
+      } else if (
+        targetYear.isCurrent &&
+        body.isActive !== undefined &&
+        eduLevel.isActive !== body.isActive
+      ) {
+        eduLevel = await prisma.educationLevel.update({
+          where: { id: eduLevel.id },
+          data: { isActive: body.isActive },
+        });
+      }
+
+      const existingYearLevel = await prisma.competitionYearLevel.findUnique({
+        where: {
+          competitionYearId_educationLevelId: {
+            competitionYearId: targetYear.id,
+            educationLevelId: eduLevel.id,
+          },
+        },
+      });
+
+      const resolvedIsRoyal =
+        body.isRoyalTrophy !== undefined
+          ? body.isRoyalTrophy
+          : (existingYearLevel?.isRoyalTrophy ?? false);
+
+      const resolvedTrophyTitleTh =
+        (typeof body.trophyTitleTh === 'string' && body.trophyTitleTh.trim()) ||
+        (existingYearLevel &&
+        (body.isRoyalTrophy === undefined ||
+          body.isRoyalTrophy === existingYearLevel.isRoyalTrophy) &&
+        existingYearLevel.trophyTitleTh.trim()
+          ? existingYearLevel.trophyTitleTh.trim()
+          : resolvedIsRoyal
+            ? ROYAL_TROPHY_TITLE_TH
+            : KMUTNB_TROPHY_TITLE_TH);
+
+      const resolvedTrophyShortTh =
+        (typeof body.trophyShortTh === 'string' && body.trophyShortTh.trim()) ||
+        (existingYearLevel &&
+        (body.isRoyalTrophy === undefined ||
+          body.isRoyalTrophy === existingYearLevel.isRoyalTrophy) &&
+        existingYearLevel.trophyShortTh.trim()
+          ? existingYearLevel.trophyShortTh.trim()
+          : resolvedIsRoyal
+            ? ROYAL_TROPHY_SHORT_TH
+            : KMUTNB_TROPHY_SHORT_TH);
+
+      const resolvedTotalPrizeAmount =
+        body.totalPrizeAmount !== undefined && Number.isFinite(body.totalPrizeAmount)
+          ? Math.max(0, Math.round(body.totalPrizeAmount))
+          : (existingYearLevel?.totalPrizeAmount ?? 75000);
+
+      const resolvedPrizeBreakdown =
+        body.prizeBreakdown !== undefined
+          ? sanitizePrizeBreakdown(body.prizeBreakdown)
+          : existingYearLevel?.prizeBreakdown != null
+            ? sanitizePrizeBreakdown(existingYearLevel.prizeBreakdown)
+            : undefined;
+
+      const resolvedRequiresPrototype =
+        body.requiresPrototype !== undefined
+          ? body.requiresPrototype
+          : (existingYearLevel?.requiresPrototype ?? true);
+
+      const resolvedIsActive =
+        body.isActive !== undefined ? body.isActive : (existingYearLevel?.isActive ?? true);
+
+      const resolvedOrderIndex =
+        body.orderIndex !== undefined
+          ? body.orderIndex
+          : (existingYearLevel?.orderIndex ?? eduLevel.orderIndex);
+
+      const yearLevel = await prisma.competitionYearLevel.upsert({
+        where: {
+          competitionYearId_educationLevelId: {
+            competitionYearId: targetYear.id,
+            educationLevelId: eduLevel.id,
+          },
+        },
+        update: {
+          customNameTh: body.nameTh.trim(),
+          customNameEn:
+            body.nameEn !== undefined
+              ? body.nameEn.trim() || body.nameTh.trim()
+              : existingYearLevel?.customNameEn,
+          customEligibleTh:
+            body.eligibleTh !== undefined
+              ? body.eligibleTh.trim()
+              : existingYearLevel?.customEligibleTh,
+          trophyTitleTh: resolvedTrophyTitleTh,
+          trophyShortTh: resolvedTrophyShortTh,
+          isRoyalTrophy: resolvedIsRoyal,
+          totalPrizeAmount: resolvedTotalPrizeAmount,
+          prizeBreakdown: resolvedPrizeBreakdown as any,
+          requiresPrototype: resolvedRequiresPrototype,
+          prototypeRuleTh: existingYearLevel?.prototypeRuleTh || PROTOTYPE_RULE_TH,
+          isActive: resolvedIsActive,
+          orderIndex: resolvedOrderIndex,
+        },
+        create: {
+          competitionYearId: targetYear.id,
+          educationLevelId: eduLevel.id,
+          customNameTh: body.nameTh.trim(),
+          customNameEn: body.nameEn?.trim() || eduLevel.nameEn || body.nameTh.trim(),
+          customEligibleTh: body.eligibleTh?.trim() ?? eduLevel.eligibleTh ?? '',
+          trophyTitleTh: resolvedTrophyTitleTh,
+          trophyShortTh: resolvedTrophyShortTh,
+          isRoyalTrophy: resolvedIsRoyal,
+          totalPrizeAmount: resolvedTotalPrizeAmount,
+          prizeBreakdown: resolvedPrizeBreakdown as any,
+          requiresPrototype: resolvedRequiresPrototype,
+          prototypeRuleTh: PROTOTYPE_RULE_TH,
+          isActive: resolvedIsActive,
+          orderIndex: resolvedOrderIndex,
+        },
+      });
+
+      const responseBreakdown = sanitizePrizeBreakdown(yearLevel.prizeBreakdown);
+
+      return {
+        success: true,
+        message: 'อัปเดตประเภทการแข่งขันประจำปีเรียบร้อยแล้ว',
+        data: {
+          id: eduLevel.code,
+          code: eduLevel.code,
+          educationLevelId: eduLevel.id,
+          nameTh: yearLevel.customNameTh || eduLevel.nameTh,
+          nameEn: yearLevel.customNameEn || eduLevel.nameEn,
+          eligible: yearLevel.customEligibleTh || eduLevel.eligibleTh || '',
+          trophyTitleTh: yearLevel.trophyTitleTh,
+          trophyShortTh: yearLevel.trophyShortTh,
+          isRoyalTrophy: yearLevel.isRoyalTrophy,
+          totalPrizeAmount: yearLevel.totalPrizeAmount,
+          requiresPrototype: yearLevel.requiresPrototype,
+          prototypeRuleTh: yearLevel.prototypeRuleTh || PROTOTYPE_RULE_TH,
+          prizeBreakdown: responseBreakdown,
+          prizeSummary: formatLevelPrizeSummaryLine({
+            prizeBreakdown: responseBreakdown,
+            trophyShortTh: yearLevel.trophyShortTh,
+            totalPrizeAmount: yearLevel.totalPrizeAmount,
+          }),
+          isActive: yearLevel.isActive,
+          orderIndex: yearLevel.orderIndex,
+        },
+      };
+    },
+    {
+      body: t.Object({
+        year: t.Optional(t.Number()),
+        code: t.String({ minLength: 2 }),
+        nameTh: t.String({ minLength: 2 }),
+        nameEn: t.Optional(t.String()),
+        eligibleTh: t.Optional(t.String()),
+        trophyTitleTh: t.Optional(t.String()),
+        trophyShortTh: t.Optional(t.String()),
+        isRoyalTrophy: t.Optional(t.Boolean()),
+        totalPrizeAmount: t.Optional(t.Number()),
+        prizeBreakdown: t.Optional(t.Array(t.Any())),
+        requiresPrototype: t.Optional(t.Boolean()),
+        isActive: t.Optional(t.Boolean()),
+        orderIndex: t.Optional(t.Number()),
+      }),
+    }
+  )
+
   // Create or Activate Competition Year (Multi-Year Rollover, Admin Only)
   .post(
     '/api/config/years',
@@ -376,12 +659,7 @@ export const configController = new Elysia()
       const yearAd = body.yearAd || yearNum - 543;
       const previousCurrent = await prisma.competitionYear.findFirst({
         where: { isCurrent: true },
-        include: {
-          categories: {
-            where: { isActive: true },
-            orderBy: { orderIndex: 'asc' },
-          },
-        },
+        include: yearConfigInclude,
       });
 
       const clonedRubric = previousCurrent?.rubricConfig
@@ -425,39 +703,189 @@ export const configController = new Elysia()
         },
       });
 
-      // Clone active categories from previous current year (or bind all active master categories)
-      const sourceCategories =
-        previousCurrent && previousCurrent.categories.length > 0
-          ? previousCurrent.categories
-          : (await prisma.category.findMany({ where: { isActive: true } })).map((c) => ({
-              categoryId: c.id,
+      const defaultPrizeSummary =
+        'ชิงถ้วยพระราชทานฯ และถ้วยรางวัล มจพ. เงินรางวัลรวม 255,000 บาท พร้อมเกียรติบัตร';
+
+      const existingYearCategoriesCount = await prisma.competitionYearCategory.count({
+        where: { competitionYearId: createdYear.id },
+      });
+
+      if (existingYearCategoriesCount === 0) {
+        // Clone active categories from previous current year (or fallback to CATEGORIES_2570_DEFAULTS)
+        let sourceCategories: Array<{
+          categoryId: string;
+          customNameTh: string | null;
+          customDescription: string | null;
+          prizeSummary: string | null;
+          orderIndex: number;
+        }> = [];
+
+        if (previousCurrent && previousCurrent.categories.length > 0) {
+          sourceCategories = previousCurrent.categories.map((yc) => ({
+            categoryId: yc.categoryId,
+            customNameTh: yc.customNameTh,
+            customDescription: yc.customDescription,
+            prizeSummary: yc.prizeSummary,
+            orderIndex: yc.orderIndex,
+          }));
+        } else {
+          for (const catSpec of CATEGORIES_2570_DEFAULTS) {
+            const cat = await prisma.category.upsert({
+              where: { code: catSpec.code },
+              update: {},
+              create: {
+                ...catSpec,
+                isActive: true,
+              },
+            });
+            sourceCategories.push({
+              categoryId: cat.id,
               customNameTh: null,
               customDescription: null,
-              prizeSummary:
-                'ชิงถ้วยพระราชทานฯ (สำหรับรางวัลชนะเลิศ) เงินรางวัลรวม 180,000 บาท และเกียรติบัตร',
-              isActive: true,
-              orderIndex: c.orderIndex,
-            }));
+              prizeSummary: defaultPrizeSummary,
+              orderIndex: catSpec.orderIndex,
+            });
+          }
+        }
 
-      for (const sc of sourceCategories) {
-        await prisma.competitionYearCategory.upsert({
-          where: {
-            competitionYearId_categoryId: {
+        for (const sc of sourceCategories) {
+          await prisma.competitionYearCategory.upsert({
+            where: {
+              competitionYearId_categoryId: {
+                competitionYearId: createdYear.id,
+                categoryId: sc.categoryId,
+              },
+            },
+            update: {
+              customNameTh: sc.customNameTh,
+              customDescription: sc.customDescription,
+              prizeSummary: sc.prizeSummary,
+              isActive: true,
+              orderIndex: sc.orderIndex,
+            },
+            create: {
               competitionYearId: createdYear.id,
               categoryId: sc.categoryId,
+              customNameTh: sc.customNameTh,
+              customDescription: sc.customDescription,
+              prizeSummary: sc.prizeSummary,
+              isActive: true,
+              orderIndex: sc.orderIndex,
             },
-          },
-          update: { isActive: true },
-          create: {
-            competitionYearId: createdYear.id,
-            categoryId: sc.categoryId,
-            customNameTh: sc.customNameTh,
-            customDescription: sc.customDescription,
-            prizeSummary: sc.prizeSummary,
-            isActive: true,
-            orderIndex: sc.orderIndex,
-          },
-        });
+          });
+        }
+      }
+
+      const existingYearLevelsCount = await prisma.competitionYearLevel.count({
+        where: { competitionYearId: createdYear.id },
+      });
+
+      if (existingYearLevelsCount === 0) {
+        // Clone active CompetitionYearLevels from previous current year (or fallback to LEVELS_2570_DEFAULTS)
+        let sourceLevels: Array<{
+          educationLevelId: string;
+          customNameTh: string | null;
+          customNameEn: string | null;
+          customEligibleTh: string | null;
+          trophyTitleTh: string;
+          trophyShortTh: string;
+          isRoyalTrophy: boolean;
+          totalPrizeAmount: number;
+          prizeBreakdown: unknown;
+          requiresPrototype: boolean;
+          prototypeRuleTh: string | null;
+          orderIndex: number;
+        }> = [];
+
+        if (previousCurrent && previousCurrent.levels.length > 0) {
+          sourceLevels = previousCurrent.levels.map((yl) => ({
+            educationLevelId: yl.educationLevelId,
+            customNameTh: yl.customNameTh,
+            customNameEn: yl.customNameEn,
+            customEligibleTh: yl.customEligibleTh,
+            trophyTitleTh: yl.trophyTitleTh,
+            trophyShortTh: yl.trophyShortTh,
+            isRoyalTrophy: yl.isRoyalTrophy,
+            totalPrizeAmount: yl.totalPrizeAmount,
+            prizeBreakdown: yl.prizeBreakdown,
+            requiresPrototype: yl.requiresPrototype,
+            prototypeRuleTh: yl.prototypeRuleTh,
+            orderIndex: yl.orderIndex,
+          }));
+        } else {
+          for (const lvlSpec of LEVELS_2570_DEFAULTS) {
+            const eduLevel = await prisma.educationLevel.upsert({
+              where: { code: lvlSpec.code },
+              update: {},
+              create: {
+                code: lvlSpec.code,
+                nameTh: lvlSpec.nameTh,
+                nameEn: lvlSpec.nameEn,
+                eligibleTh: lvlSpec.eligibleTh,
+                eligibleEn: lvlSpec.eligibleEn,
+                orderIndex: lvlSpec.orderIndex,
+                isActive: true,
+              },
+            });
+            sourceLevels.push({
+              educationLevelId: eduLevel.id,
+              customNameTh: lvlSpec.nameTh,
+              customNameEn: lvlSpec.nameEn,
+              customEligibleTh: lvlSpec.eligibleTh,
+              trophyTitleTh: lvlSpec.trophyTitleTh,
+              trophyShortTh: lvlSpec.trophyShortTh,
+              isRoyalTrophy: lvlSpec.isRoyalTrophy,
+              totalPrizeAmount: lvlSpec.totalPrizeAmount,
+              prizeBreakdown: lvlSpec.prizeBreakdown,
+              requiresPrototype: lvlSpec.requiresPrototype,
+              prototypeRuleTh: lvlSpec.prototypeRuleTh,
+              orderIndex: lvlSpec.orderIndex,
+            });
+          }
+        }
+
+        for (const sl of sourceLevels) {
+          const sanitizedBreakdown =
+            sl.prizeBreakdown != null ? sanitizePrizeBreakdown(sl.prizeBreakdown) : undefined;
+          await prisma.competitionYearLevel.upsert({
+            where: {
+              competitionYearId_educationLevelId: {
+                competitionYearId: createdYear.id,
+                educationLevelId: sl.educationLevelId,
+              },
+            },
+            update: {
+              customNameTh: sl.customNameTh,
+              customNameEn: sl.customNameEn,
+              customEligibleTh: sl.customEligibleTh,
+              trophyTitleTh: sl.trophyTitleTh,
+              trophyShortTh: sl.trophyShortTh,
+              isRoyalTrophy: sl.isRoyalTrophy,
+              totalPrizeAmount: sl.totalPrizeAmount,
+              prizeBreakdown: sanitizedBreakdown as any,
+              requiresPrototype: sl.requiresPrototype,
+              prototypeRuleTh: sl.prototypeRuleTh || PROTOTYPE_RULE_TH,
+              isActive: true,
+              orderIndex: sl.orderIndex,
+            },
+            create: {
+              competitionYearId: createdYear.id,
+              educationLevelId: sl.educationLevelId,
+              customNameTh: sl.customNameTh,
+              customNameEn: sl.customNameEn,
+              customEligibleTh: sl.customEligibleTh,
+              trophyTitleTh: sl.trophyTitleTh,
+              trophyShortTh: sl.trophyShortTh,
+              isRoyalTrophy: sl.isRoyalTrophy,
+              totalPrizeAmount: sl.totalPrizeAmount,
+              prizeBreakdown: sanitizedBreakdown as any,
+              requiresPrototype: sl.requiresPrototype,
+              prototypeRuleTh: sl.prototypeRuleTh || PROTOTYPE_RULE_TH,
+              isActive: true,
+              orderIndex: sl.orderIndex,
+            },
+          });
+        }
       }
 
       return {

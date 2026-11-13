@@ -28,20 +28,35 @@ export const authController = new Elysia({ prefix: '/api/auth' })
         };
       }
 
-      // Find education level
-      let level = await prisma.educationLevel.findFirst({
-        where: {
-          OR: [
-            { code: educationLevel || 'higher_and_above' },
-            { id: educationLevel || '' },
-          ],
-        },
-      });
+      // Find education level (resolve by code or id; fallback to 'general_public', then first active)
+      const requestedLevel = educationLevel?.trim();
+      let level = requestedLevel
+        ? await prisma.educationLevel.findFirst({
+            where: {
+              OR: [{ code: requestedLevel }, { id: requestedLevel }],
+            },
+          })
+        : null;
 
       if (!level) {
         level = await prisma.educationLevel.findFirst({
-          where: { code: 'higher_and_above' },
+          where: { code: 'general_public' },
         });
+      }
+
+      if (!level) {
+        level = await prisma.educationLevel.findFirst({
+          where: { isActive: true },
+          orderBy: { orderIndex: 'asc' },
+        });
+      }
+
+      if (!level) {
+        set.status = 500;
+        return {
+          success: false,
+          message: 'ไม่พบข้อมูลระดับผู้เข้าแข่งขันในระบบ',
+        };
       }
 
       const rawPassword = password || 'Contestant2026!';
