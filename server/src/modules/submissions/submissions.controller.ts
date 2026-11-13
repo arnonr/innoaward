@@ -392,10 +392,23 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         include: submissionRelationsInclude,
       });
 
+      const formatted = fresh ? formatDossierResponse(fresh, true) : null;
+
       return {
         success: true,
         message: isDraft ? 'บันทึกร่างผลงานเรียบร้อยแล้ว' : 'ส่งผลงานเข้าประกวดสำเร็จเรียบร้อย!',
-        data: fresh,
+        data:
+          fresh && formatted
+            ? {
+                ...formatted,
+                ...fresh,
+                isRoyalTrophy: formatted.isRoyalTrophy,
+                trophyShortTh: formatted.trophyShortTh,
+                categoryNameTh: formatted.categoryNameTh,
+                categoryNameEn: formatted.categoryNameEn,
+                educationLevelNameTh: formatted.educationLevelNameTh,
+              }
+            : fresh,
       };
     },
     {

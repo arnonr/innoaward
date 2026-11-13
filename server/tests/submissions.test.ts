@@ -111,6 +111,12 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(json.data.members.length).toBe(2);
     expect(json.data.competitionYearLevelId).toBeTruthy();
     expect(json.data.competitionYearLevel?.isRoyalTrophy).toBe(true);
+    expect(json.data.isRoyalTrophy).toBe(true);
+    expect(json.data.trophyShortTh).toBe("ถ้วยพระราชทานฯ");
+    expect(typeof json.data.categoryNameTh).toBe("string");
+    expect(json.data.categoryNameTh.length).toBeGreaterThan(0);
+    expect(typeof json.data.educationLevelNameTh).toBe("string");
+    expect(json.data.educationLevelNameTh).toBe("บุคคลทั่วไป");
   });
 
   test("GET /api/submissions/status/:trackingCode retrieves submission status and Royal Trophy metadata correctly", async () => {
@@ -221,6 +227,11 @@ describe("Submissions & Tracking Module (/api/submissions)", () => {
     expect(json.data.round3Result).toBe("");
     expect(json.data.members[0].idCard).toBe("5-1601-00029-58-2");
     expect(json.data.competitionYearLevel?.isRoyalTrophy).toBe(false);
+    expect(json.data.isRoyalTrophy).toBe(false);
+    expect(json.data.trophyShortTh).toBe("ถ้วยรางวัล มจพ.");
+    expect(typeof json.data.categoryNameTh).toBe("string");
+    expect(typeof json.data.educationLevelNameTh).toBe("string");
+    expect(json.data.educationLevelNameTh).toBe("อุดมศึกษา");
   });
 
   test("POST /api/submissions enforces max 2 projects per account while allowing updates to existing projects", async () => {

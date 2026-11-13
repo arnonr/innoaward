@@ -323,6 +323,7 @@ describe("Masters & Config API Modules", () => {
     const dynamicLevelCode = `startup_track_${Date.now()}`;
     const testFutureYear = 2599;
     const testFallbackYear = 2598;
+    const testClone2569Year = 2597;
 
     try {
       // 1. PATCH /api/config/rubric rejects weights summing to 90 (400)
@@ -389,6 +390,16 @@ describe("Masters & Config API Modules", () => {
         })
       );
       expect(addCatRes.status).toBe(200);
+
+      // Verify newly created CompetitionYearCategory has 2570 255,000 THB prizeSummary (not stale 180,000 THB)
+      const createdDynamicCatRow = await prisma.competitionYearCategory.findFirst({
+        where: {
+          competitionYear: { year: 2570 },
+          category: { code: dynamicCatCode },
+        },
+      });
+      expect(createdDynamicCatRow?.prizeSummary).toContain("255,000");
+      expect(createdDynamicCatRow?.prizeSummary).not.toContain("180,000");
 
       const cfgRes = await app.handle(new Request("http://localhost/api/config?year=2570"));
       const cfgJson: any = await cfgRes.json();
@@ -555,6 +566,35 @@ describe("Masters & Config API Modules", () => {
         }
       }
 
+      // 6b. POST /api/config/years with cloneFromYear: 2569 clones 2569's 2 levels and 180,000 THB pool
+      const clone2569Res = await app.handle(
+        new Request("http://localhost/api/config/years", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            year: testClone2569Year,
+            yearAd: testClone2569Year - 543,
+            cloneFromYear: 2569,
+            setAsCurrent: false,
+          }),
+        })
+      );
+      expect(clone2569Res.status).toBe(200);
+
+      const clone2569CfgRes = await app.handle(
+        new Request(`http://localhost/api/config?year=${testClone2569Year}`)
+      );
+      const clone2569CfgJson: any = await clone2569CfgRes.json();
+      expect(clone2569CfgJson.educationLevels.length).toBe(2);
+      expect(clone2569CfgJson.educationLevels.map((l: any) => l.code)).toEqual([
+        "higher_and_above",
+        "below_higher",
+      ]);
+      expect(clone2569CfgJson.totalPrizePool).toBe(180000);
+
       // Direct guard check on formatLevelPrizeSummaryLine
       expect(
         formatLevelPrizeSummaryLine({
@@ -565,7 +605,7 @@ describe("Masters & Config API Modules", () => {
       ).toContain("ถ้วยรางวัล มจพ.");
     } finally {
       await prisma.competitionYear.deleteMany({
-        where: { year: { in: [testFutureYear, testFallbackYear] } },
+        where: { year: { in: [testFutureYear, testFallbackYear, testClone2569Year] } },
       });
       await prisma.category.deleteMany({ where: { code: dynamicCatCode } });
       await prisma.educationLevel.deleteMany({ where: { code: dynamicLevelCode } });

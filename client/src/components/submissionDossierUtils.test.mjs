@@ -18,6 +18,7 @@ import {
   validateRubricWeights,
   formatCategoryOptionLabel,
   DEFAULT_COMPETITION_LEVELS_2570,
+  KMUTNB_TROPHY_SHORT_TH_2570,
   CATEGORY_LABELS_TH,
   LEVEL_LABELS_TH
 } from './submissionDossierUtils.js';
@@ -438,5 +439,161 @@ test('App.jsx integrates 3-tier dynamicLevels, 255,000 THB prize pool, Step 3 pr
   assert.match(appSrc, /ถ้วยรางวัล มจพ\./);
   assert.doesNotMatch(appSrc, /normalizedCats\.some\(\s*\(?c\)?\s*=>\s*c\.code\s*===\s*'others'\s*\)/);
 });
+
+test('normalizeStatusDossier unwraps raw Prisma category/educationLevel objects, preserves isRoyalTrophy/trophyShortTh, and uses KMUTNB_TROPHY_SHORT_TH_2570 fallback', () => {
+  assert.equal(KMUTNB_TROPHY_SHORT_TH_2570, 'ถ้วยรางวัล มจพ.');
+
+  const rawPostSubmissionGeneralPublic = {
+    id: 'sub-post-2570-gp',
+    trackingCode: 'KMUTNB-2570-0101',
+    status: 'SUBMITTED',
+    titleTh: 'ระบบโดรนเกษตรอัจฉริยะ',
+    teamName: 'AgriSky',
+    affiliation: 'บริษัท นวัตกรรมไทย จำกัด',
+    category: {
+      id: 'c1',
+      code: 'agri_food',
+      nameTh: 'ด้านการเกษตรและอุตสาหกรรมอาหาร',
+      nameEn: 'Agriculture & Food Industry'
+    },
+    competitionYearCategory: {
+      id: 'cyc1',
+      customNameTh: 'ด้านการเกษตรและอุตสาหกรรมอาหาร'
+    },
+    educationLevel: {
+      id: 'l1',
+      code: 'general_public',
+      nameTh: 'บุคคลทั่วไป'
+    },
+    competitionYearLevel: {
+      id: 'cyl1',
+      isRoyalTrophy: true,
+      trophyShortTh: 'ถ้วยพระราชทานฯ',
+      customNameTh: 'บุคคลทั่วไป'
+    },
+    competitionYear: {
+      id: 'cy2570',
+      year: 2570
+    }
+  };
+
+  const gpDossier = normalizeStatusDossier(rawPostSubmissionGeneralPublic);
+  assert.equal(typeof gpDossier.category, 'string');
+  assert.equal(gpDossier.category, 'agri_food');
+  assert.equal(typeof gpDossier.categoryNameTh, 'string');
+  assert.equal(gpDossier.categoryNameTh, 'ด้านการเกษตรและอุตสาหกรรมอาหาร');
+  assert.equal(typeof gpDossier.educationLevel, 'string');
+  assert.equal(gpDossier.educationLevel, 'general_public');
+  assert.equal(typeof gpDossier.educationLevelNameTh, 'string');
+  assert.equal(gpDossier.educationLevelNameTh, 'บุคคลทั่วไป');
+  assert.equal(gpDossier.isRoyalTrophy, true);
+  assert.equal(gpDossier.trophyShortTh, 'ถ้วยพระราชทานฯ');
+  assert.equal(gpDossier.year, 2570);
+
+  const rawPostSubmissionStudentTier = {
+    id: 'sub-post-2570-he',
+    trackingCode: 'KMUTNB-2570-0102',
+    status: 'SUBMITTED',
+    titleTh: 'หุ่นยนต์คัดแยกเวชภัณฑ์',
+    teamName: 'MedBot KMUTNB',
+    category: {
+      id: 'c2',
+      code: 'custom_biotech',
+      nameTh: 'เทคโนโลยีชีวภาพขั้นสูง'
+    },
+    educationLevel: {
+      id: 'l2',
+      code: 'higher_education',
+      nameTh: 'อุดมศึกษา'
+    },
+    competitionYearLevel: {
+      id: 'cyl2',
+      isRoyalTrophy: false,
+      trophyShortTh: '   ',
+      customNameTh: 'อุดมศึกษา'
+    },
+    competitionYear: {
+      id: 'cy2570',
+      year: 2570
+    }
+  };
+
+  const heDossier = normalizeStatusDossier(rawPostSubmissionStudentTier);
+  assert.equal(typeof heDossier.category, 'string');
+  assert.equal(heDossier.category, 'custom_biotech');
+  assert.equal(typeof heDossier.categoryNameTh, 'string');
+  assert.equal(heDossier.categoryNameTh, 'เทคโนโลยีชีวภาพขั้นสูง');
+  assert.equal(typeof heDossier.educationLevel, 'string');
+  assert.equal(heDossier.educationLevel, 'higher_education');
+  assert.equal(typeof heDossier.educationLevelNameTh, 'string');
+  assert.equal(heDossier.educationLevelNameTh, 'อุดมศึกษา');
+  assert.equal(heDossier.isRoyalTrophy, false);
+  assert.equal(heDossier.trophyShortTh, 'ถ้วยรางวัล มจพ.');
+});
+
+test('validateSubmissionStep honors options.requiresPrototype === false on Step 3 while enforcing Prototype gate by default', () => {
+  const formWithoutPrototypeTick = {
+    ...createInitialSubmissionForm(),
+    titleTh: 'โครงการแนวคิดนวัตกรรมชุมชน',
+    teamName: 'OpenIdea',
+    affiliation: 'โรงเรียนสาธิต',
+    abstractTh: 'รายละเอียดครบถ้วนทุกช่อง',
+    members: [{ fullName: 'นายต้นกล้า คิดดี', role: 'หัวหน้าทีม', idCard: '1-1001-00001-00-1' }],
+    primaryCoordinator: {
+      name: 'นายต้นกล้า คิดดี',
+      idCard: '1-1001-00001-00-1',
+      phone: '081-222-3333',
+      email: 'tonkla@example.com'
+    },
+    proposalPdfUrl: 'https://drive.google.com/proposal.pdf',
+    videoUrl: 'https://youtube.com/watch?v=demo',
+    coverImage: '/domain-engineering.jpg',
+    hasPrototypeConfirmed: false
+  };
+
+  // Default (omitted options) and explicit requiresPrototype: true still block final submit
+  assert.match(validateSubmissionStep(formWithoutPrototypeTick, 3, false), /Prototype/);
+  assert.match(
+    validateSubmissionStep(formWithoutPrototypeTick, 3, false, { requiresPrototype: true }),
+    /Prototype/
+  );
+
+  // When tier sets requiresPrototype: false, Step 3 and full-form validation pass without checkbox
+  assert.equal(
+    validateSubmissionStep(formWithoutPrototypeTick, 3, false, { requiresPrototype: false }),
+    ''
+  );
+  assert.equal(
+    validateSubmissionStep(formWithoutPrototypeTick, 0, false, { requiresPrototype: false }),
+    ''
+  );
+});
+
+test('App.jsx isolates public active-year config from Judge/Admin selectedJudgeYear, honors dynamic winner names/trophies, and supports tier requiresPrototype/0-THB/rollover', () => {
+  const appPath = path.resolve(__dirname, '../App.jsx');
+  const appSrc = fs.readFileSync(appPath, 'utf8');
+
+  // Critical #2: Public vs Judge/Admin year state isolation & upload year safety
+  assert.match(appSrc, /activeCompetitionYear/);
+  assert.match(appSrc, /judgeDynamicCategories/);
+  assert.match(appSrc, /judgeDynamicLevels/);
+  assert.match(appSrc, /judgeTotalPrizePool/);
+  assert.match(appSrc, /y\.isCurrent\s*\|\|\s*y\.isActive/);
+  assert.doesNotMatch(appSrc, /year=\{selectedJudgeYear/);
+
+  // Important #3: Winner dynamic category/level names and <= 2569 Royal Trophy fallback
+  assert.match(appSrc, /Number\(w\.year\)\s*<=\s*2569/);
+  assert.match(appSrc, /w\.categoryNameTh/);
+  assert.match(appSrc, /w\.educationLevelNameTh/);
+
+  // Important #4: totalAwardCount state, requiresPrototype option, and 0-THB safe parsing
+  assert.match(appSrc, /totalAwardCount/);
+  assert.doesNotMatch(appSrc, /dynamicLevels\.length\s*\*\s*6/);
+  assert.match(appSrc, /requiresPrototype:\s*selectedTierRequiresPrototype/);
+
+  // Minor #6: Year rollover copy mentions competition tiers & trophies
+  assert.match(appSrc, /ประเภทการแข่งขันและถ้วยรางวัล/);
+});
+
 
 

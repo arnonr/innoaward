@@ -405,7 +405,17 @@ const FALLBACK_WINNERS = [
   }
 ];
 
-const getCategoryNameTh = (cat) => {
+const getCategoryNameTh = (catOrWinner, customNameTh = '') => {
+  if (catOrWinner && typeof catOrWinner === 'object') {
+    if (typeof catOrWinner.categoryNameTh === 'string' && catOrWinner.categoryNameTh.trim()) {
+      return catOrWinner.categoryNameTh.trim();
+    }
+    return getCategoryNameTh(catOrWinner.category, '');
+  }
+  if (typeof customNameTh === 'string' && customNameTh.trim()) {
+    return customNameTh.trim();
+  }
+  const cat = catOrWinner;
   switch (cat) {
     case 'energy_environment': return 'Energy & Environment';
     case 'food_agriculture': return 'Food & Agriculture';
@@ -417,8 +427,15 @@ const getCategoryNameTh = (cat) => {
   }
 };
 
-const getLevelNameTh = (levelCode, year) => {
-  if (Number(year) === 2569) {
+const getLevelNameTh = (levelOrWinner, year) => {
+  if (levelOrWinner && typeof levelOrWinner === 'object') {
+    if (typeof levelOrWinner.educationLevelNameTh === 'string' && levelOrWinner.educationLevelNameTh.trim()) {
+      return levelOrWinner.educationLevelNameTh.trim();
+    }
+    return getLevelNameTh(levelOrWinner.educationLevel, levelOrWinner.year ?? year);
+  }
+  const levelCode = levelOrWinner;
+  if (Number(year) <= 2569) {
     if (levelCode === 'below_higher') return 'ระดับต่ำกว่าอุดมศึกษา';
     if (levelCode === 'higher_and_above') return 'ระดับอุดมศึกษาและบุคคลทั่วไป';
   }
@@ -431,7 +448,7 @@ const renderAwardBadge = (w) => {
     const isRoyal =
       typeof w.isRoyalTrophy === 'boolean'
         ? w.isRoyalTrophy
-        : Number(w.year) === 2569 || w.educationLevel === 'general_public' || w.educationLevel === 'higher_and_above';
+        : Number(w.year) <= 2569 || w.educationLevel === 'general_public' || w.educationLevel === 'higher_and_above';
     if (!isRoyal) {
       return (
         <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'linear-gradient(135deg, rgba(14, 116, 144, 0.96), rgba(3, 105, 161, 0.92))', color: '#E0F2FE', border: '1px solid rgba(56, 189, 248, 0.85)', boxShadow: '0 2px 8px rgba(6, 182, 212, 0.35)' }}>
@@ -589,7 +606,8 @@ export default function App() {
   const [mySubmissionsLoading, setMySubmissionsLoading] = useState(false);
   const [submissionDeadlineIso, setSubmissionDeadlineIso] = useState(DEFAULT_SUBMISSION_DEADLINE_ISO);
 
-  // Multi-Year Judging, Dynamic Categories, Competition Tiers & Weighted Rubric State
+  // Public Active-Year Config State (never overwritten when Judge/Admin inspects historical years)
+  const [activeCompetitionYear, setActiveCompetitionYear] = useState(2570);
   const [dynamicCategories, setDynamicCategories] = useState(() =>
     DOMAIN_CATALOG.map((d) => ({
       id: d.id,
@@ -603,10 +621,26 @@ export default function App() {
   );
   const [dynamicLevels, setDynamicLevels] = useState(DEFAULT_COMPETITION_LEVELS_2570);
   const [totalPrizePool, setTotalPrizePool] = useState(255000);
+  const [totalAwardCount, setTotalAwardCount] = useState(18);
+
+  // Judge & Admin Modal Year-Scoped Config State (bound to selectedJudgeYear)
+  const [judgeDynamicCategories, setJudgeDynamicCategories] = useState(() =>
+    DOMAIN_CATALOG.map((d) => ({
+      id: d.id,
+      code: d.id,
+      nameTh: d.titleTh,
+      nameEn: d.titleEn,
+      descriptionTh: d.overview || d.desc,
+      color: d.color,
+      bgImage: d.bgImage
+    }))
+  );
+  const [judgeDynamicLevels, setJudgeDynamicLevels] = useState(DEFAULT_COMPETITION_LEVELS_2570);
+  const [judgeTotalPrizePool, setJudgeTotalPrizePool] = useState(255000);
   const [rubricCriteria, setRubricCriteria] = useState(DEFAULT_RUBRIC_CRITERIA);
   const [availableYears, setAvailableYears] = useState([
-    { year: 2570, isActive: true, submissionDeadline: DEFAULT_SUBMISSION_DEADLINE_ISO },
-    { year: 2569, isActive: false, submissionDeadline: '2026-02-28T23:59:59+07:00' }
+    { year: 2570, isCurrent: true, isActive: true, submissionDeadline: DEFAULT_SUBMISSION_DEADLINE_ISO },
+    { year: 2569, isCurrent: false, isActive: false, submissionDeadline: '2026-02-28T23:59:59+07:00' }
   ]);
   const [selectedJudgeYear, setSelectedJudgeYear] = useState(2570);
   const [showJudgingModal, setShowJudgingModal] = useState(false);
@@ -660,55 +694,127 @@ export default function App() {
 
   const deadlinePassed = isSubmissionDeadlinePassed(submissionDeadlineIso);
 
-  const fetchConfigForYear = (yearParam = null) => {
+  const fetchConfigForYear = (yearParam = null, options = {}) => {
     const query = yearParam ? `?year=${encodeURIComponent(yearParam)}` : '';
     fetch(`${API_BASE}/config${query}`)
       .then(res => res.json())
       .then(data => {
-        if (data?.event?.submissionDeadline) {
-          if (!yearParam) {
-            setSubmissionDeadlineIso(data.event.submissionDeadline);
-          }
-          setDeadlineEditValue(data.event.submissionDeadline);
-        }
-        if (data?.event?.year && !yearParam) {
-          setSelectedJudgeYear(Number(data.event.year));
-        }
         const yearsList = data?.years || data?.availableYears;
         if (Array.isArray(yearsList) && yearsList.length > 0) {
           setAvailableYears(yearsList);
         }
-        const categoriesList = data?.categories || data?.masters?.categories;
-        if (Array.isArray(categoriesList) && categoriesList.length > 0) {
-          const normalizedCats = categoriesList.map(c => ({
-            ...c,
-            code: c.code || c.id,
-            id: c.id || c.code
-          }));
-          setDynamicCategories(normalizedCats);
-        }
-        const levelsList = data?.educationLevels || data?.masters?.educationLevels;
-        if (Array.isArray(levelsList) && levelsList.length > 0) {
-          const normalizedLvls = levelsList.map(lvl => ({
-            ...lvl,
-            code: lvl.code || lvl.id,
-            id: lvl.id || lvl.code,
-            isRoyalTrophy: Boolean(lvl.isRoyalTrophy),
-            trophyShortTh: lvl.trophyShortTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.'),
-            trophyTitleTh: lvl.trophyTitleTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี' : 'ถ้วยรางวัล มจพ.'),
-            totalPrizeAmount: Number(lvl.totalPrizeAmount) || 0,
-            requiresPrototype: lvl.requiresPrototype !== false
-          }));
-          setDynamicLevels(normalizedLvls);
-          if (typeof data?.totalPrizePool === 'number' && data.totalPrizePool > 0) {
-            setTotalPrizePool(data.totalPrizePool);
-          } else {
-            const sumPool = normalizedLvls.reduce((acc, item) => acc + (Number(item.totalPrizeAmount) || 0), 0);
-            if (sumPool > 0) setTotalPrizePool(sumPool);
+
+        const currentYearEntry = Array.isArray(yearsList)
+          ? yearsList.find(y => y.isCurrent || y.isActive)
+          : null;
+        const resolvedCurrentYear = Number(
+          currentYearEntry?.year || (!yearParam ? data?.event?.year : activeCompetitionYear) || 2570
+        );
+        const isPublicActiveYear =
+          !yearParam ||
+          options.syncPublic === true ||
+          Number(yearParam) === resolvedCurrentYear;
+
+        if (isPublicActiveYear) {
+          const nextActiveYear = Number(data?.event?.year || resolvedCurrentYear || 2570);
+          setActiveCompetitionYear(nextActiveYear);
+          if (!yearParam) {
+            setSelectedJudgeYear(nextActiveYear);
           }
-        } else if (typeof data?.totalPrizePool === 'number' && data.totalPrizePool > 0) {
-          setTotalPrizePool(data.totalPrizePool);
+          if (data?.event?.submissionDeadline) {
+            setSubmissionDeadlineIso(data.event.submissionDeadline);
+          }
         }
+
+        if (data?.event?.submissionDeadline) {
+          setDeadlineEditValue(data.event.submissionDeadline);
+        }
+
+        const categoriesList = data?.categories || data?.masters?.categories;
+        const normalizedCats =
+          Array.isArray(categoriesList) && categoriesList.length > 0
+            ? categoriesList.map(c => ({
+                ...c,
+                code: c.code || c.id,
+                id: c.id || c.code
+              }))
+            : null;
+
+        if (normalizedCats) {
+          setJudgeDynamicCategories(normalizedCats);
+          if (isPublicActiveYear) {
+            setDynamicCategories(normalizedCats);
+          }
+        }
+
+        const levelsList = data?.educationLevels || data?.masters?.educationLevels;
+        const normalizedLvls =
+          Array.isArray(levelsList) && levelsList.length > 0
+            ? levelsList.map(lvl => {
+                const parsedTotalPrize =
+                  lvl.totalPrizeAmount !== '' &&
+                  lvl.totalPrizeAmount !== null &&
+                  lvl.totalPrizeAmount !== undefined &&
+                  Number.isFinite(Number(lvl.totalPrizeAmount))
+                    ? Math.max(0, Number(lvl.totalPrizeAmount))
+                    : 0;
+                return {
+                  ...lvl,
+                  code: lvl.code || lvl.id,
+                  id: lvl.id || lvl.code,
+                  isRoyalTrophy: Boolean(lvl.isRoyalTrophy),
+                  trophyShortTh:
+                    lvl.trophyShortTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.'),
+                  trophyTitleTh:
+                    lvl.trophyTitleTh ||
+                    (lvl.isRoyalTrophy
+                      ? 'ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี'
+                      : 'ถ้วยรางวัล มจพ.'),
+                  totalPrizeAmount: parsedTotalPrize,
+                  requiresPrototype: lvl.requiresPrototype !== false
+                };
+              })
+            : null;
+
+        const resolvedPool =
+          typeof data?.totalPrizePool === 'number' && Number.isFinite(data.totalPrizePool)
+            ? Math.max(0, data.totalPrizePool)
+            : normalizedLvls
+            ? normalizedLvls.reduce((acc, item) => acc + (Number(item.totalPrizeAmount) || 0), 0)
+            : null;
+
+        const resolvedAwardCount =
+          typeof data?.totalAwardCount === 'number' && data.totalAwardCount >= 0
+            ? data.totalAwardCount
+            : normalizedLvls
+            ? normalizedLvls.reduce((sum, item) => {
+                const bd = Array.isArray(item.prizeBreakdown) ? item.prizeBreakdown : [];
+                if (bd.length > 0) {
+                  return sum + bd.reduce((s, p) => s + (Number(p?.count) > 0 ? Number(p.count) : 1), 0);
+                }
+                const amt = Number(item.totalPrizeAmount) || 0;
+                return sum + (amt === 105000 || amt === 75000 ? 6 : 1);
+              }, 0)
+            : null;
+
+        if (normalizedLvls) {
+          setJudgeDynamicLevels(normalizedLvls);
+          if (isPublicActiveYear) {
+            setDynamicLevels(normalizedLvls);
+          }
+        }
+
+        if (resolvedPool !== null) {
+          setJudgeTotalPrizePool(resolvedPool);
+          if (isPublicActiveYear) {
+            setTotalPrizePool(resolvedPool);
+          }
+        }
+
+        if (resolvedAwardCount !== null && isPublicActiveYear) {
+          setTotalAwardCount(resolvedAwardCount);
+        }
+
         const rubricList = data?.rubricConfig || data?.rubric?.criteria;
         if (Array.isArray(rubricList) && rubricList.length > 0) {
           setRubricCriteria(rubricList);
@@ -968,6 +1074,13 @@ export default function App() {
     const trophyShort = isRoyal
       ? 'ถ้วยพระราชทานฯ'
       : (newLevelForm.trophyShortTh?.trim() || 'ถ้วยรางวัล มจพ.');
+    const parsedTotalPrizeAmount =
+      newLevelForm.totalPrizeAmount !== '' &&
+      newLevelForm.totalPrizeAmount !== null &&
+      newLevelForm.totalPrizeAmount !== undefined &&
+      Number.isFinite(Number(newLevelForm.totalPrizeAmount))
+        ? Math.max(0, Number(newLevelForm.totalPrizeAmount))
+        : 75000;
     fetch(`${API_BASE}/config/levels`, {
       method: 'POST',
       headers: {
@@ -982,7 +1095,7 @@ export default function App() {
         eligibleTh: newLevelForm.eligibleTh || undefined,
         trophyShortTh: trophyShort,
         isRoyalTrophy: isRoyal,
-        totalPrizeAmount: Number(newLevelForm.totalPrizeAmount) || 75000,
+        totalPrizeAmount: parsedTotalPrizeAmount,
         requiresPrototype: Boolean(newLevelForm.requiresPrototype),
         isActive: true
       })
@@ -1028,7 +1141,10 @@ export default function App() {
       .then(data => {
         if (data.success) {
           const updatedDeadline = data.submissionDeadline || data.data?.submissionDeadline || deadlineEditValue;
-          setSubmissionDeadlineIso(updatedDeadline);
+          setDeadlineEditValue(updatedDeadline);
+          if (Number(selectedJudgeYear) === Number(activeCompetitionYear)) {
+            setSubmissionDeadlineIso(updatedDeadline);
+          }
           setJudgingNotice(`อัปเดตวันปิดรับสมัครปี ${selectedJudgeYear} เป็น ${updatedDeadline} สำเร็จ`);
         } else {
           setJudgingError(data.message || 'ไม่สามารถอัปเดตวันปิดรับสมัครได้');
@@ -1086,6 +1202,7 @@ export default function App() {
         year: Number(newYearForm.year),
         submissionDeadline: newYearForm.submissionDeadline,
         cloneFromYear: Number(newYearForm.cloneFromYear),
+        setAsCurrent: true,
         isActive: true
       })
     })
@@ -1093,10 +1210,11 @@ export default function App() {
       .then(data => {
         if (data.success) {
           const createdYear = Number(data.data?.year || newYearForm.year);
+          setActiveCompetitionYear(createdYear);
           setSelectedJudgeYear(createdYear);
-          fetchConfigForYear(createdYear);
+          fetchConfigForYear(createdYear, { syncPublic: true });
           fetchJudgingWorkspace(createdYear, authToken);
-          setJudgingNotice(`เปิดปีการแข่งขัน พ.ศ. ${createdYear} สำเร็จ (คัดลอกกลุ่มนวัตกรรมและเกณฑ์คะแนนจากปี ${newYearForm.cloneFromYear} เรียบร้อย)`);
+          setJudgingNotice(`เปิดปีการแข่งขัน พ.ศ. ${createdYear} สำเร็จ (คัดลอกกลุ่มนวัตกรรม ประเภทการแข่งขันและถ้วยรางวัล รวมถึงเกณฑ์คะแนนจากปี ${newYearForm.cloneFromYear} เรียบร้อย)`);
         } else {
           setJudgingError(data.message || 'ไม่สามารถสร้างปีการแข่งขันใหม่ได้');
         }
@@ -1350,6 +1468,7 @@ export default function App() {
   });
 
   const handleLogout = () => {
+    const resetYear = activeCompetitionYear || 2570;
     setUser(null);
     setAuthToken('');
     setMySubmissions([]);
@@ -1359,6 +1478,12 @@ export default function App() {
     setSubError('');
     setDraftNotice('');
     setPortalTab('login');
+    setShowJudgingModal(false);
+    setSelectedJudgeYear(resetYear);
+    setJudgeDynamicCategories(dynamicCategories);
+    setJudgeDynamicLevels(dynamicLevels);
+    setJudgeTotalPrizePool(totalPrizePool);
+    setDeadlineEditValue(submissionDeadlineIso);
     try {
       localStorage.removeItem('innoaward_token');
       localStorage.removeItem('innoaward_user');
@@ -1449,6 +1574,13 @@ export default function App() {
       .finally(() => setAuthLoading(false));
   };
 
+  const selectedSubmissionTier = dynamicLevels.find(
+    l => (l.code || l.id) === subForm.educationLevel
+  );
+  const selectedTierRequiresPrototype = selectedSubmissionTier
+    ? selectedSubmissionTier.requiresPrototype !== false
+    : true;
+
   const handleSubmission = (isDraft = false) => {
     if (submissionLoading) return;
 
@@ -1508,7 +1640,9 @@ export default function App() {
 
     // Validate all 3 steps in order
     for (const s of [1, 2, 3]) {
-      const stepErr = validateSubmissionStep(subForm, s, false);
+      const stepErr = validateSubmissionStep(subForm, s, false, {
+        requiresPrototype: selectedTierRequiresPrototype
+      });
       if (stepErr) {
         setSubmissionStep(s);
         setSubError(stepErr);
@@ -2174,11 +2308,11 @@ export default function App() {
                 ปี {w.year || '2569'}
               </span>
               <span className="badge-category" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
-                {getCategoryNameTh(w.category)}
+                {w.categoryNameTh || getCategoryNameTh(w)}
               </span>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                {getLevelNameTh(w.educationLevel, w.year)}
+                {w.educationLevelNameTh || getLevelNameTh(w, w.year)}
               </span>
             </div>
 
@@ -2464,7 +2598,7 @@ export default function App() {
                   <button 
                     type="button"
                     onClick={() => {
-                      setUser(null);
+                      handleLogout();
                       setMobileNavOpen(false);
                     }}
                     className="btn-ghost-auth"
@@ -2723,7 +2857,7 @@ export default function App() {
                       <Award className="w-6 h-6" />
                     </div>
                     <h3 style={{ color: 'var(--gold-300)' }}>เงินรางวัลรวม {totalPrizePool.toLocaleString('en-US')} บาท</h3>
-                    <p>{dynamicLevels.length} ประเภทการแข่งขัน • รวม {dynamicLevels.length * 6} รางวัล ชิงถ้วยพระราชทานฯ (ประเภทบุคคลทั่วไป) และถ้วยรางวัล มจพ. (อุดมศึกษา / ต่ำกว่าอุดมศึกษา) พร้อมเกียรติบัตร</p>
+                    <p>{dynamicLevels.length} ประเภทการแข่งขัน • รวม {totalAwardCount} รางวัล ชิงถ้วยพระราชทานฯ (ประเภทบุคคลทั่วไป) และถ้วยรางวัล มจพ. (อุดมศึกษา / ต่ำกว่าอุดมศึกษา) พร้อมเกียรติบัตร</p>
                   </div>
                   <button onClick={() => navigateTo('guidelines', 'prizes')} className="highlight-action-btn" style={{ color: 'var(--gold-300)' }}>
                     <span>ดูสัดส่วนเงินรางวัล</span>
@@ -2991,12 +3125,23 @@ export default function App() {
                   const lvlCode = lvl.code || lvl.id;
                   const isRoyal = Boolean(lvl.isRoyalTrophy);
                   const LevelIconComp = lvlCode === 'general_public' ? Building2 : GraduationCap;
-                  const championPrize =
-                    Array.isArray(lvl.prizeBreakdown) && lvl.prizeBreakdown.length > 0
-                      ? Number(lvl.prizeBreakdown[0]?.amountEach) || (isRoyal ? 40000 : 30000)
-                      : isRoyal
-                      ? 40000
-                      : 30000;
+                  const lvlTotalPrize = Number(lvl.totalPrizeAmount) || 0;
+                  const hasBreakdown = Array.isArray(lvl.prizeBreakdown) && lvl.prizeBreakdown.length > 0;
+                  const championPrize = hasBreakdown
+                    ? Number(lvl.prizeBreakdown[0]?.amountEach) || 0
+                    : lvlTotalPrize === 105000
+                    ? 40000
+                    : lvlTotalPrize === 75000
+                    ? 30000
+                    : lvlTotalPrize;
+                  const eligibilityAwardCount = hasBreakdown
+                    ? lvl.prizeBreakdown.reduce(
+                        (sum, item) => sum + (Number(item?.count) > 0 ? Number(item.count) : 1),
+                        0
+                      )
+                    : lvlTotalPrize === 105000 || lvlTotalPrize === 75000
+                    ? 6
+                    : 1;
                   const trophyShort = lvl.trophyShortTh || (isRoyal ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.');
                   const trophyFull =
                     lvl.trophyTitleTh ||
@@ -3044,7 +3189,7 @@ export default function App() {
                             <CheckCircle className={`checklist-icon ${isRoyal ? 'gold' : 'cyan'}`} />
                             <span>
                               <strong>เงินรางวัลรวมในประเภทนี้:</strong>{' '}
-                              {Number(lvl.totalPrizeAmount || 0).toLocaleString('en-US')} บาท (รวม 6 รางวัล)
+                              {Number(lvl.totalPrizeAmount || 0).toLocaleString('en-US')} บาท (รวม {eligibilityAwardCount} รางวัล)
                             </span>
                           </li>
                         </ul>
@@ -3159,7 +3304,7 @@ export default function App() {
                 </div>
                 <h2>3. รางวัลการประกวดและเกียรติยศ (เงินรางวัลรวม {totalPrizePool.toLocaleString('en-US')} บาท)</h2>
                 <p style={{ marginTop: '6px' }}>
-                  แบ่งการตัดสินตาม {dynamicLevels.length} ประเภทการแข่งขัน รวมทั้งสิ้น {dynamicLevels.length * 6} รางวัล โดยประเภทบุคคลทั่วไปชิงถ้วยพระราชทานฯ และประเภทอุดมศึกษา / ต่ำกว่าอุดมศึกษาชิงถ้วยรางวัล มจพ. พร้อมเงินรางวัลและเกียรติบัตร
+                  แบ่งการตัดสินตาม {dynamicLevels.length} ประเภทการแข่งขัน รวมทั้งสิ้น {totalAwardCount} รางวัล โดยประเภทบุคคลทั่วไปชิงถ้วยพระราชทานฯ และประเภทอุดมศึกษา / ต่ำกว่าอุดมศึกษาชิงถ้วยรางวัล มจพ. พร้อมเงินรางวัลและเกียรติบัตร
                 </p>
               </div>
 
@@ -3169,6 +3314,8 @@ export default function App() {
                   const isRoyal = Boolean(lvl.isRoyalTrophy);
                   const trophyShort = lvl.trophyShortTh || (isRoyal ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.');
                   const TierHeadingIcon = lvlCode === 'general_public' ? Building2 : GraduationCap;
+                  const lvlTotalPrize = Number(lvl.totalPrizeAmount) || 0;
+                  const isStandardPool = lvlTotalPrize === 105000 || lvlTotalPrize === 75000;
                   const fallbackBreakdown = isRoyal
                     ? [
                         { tier: 'GRAND_WINNER', labelTh: 'ชนะเลิศ', count: 1, amountEach: 40000, totalAmount: 40000, honorTextTh: `${trophyShort} + เกียรติบัตร` },
@@ -3182,10 +3329,22 @@ export default function App() {
                         { tier: 'RUNNER_UP_2', labelTh: 'รองชนะเลิศอันดับ 2', count: 1, amountEach: 10000, totalAmount: 10000, honorTextTh: 'เกียรติบัตร' },
                         { tier: 'HONORABLE_MENTION', labelTh: 'ชมเชย', count: 3, amountEach: 5000, totalAmount: 15000, honorTextTh: 'เกียรติบัตร' }
                       ];
+                  const customSummaryBreakdown = [
+                    {
+                      tier: 'GRAND_WINNER',
+                      labelTh: 'ชนะเลิศและรางวัลประจำประเภท',
+                      count: 1,
+                      amountEach: lvlTotalPrize,
+                      totalAmount: lvlTotalPrize,
+                      honorTextTh: `${trophyShort} + เกียรติบัตร`
+                    }
+                  ];
                   const breakdown =
                     Array.isArray(lvl.prizeBreakdown) && lvl.prizeBreakdown.length > 0
                       ? lvl.prizeBreakdown
-                      : fallbackBreakdown;
+                      : isStandardPool
+                      ? fallbackBreakdown
+                      : customSummaryBreakdown;
                   const tierAwardCount = breakdown.reduce(
                     (sum, item) => sum + (Number(item.count) > 0 ? Number(item.count) : 1),
                     0
@@ -4460,7 +4619,10 @@ export default function App() {
                               if (!activeTier) return null;
                               return (
                                 <div style={{ marginTop: '6px', fontSize: '0.77rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                                  {activeTier.eligible} • <strong style={{ color: 'var(--emerald-300)' }}>ต้องมีชิ้นงานต้นแบบ (Prototype) เป็นขั้นต่ำ</strong>
+                                  {activeTier.eligible}
+                                  {activeTier.requiresPrototype !== false && (
+                                    <> • <strong style={{ color: 'var(--emerald-300)' }}>ต้องมีชิ้นงานต้นแบบ (Prototype) เป็นขั้นต่ำ</strong></>
+                                  )}
                                 </div>
                               );
                             })()}
@@ -4826,7 +4988,7 @@ export default function App() {
                           }
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2570'}
+                          year={String(activeCompetitionYear || '2570')}
                           resolveUrl={getAssetUrl}
                         />
 
@@ -4840,7 +5002,7 @@ export default function App() {
                           onChange={(url) => setSubForm({ ...subForm, videoUrl: url })}
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2570'}
+                          year={String(activeCompetitionYear || '2570')}
                           resolveUrl={getAssetUrl}
                         />
 
@@ -4854,7 +5016,7 @@ export default function App() {
                           onChange={(url) => setSubForm({ ...subForm, coverImage: url })}
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2570'}
+                          year={String(activeCompetitionYear || '2570')}
                           resolveUrl={getAssetUrl}
                         >
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
@@ -4893,7 +5055,7 @@ export default function App() {
                           onChange={(url) => setSubForm({ ...subForm, posterUrl: url })}
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2570'}
+                          year={String(activeCompetitionYear || '2570')}
                           resolveUrl={getAssetUrl}
                         />
 
@@ -4907,33 +5069,35 @@ export default function App() {
                           onChange={(url) => setSubForm({ ...subForm, presentationUrl: url })}
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2570'}
+                          year={String(activeCompetitionYear || '2570')}
                           resolveUrl={getAssetUrl}
                         />
 
                         {/* Mandatory Prototype Confirmation Checkbox Card (Spec §5.4) */}
-                        <div className={`prototype-confirm-card ${subForm.hasPrototypeConfirmed ? 'is-checked' : ''}`}>
-                          <label htmlFor="submission-prototype-confirmed" className="prototype-confirm-label">
-                            <input
-                              id="submission-prototype-confirmed"
-                              type="checkbox"
-                              className="prototype-confirm-checkbox"
-                              checked={Boolean(subForm.hasPrototypeConfirmed)}
-                              onChange={(e) => {
-                                if (subError) setSubError('');
-                                setSubForm({ ...subForm, hasPrototypeConfirmed: e.target.checked });
-                              }}
-                            />
-                            <span>
-                              <strong>
-                                ข้าพเจ้ายืนยันว่าผลงานที่ส่งเข้าประกวดมีชิ้นงานต้นแบบ (Prototype) ขั้นต่ำที่สามารถสาธิตการทำงานหรือผลการทดสอบได้จริง ไม่ใช่เพียงแนวคิด (Idea) *
-                              </strong>
-                              <span className="prototype-confirm-meta">
-                                จำเป็นต้องติ๊กยืนยันเมื่อกดส่งผลงานฉบับสมบูรณ์ (สามารถกดบันทึกแบบร่างไว้ก่อนได้โดยยังไม่ติ๊ก)
+                        {selectedTierRequiresPrototype && (
+                          <div className={`prototype-confirm-card ${subForm.hasPrototypeConfirmed ? 'is-checked' : ''}`}>
+                            <label htmlFor="submission-prototype-confirmed" className="prototype-confirm-label">
+                              <input
+                                id="submission-prototype-confirmed"
+                                type="checkbox"
+                                className="prototype-confirm-checkbox"
+                                checked={Boolean(subForm.hasPrototypeConfirmed)}
+                                onChange={(e) => {
+                                  if (subError) setSubError('');
+                                  setSubForm({ ...subForm, hasPrototypeConfirmed: e.target.checked });
+                                }}
+                              />
+                              <span>
+                                <strong>
+                                  ข้าพเจ้ายืนยันว่าผลงานที่ส่งเข้าประกวดมีชิ้นงานต้นแบบ (Prototype) ขั้นต่ำที่สามารถสาธิตการทำงานหรือผลการทดสอบได้จริง ไม่ใช่เพียงแนวคิด (Idea) *
+                                </strong>
+                                <span className="prototype-confirm-meta">
+                                  จำเป็นต้องติ๊กยืนยันเมื่อกดส่งผลงานฉบับสมบูรณ์ (สามารถกดบันทึกแบบร่างไว้ก่อนได้โดยยังไม่ติ๊ก)
+                                </span>
                               </span>
-                            </span>
-                          </label>
-                        </div>
+                            </label>
+                          </div>
+                        )}
 
                         <div style={{ marginBottom: '14px' }}>
                           <button type="button" onClick={() => setSubmissionStep(2)} className="btn-text" style={{ color: 'var(--cyan-300)', fontSize: '0.84rem' }}>
@@ -5249,7 +5413,7 @@ export default function App() {
                         }
                         apiBase={API_BASE}
                         authToken={authToken}
-                        year={selectedJudgeYear || '2570'}
+                        year={String(statusResult?.year || activeCompetitionYear || '2570')}
                         resolveUrl={getAssetUrl}
                       />
                       <ArtifactUploadField
@@ -5264,7 +5428,7 @@ export default function App() {
                         }
                         apiBase={API_BASE}
                         authToken={authToken}
-                        year={selectedJudgeYear || '2570'}
+                        year={String(statusResult?.year || activeCompetitionYear || '2570')}
                         resolveUrl={getAssetUrl}
                       />
                       <button type="submit" disabled={lateArtifactSaving} className="btn-solid-primary" style={{ padding: '8px 16px', fontSize: '0.82rem' }}>
@@ -5336,10 +5500,10 @@ export default function App() {
                   ปีการประกวด {selectedWinnerModal.year || '2569'}
                 </span>
                 <span className="badge-category">
-                  {getCategoryNameTh(selectedWinnerModal.category)}
+                  {selectedWinnerModal.categoryNameTh || getCategoryNameTh(selectedWinnerModal)}
                 </span>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  {getLevelNameTh(selectedWinnerModal.educationLevel, selectedWinnerModal.year)}
+                  {selectedWinnerModal.educationLevelNameTh || getLevelNameTh(selectedWinnerModal, selectedWinnerModal.year)}
                 </span>
                 <span className="winner-video-badge">
                   <Film className="w-3.5 h-3.5" />
@@ -5718,7 +5882,7 @@ export default function App() {
                 >
                   {availableYears.map(y => (
                     <option key={y.year} value={y.year}>
-                      พ.ศ. {y.year} {y.isActive ? '(ปีปัจจุบัน)' : ''}
+                      พ.ศ. {y.year} {(y.isCurrent || y.isActive) ? '(ปีปัจจุบัน)' : ''}
                     </option>
                   ))}
                 </select>
@@ -5805,7 +5969,7 @@ export default function App() {
                       onChange={e => setJudgeCategoryFilter(e.target.value)}
                     >
                       <option value="all">ทุกกลุ่มนวัตกรรมที่รับผิดชอบ</option>
-                      {dynamicCategories.map(cat => {
+                      {judgeDynamicCategories.map(cat => {
                         const catCode = cat.code || cat.id;
                         return (
                           <option key={catCode} value={catCode}>
@@ -5823,7 +5987,7 @@ export default function App() {
                       onChange={e => setJudgeLevelFilter(e.target.value)}
                     >
                       <option value="all">ทุกประเภทการแข่งขัน</option>
-                      {dynamicLevels.map(lvl => {
+                      {judgeDynamicLevels.map(lvl => {
                         const lvlCode = lvl.code || lvl.id;
                         return (
                           <option key={lvlCode} value={lvlCode}>
@@ -5831,7 +5995,7 @@ export default function App() {
                           </option>
                         );
                       })}
-                      {!dynamicLevels.some(l => (l.code || l.id) === 'higher_and_above') && (
+                      {!judgeDynamicLevels.some(l => (l.code || l.id) === 'higher_and_above') && (
                         <option value="higher_and_above">{LEVEL_LABELS_TH.higher_and_above} (ปี 2569)</option>
                       )}
                     </select>
@@ -6125,7 +6289,7 @@ export default function App() {
                       เลือกกลุ่มนวัตกรรมที่กรรมการท่านนี้รับผิดชอบในปี พ.ศ. {selectedJudgeYear}:
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                      {dynamicCategories.map(cat => {
+                      {judgeDynamicCategories.map(cat => {
                         const catCode = cat.code || cat.id;
                         const checked = newJudgeForm.categoryCodes.includes(catCode);
                         return (
@@ -6167,7 +6331,7 @@ export default function App() {
                         {judge.fullName} <span style={{ color: 'var(--cyan-300)', fontWeight: 400, fontSize: '0.8rem' }}>({judge.email})</span>
                       </div>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
-                        {dynamicCategories.map(cat => {
+                        {judgeDynamicCategories.map(cat => {
                           const catCode = cat.code || cat.id;
                           const assigned = (judge.assignedCategories || []).some(c => (typeof c === 'string' ? c === catCode : (c?.code || c?.id) === catCode));
                           return (
@@ -6242,7 +6406,7 @@ export default function App() {
                     2. จัดการกลุ่มนวัตกรรมแบบยืดหยุ่น (รองรับ 3, 5, 6, 7+ กลุ่มต่อปี) ประจำปี {selectedJudgeYear}
                   </h4>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                    {dynamicCategories.map(cat => {
+                    {judgeDynamicCategories.map(cat => {
                       const catCode = cat.code || cat.id;
                       return (
                         <span key={catCode} className="badge-category">
@@ -6281,10 +6445,10 @@ export default function App() {
                   style={{ background: 'rgba(24, 52, 88, 0.45)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px' }}
                 >
                   <h4 style={{ margin: '0 0 10px 0', color: 'var(--cyan-300)', fontSize: '0.96rem' }}>
-                    2B. จัดการประเภทการแข่งขัน ถ้วยรางวัล และเงินรางวัล ประจำปี {selectedJudgeYear} (เงินรางวัลรวม {totalPrizePool.toLocaleString('en-US')} บาท)
+                    2B. จัดการประเภทการแข่งขัน ถ้วยรางวัล และเงินรางวัล ประจำปี {selectedJudgeYear} (เงินรางวัลรวม {judgeTotalPrizePool.toLocaleString('en-US')} บาท)
                   </h4>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                    {dynamicLevels.map(lvl => {
+                    {judgeDynamicLevels.map(lvl => {
                       const lvlCode = lvl.code || lvl.id;
                       return (
                         <button
@@ -6298,7 +6462,13 @@ export default function App() {
                               eligibleTh: lvl.eligible || '',
                               trophyShortTh: lvl.trophyShortTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.'),
                               isRoyalTrophy: Boolean(lvl.isRoyalTrophy),
-                              totalPrizeAmount: Number(lvl.totalPrizeAmount) || 75000,
+                              totalPrizeAmount:
+                                lvl.totalPrizeAmount !== '' &&
+                                lvl.totalPrizeAmount !== null &&
+                                lvl.totalPrizeAmount !== undefined &&
+                                Number.isFinite(Number(lvl.totalPrizeAmount))
+                                  ? Math.max(0, Number(lvl.totalPrizeAmount))
+                                  : 75000,
                               requiresPrototype: lvl.requiresPrototype !== false
                             })
                           }
@@ -6431,7 +6601,7 @@ export default function App() {
                   style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px dashed rgba(52, 211, 153, 0.45)', borderRadius: '12px', padding: '16px' }}
                 >
                   <h4 style={{ margin: '0 0 10px 0', color: 'var(--emerald-300)', fontSize: '0.96rem' }}>
-                    5. เปิดปีการแข่งขันถัดไปอัตโนมัติ (คัดลอกกลุ่มนวัตกรรมและเกณฑ์รูบริกโดยไม่ต้องพัฒนาระบบใหม่)
+                    5. เปิดปีการแข่งขันถัดไปอัตโนมัติ (คัดลอกกลุ่มนวัตกรรม ประเภทการแข่งขันและถ้วยรางวัล รวมถึงเกณฑ์รูบริกโดยไม่ต้องพัฒนาระบบใหม่)
                   </h4>
                   <div className="responsive-two-col-grid" style={{ gap: '10px', marginBottom: '10px' }}>
                     <input

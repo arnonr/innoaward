@@ -131,9 +131,11 @@ export function formatDossierResponse(found: any, isOwnerOrAdmin: boolean) {
   const round3Status =
     found.round3Status || (found.status === 'AWARDED' ? 'PASSED' : 'PENDING');
   const round3Result = found.round3Result || found.awardNameTh || '';
+  const yearNum = found.competitionYear?.year || 2570;
   const isRoyalTrophy = Boolean(
     found.competitionYearLevel?.isRoyalTrophy ??
-      (found.educationLevel?.code === 'general_public' ||
+      (yearNum <= 2569 ||
+        found.educationLevel?.code === 'general_public' ||
         found.educationLevel?.code === 'higher_and_above')
   );
   const trophyShortTh =

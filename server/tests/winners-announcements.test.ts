@@ -87,15 +87,29 @@ describe("Winners Hall of Fame & Announcements Modules", () => {
   test("Year 2569 winners preserve historical category and educationLevel labels while 2570 has 3 CompetitionYearLevels", async () => {
     const res = await app.handle(new Request("http://localhost/api/winners?year=2569"));
     const json: any = await res.json();
+    expect(json.data.every((w: any) => w.isRoyalTrophy === true)).toBe(true);
+    expect(json.data.every((w: any) => w.trophyShortTh === "ถ้วยพระราชทานฯ")).toBe(true);
+    expect(
+      json.data.every(
+        (w: any) => typeof w.categoryNameTh === "string" && w.categoryNameTh.length > 0
+      )
+    ).toBe(true);
+
     const osse = json.data.find((w: any) => w.trackingCode === "KMUTNB-2569-0001");
     expect(osse.category).toBe("medical_device");
+    expect(osse.categoryNameTh).toContain("Medical Device");
     expect(osse.educationLevel).toBe("higher_and_above");
     expect(osse.educationLevelNameTh).toBe("ระดับอุดมศึกษาและบุคคลทั่วไป");
+    expect(osse.isRoyalTrophy).toBe(true);
+    expect(osse.trophyShortTh).toBe("ถ้วยพระราชทานฯ");
 
     const roadAi = json.data.find((w: any) => w.trackingCode === "KMUTNB-2569-0004");
     expect(roadAi.category).toBe("social_economy");
+    expect(roadAi.categoryNameTh).toContain("Social & Economy");
     expect(roadAi.educationLevel).toBe("below_higher");
     expect(roadAi.educationLevelNameTh).toBe("ระดับต่ำกว่าอุดมศึกษา");
+    expect(roadAi.isRoyalTrophy).toBe(true);
+    expect(roadAi.trophyShortTh).toBe("ถ้วยพระราชทานฯ");
 
     const y2570 = await prisma.competitionYear.findUnique({
       where: { year: 2570 },

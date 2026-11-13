@@ -339,13 +339,36 @@ export const configController = new Elysia()
       }
 
       const targetYear = body.year
-        ? await prisma.competitionYear.findUnique({ where: { year: body.year } })
-        : await prisma.competitionYear.findFirst({ where: { isCurrent: true } });
+        ? await prisma.competitionYear.findUnique({
+            where: { year: body.year },
+            include: { levels: { where: { isActive: true } } },
+          })
+        : await prisma.competitionYear.findFirst({
+            where: { isCurrent: true },
+            include: { levels: { where: { isActive: true } } },
+          });
 
       if (!targetYear) {
         set.status = 404;
         return { success: false, message: 'ไม่พบข้อมูลปีการแข่งขันที่ระบุ' };
       }
+
+      const activeYearPool = targetYear.levels.reduce(
+        (sum, lvl) => sum + (Number(lvl.totalPrizeAmount) || 0),
+        0
+      );
+      const hasRoyalLevel = targetYear.levels.some((lvl) => lvl.isRoyalTrophy);
+      const hasKmutnbLevel = targetYear.levels.some((lvl) => !lvl.isRoyalTrophy);
+      const trophyClause =
+        hasRoyalLevel && hasKmutnbLevel
+          ? `ชิง${ROYAL_TROPHY_SHORT_TH} ${KMUTNB_TROPHY_SHORT_TH}`
+          : hasRoyalLevel
+            ? `ชิง${ROYAL_TROPHY_SHORT_TH}`
+            : `ชิง${KMUTNB_TROPHY_SHORT_TH}`;
+      const categoryPrizeSummary =
+        activeYearPool > 0
+          ? `${trophyClause} เงินรางวัลรวม ${activeYearPool.toLocaleString('en-US')} บาท และเกียรติบัตร`
+          : `ชิง${ROYAL_TROPHY_SHORT_TH} ${KMUTNB_TROPHY_SHORT_TH} เงินรางวัลรวม 255,000 บาท และเกียรติบัตร`;
 
       const existingCount = await prisma.category.count();
       const cat = await prisma.category.upsert({
@@ -386,6 +409,7 @@ export const configController = new Elysia()
           categoryId: cat.id,
           customNameTh: body.nameTh.trim(),
           customDescription: body.descriptionTh?.trim() || cat.descriptionTh || '',
+          prizeSummary: categoryPrizeSummary,
           isActive,
           orderIndex: cat.orderIndex,
         },
@@ -657,10 +681,19 @@ export const configController = new Elysia()
       }
 
       const yearAd = body.yearAd || yearNum - 543;
-      const previousCurrent = await prisma.competitionYear.findFirst({
-        where: { isCurrent: true },
-        include: yearConfigInclude,
-      });
+      const requestedCloneYear =
+        body.cloneFromYear && Number.isInteger(Number(body.cloneFromYear))
+          ? await prisma.competitionYear.findUnique({
+              where: { year: Number(body.cloneFromYear) },
+              include: yearConfigInclude,
+            })
+          : null;
+      const previousCurrent =
+        requestedCloneYear ||
+        (await prisma.competitionYear.findFirst({
+          where: { isCurrent: true },
+          include: yearConfigInclude,
+        }));
 
       const clonedRubric = previousCurrent?.rubricConfig
         ? normalizeRubricConfig(previousCurrent.rubricConfig)
@@ -901,6 +934,7 @@ export const configController = new Elysia()
         titleTh: t.Optional(t.String()),
         titleEn: t.Optional(t.String()),
         submissionDeadline: t.Optional(t.String()),
+        cloneFromYear: t.Optional(t.Number()),
         setAsCurrent: t.Optional(t.Boolean()),
       }),
     }

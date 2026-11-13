@@ -6,7 +6,7 @@ export const registerSchema = t.Object({
   fullName: t.String({ minLength: 2 }),
   phone: t.Optional(t.String()),
   institution: t.Optional(t.String()),
-  educationLevel: t.Optional(t.String()), // 'below_higher' | 'higher_and_above' or ID
+  educationLevel: t.Optional(t.String()), // 'general_public' | 'higher_education' | 'below_higher' (or legacy 'higher_and_above' / ID)
 });
 
 export const loginSchema = t.Object({

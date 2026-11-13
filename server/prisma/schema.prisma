@@ -116,7 +116,7 @@ model CompetitionYearCategory {
   
   customNameTh      String?
   customDescription String?         @db.Text
-  prizeSummary      String?         @default("ชิงถ้วยพระราชทานฯ (สำหรับรางวัลชนะเลิศ) เงินรางวัลรวม 180,000 บาท และเกียรติบัตร")
+  prizeSummary      String?         @default("ชิงถ้วยพระราชทานฯ ถ้วยรางวัล มจพ. เงินรางวัลรวม 255,000 บาท และเกียรติบัตร")
   isActive          Boolean         @default(true)
   orderIndex        Int             @default(0)
   

@@ -27,6 +27,7 @@ const ROYAL_TROPHY_TITLE_TH_2570 =
   'ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี';
 const ROYAL_TROPHY_SHORT_TH_2570 = 'ถ้วยพระราชทานฯ';
 const KMUTNB_TROPHY_TITLE_TH_2570 = 'ถ้วยรางวัล มจพ.';
+export const KMUTNB_TROPHY_SHORT_TH_2570 = 'ถ้วยรางวัล มจพ.';
 
 function buildStandardPrizeBreakdown(amounts, championTrophyShortTh) {
   const [grand, runnerUp1, runnerUp2, honorableEach] = amounts;
@@ -92,12 +93,12 @@ export const DEFAULT_COMPETITION_LEVELS_2570 = [
     eligible:
       'นิสิต นักศึกษาระดับปริญญาตรี ปริญญาโท และปริญญาเอก ทุกสถาบัน (ส่งเดี่ยวหรือทีม 3–5 คน)',
     trophyTitleTh: KMUTNB_TROPHY_TITLE_TH_2570,
-    trophyShortTh: KMUTNB_TROPHY_TITLE_TH_2570,
+    trophyShortTh: KMUTNB_TROPHY_SHORT_TH_2570,
     isRoyalTrophy: false,
     totalPrizeAmount: 75000,
     requiresPrototype: true,
     prototypeRuleTh: PROTOTYPE_RULE_TH_2570,
-    prizeBreakdown: buildStandardPrizeBreakdown([30000, 20000, 10000, 5000], KMUTNB_TROPHY_TITLE_TH_2570)
+    prizeBreakdown: buildStandardPrizeBreakdown([30000, 20000, 10000, 5000], KMUTNB_TROPHY_SHORT_TH_2570)
   },
   {
     id: 'below_higher',
@@ -108,12 +109,12 @@ export const DEFAULT_COMPETITION_LEVELS_2570 = [
     eligible:
       'นักเรียนระดับมัธยมศึกษา และนักเรียน/นักศึกษาสายอาชีวศึกษา (ปวช. / ปวส. หรือเทียบเท่า) ต้องมีอาจารย์ที่ปรึกษารับรองอย่างน้อย 1 ท่าน',
     trophyTitleTh: KMUTNB_TROPHY_TITLE_TH_2570,
-    trophyShortTh: KMUTNB_TROPHY_TITLE_TH_2570,
+    trophyShortTh: KMUTNB_TROPHY_SHORT_TH_2570,
     isRoyalTrophy: false,
     totalPrizeAmount: 75000,
     requiresPrototype: true,
     prototypeRuleTh: PROTOTYPE_RULE_TH_2570,
-    prizeBreakdown: buildStandardPrizeBreakdown([30000, 20000, 10000, 5000], KMUTNB_TROPHY_TITLE_TH_2570)
+    prizeBreakdown: buildStandardPrizeBreakdown([30000, 20000, 10000, 5000], KMUTNB_TROPHY_SHORT_TH_2570)
   }
 ];
 
@@ -434,7 +435,9 @@ export function formatCitizenIdInput(value) {
   return raw;
 }
 
-export function validateSubmissionStep(form, step, isDraft = false) {
+export function validateSubmissionStep(form, step, isDraft = false, options = {}) {
+  const requiresPrototype = options?.requiresPrototype !== false;
+
   if (isDraft) {
     if (!String(form?.titleTh || '').trim()) {
       return 'กรุณาระบุชื่อผลงาน (ภาษาไทย) เป็นอย่างน้อยเพื่อบันทึกแบบร่าง';
@@ -487,7 +490,7 @@ export function validateSubmissionStep(form, step, isDraft = false) {
     if (!String(form?.coverImage || '').trim()) {
       return 'กรุณาระบุลิงก์รูปภาพผลงาน (Image) หรือเลือกภาพตัวอย่าง';
     }
-    if (form?.hasPrototypeConfirmed !== true) {
+    if (requiresPrototype && form?.hasPrototypeConfirmed !== true) {
       return 'กรุณายืนยันว่าผลงานมีชิ้นงานต้นแบบ (Prototype) ขั้นต่ำตามเกณฑ์การแข่งขัน (ไม่รับพิจารณาผลงานที่เป็นเพียงแนวคิด)';
     }
   }
@@ -651,20 +654,82 @@ export function isSubmissionDeadlinePassed(deadlineIso, nowMs = Date.now()) {
   return nowMs > parsed;
 }
 
+function pickNonEmptyString(...candidates) {
+  for (const val of candidates) {
+    if (typeof val === 'string' && val.trim()) {
+      return val.trim();
+    }
+  }
+  return '';
+}
+
 export function normalizeStatusDossier(raw) {
   const code = String(raw?.trackingCode || '').toUpperCase().trim();
   const preset = FALLBACK_DOSSIERS[code] || {};
   const merged = { ...preset, ...(raw || {}) };
 
-  const isLegacy2569 = code.includes('-2569-');
-  const categoryCode = merged.category || (isLegacy2569 ? 'energy_environment' : 'agri_food');
-  const levelCode = merged.educationLevel || (isLegacy2569 ? 'higher_and_above' : 'general_public');
+  const codeYearMatch = code.match(/^KMUTNB-(\d{4})-/);
+  const resolvedYear =
+    Number(merged.year) ||
+    Number(merged.competitionYear?.year) ||
+    (codeYearMatch ? Number(codeYearMatch[1]) : 0) ||
+    2570;
+  const isLegacy2569 = resolvedYear <= 2569 || code.includes('-2569-');
+
+  const categoryCode = merged.category
+    ? normalizeCategoryCode(merged.category)
+    : isLegacy2569
+    ? 'energy_environment'
+    : 'agri_food';
+
+  const rawLevelCode =
+    typeof merged.educationLevel === 'object' && merged.educationLevel !== null
+      ? merged.educationLevel.code || merged.educationLevel.id || ''
+      : typeof merged.educationLevel === 'string'
+      ? merged.educationLevel.trim()
+      : '';
+  const levelCode = rawLevelCode || (isLegacy2569 ? 'higher_and_above' : 'general_public');
+
   const isRoyalTrophy =
     typeof merged.isRoyalTrophy === 'boolean'
       ? merged.isRoyalTrophy
+      : typeof merged.competitionYearLevel?.isRoyalTrophy === 'boolean'
+      ? merged.competitionYearLevel.isRoyalTrophy
       : isLegacy2569 || levelCode === 'general_public' || levelCode === 'higher_and_above';
+
   const trophyShortTh =
-    merged.trophyShortTh || (isRoyalTrophy ? ROYAL_TROPHY_SHORT_TH_2570 : KMUTNB_TROPHY_TITLE_TH_2570);
+    pickNonEmptyString(merged.trophyShortTh, merged.competitionYearLevel?.trophyShortTh) ||
+    (isRoyalTrophy ? ROYAL_TROPHY_SHORT_TH_2570 : KMUTNB_TROPHY_SHORT_TH_2570);
+
+  const categoryNameTh =
+    pickNonEmptyString(
+      merged.categoryNameTh,
+      merged.competitionYearCategory?.customNameTh,
+      typeof merged.category === 'object' && merged.category !== null
+        ? merged.category.nameTh
+        : '',
+      CATEGORY_LABELS_TH[categoryCode],
+      categoryCode
+    ) || 'General Innovation';
+
+  const legacy2569LevelLabel =
+    isLegacy2569 && levelCode === 'below_higher'
+      ? 'ระดับต่ำกว่าอุดมศึกษา'
+      : isLegacy2569 && levelCode === 'higher_and_above'
+      ? 'ระดับอุดมศึกษาและบุคคลทั่วไป'
+      : '';
+
+  const educationLevelNameTh =
+    pickNonEmptyString(
+      merged.educationLevelNameTh,
+      merged.competitionYearLevel?.customNameTh,
+      typeof merged.educationLevel === 'object' && merged.educationLevel !== null
+        ? merged.educationLevel.nameTh
+        : '',
+      legacy2569LevelLabel,
+      LEVEL_LABELS_TH[levelCode],
+      levelCode
+    ) || 'บุคคลทั่วไป';
 
   let formattedDate = merged.submittedAt || '4 พฤศจิกายน 2569';
   if (formattedDate && typeof formattedDate === 'string' && formattedDate.includes('T')) {
@@ -728,13 +793,14 @@ export function normalizeStatusDossier(raw) {
     id: String(merged.id || ''),
     userId: String(merged.userId || ''),
     canEditArtifacts: Boolean(merged.canEditArtifacts),
+    year: resolvedYear,
     trackingCode: code || 'KMUTNB-2570-0001',
     submittedAt: formattedDate,
     teamName: merged.teamName || 'ทีมสร้างสรรค์นวัตกรรม',
     category: categoryCode,
-    categoryNameTh: merged.categoryNameTh || CATEGORY_LABELS_TH[categoryCode] || categoryCode,
+    categoryNameTh,
     educationLevel: levelCode,
-    educationLevelNameTh: merged.educationLevelNameTh || LEVEL_LABELS_TH[levelCode] || levelCode,
+    educationLevelNameTh,
     isRoyalTrophy,
     trophyShortTh,
     hasPrototypeConfirmed: Boolean(
