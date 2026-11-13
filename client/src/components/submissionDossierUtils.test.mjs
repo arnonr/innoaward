@@ -16,7 +16,10 @@ import {
   RUBRIC_SCORE_LEVELS,
   calculateWeightedRubricScore,
   validateRubricWeights,
-  formatCategoryOptionLabel
+  formatCategoryOptionLabel,
+  DEFAULT_COMPETITION_LEVELS_2570,
+  CATEGORY_LABELS_TH,
+  LEVEL_LABELS_TH
 } from './submissionDossierUtils.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -44,7 +47,8 @@ test('validateSubmissionStep requires Proposal PDF, Video, and Image on final su
     videoUrl: 'https://youtube.com/watch?v=123',
     coverImage: '/hdpe-poster.jpg',
     posterUrl: '',
-    presentationUrl: ''
+    presentationUrl: '',
+    hasPrototypeConfirmed: true
   };
   assert.equal(validateSubmissionStep(form, 1, false), '');
   assert.equal(validateSubmissionStep(form, 2, false), '');
@@ -284,6 +288,155 @@ test('App.jsx integrates ArtifactUploadField across all 5 submission artifact sl
   assert.match(appSrc, /slot="image"/);
   assert.match(appSrc, /slot="poster"/);
   assert.match(appSrc, /slot="presentation"/);
+});
+
+test('DEFAULT_COMPETITION_LEVELS_2570 defines 3 tiers summing to 255,000 THB with Royal Trophy only on general_public and KMUTNB Trophy on student tiers', () => {
+  assert.equal(Array.isArray(DEFAULT_COMPETITION_LEVELS_2570), true);
+  assert.equal(DEFAULT_COMPETITION_LEVELS_2570.length, 3);
+
+  const codes = DEFAULT_COMPETITION_LEVELS_2570.map((lvl) => lvl.code);
+  assert.deepEqual(codes, ['general_public', 'higher_education', 'below_higher']);
+
+  const totalPool = DEFAULT_COMPETITION_LEVELS_2570.reduce(
+    (sum, lvl) => sum + lvl.totalPrizeAmount,
+    0
+  );
+  assert.equal(totalPool, 255000);
+
+  const generalPublic = DEFAULT_COMPETITION_LEVELS_2570.find((l) => l.code === 'general_public');
+  const higherEdu = DEFAULT_COMPETITION_LEVELS_2570.find((l) => l.code === 'higher_education');
+  const belowHigher = DEFAULT_COMPETITION_LEVELS_2570.find((l) => l.code === 'below_higher');
+
+  assert.equal(generalPublic.isRoyalTrophy, true);
+  assert.equal(generalPublic.totalPrizeAmount, 105000);
+  assert.equal(generalPublic.requiresPrototype, true);
+  assert.equal(generalPublic.trophyShortTh, 'ถ้วยพระราชทานฯ');
+
+  assert.equal(higherEdu.isRoyalTrophy, false);
+  assert.equal(higherEdu.totalPrizeAmount, 75000);
+  assert.equal(higherEdu.requiresPrototype, true);
+  assert.equal(higherEdu.trophyShortTh, 'ถ้วยรางวัล มจพ.');
+
+  assert.equal(belowHigher.isRoyalTrophy, false);
+  assert.equal(belowHigher.totalPrizeAmount, 75000);
+  assert.equal(belowHigher.requiresPrototype, true);
+  assert.equal(belowHigher.trophyShortTh, 'ถ้วยรางวัล มจพ.');
+
+  // Verify both 2570 and 2569 codes exist in label dictionaries
+  for (const code of [
+    'agri_food',
+    'health_medtech',
+    'engineering_ai',
+    'energy_env_material_bcg',
+    'quality_of_life_soft_power',
+    'energy_environment',
+    'food_agriculture',
+    'social_economy',
+    'medical_device',
+    'material',
+    'others'
+  ]) {
+    assert.equal(typeof CATEGORY_LABELS_TH[code], 'string');
+    assert.ok(CATEGORY_LABELS_TH[code].length > 0);
+  }
+
+  for (const code of ['general_public', 'higher_education', 'below_higher', 'higher_and_above']) {
+    assert.equal(typeof LEVEL_LABELS_TH[code], 'string');
+    assert.ok(LEVEL_LABELS_TH[code].length > 0);
+  }
+
+  // Historical 2569 fallback dossiers preserve exact historical labels
+  const d1 = normalizeStatusDossier({ trackingCode: 'KMUTNB-2569-0001' });
+  const d4 = normalizeStatusDossier({ trackingCode: 'KMUTNB-2569-0004' });
+  assert.equal(d1.educationLevel, 'higher_and_above');
+  assert.equal(d1.educationLevelNameTh, 'ระดับอุดมศึกษาและบุคคลทั่วไป');
+  assert.equal(d4.educationLevel, 'below_higher');
+  assert.equal(d4.educationLevelNameTh, 'ระดับต่ำกว่าอุดมศึกษา');
+});
+
+test('createInitialSubmissionForm, validateSubmissionStep, buildSubmissionApiPayload, and hydrateSubmissionFormFromServer enforce 2570 defaults and prototype confirmation without blocking drafts', () => {
+  const initial = createInitialSubmissionForm();
+  assert.equal(initial.category, 'agri_food');
+  assert.equal(initial.educationLevel, 'general_public');
+  assert.equal(initial.hasPrototypeConfirmed, false);
+
+  const baseCompleteStep3 = {
+    ...initial,
+    titleTh: 'หุ่นยนต์ตรวจสอบแผงโซลาร์เซลล์อัตโนมัติ',
+    teamName: 'SolarBot',
+    affiliation: 'คณะวิศวกรรมศาสตร์ มจพ.',
+    abstractTh: 'รายละเอียดการพัฒนาต้นแบบครบถ้วน',
+    members: [{ fullName: 'นายนวัต กรรม', role: 'หัวหน้าทีม', idCard: '1-1001-00001-00-1' }],
+    primaryCoordinator: {
+      name: 'นายนวัต กรรม',
+      idCard: '1-1001-00001-00-1',
+      phone: '081-222-3333',
+      email: 'nawat@kmutnb.ac.th'
+    },
+    proposalPdfUrl: 'https://drive.google.com/proposal.pdf',
+    videoUrl: 'https://youtube.com/watch?v=demo',
+    coverImage: '/domain-engineering.jpg',
+    hasPrototypeConfirmed: false
+  };
+
+  // Final submit on step 3 must fail with Prototype message when unchecked
+  const errUnchecked = validateSubmissionStep(baseCompleteStep3, 3, false);
+  assert.match(errUnchecked, /Prototype/);
+
+  // Full validation (!step) on final submit also fails when unchecked
+  assert.match(validateSubmissionStep(baseCompleteStep3, undefined, false), /Prototype/);
+
+  // Draft save is NEVER blocked when hasPrototypeConfirmed is false (Review Focus #1)
+  assert.equal(
+    validateSubmissionStep({ titleTh: 'ร่างโครงการ', hasPrototypeConfirmed: false }, 3, true),
+    ''
+  );
+
+  // Final submit passes once hasPrototypeConfirmed is true
+  const checkedForm = { ...baseCompleteStep3, hasPrototypeConfirmed: true };
+  assert.equal(validateSubmissionStep(checkedForm, 3, false), '');
+
+  const payloadUnchecked = buildSubmissionApiPayload(baseCompleteStep3, true, 'user-1');
+  assert.equal(payloadUnchecked.hasPrototypeConfirmed, false);
+
+  const payloadChecked = buildSubmissionApiPayload(checkedForm, false, 'user-1');
+  assert.equal(payloadChecked.hasPrototypeConfirmed, true);
+
+  // Review Focus #2: hydrateSubmissionFormFromServer sets hasPrototypeConfirmed from status when omitted
+  const hydratedSubmitted = hydrateSubmissionFormFromServer({
+    id: 'sub-2570-1',
+    status: 'SUBMITTED',
+    titleTh: 'โครงการส่งแล้ว'
+  });
+  assert.equal(hydratedSubmitted.hasPrototypeConfirmed, true);
+
+  const hydratedDraft = hydrateSubmissionFormFromServer({
+    id: 'sub-2570-2',
+    status: 'DRAFT',
+    titleTh: 'โครงการร่าง'
+  });
+  assert.equal(hydratedDraft.hasPrototypeConfirmed, false);
+
+  const hydratedExplicitFalse = hydrateSubmissionFormFromServer({
+    id: 'sub-2570-3',
+    status: 'SUBMITTED',
+    hasPrototypeConfirmed: false,
+    titleTh: 'โครงการระบุชัดเจน'
+  });
+  assert.equal(hydratedExplicitFalse.hasPrototypeConfirmed, false);
+});
+
+test('App.jsx integrates 3-tier dynamicLevels, 255,000 THB prize pool, Step 3 prototype checkbox, /config/levels admin setup, trophy-aware champion awarding, and removes auto-injected others category', () => {
+  const appPath = path.resolve(__dirname, '../App.jsx');
+  const appSrc = fs.readFileSync(appPath, 'utf8');
+
+  assert.match(appSrc, /DEFAULT_COMPETITION_LEVELS_2570/);
+  assert.match(appSrc, /dynamicLevels/);
+  assert.match(appSrc, /hasPrototypeConfirmed/);
+  assert.match(appSrc, /\/config\/levels/);
+  assert.match(appSrc, /isRoyalTrophy/);
+  assert.match(appSrc, /ถ้วยรางวัล มจพ\./);
+  assert.doesNotMatch(appSrc, /normalizedCats\.some\(\s*\(?c\)?\s*=>\s*c\.code\s*===\s*'others'\s*\)/);
 });
 
 

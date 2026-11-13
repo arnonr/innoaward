@@ -5,11 +5,12 @@ import {
   FileText, Download, UserCheck, ShieldCheck, ChevronRight,
   ExternalLink, X, LogIn, UserPlus, Send, Save,
   BookOpen, Layers, Calendar, MapPin, Phone, Mail, Globe,
-  Zap, Leaf, Users, Activity, Box, GraduationCap, Building2, ArrowRight,
+  Zap, Leaf, Users, Activity, Box, Cpu, Sparkles, GraduationCap, Building2, ArrowRight,
   CheckCircle, User, Video, ClipboardList, CheckSquare,
   BarChart3, FileCheck, Bell, Megaphone, Crown, Medal, Eye, Menu,
   Play, Pause, Copy, Maximize2, Film, Plus, Trash2
 } from 'lucide-react';
+import './App.css';
 import HeroThreeStage from './components/HeroThreeStage';
 import DomainLivingCardBg from './components/DomainLivingCardBg';
 import ArtifactUploadField from './components/ArtifactUploadField';
@@ -28,7 +29,10 @@ import {
   RUBRIC_SCORE_LEVELS,
   calculateWeightedRubricScore,
   validateRubricWeights,
-  formatCategoryOptionLabel
+  formatCategoryOptionLabel,
+  DEFAULT_COMPETITION_LEVELS_2570,
+  CATEGORY_LABELS_TH,
+  LEVEL_LABELS_TH
 } from './components/submissionDossierUtils';
 
 
@@ -79,6 +83,11 @@ const LineLogo = ({ size = 24, className = "" }) => (
 
 // Domain Definitions with Custom Background Images & Detailed Scope/Criteria
 const DOMAIN_ICONS = {
+  agri_food: Leaf,
+  health_medtech: Activity,
+  engineering_ai: Cpu,
+  energy_env_material_bcg: Zap,
+  quality_of_life_soft_power: Sparkles,
   energy_environment: Zap,
   food_agriculture: Leaf,
   social_economy: Users,
@@ -404,13 +413,33 @@ const getCategoryNameTh = (cat) => {
     case 'medical_device': return 'Medical Device';
     case 'material': return 'Material';
     case 'others': return 'อื่นๆ (Others)';
-    default: return cat || 'General Innovation';
+    default: return CATEGORY_LABELS_TH[cat] || cat || 'General Innovation';
   }
+};
+
+const getLevelNameTh = (levelCode, year) => {
+  if (Number(year) === 2569) {
+    if (levelCode === 'below_higher') return 'ระดับต่ำกว่าอุดมศึกษา';
+    if (levelCode === 'higher_and_above') return 'ระดับอุดมศึกษาและบุคคลทั่วไป';
+  }
+  return LEVEL_LABELS_TH[levelCode] || levelCode || 'บุคคลทั่วไป';
 };
 
 const renderAwardBadge = (w) => {
   const tier = w.awardTier || (w.id === 'sub-2026-01' ? 'grand_winner' : (w.id === 'sub-2026-02' ? 'runner_up_1' : (w.id === 'sub-2026-03' ? 'runner_up_2' : 'honorable_mention')));
   if (tier === 'grand_winner') {
+    const isRoyal =
+      typeof w.isRoyalTrophy === 'boolean'
+        ? w.isRoyalTrophy
+        : Number(w.year) === 2569 || w.educationLevel === 'general_public' || w.educationLevel === 'higher_and_above';
+    if (!isRoyal) {
+      return (
+        <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'linear-gradient(135deg, rgba(14, 116, 144, 0.96), rgba(3, 105, 161, 0.92))', color: '#E0F2FE', border: '1px solid rgba(56, 189, 248, 0.85)', boxShadow: '0 2px 8px rgba(6, 182, 212, 0.35)' }}>
+          <Crown className="w-3.5 h-3.5 text-cyan-200" />
+          <span>{w.awardBadgeText || `รางวัลชนะเลิศ • ${w.trophyShortTh || 'ถ้วยรางวัล มจพ.'}`}</span>
+        </span>
+      );
+    }
     return (
       <span className="badge-royal" style={{ fontSize: '0.72rem', padding: '4px 10px', background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.95), rgba(180, 83, 9, 0.9))', color: '#FEF3C7', border: '1px solid rgba(251, 191, 36, 0.8)', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)' }}>
         <Crown className="w-3.5 h-3.5 text-amber-200" />
@@ -450,8 +479,8 @@ const ANNOUNCEMENTS = [
     badgeText: 'ข่าวสารโครงการ',
     badgeClass: 'announcement-badge-general',
     date: '1 พฤศจิกายน 2569',
-    title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) ชิงถ้วยพระราชทานฯ',
-    abstract: 'ขอเชิญชวนนักเรียน นักศึกษา นักวิจัย และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมเข้าร่วมประกวด 5 สาขาเป้าหมาย ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท เปิดรับสมัครตั้งแต่บัดนี้ – 28 ก.พ. 2570',
+    title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) ชิงถ้วยพระราชทานฯ และถ้วยรางวัล มจพ.',
+    abstract: 'ขอเชิญชวนประชาชนทั่วไป นิสิตนักศึกษา และนักเรียนสายสามัญ/อาชีวศึกษา ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมที่มีชิ้นงานต้นแบบ (Prototype) เข้าร่วมประกวด 3 ประเภทการแข่งขัน 5 หมวดนวัตกรรมเป้าหมาย ชิงถ้วยพระราชทานฯ (ประเภทบุคคลทั่วไป) ถ้วยรางวัล มจพ. (ประเภทอุดมศึกษาและต่ำกว่าอุดมศึกษา) และเงินรางวัลรวม 255,000 บาท เปิดรับสมัครตั้งแต่บัดนี้ – 28 ก.พ. 2570',
     pdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
     roster: []
   },
@@ -539,7 +568,7 @@ export default function App() {
     fullName: '',
     phone: '',
     institution: '',
-    educationLevel: 'higher_and_above'
+    educationLevel: 'general_public'
   });
 
   const [subForm, setSubForm] = useState(createInitialSubmissionForm);
@@ -560,15 +589,20 @@ export default function App() {
   const [mySubmissionsLoading, setMySubmissionsLoading] = useState(false);
   const [submissionDeadlineIso, setSubmissionDeadlineIso] = useState(DEFAULT_SUBMISSION_DEADLINE_ISO);
 
-  // Multi-Year Judging, Dynamic Categories & Weighted Rubric State
-  const [dynamicCategories, setDynamicCategories] = useState([
-    { code: 'energy_environment', nameTh: 'พลังงานและสิ่งแวดล้อม', nameEn: 'Energy & Environment' },
-    { code: 'food_agriculture', nameTh: 'เกษตรและอาหารแปรรูป', nameEn: 'Food & Agriculture' },
-    { code: 'social_economy', nameTh: 'เศรษฐกิจและสังคมดิจิทัล', nameEn: 'Social & Economy' },
-    { code: 'medical_device', nameTh: 'เครื่องมือแพทย์และสาธารณสุข', nameEn: 'Medical Device' },
-    { code: 'material', nameTh: 'วัสดุศาสตร์และเทคโนโลยีก้าวหน้า', nameEn: 'Material' },
-    { code: 'others', nameTh: 'อื่นๆ (สิ่งประดิษฐ์และนวัตกรรมทั่วไป)', nameEn: 'Others' }
-  ]);
+  // Multi-Year Judging, Dynamic Categories, Competition Tiers & Weighted Rubric State
+  const [dynamicCategories, setDynamicCategories] = useState(() =>
+    DOMAIN_CATALOG.map((d) => ({
+      id: d.id,
+      code: d.id,
+      nameTh: d.titleTh,
+      nameEn: d.titleEn,
+      descriptionTh: d.overview || d.desc,
+      color: d.color,
+      bgImage: d.bgImage
+    }))
+  );
+  const [dynamicLevels, setDynamicLevels] = useState(DEFAULT_COMPETITION_LEVELS_2570);
+  const [totalPrizePool, setTotalPrizePool] = useState(255000);
   const [rubricCriteria, setRubricCriteria] = useState(DEFAULT_RUBRIC_CRITERIA);
   const [availableYears, setAvailableYears] = useState([
     { year: 2570, isActive: true, submissionDeadline: DEFAULT_SUBMISSION_DEADLINE_ISO },
@@ -602,6 +636,16 @@ export default function App() {
     nameTh: '',
     nameEn: '',
     description: ''
+  });
+  const [newLevelForm, setNewLevelForm] = useState({
+    code: '',
+    nameTh: '',
+    nameEn: '',
+    eligibleTh: '',
+    trophyShortTh: 'ถ้วยรางวัล มจพ.',
+    isRoyalTrophy: false,
+    totalPrizeAmount: 75000,
+    requiresPrototype: true
   });
   const [newYearForm, setNewYearForm] = useState({
     year: 2571,
@@ -641,15 +685,29 @@ export default function App() {
             code: c.code || c.id,
             id: c.id || c.code
           }));
-          if (!normalizedCats.some(c => c.code === 'others')) {
-            normalizedCats.push({
-              code: 'others',
-              id: 'others',
-              nameTh: 'อื่นๆ (สิ่งประดิษฐ์และนวัตกรรมทั่วไป)',
-              nameEn: 'Others'
-            });
-          }
           setDynamicCategories(normalizedCats);
+        }
+        const levelsList = data?.educationLevels || data?.masters?.educationLevels;
+        if (Array.isArray(levelsList) && levelsList.length > 0) {
+          const normalizedLvls = levelsList.map(lvl => ({
+            ...lvl,
+            code: lvl.code || lvl.id,
+            id: lvl.id || lvl.code,
+            isRoyalTrophy: Boolean(lvl.isRoyalTrophy),
+            trophyShortTh: lvl.trophyShortTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.'),
+            trophyTitleTh: lvl.trophyTitleTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี' : 'ถ้วยรางวัล มจพ.'),
+            totalPrizeAmount: Number(lvl.totalPrizeAmount) || 0,
+            requiresPrototype: lvl.requiresPrototype !== false
+          }));
+          setDynamicLevels(normalizedLvls);
+          if (typeof data?.totalPrizePool === 'number' && data.totalPrizePool > 0) {
+            setTotalPrizePool(data.totalPrizePool);
+          } else {
+            const sumPool = normalizedLvls.reduce((acc, item) => acc + (Number(item.totalPrizeAmount) || 0), 0);
+            if (sumPool > 0) setTotalPrizePool(sumPool);
+          }
+        } else if (typeof data?.totalPrizePool === 'number' && data.totalPrizePool > 0) {
+          setTotalPrizePool(data.totalPrizePool);
         }
         const rubricList = data?.rubricConfig || data?.rubric?.criteria;
         if (Array.isArray(rubricList) && rubricList.length > 0) {
@@ -902,6 +960,55 @@ export default function App() {
       .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
   };
 
+  const handleSaveDynamicLevel = (e) => {
+    e.preventDefault();
+    setJudgingError('');
+    setJudgingNotice('');
+    const isRoyal = Boolean(newLevelForm.isRoyalTrophy);
+    const trophyShort = isRoyal
+      ? 'ถ้วยพระราชทานฯ'
+      : (newLevelForm.trophyShortTh?.trim() || 'ถ้วยรางวัล มจพ.');
+    fetch(`${API_BASE}/config/levels`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`
+      },
+      body: JSON.stringify({
+        year: selectedJudgeYear,
+        code: newLevelForm.code,
+        nameTh: newLevelForm.nameTh,
+        nameEn: newLevelForm.nameEn || undefined,
+        eligibleTh: newLevelForm.eligibleTh || undefined,
+        trophyShortTh: trophyShort,
+        isRoyalTrophy: isRoyal,
+        totalPrizeAmount: Number(newLevelForm.totalPrizeAmount) || 75000,
+        requiresPrototype: Boolean(newLevelForm.requiresPrototype),
+        isActive: true
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setJudgingNotice(`บันทึกประเภทการแข่งขัน "${newLevelForm.nameTh}" สำหรับปี ${selectedJudgeYear} สำเร็จ`);
+          setNewLevelForm({
+            code: '',
+            nameTh: '',
+            nameEn: '',
+            eligibleTh: '',
+            trophyShortTh: 'ถ้วยรางวัล มจพ.',
+            isRoyalTrophy: false,
+            totalPrizeAmount: 75000,
+            requiresPrototype: true
+          });
+          fetchConfigForYear(selectedJudgeYear);
+        } else {
+          setJudgingError(data.message || 'ไม่สามารถบันทึกประเภทการแข่งขันได้');
+        }
+      })
+      .catch(() => setJudgingError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้'));
+  };
+
   const handleUpdateDeadline = (e) => {
     e.preventDefault();
     setJudgingError('');
@@ -1016,7 +1123,7 @@ export default function App() {
             if (prev.id && !belongsToCurrentUser) {
               return data.data.length > 0
                 ? hydrateSubmissionFormFromServer(data.data[0])
-                : createEmptySubmissionForm();
+                : createInitialSubmissionForm();
             }
             if (data.data.length > 0 && !prev.id && !prev.titleTh) {
               return hydrateSubmissionFormFromServer(data.data[0]);
@@ -1246,7 +1353,7 @@ export default function App() {
     setUser(null);
     setAuthToken('');
     setMySubmissions([]);
-    setSubForm(createEmptySubmissionForm());
+    setSubForm(createInitialSubmissionForm());
     setSubSuccess(null);
     setAuthError('');
     setSubError('');
@@ -2071,7 +2178,7 @@ export default function App() {
               </span>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                {w.educationLevel === 'below_higher' ? 'ต่ำกว่าอุดมศึกษา' : 'อุดมศึกษาและบุคคลทั่วไป'}
+                {getLevelNameTh(w.educationLevel, w.year)}
               </span>
             </div>
 
@@ -2414,13 +2521,13 @@ export default function App() {
             <div className="hero-editorial-overlay">
               <div className="badge-royal inline-flex items-center gap-2 mb-1.5">
                 <Crown className="w-4 h-4 text-amber-300" />
-                <span>ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี</span>
+                <span>ชิงถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี และถ้วยรางวัล มจพ.</span>
               </div>
               <h1 className="hero-editorial-main-title">KMUTNB INNOVATION AWARDS 2027</h1>
               <p className="hero-editorial-subtitle">
                 <span>เวทีประกวดสิ่งประดิษฐ์และนวัตกรรมพระจอมเกล้าพระนครเหนือ ประจำปี 2570</span>
                 <span className="hero-editorial-subtitle-sep" aria-hidden="true">•</span>
-                <span className="hero-editorial-subtitle-prize">เงินรางวัลรวม 180,000 บาท</span>
+                <span className="hero-editorial-subtitle-prize">เงินรางวัลรวม {totalPrizePool.toLocaleString('en-US')} บาท</span>
               </p>
             </div>
 
@@ -2513,7 +2620,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Scene & Domain Navigation Strip (00 Overview + 01..05 Domains + 06 Others) */}
+                {/* Scene & Domain Navigation Strip (00 Overview + 01..05 Official Domains) */}
                 <div className="editorial-category-strip hero-dock-category-strip">
                   <div className="editorial-category-strip-label">HOLOGRAM<br />STAGE</div>
                   <div className="editorial-category-list hero-dock-category-list">
@@ -2557,19 +2664,6 @@ export default function App() {
                         </button>
                       );
                     })}
-                    <button
-                      type="button"
-                      onClick={() => openSubmissionWithDomain('others')}
-                      onMouseEnter={() => setHoveredDomainIndex(null)}
-                      onMouseLeave={() => setHoveredDomainIndex(null)}
-                      onFocus={() => setHoveredDomainIndex(null)}
-                      onBlur={() => setHoveredDomainIndex(null)}
-                      className="editorial-category-item editorial-category-item-other"
-                    >
-                      <span className="editorial-category-index">06</span>
-                      <Globe className="w-4 h-4" />
-                      <span>Others</span>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -2613,8 +2707,8 @@ export default function App() {
                     <div className="highlight-icon-wrap" style={{ background: 'rgba(34, 211, 238, 0.15)', color: 'var(--cyan-400)' }}>
                       <Layers className="w-6 h-6" />
                     </div>
-                    <h3>5 สาขานวัตกรรมเป้าหมาย</h3>
-                    <p>ครอบคลุม Energy & Environment, Food & Agri, Social & Economy, Medical Device และ Material</p>
+                    <h3>5 หมวดนวัตกรรมเป้าหมาย</h3>
+                    <p>เกษตรและอุตสาหกรรมอาหาร, สุขภาพและเทคโนโลยีการแพทย์, วิศวกรรมและ AI, พลังงาน วัสดุ และ BCG Economy รวมถึงคุณภาพชีวิตและ Soft Power</p>
                   </div>
                   <button onClick={() => navigateTo('guidelines', 'domains')} className="highlight-action-btn">
                     <span>ดูหมวดหมู่และส่งผลงาน</span>
@@ -2628,8 +2722,8 @@ export default function App() {
                     <div className="highlight-icon-wrap" style={{ background: 'rgba(249, 115, 22, 0.15)', color: 'var(--orange-400)' }}>
                       <Award className="w-6 h-6" />
                     </div>
-                    <h3 style={{ color: 'var(--gold-300)' }}>เงินรางวัลรวม 180,000 บาท</h3>
-                    <p>รางวัลชนะเลิศรับถ้วยพระราชทานฯ อันทรงเกียรติ พร้อมเงินรางวัลและเกียรติบัตร รวมทั้งสิ้น 12 รางวัล (2 ระดับการแข่งขัน)</p>
+                    <h3 style={{ color: 'var(--gold-300)' }}>เงินรางวัลรวม {totalPrizePool.toLocaleString('en-US')} บาท</h3>
+                    <p>{dynamicLevels.length} ประเภทการแข่งขัน • รวม {dynamicLevels.length * 6} รางวัล ชิงถ้วยพระราชทานฯ (ประเภทบุคคลทั่วไป) และถ้วยรางวัล มจพ. (อุดมศึกษา / ต่ำกว่าอุดมศึกษา) พร้อมเกียรติบัตร</p>
                   </div>
                   <button onClick={() => navigateTo('guidelines', 'prizes')} className="highlight-action-btn" style={{ color: 'var(--gold-300)' }}>
                     <span>ดูสัดส่วนเงินรางวัล</span>
@@ -2637,14 +2731,14 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Highlight 3: 2 Levels */}
+                {/* Highlight 3: 3 Competition Tiers */}
                 <div className="home-highlight-card">
                   <div>
                     <div className="highlight-icon-wrap" style={{ background: 'rgba(129, 140, 248, 0.15)', color: 'var(--blue-400)' }}>
                       <GraduationCap className="w-6 h-6" />
                     </div>
-                    <h3>เปิดรับ 2 ระดับการแข่งขัน</h3>
-                    <p>ระดับต่ำกว่าอุดมศึกษา (มัธยม/ปวช.) และระดับอุดมศึกษาและบุคคลทั่วไป (ป.ตรี-โท-เอก/ประชาชน)</p>
+                    <h3>เปิดรับ {dynamicLevels.length} ประเภทการแข่งขัน</h3>
+                    <p>บุคคลทั่วไป (ชิงถ้วยพระราชทานฯ), อุดมศึกษา (ชิงถ้วยรางวัล มจพ.) และต่ำกว่าอุดมศึกษา มัธยม/อาชีวศึกษา (ชิงถ้วยรางวัล มจพ.) • ทุกประเภทต้องมีชิ้นงานต้นแบบ Prototype</p>
                   </div>
                   <button onClick={() => navigateTo('guidelines', 'eligibility')} className="highlight-action-btn">
                     <span>ตรวจสอบคุณสมบัติ</span>
@@ -2761,8 +2855,8 @@ export default function App() {
                       <span>04</span>
                       <CheckSquare className="w-4 h-4 text-orange-400" />
                     </div>
-                    <h5>แบบฟอร์มการสมัครเข้าร่วมโครงการ</h5>
-                    <p>กรอกข้อมูลข้อเสนอโครงการผ่านระบบออนไลน์ หรือแนบไฟล์เอกสาร Proposal ตามแบบฟอร์มที่กำหนด</p>
+                    <h5>ชิ้นงานต้นแบบ (Prototype) และแบบฟอร์มสมัคร</h5>
+                    <p>ต้องมีชิ้นงานต้นแบบ Prototype ขั้นต่ำ ไม่รับเฉพาะแนวคิด (Idea) พร้อมแนบไฟล์ข้อเสนอโครงการ PDF และภาพถ่ายชิ้นงาน</p>
                   </div>
                 </div>
               </div>
@@ -2892,82 +2986,88 @@ export default function App() {
                 <h2>1. คุณสมบัติและเงื่อนไขผู้เข้าร่วมประกวด</h2>
               </div>
 
-              <div className="levels-grid">
-                {/* Level 1 */}
-                <div className="level-card">
-                  <div>
-                    <div className="level-card-header">
-                      <div className="level-icon">
-                        <GraduationCap className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--cyan-400)', fontWeight: 600, textTransform: 'uppercase' }}>LEVEL 1</span>
-                        <h3>ระดับต่ำกว่าอุดมศึกษา</h3>
-                      </div>
-                    </div>
-                    <p>เปิดรับสมัครโครงงานและสิ่งประดิษฐ์จากนักเรียนสายสามัญและสายอาชีพทั่วประเทศ</p>
-                    <ul className="checklist-list">
-                      <li className="checklist-item">
-                        <CheckCircle className="checklist-icon" />
-                        <span><strong>สถานะผู้สมัคร:</strong> นักเรียนมัธยมศึกษา (ม.1 - ม.6), ปวช. หรือเทียบเท่า</span>
-                      </li>
-                      <li className="checklist-item">
-                        <CheckCircle className="checklist-icon" />
-                        <span><strong>ขนาดทีม:</strong> ส่งเดี่ยว หรือทีมไม่เกิน 3 - 5 คน</span>
-                      </li>
-                      <li className="checklist-item">
-                        <CheckCircle className="checklist-icon" />
-                        <span><strong>อาจารย์ที่ปรึกษา:</strong> ต้องมีอาจารย์รับรองอย่างน้อย 1 ท่าน</span>
-                      </li>
-                      <li className="checklist-item">
-                        <CheckCircle className="checklist-icon" />
-                        <span><strong>ลักษณะผลงาน:</strong> เป็นสิ่งประดิษฐ์ โมเดล หรือโครงงานที่คิดค้นขึ้นเอง</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="bento-tier-row">
-                    <span className="tier-award-label"><Trophy className="w-4 h-4" aria-hidden="true" /> รางวัลชนะเลิศ (ถ้วยพระราชทานฯ):</span>
-                    <strong>30,000 บาท</strong>
-                  </div>
-                </div>
+              <div className={`levels-grid${dynamicLevels.length === 2 ? ' levels-count-2' : ''}`}>
+                {dynamicLevels.map((lvl, idx) => {
+                  const lvlCode = lvl.code || lvl.id;
+                  const isRoyal = Boolean(lvl.isRoyalTrophy);
+                  const LevelIconComp = lvlCode === 'general_public' ? Building2 : GraduationCap;
+                  const championPrize =
+                    Array.isArray(lvl.prizeBreakdown) && lvl.prizeBreakdown.length > 0
+                      ? Number(lvl.prizeBreakdown[0]?.amountEach) || (isRoyal ? 40000 : 30000)
+                      : isRoyal
+                      ? 40000
+                      : 30000;
+                  const trophyShort = lvl.trophyShortTh || (isRoyal ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.');
+                  const trophyFull =
+                    lvl.trophyTitleTh ||
+                    (isRoyal
+                      ? 'ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี'
+                      : 'ถ้วยรางวัล มจพ.');
 
-                {/* Level 2 */}
-                <div className="level-card gold-tier">
-                  <div>
-                    <div className="level-card-header">
-                      <div className="level-icon gold">
-                        <Building2 className="w-6 h-6" />
-                      </div>
+                  return (
+                    <div key={lvlCode} className={`level-card ${isRoyal ? 'gold-tier' : 'cyan-tier'}`}>
                       <div>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--gold-400)', fontWeight: 600, textTransform: 'uppercase' }}>LEVEL 2</span>
-                        <h3 style={{ color: 'var(--gold-300)' }}>ระดับอุดมศึกษาและบุคคลทั่วไป</h3>
+                        <div className="level-card-header">
+                          <div className={`level-icon ${isRoyal ? 'gold' : 'cyan'}`}>
+                            <LevelIconComp className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <span
+                              style={{
+                                fontSize: '0.75rem',
+                                color: isRoyal ? 'var(--gold-400)' : 'var(--cyan-400)',
+                                fontWeight: 600
+                              }}
+                            >
+                              ประเภทที่ {idx + 1} • {lvl.nameEn || lvlCode}
+                            </span>
+                            <h3 style={{ color: isRoyal ? 'var(--gold-300)' : 'var(--text-primary)' }}>
+                              {lvl.nameTh}
+                            </h3>
+                          </div>
+                        </div>
+
+                        <ul className="checklist-list">
+                          <li className="checklist-item">
+                            <CheckCircle className={`checklist-icon ${isRoyal ? 'gold' : 'cyan'}`} />
+                            <span>
+                              <strong>คุณสมบัติผู้สมัคร:</strong> {lvl.eligible}
+                            </span>
+                          </li>
+                          <li className="checklist-item">
+                            <CheckCircle className={`checklist-icon ${isRoyal ? 'gold' : 'cyan'}`} />
+                            <span>
+                              <strong>ถ้วยเกียรติยศชนะเลิศ:</strong> {trophyFull} พร้อมเกียรติบัตร
+                            </span>
+                          </li>
+                          <li className="checklist-item">
+                            <CheckCircle className={`checklist-icon ${isRoyal ? 'gold' : 'cyan'}`} />
+                            <span>
+                              <strong>เงินรางวัลรวมในประเภทนี้:</strong>{' '}
+                              {Number(lvl.totalPrizeAmount || 0).toLocaleString('en-US')} บาท (รวม 6 รางวัล)
+                            </span>
+                          </li>
+                        </ul>
+
+                        {lvl.requiresPrototype !== false && (
+                          <div className="tier-prototype-callout">
+                            <Box className="w-4 h-4 shrink-0" style={{ marginTop: '2px' }} />
+                            <span>ต้องมีชิ้นงานต้นแบบ (Prototype) เป็นขั้นต่ำ มีแต่ Idea ไม่ได้</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="bento-tier-row">
+                        <span className="tier-award-label">
+                          <Trophy className="w-4 h-4" aria-hidden="true" /> รางวัลชนะเลิศ ({trophyShort}):
+                        </span>
+                        <strong style={{ color: isRoyal ? 'var(--gold-400)' : 'var(--cyan-300)' }}>
+                          {championPrize.toLocaleString('en-US')} บาท
+                        </strong>
                       </div>
                     </div>
-                    <p>เปิดรับสมัครผลงานวิจัย นวัตกรรม และสิ่งประดิษฐ์ต้นแบบพร้อมต่อยอดเชิงพาณิชย์</p>
-                    <ul className="checklist-list">
-                      <li className="checklist-item">
-                        <CheckCircle className="checklist-icon gold" />
-                        <span><strong>สถานะผู้สมัคร:</strong> นิสิต นักศึกษา (ป.ตรี-โท-เอก), อาจารย์, นักวิจัย, สตาร์ทอัพ และประชาชนทั่วไป</span>
-                      </li>
-                      <li className="checklist-item">
-                        <CheckCircle className="checklist-icon gold" />
-                        <span><strong>ขนาดทีม:</strong> ส่งรายบุคคล หรือทีมสหสาขาวิชาชีพ (ไม่เกิน 3 - 5 คน)</span>
-                      </li>
-                      <li className="checklist-item">
-                        <CheckCircle className="checklist-icon gold" />
-                        <span><strong>สังกัด:</strong> สถาบันอุดมศึกษา หน่วยงานรัฐ เอกชน หรืออิสระ</span>
-                      </li>
-                      <li className="checklist-item">
-                        <CheckCircle className="checklist-icon gold" />
-                        <span><strong>ลักษณะผลงาน:</strong> มี Prototype หรือผลการทดสอบจริง พร้อมแผนต่อยอด</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="bento-tier-row">
-                    <span className="tier-award-label"><Trophy className="w-4 h-4" aria-hidden="true" /> รางวัลชนะเลิศ (ถ้วยพระราชทานฯ):</span>
-                    <strong style={{ color: 'var(--gold-400)' }}>40,000 บาท</strong>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
 
               {/* General Rules Box */}
@@ -3057,77 +3157,110 @@ export default function App() {
                   <Trophy className="w-4 h-4" />
                   <span>SECTION 03 • PRIZES & HONORS</span>
                 </div>
-                <h2>3. รางวัลการประกวดและเกียรติยศ (Prizes & Awards)</h2>
+                <h2>3. รางวัลการประกวดและเกียรติยศ (เงินรางวัลรวม {totalPrizePool.toLocaleString('en-US')} บาท)</h2>
+                <p style={{ marginTop: '6px' }}>
+                  แบ่งการตัดสินตาม {dynamicLevels.length} ประเภทการแข่งขัน รวมทั้งสิ้น {dynamicLevels.length * 6} รางวัล โดยประเภทบุคคลทั่วไปชิงถ้วยพระราชทานฯ และประเภทอุดมศึกษา / ต่ำกว่าอุดมศึกษาชิงถ้วยรางวัล มจพ. พร้อมเงินรางวัลและเกียรติบัตร
+                </p>
               </div>
 
               <div className="prizes-container">
-                {/* Higher & General Public Level Prizes */}
-                <div>
-                  <h4 style={{ fontSize: '1.15rem', color: 'var(--gold-300)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <Building2 className="w-5 h-5 text-orange-400" />
-                    <span>รางวัลระดับอุดมศึกษาและบุคคลทั่วไป (รวม 6 รางวัล • 105,000 บาท)</span>
-                  </h4>
-                  <div className="prizes-tier-grid">
-                    <div className="prize-card gold-champion">
-                      <div className="prize-medal-icon" aria-hidden="true"><Crown /></div>
-                      <h5>รางวัลชนะเลิศ (1 รางวัล)</h5>
-                      <div className="prize-cash-amount">40,000 ฿</div>
-                      <span>ถ้วยพระราชทานฯ + เกียรติบัตร</span>
-                    </div>
-                    <div className="prize-card">
-                      <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
-                      <h5>รองชนะเลิศอันดับ 1 (1 รางวัล)</h5>
-                      <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>30,000 ฿</div>
-                      <span>เกียรติบัตร</span>
-                    </div>
-                    <div className="prize-card">
-                      <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
-                      <h5>รองชนะเลิศอันดับ 2 (1 รางวัล)</h5>
-                      <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>20,000 ฿</div>
-                      <span>เกียรติบัตร</span>
-                    </div>
-                    <div className="prize-card">
-                      <div className="prize-medal-icon" aria-hidden="true"><Award /></div>
-                      <h5>รางวัลชมเชย (3 รางวัล)</h5>
-                      <div className="prize-cash-amount" style={{ color: 'var(--text-secondary)' }}>5,000 ฿</div>
-                      <span>รางวัลละ 5,000 ฿ (รวม 15,000 ฿) + เกียรติบัตร</span>
-                    </div>
-                  </div>
-                </div>
+                {dynamicLevels.map((lvl, idx) => {
+                  const lvlCode = lvl.code || lvl.id;
+                  const isRoyal = Boolean(lvl.isRoyalTrophy);
+                  const trophyShort = lvl.trophyShortTh || (isRoyal ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.');
+                  const TierHeadingIcon = lvlCode === 'general_public' ? Building2 : GraduationCap;
+                  const fallbackBreakdown = isRoyal
+                    ? [
+                        { tier: 'GRAND_WINNER', labelTh: 'ชนะเลิศ', count: 1, amountEach: 40000, totalAmount: 40000, honorTextTh: `${trophyShort} + เกียรติบัตร` },
+                        { tier: 'RUNNER_UP_1', labelTh: 'รองชนะเลิศอันดับ 1', count: 1, amountEach: 30000, totalAmount: 30000, honorTextTh: 'เกียรติบัตร' },
+                        { tier: 'RUNNER_UP_2', labelTh: 'รองชนะเลิศอันดับ 2', count: 1, amountEach: 20000, totalAmount: 20000, honorTextTh: 'เกียรติบัตร' },
+                        { tier: 'HONORABLE_MENTION', labelTh: 'ชมเชย', count: 3, amountEach: 5000, totalAmount: 15000, honorTextTh: 'เกียรติบัตร' }
+                      ]
+                    : [
+                        { tier: 'GRAND_WINNER', labelTh: 'ชนะเลิศ', count: 1, amountEach: 30000, totalAmount: 30000, honorTextTh: `${trophyShort} + เกียรติบัตร` },
+                        { tier: 'RUNNER_UP_1', labelTh: 'รองชนะเลิศอันดับ 1', count: 1, amountEach: 20000, totalAmount: 20000, honorTextTh: 'เกียรติบัตร' },
+                        { tier: 'RUNNER_UP_2', labelTh: 'รองชนะเลิศอันดับ 2', count: 1, amountEach: 10000, totalAmount: 10000, honorTextTh: 'เกียรติบัตร' },
+                        { tier: 'HONORABLE_MENTION', labelTh: 'ชมเชย', count: 3, amountEach: 5000, totalAmount: 15000, honorTextTh: 'เกียรติบัตร' }
+                      ];
+                  const breakdown =
+                    Array.isArray(lvl.prizeBreakdown) && lvl.prizeBreakdown.length > 0
+                      ? lvl.prizeBreakdown
+                      : fallbackBreakdown;
+                  const tierAwardCount = breakdown.reduce(
+                    (sum, item) => sum + (Number(item.count) > 0 ? Number(item.count) : 1),
+                    0
+                  );
 
-                {/* Below Higher Level Prizes */}
-                <div style={{ marginTop: '16px' }}>
-                  <h4 style={{ fontSize: '1.15rem', color: 'var(--cyan-300)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <GraduationCap className="w-5 h-5 text-cyan-400" />
-                    <span>รางวัลระดับต่ำกว่าอุดมศึกษา (รวม 6 รางวัล • 75,000 บาท)</span>
-                  </h4>
-                  <div className="prizes-tier-grid">
-                    <div className="prize-card" style={{ borderColor: 'var(--border-cyan)' }}>
-                      <div className="prize-medal-icon" aria-hidden="true"><Crown /></div>
-                      <h5>รางวัลชนะเลิศ (1 รางวัล)</h5>
-                      <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>30,000 ฿</div>
-                      <span>ถ้วยพระราชทานฯ + เกียรติบัตร</span>
+                  return (
+                    <div key={lvlCode} style={{ marginTop: idx === 0 ? 0 : '20px' }}>
+                      <h4
+                        style={{
+                          fontSize: '1.15rem',
+                          color: isRoyal ? 'var(--gold-300)' : 'var(--cyan-300)',
+                          marginBottom: '14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flexWrap: 'wrap'
+                        }}
+                      >
+                        <TierHeadingIcon
+                          className={`w-5 h-5 ${isRoyal ? 'text-orange-400' : 'text-cyan-400'}`}
+                        />
+                        <span>
+                          รางวัลประเภท{lvl.nameTh} (รวม {tierAwardCount} รางวัล •{' '}
+                          {Number(lvl.totalPrizeAmount || 0).toLocaleString('en-US')} บาท)
+                        </span>
+                      </h4>
+
+                      <div className="prizes-tier-grid">
+                        {breakdown.map((prize, pIdx) => {
+                          const isChampion = prize.tier === 'GRAND_WINNER' || pIdx === 0;
+                          const isHonorable = prize.tier === 'HONORABLE_MENTION' || Number(prize.count) > 1;
+                          const count = Number(prize.count) > 0 ? Number(prize.count) : 1;
+                          const amountEach = Number(prize.amountEach) || 0;
+                          const totalAmt = Number(prize.totalAmount) || amountEach * count;
+                          const honorText =
+                            prize.honorTextTh ||
+                            (isChampion ? `${trophyShort} + เกียรติบัตร` : 'เกียรติบัตร');
+                          const rawLabel = String(prize.labelTh || 'รางวัล');
+                          const displayHeading = rawLabel.startsWith('รางวัล') || rawLabel.startsWith('รอง')
+                            ? `${rawLabel.startsWith('ชนะเลิศ') ? `รางวัล${rawLabel}` : rawLabel} (${count} รางวัล)`
+                            : `รางวัล${rawLabel} (${count} รางวัล)`;
+
+                          return (
+                            <div
+                              key={prize.tier || pIdx}
+                              className={`prize-card ${
+                                isChampion ? (isRoyal ? 'gold-champion' : 'cyan-champion') : ''
+                              }`}
+                            >
+                              <div className="prize-medal-icon" aria-hidden="true">
+                                {isChampion ? <Crown /> : isHonorable ? <Award /> : <Medal />}
+                              </div>
+                              <h5>{displayHeading}</h5>
+                              <div
+                                className="prize-cash-amount"
+                                style={
+                                  isChampion
+                                    ? undefined
+                                    : { color: isHonorable ? 'var(--text-secondary)' : 'var(--cyan-300)' }
+                                }
+                              >
+                                {amountEach.toLocaleString('en-US')} ฿
+                              </div>
+                              <span>
+                                {isHonorable
+                                  ? `รางวัลละ ${amountEach.toLocaleString('en-US')} ฿ (รวม ${totalAmt.toLocaleString('en-US')} ฿) + ${honorText}`
+                                  : honorText}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="prize-card">
-                      <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
-                      <h5>รองชนะเลิศอันดับ 1 (1 รางวัล)</h5>
-                      <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>20,000 ฿</div>
-                      <span>เกียรติบัตร</span>
-                    </div>
-                    <div className="prize-card">
-                      <div className="prize-medal-icon" aria-hidden="true"><Medal /></div>
-                      <h5>รองชนะเลิศอันดับ 2 (1 รางวัล)</h5>
-                      <div className="prize-cash-amount" style={{ color: 'var(--cyan-300)' }}>10,000 ฿</div>
-                      <span>เกียรติบัตร</span>
-                    </div>
-                    <div className="prize-card">
-                      <div className="prize-medal-icon" aria-hidden="true"><Award /></div>
-                      <h5>รางวัลชมเชย (3 รางวัล)</h5>
-                      <div className="prize-cash-amount" style={{ color: 'var(--text-secondary)' }}>5,000 ฿</div>
-                      <span>รางวัลละ 5,000 ฿ (รวม 15,000 ฿) + เกียรติบัตร</span>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
             </section>
 
@@ -3176,11 +3309,11 @@ export default function App() {
                     <Box className="w-5 h-5 text-cyan-400" />
                   </div>
                   <h4>ชิ้นงานต้นแบบ / ผลการทดสอบ (Prototype)</h4>
-                  <p>ต้องมีชิ้นงานตัวอย่าง (Working Prototype) หรือผลวิจัยการทดลองที่สามารถนำมาจัดแสดงวัน Pitching</p>
+                  <p>ทุกประเภทการแข่งขันต้องมีชิ้นงานต้นแบบ (Prototype) เป็นขั้นต่ำ มีแต่ Idea ไม่ได้ และต้องสามารถสาธิตการทำงานหรือแสดงผลการทดสอบจริงได้</p>
                   <ul className="standard-req-list">
-                    <li>สำหรับสายฮาร์ดแวร์: ชิ้นงานหรือโมเดลจำลอง</li>
-                    <li>สำหรับสายซอฟต์แวร์: Live Demo หรือแอปพลิเคชัน</li>
-                    <li>สำหรับสายวัสดุ/เกษตร: ตัวอย่างชิ้นงานจริง</li>
+                    <li>สายฮาร์ดแวร์/วิศวกรรม: ชิ้นงานต้นแบบหรืออุปกรณ์ที่ทำงานได้จริง</li>
+                    <li>สายซอฟต์แวร์/AI: ระบบต้นแบบ Live Demo หรือแอปพลิเคชันที่ทดสอบได้</li>
+                    <li>สายเกษตร/สุขภาพ/วัสดุ/สร้างสรรค์: ตัวอย่างผลิตภัณฑ์ต้นแบบพร้อมผลทดสอบ</li>
                   </ul>
                 </div>
               </div>
@@ -3335,7 +3468,7 @@ export default function App() {
                   <div className="step-number" style={{ background: 'rgba(249, 115, 22, 0.18)', color: 'var(--orange-400)' }} aria-hidden="true"><Trophy /></div>
                   <div className="step-date" style={{ color: 'var(--gold-300)' }}>มิถุนายน 2570</div>
                   <h4>จัดงานประกวดและพิธีมอบรางวัล</h4>
-                  <p>จัดงานประกวด นำเสนอผลงานรอบชิงชนะเลิศ จัดแสดงนิทรรศการ และพิธีมอบถ้วยพระราชทานฯ ณ อุทยานเทคโนโลยี มจพ.</p>
+                  <p>จัดงานประกวด นำเสนอผลงานรอบชิงชนะเลิศ จัดแสดงนิทรรศการ และพิธีมอบถ้วยพระราชทานฯ และถ้วยรางวัล มจพ. ณ อุทยานเทคโนโลยี มจพ.</p>
                 </div>
               </div>
 
@@ -3566,6 +3699,7 @@ export default function App() {
                       style={{ minWidth: '170px' }}
                     >
                       <option value="all">ทุกปีการประกวด</option>
+                      <option value="2570">ประจำปี 2570 (2027)</option>
                       <option value="2569">ประจำปี 2569 (2026)</option>
                       <option value="2567">ประจำปี 2567 (2024)</option>
                       <option value="2566">ประจำปี 2566 (2023)</option>
@@ -3578,15 +3712,23 @@ export default function App() {
                       onChange={e => setSelectedDomain(e.target.value)}
                       aria-label="เลือกหมวดหมู่นวัตกรรม"
                       className="filter-select"
-                      style={{ minWidth: '180px' }}
+                      style={{ minWidth: '210px' }}
                     >
                       <option value="all">ทุกหมวดหมู่นวัตกรรม</option>
-                      <option value="energy_environment">Energy & Environment</option>
-                      <option value="food_agriculture">Food & Agriculture</option>
-                      <option value="social_economy">Social & Economy</option>
-                      <option value="medical_device">Medical Device</option>
-                      <option value="material">Material</option>
-                      <option value="others">อื่นๆ (Others)</option>
+                      <optgroup label="หมวดนวัตกรรม ปี 2570">
+                        <option value="agri_food">{CATEGORY_LABELS_TH.agri_food}</option>
+                        <option value="health_medtech">{CATEGORY_LABELS_TH.health_medtech}</option>
+                        <option value="engineering_ai">{CATEGORY_LABELS_TH.engineering_ai}</option>
+                        <option value="energy_env_material_bcg">{CATEGORY_LABELS_TH.energy_env_material_bcg}</option>
+                        <option value="quality_of_life_soft_power">{CATEGORY_LABELS_TH.quality_of_life_soft_power}</option>
+                      </optgroup>
+                      <optgroup label="หมวดนวัตกรรม ปี 2569 (คลังผลงานเดิม)">
+                        <option value="energy_environment">Energy & Environment</option>
+                        <option value="food_agriculture">Food & Agriculture</option>
+                        <option value="social_economy">Social & Economy</option>
+                        <option value="medical_device">Medical Device</option>
+                        <option value="material">Material</option>
+                      </optgroup>
                     </select>
                   </div>
 
@@ -3594,13 +3736,15 @@ export default function App() {
                     <select 
                       value={selectedLevel} 
                       onChange={e => setSelectedLevel(e.target.value)}
-                      aria-label="เลือกระดับการแข่งขัน"
+                      aria-label="เลือกประเภทการแข่งขัน"
                       className="filter-select"
-                      style={{ minWidth: '180px' }}
+                      style={{ minWidth: '190px' }}
                     >
-                      <option value="all">ทุกระดับการแข่งขัน</option>
-                      <option value="below_higher">ต่ำกว่าอุดมศึกษา</option>
-                      <option value="higher_and_above">อุดมศึกษาและบุคคลทั่วไป</option>
+                      <option value="all">ทุกประเภทการแข่งขัน</option>
+                      <option value="general_public">{LEVEL_LABELS_TH.general_public}</option>
+                      <option value="higher_education">{LEVEL_LABELS_TH.higher_education}</option>
+                      <option value="below_higher">{LEVEL_LABELS_TH.below_higher}</option>
+                      <option value="higher_and_above">{LEVEL_LABELS_TH.higher_and_above} (ปี 2569)</option>
                     </select>
                   </div>
 
@@ -3848,10 +3992,10 @@ export default function App() {
             <div className="modal-checklist-card">
               <strong id="portal-modal-title"><ClipboardList className="w-4 h-4" /> กรุณาเตรียมข้อมูลให้พร้อมก่อนสมัคร (Checklist):</strong>
               <ol>
-                <li>ข้อมูลส่วนตัวของผู้สมัคร และทีมงาน</li>
-                <li>รายละเอียดผลงานโดยสังเขป</li>
-                <li>คลิป VDO นำเสนอผลงาน ความยาวเนื้อหา 2 - 3 นาที</li>
-                <li>แบบฟอร์มการสมัครเข้าร่วมโครงการ</li>
+                <li>ข้อมูลส่วนตัวของผู้สมัคร และทีมงาน (ตามคุณสมบัติใน 3 ประเภทการแข่งขัน)</li>
+                <li>รายละเอียดผลงานโดยสังเขป (เลือก 1 ใน 5 หมวดนวัตกรรมเป้าหมาย)</li>
+                <li>คลิป VDO นำเสนอผลงาน ความยาวเนื้อหา 2 - 3 นาที และไฟล์ข้อเสนอโครงการ PDF</li>
+                <li>ต้องมีชิ้นงานต้นแบบ Prototype ขั้นต่ำ ไม่รับเฉพาะแนวคิด (Idea)</li>
               </ol>
             </div>
 
@@ -4291,15 +4435,35 @@ export default function App() {
                             </select>
                           </div>
                           <div className="form-group">
-                            <label htmlFor="submission-level" className="form-label">ระดับการแข่งขัน *</label>
+                            <label htmlFor="submission-level" className="form-label">ประเภทการแข่งขัน *</label>
                             <select 
                               id="submission-level" className="form-input"
                               value={subForm.educationLevel}
                               onChange={e => setSubForm({...subForm, educationLevel: e.target.value})}
                             >
-                              <option value="below_higher">ต่ำกว่าอุดมศึกษา (มัธยม / ปวช.)</option>
-                              <option value="higher_and_above">อุดมศึกษาและบุคคลทั่วไป (ป.ตรี-โท-เอก / ประชาชน)</option>
+                              {dynamicLevels.map(lvl => {
+                                const lvlCode = lvl.code || lvl.id;
+                                const trophyShort = lvl.trophyShortTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.');
+                                return (
+                                  <option key={lvlCode} value={lvlCode}>
+                                    {lvl.nameTh} — ชิง{trophyShort}
+                                  </option>
+                                );
+                              })}
+                              {subForm.educationLevel === 'higher_and_above' &&
+                                !dynamicLevels.some(l => (l.code || l.id) === 'higher_and_above') && (
+                                  <option value="higher_and_above">ระดับอุดมศึกษาและบุคคลทั่วไป (ข้อมูลเดิมปี 2569)</option>
+                                )}
                             </select>
+                            {(() => {
+                              const activeTier = dynamicLevels.find(l => (l.code || l.id) === subForm.educationLevel);
+                              if (!activeTier) return null;
+                              return (
+                                <div style={{ marginTop: '6px', fontSize: '0.77rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                                  {activeTier.eligible} • <strong style={{ color: 'var(--emerald-300)' }}>ต้องมีชิ้นงานต้นแบบ (Prototype) เป็นขั้นต่ำ</strong>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                         <div className="responsive-two-col-grid" style={{ gap: '16px' }}>
@@ -4662,7 +4826,7 @@ export default function App() {
                           }
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2569'}
+                          year={selectedJudgeYear || '2570'}
                           resolveUrl={getAssetUrl}
                         />
 
@@ -4676,7 +4840,7 @@ export default function App() {
                           onChange={(url) => setSubForm({ ...subForm, videoUrl: url })}
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2569'}
+                          year={selectedJudgeYear || '2570'}
                           resolveUrl={getAssetUrl}
                         />
 
@@ -4690,7 +4854,7 @@ export default function App() {
                           onChange={(url) => setSubForm({ ...subForm, coverImage: url })}
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2569'}
+                          year={selectedJudgeYear || '2570'}
                           resolveUrl={getAssetUrl}
                         >
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
@@ -4729,7 +4893,7 @@ export default function App() {
                           onChange={(url) => setSubForm({ ...subForm, posterUrl: url })}
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2569'}
+                          year={selectedJudgeYear || '2570'}
                           resolveUrl={getAssetUrl}
                         />
 
@@ -4743,9 +4907,33 @@ export default function App() {
                           onChange={(url) => setSubForm({ ...subForm, presentationUrl: url })}
                           apiBase={API_BASE}
                           authToken={authToken}
-                          year={selectedJudgeYear || '2569'}
+                          year={selectedJudgeYear || '2570'}
                           resolveUrl={getAssetUrl}
                         />
+
+                        {/* Mandatory Prototype Confirmation Checkbox Card (Spec §5.4) */}
+                        <div className={`prototype-confirm-card ${subForm.hasPrototypeConfirmed ? 'is-checked' : ''}`}>
+                          <label htmlFor="submission-prototype-confirmed" className="prototype-confirm-label">
+                            <input
+                              id="submission-prototype-confirmed"
+                              type="checkbox"
+                              className="prototype-confirm-checkbox"
+                              checked={Boolean(subForm.hasPrototypeConfirmed)}
+                              onChange={(e) => {
+                                if (subError) setSubError('');
+                                setSubForm({ ...subForm, hasPrototypeConfirmed: e.target.checked });
+                              }}
+                            />
+                            <span>
+                              <strong>
+                                ข้าพเจ้ายืนยันว่าผลงานที่ส่งเข้าประกวดมีชิ้นงานต้นแบบ (Prototype) ขั้นต่ำที่สามารถสาธิตการทำงานหรือผลการทดสอบได้จริง ไม่ใช่เพียงแนวคิด (Idea) *
+                              </strong>
+                              <span className="prototype-confirm-meta">
+                                จำเป็นต้องติ๊กยืนยันเมื่อกดส่งผลงานฉบับสมบูรณ์ (สามารถกดบันทึกแบบร่างไว้ก่อนได้โดยยังไม่ติ๊ก)
+                              </span>
+                            </span>
+                          </label>
+                        </div>
 
                         <div style={{ marginBottom: '14px' }}>
                           <button type="button" onClick={() => setSubmissionStep(2)} className="btn-text" style={{ color: 'var(--cyan-300)', fontSize: '0.84rem' }}>
@@ -4876,6 +5064,10 @@ export default function App() {
                   <div className="dossier-field">
                     <span className="dossier-label">หมวดหมู่</span>
                     <strong className="dossier-value">{statusResult.categoryNameTh}</strong>
+                  </div>
+                  <div className="dossier-field">
+                    <span className="dossier-label">ประเภทการแข่งขัน</span>
+                    <strong className="dossier-value">{statusResult.educationLevelNameTh}</strong>
                   </div>
                   <div className="dossier-field" style={{ gridColumn: '1 / -1' }}>
                     <span className="dossier-label">สังกัด</span>
@@ -5057,7 +5249,7 @@ export default function App() {
                         }
                         apiBase={API_BASE}
                         authToken={authToken}
-                        year={selectedJudgeYear || '2569'}
+                        year={selectedJudgeYear || '2570'}
                         resolveUrl={getAssetUrl}
                       />
                       <ArtifactUploadField
@@ -5072,7 +5264,7 @@ export default function App() {
                         }
                         apiBase={API_BASE}
                         authToken={authToken}
-                        year={selectedJudgeYear || '2569'}
+                        year={selectedJudgeYear || '2570'}
                         resolveUrl={getAssetUrl}
                       />
                       <button type="submit" disabled={lateArtifactSaving} className="btn-solid-primary" style={{ padding: '8px 16px', fontSize: '0.82rem' }}>
@@ -5147,7 +5339,7 @@ export default function App() {
                   {getCategoryNameTh(selectedWinnerModal.category)}
                 </span>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  {selectedWinnerModal.educationLevel === 'below_higher' ? 'ระดับต่ำกว่าอุดมศึกษา' : 'ระดับอุดมศึกษาและบุคคลทั่วไป'}
+                  {getLevelNameTh(selectedWinnerModal.educationLevel, selectedWinnerModal.year)}
                 </span>
                 <span className="winner-video-badge">
                   <Film className="w-3.5 h-3.5" />
@@ -5624,15 +5816,24 @@ export default function App() {
                     </select>
                   </div>
                   <div>
-                    <label className="form-label" style={{ fontSize: '0.78rem' }}>กรองตามระดับการศึกษา</label>
+                    <label className="form-label" style={{ fontSize: '0.78rem' }}>กรองตามประเภทการแข่งขัน</label>
                     <select
                       className="form-input"
                       value={judgeLevelFilter}
                       onChange={e => setJudgeLevelFilter(e.target.value)}
                     >
-                      <option value="all">ทุกระดับการแข่งขัน</option>
-                      <option value="below_higher">ต่ำกว่าอุดมศึกษา</option>
-                      <option value="higher_and_above">อุดมศึกษาและบุคคลทั่วไป</option>
+                      <option value="all">ทุกประเภทการแข่งขัน</option>
+                      {dynamicLevels.map(lvl => {
+                        const lvlCode = lvl.code || lvl.id;
+                        return (
+                          <option key={lvlCode} value={lvlCode}>
+                            {lvl.nameTh} ({lvl.trophyShortTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.')})
+                          </option>
+                        );
+                      })}
+                      {!dynamicLevels.some(l => (l.code || l.id) === 'higher_and_above') && (
+                        <option value="higher_and_above">{LEVEL_LABELS_TH.higher_and_above} (ปี 2569)</option>
+                      )}
                     </select>
                   </div>
                 </div>
@@ -5759,7 +5960,10 @@ export default function App() {
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
                                 <span className="badge-category">{sub.trackingCode}</span>
                                 <span className="badge-category" style={{ background: 'rgba(16, 185, 129, 0.16)', color: 'var(--emerald-300)' }}>
-                                  {sub.categoryNameTh || sub.category}
+                                  {sub.categoryNameTh || CATEGORY_LABELS_TH[sub.category] || sub.category}
+                                </span>
+                                <span className="badge-category" style={{ background: sub.isRoyalTrophy ? 'rgba(245, 158, 11, 0.18)' : 'rgba(6, 182, 212, 0.18)', borderColor: sub.isRoyalTrophy ? 'rgba(251, 191, 36, 0.45)' : 'rgba(56, 189, 248, 0.45)', color: sub.isRoyalTrophy ? 'var(--gold-300)' : 'var(--cyan-300)' }}>
+                                  {sub.educationLevelNameTh || LEVEL_LABELS_TH[sub.educationLevel] || sub.educationLevel} • {sub.trophyShortTh || (sub.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.')}
                                 </span>
                                 <span style={{ fontSize: '0.76rem', padding: '2px 8px', borderRadius: '999px', background: sub.hasPoster ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.16)', color: sub.hasPoster ? 'var(--emerald-300)' : 'var(--gold-300)', fontWeight: 700 }}>
                                   {sub.hasPoster ? 'ส่ง POSTER แล้ว' : 'ยังไม่ส่ง POSTER'}
@@ -5843,9 +6047,24 @@ export default function App() {
                                       type="button"
                                       className="btn-outline-cyan"
                                       style={{ padding: '6px 10px', fontSize: '0.75rem', borderColor: 'rgba(251, 191, 36, 0.5)', color: 'var(--gold-300)' }}
-                                      onClick={() => handleAdminStatusAdvance(sub.id, { status: 'AWARDED', round1Status: 'PASSED', round2Status: 'PASSED', round3Status: 'PASSED', awardTier: 'GRAND_WINNER', round3Result: 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)' }, `มอบรางวัลชนะเลิศ: ${sub.trackingCode}`)}
+                                      onClick={() =>
+                                        handleAdminStatusAdvance(
+                                          sub.id,
+                                          {
+                                            status: 'AWARDED',
+                                            round1Status: 'PASSED',
+                                            round2Status: 'PASSED',
+                                            round3Status: 'PASSED',
+                                            awardTier: 'GRAND_WINNER',
+                                            round3Result: sub.isRoyalTrophy
+                                              ? 'รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)'
+                                              : `รางวัลชนะเลิศ (${sub.trophyShortTh || 'ถ้วยรางวัล มจพ.'})`
+                                          },
+                                          `มอบรางวัลชนะเลิศ: ${sub.trackingCode}`
+                                        )
+                                      }
                                     >
-                                      มอบรางวัลชนะเลิศ
+                                      มอบรางวัลชนะเลิศ ({sub.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : (sub.trophyShortTh || 'ถ้วยรางวัล มจพ.')})
                                     </button>
                                   </>
                                 )}
@@ -6053,6 +6272,110 @@ export default function App() {
                   <button type="submit" className="btn-solid-primary" style={{ padding: '8px 14px', fontSize: '0.82rem' }}>
                     <Plus className="w-4 h-4" />
                     <span>เพิ่ม/อัปเดตกลุ่มนวัตกรรมในปี {selectedJudgeYear}</span>
+                  </button>
+                </form>
+
+                {/* 2B. Dynamic Competition Tiers & Trophy Manager */}
+                <form
+                  onSubmit={handleSaveDynamicLevel}
+                  style={{ background: 'rgba(24, 52, 88, 0.45)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px' }}
+                >
+                  <h4 style={{ margin: '0 0 10px 0', color: 'var(--cyan-300)', fontSize: '0.96rem' }}>
+                    2B. จัดการประเภทการแข่งขัน ถ้วยรางวัล และเงินรางวัล ประจำปี {selectedJudgeYear} (เงินรางวัลรวม {totalPrizePool.toLocaleString('en-US')} บาท)
+                  </h4>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                    {dynamicLevels.map(lvl => {
+                      const lvlCode = lvl.code || lvl.id;
+                      return (
+                        <button
+                          key={lvlCode}
+                          type="button"
+                          onClick={() =>
+                            setNewLevelForm({
+                              code: lvlCode,
+                              nameTh: lvl.nameTh || '',
+                              nameEn: lvl.nameEn || '',
+                              eligibleTh: lvl.eligible || '',
+                              trophyShortTh: lvl.trophyShortTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.'),
+                              isRoyalTrophy: Boolean(lvl.isRoyalTrophy),
+                              totalPrizeAmount: Number(lvl.totalPrizeAmount) || 75000,
+                              requiresPrototype: lvl.requiresPrototype !== false
+                            })
+                          }
+                          className="badge-category"
+                          style={{
+                            cursor: 'pointer',
+                            minHeight: '44px',
+                            padding: '8px 12px',
+                            borderColor: lvl.isRoyalTrophy ? 'rgba(251, 191, 36, 0.5)' : 'rgba(56, 189, 248, 0.45)',
+                            color: lvl.isRoyalTrophy ? 'var(--gold-300)' : 'var(--cyan-300)'
+                          }}
+                        >
+                          {lvl.nameTh} • {lvl.trophyShortTh || (lvl.isRoyalTrophy ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.')} • {Number(lvl.totalPrizeAmount || 0).toLocaleString('en-US')} ฿
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="responsive-two-col-grid" style={{ gap: '10px', marginBottom: '10px' }}>
+                    <input
+                      type="text"
+                      required
+                      className="form-input"
+                      placeholder="รหัสประเภท เช่น general_public *"
+                      value={newLevelForm.code}
+                      onChange={e => setNewLevelForm(prev => ({ ...prev, code: e.target.value }))}
+                    />
+                    <input
+                      type="text"
+                      required
+                      className="form-input"
+                      placeholder="ชื่อประเภทการแข่งขัน (ภาษาไทย) *"
+                      value={newLevelForm.nameTh}
+                      onChange={e => setNewLevelForm(prev => ({ ...prev, nameTh: e.target.value }))}
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      className="form-input"
+                      placeholder="เงินรางวัลรวมของประเภทนี้ (บาท)"
+                      value={newLevelForm.totalPrizeAmount}
+                      onChange={e => setNewLevelForm(prev => ({ ...prev, totalPrizeAmount: e.target.value }))}
+                    />
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="คุณสมบัติผู้สมัคร (เช่น นิสิต นักศึกษา ป.ตรี-โท-เอก)"
+                      value={newLevelForm.eligibleTh}
+                      onChange={e => setNewLevelForm(prev => ({ ...prev, eligibleTh: e.target.value }))}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '12px', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', minHeight: '44px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={Boolean(newLevelForm.isRoyalTrophy)}
+                        onChange={e =>
+                          setNewLevelForm(prev => ({
+                            ...prev,
+                            isRoyalTrophy: e.target.checked,
+                            trophyShortTh: e.target.checked ? 'ถ้วยพระราชทานฯ' : 'ถ้วยรางวัล มจพ.'
+                          }))
+                        }
+                      />
+                      <span>ชิงถ้วยพระราชทานฯ (หากไม่เลือก จะเป็น ถ้วยรางวัล มจพ.)</span>
+                    </label>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', minHeight: '44px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={Boolean(newLevelForm.requiresPrototype)}
+                        onChange={e => setNewLevelForm(prev => ({ ...prev, requiresPrototype: e.target.checked }))}
+                      />
+                      <span>บังคับต้องมีชิ้นงานต้นแบบ (Prototype)</span>
+                    </label>
+                  </div>
+                  <button type="submit" className="btn-solid-primary" style={{ minHeight: '44px', padding: '10px 14px', fontSize: '0.82rem' }}>
+                    <Plus className="w-4 h-4" />
+                    <span>เพิ่ม/อัปเดตประเภทการแข่งขันในปี {selectedJudgeYear}</span>
                   </button>
                 </form>
 

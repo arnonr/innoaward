@@ -1,4 +1,11 @@
 export const CATEGORY_LABELS_TH = {
+  // 2570 Official 5 Innovation Domains
+  agri_food: 'ด้านการเกษตรและอุตสาหกรรมอาหาร',
+  health_medtech: 'ด้านการสาธารณสุข สุขภาพ และเทคโนโลยีทางการแพทย์',
+  engineering_ai: 'ด้านวิศวกรรมศาสตร์ เทคโนโลยีปัญญาประดิษฐ์และอุปกรณ์อัจฉริยะ',
+  energy_env_material_bcg: 'ด้านพลังงาน สิ่งแวดล้อม เทคโนโลยีวัสดุ และ BCG Economy Model',
+  quality_of_life_soft_power: 'ด้านคุณภาพชีวิต และ Soft Power',
+  // 2569 Historical Categories (Archive Compatibility)
   energy_environment: 'Energy & Environment (พลังงานและสิ่งแวดล้อม)',
   food_agriculture: 'Food & Agriculture (เกษตรและอาหารแปรรูป)',
   social_economy: 'Social & Economy (เศรษฐกิจและสังคมดิจิทัล)',
@@ -8,9 +15,107 @@ export const CATEGORY_LABELS_TH = {
 };
 
 export const LEVEL_LABELS_TH = {
-  below_higher: 'ระดับต่ำกว่าอุดมศึกษา',
+  general_public: 'บุคคลทั่วไป',
+  higher_education: 'อุดมศึกษา',
+  below_higher: 'ต่ำกว่าอุดมศึกษา (มัธยมศึกษา/อาชีวศึกษา)',
   higher_and_above: 'ระดับอุดมศึกษาและบุคคลทั่วไป'
 };
+
+const PROTOTYPE_RULE_TH_2570 =
+  'ต้องมีชิ้นงานต้นแบบ (Prototype) เป็นขั้นต่ำ ไม่รับพิจารณาผลงานที่เป็นเพียงแนวคิด (Idea)';
+const ROYAL_TROPHY_TITLE_TH_2570 =
+  'ถ้วยพระราชทาน สมเด็จพระกนิษฐาธิราชเจ้า กรมสมเด็จพระเทพรัตนราชสุดาฯ สยามบรมราชกุมารี';
+const ROYAL_TROPHY_SHORT_TH_2570 = 'ถ้วยพระราชทานฯ';
+const KMUTNB_TROPHY_TITLE_TH_2570 = 'ถ้วยรางวัล มจพ.';
+
+function buildStandardPrizeBreakdown(amounts, championTrophyShortTh) {
+  const [grand, runnerUp1, runnerUp2, honorableEach] = amounts;
+  return [
+    {
+      tier: 'GRAND_WINNER',
+      labelTh: 'ชนะเลิศ',
+      count: 1,
+      amountEach: grand,
+      totalAmount: grand,
+      honorTextTh: `${championTrophyShortTh} + เกียรติบัตร`
+    },
+    {
+      tier: 'RUNNER_UP_1',
+      labelTh: 'รองชนะเลิศอันดับ 1',
+      count: 1,
+      amountEach: runnerUp1,
+      totalAmount: runnerUp1,
+      honorTextTh: 'เกียรติบัตร'
+    },
+    {
+      tier: 'RUNNER_UP_2',
+      labelTh: 'รองชนะเลิศอันดับ 2',
+      count: 1,
+      amountEach: runnerUp2,
+      totalAmount: runnerUp2,
+      honorTextTh: 'เกียรติบัตร'
+    },
+    {
+      tier: 'HONORABLE_MENTION',
+      labelTh: 'ชมเชย',
+      count: 3,
+      amountEach: honorableEach,
+      totalAmount: honorableEach * 3,
+      honorTextTh: 'เกียรติบัตร'
+    }
+  ];
+}
+
+export const DEFAULT_COMPETITION_LEVELS_2570 = [
+  {
+    id: 'general_public',
+    code: 'general_public',
+    educationLevelId: 'general_public',
+    nameTh: 'บุคคลทั่วไป',
+    nameEn: 'General Public',
+    eligible:
+      'อาจารย์, นักวิจัย, ผู้ประกอบการ, วิสาหกิจเริ่มต้น (Startup) และประชาชนทั่วไป (ส่งเดี่ยวหรือทีม 3–5 คน)',
+    trophyTitleTh: ROYAL_TROPHY_TITLE_TH_2570,
+    trophyShortTh: ROYAL_TROPHY_SHORT_TH_2570,
+    isRoyalTrophy: true,
+    totalPrizeAmount: 105000,
+    requiresPrototype: true,
+    prototypeRuleTh: PROTOTYPE_RULE_TH_2570,
+    prizeBreakdown: buildStandardPrizeBreakdown([40000, 30000, 20000, 5000], ROYAL_TROPHY_SHORT_TH_2570)
+  },
+  {
+    id: 'higher_education',
+    code: 'higher_education',
+    educationLevelId: 'higher_education',
+    nameTh: 'อุดมศึกษา',
+    nameEn: 'Higher Education',
+    eligible:
+      'นิสิต นักศึกษาระดับปริญญาตรี ปริญญาโท และปริญญาเอก ทุกสถาบัน (ส่งเดี่ยวหรือทีม 3–5 คน)',
+    trophyTitleTh: KMUTNB_TROPHY_TITLE_TH_2570,
+    trophyShortTh: KMUTNB_TROPHY_TITLE_TH_2570,
+    isRoyalTrophy: false,
+    totalPrizeAmount: 75000,
+    requiresPrototype: true,
+    prototypeRuleTh: PROTOTYPE_RULE_TH_2570,
+    prizeBreakdown: buildStandardPrizeBreakdown([30000, 20000, 10000, 5000], KMUTNB_TROPHY_TITLE_TH_2570)
+  },
+  {
+    id: 'below_higher',
+    code: 'below_higher',
+    educationLevelId: 'below_higher',
+    nameTh: 'ต่ำกว่าอุดมศึกษา (มัธยมศึกษา/อาชีวศึกษา)',
+    nameEn: 'Below Higher Education (Secondary / Vocational)',
+    eligible:
+      'นักเรียนระดับมัธยมศึกษา และนักเรียน/นักศึกษาสายอาชีวศึกษา (ปวช. / ปวส. หรือเทียบเท่า) ต้องมีอาจารย์ที่ปรึกษารับรองอย่างน้อย 1 ท่าน',
+    trophyTitleTh: KMUTNB_TROPHY_TITLE_TH_2570,
+    trophyShortTh: KMUTNB_TROPHY_TITLE_TH_2570,
+    isRoyalTrophy: false,
+    totalPrizeAmount: 75000,
+    requiresPrototype: true,
+    prototypeRuleTh: PROTOTYPE_RULE_TH_2570,
+    prizeBreakdown: buildStandardPrizeBreakdown([30000, 20000, 10000, 5000], KMUTNB_TROPHY_TITLE_TH_2570)
+  }
+];
 
 const FALLBACK_DOSSIERS = {
   'KMUTNB-2569-0001': {
@@ -141,7 +246,7 @@ const FALLBACK_DOSSIERS = {
     category: 'social_economy',
     categoryNameTh: CATEGORY_LABELS_TH.social_economy,
     educationLevel: 'below_higher',
-    educationLevelNameTh: LEVEL_LABELS_TH.below_higher,
+    educationLevelNameTh: 'ระดับต่ำกว่าอุดมศึกษา',
     affiliation: 'โรงเรียนสาธิตแห่งมหาวิทยาลัยเกษตรศาสตร์ โครงการการศึกษาพหุภาษา ศูนย์วิจัยและพัฒนาการศึกษา',
     titleTh: 'C.L.A.R.A — ระบบปัญญาประดิษฐ์ช่วยเหลือและวิเคราะห์การเรียนรู้เชิงโต้ตอบอัจฉริยะ',
     titleEn: 'C.L.A.R.A: Cognitive Learning & Adaptive Response Assistant',
@@ -178,7 +283,7 @@ const FALLBACK_DOSSIERS = {
     category: 'social_economy',
     categoryNameTh: CATEGORY_LABELS_TH.social_economy,
     educationLevel: 'below_higher',
-    educationLevelNameTh: LEVEL_LABELS_TH.below_higher,
+    educationLevelNameTh: 'ระดับต่ำกว่าอุดมศึกษา',
     affiliation: 'โรงเรียนวิทยาศาสตร์จุฬาภรณราชวิทยาลัย ปทุมธานี',
     titleTh: 'ระบบตรวจจับความผิดปกติของถนนแบบเรียลไทม์ด้วยเทคโนโลยีปัญญาประดิษฐ์และการสร้างแผนที่อัจฉริยะ',
     titleEn: 'Real-Time Road Anomaly Detection and Smart Mapping System Using AI',
@@ -250,21 +355,26 @@ const FALLBACK_DOSSIERS = {
 export const MAX_PROJECTS_PER_ACCOUNT = 2;
 
 const KNOWN_CATEGORY_PATTERNS = [
-  { code: 'energy_environment', keywords: ['energy_environment', 'energy', 'พลังงาน', 'สิ่งแวดล้อม'] },
-  { code: 'food_agriculture', keywords: ['food_agriculture', 'food', 'agriculture', 'เกษตร', 'อาหาร'] },
-  { code: 'social_economy', keywords: ['social_economy', 'social', 'economy', 'เศรษฐกิจ', 'สังคม'] },
-  { code: 'medical_device', keywords: ['medical_device', 'medical', 'เครื่องมือแพทย์', 'สาธารณสุข', 'สุขภาพ'] },
-  { code: 'material', keywords: ['material', 'วัสดุศาสตร์', 'วัสดุ'] },
+  { code: 'agri_food', keywords: ['agri_food', 'อุตสาหกรรมอาหาร', 'ด้านการเกษตร', 'agriculture & food'] },
+  { code: 'health_medtech', keywords: ['health_medtech', 'เทคโนโลยีทางการแพทย์', 'ด้านการสาธารณสุข', 'medtech', 'healthtech'] },
+  { code: 'engineering_ai', keywords: ['engineering_ai', 'ปัญญาประดิษฐ์', 'อุปกรณ์อัจฉริยะ', 'ด้านวิศวกรรมศาสตร์', 'smart devices'] },
+  { code: 'energy_env_material_bcg', keywords: ['energy_env_material_bcg', 'bcg economy', 'เทคโนโลยีวัสดุ', 'ด้านพลังงาน'] },
+  { code: 'quality_of_life_soft_power', keywords: ['quality_of_life_soft_power', 'soft power', 'ด้านคุณภาพชีวิต'] },
+  { code: 'energy_environment', keywords: ['energy_environment', 'energy & environment', 'พลังงานและสิ่งแวดล้อม'] },
+  { code: 'food_agriculture', keywords: ['food_agriculture', 'food & agriculture', 'เกษตรและอาหารแปรรูป'] },
+  { code: 'social_economy', keywords: ['social_economy', 'social & economy', 'เศรษฐกิจและสังคมดิจิทัล'] },
+  { code: 'medical_device', keywords: ['medical_device', 'medical device', 'เครื่องมือแพทย์และสาธารณสุข'] },
+  { code: 'material', keywords: ['material', 'วัสดุศาสตร์และเทคโนโลยีก้าวหน้า'] },
   { code: 'others', keywords: ['others', 'อื่นๆ'] },
 ];
 
 export function normalizeCategoryCode(rawCategory) {
-  if (!rawCategory) return 'energy_environment';
+  if (!rawCategory) return 'agri_food';
   if (typeof rawCategory === 'object') {
     return normalizeCategoryCode(rawCategory.code || rawCategory.id || rawCategory.nameTh || rawCategory.nameEn || '');
   }
   const str = String(rawCategory).trim();
-  if (!str) return 'energy_environment';
+  if (!str) return 'agri_food';
   const lower = str.toLowerCase();
   for (const item of KNOWN_CATEGORY_PATTERNS) {
     if (lower === item.code) return item.code;
@@ -284,8 +394,9 @@ export function createInitialSubmissionForm() {
     status: 'DRAFT',
     titleTh: '',
     titleEn: '',
-    category: 'energy_environment',
-    educationLevel: 'higher_and_above',
+    category: 'agri_food',
+    educationLevel: 'general_public',
+    hasPrototypeConfirmed: false,
     teamName: '',
     affiliation: '',
     advisorName: '',
@@ -376,6 +487,9 @@ export function validateSubmissionStep(form, step, isDraft = false) {
     if (!String(form?.coverImage || '').trim()) {
       return 'กรุณาระบุลิงก์รูปภาพผลงาน (Image) หรือเลือกภาพตัวอย่าง';
     }
+    if (form?.hasPrototypeConfirmed !== true) {
+      return 'กรุณายืนยันว่าผลงานมีชิ้นงานต้นแบบ (Prototype) ขั้นต่ำตามเกณฑ์การแข่งขัน (ไม่รับพิจารณาผลงานที่เป็นเพียงแนวคิด)';
+    }
   }
 
   return '';
@@ -422,7 +536,8 @@ export function buildSubmissionApiPayload(form, isDraft = false, userId = 'guest
     titleTh: String(form?.titleTh || '').trim(),
     titleEn: String(form?.titleEn || '').trim(),
     category: normalizeCategoryCode(form?.category),
-    educationLevel: form?.educationLevel || 'higher_and_above',
+    educationLevel: form?.educationLevel || 'general_public',
+    hasPrototypeConfirmed: Boolean(form?.hasPrototypeConfirmed),
     teamName: String(form?.teamName || '').trim(),
     affiliation: String(form?.affiliation || '').trim(),
     advisorName: String(form?.advisorName || '').trim(),
@@ -456,8 +571,12 @@ export function hydrateSubmissionFormFromServer(record) {
 
   const levelCode =
     typeof record.educationLevel === 'object' && record.educationLevel !== null
-      ? record.educationLevel.code || 'higher_and_above'
-      : record.educationLevel || 'higher_and_above';
+      ? record.educationLevel.code || 'general_public'
+      : record.educationLevel || 'general_public';
+
+  const hasPrototypeConfirmed = Boolean(
+    record.hasPrototypeConfirmed ?? (record.status && record.status !== 'DRAFT')
+  );
 
   const rawMembers =
     Array.isArray(record.memberDetails) && record.memberDetails.length > 0
@@ -498,6 +617,7 @@ export function hydrateSubmissionFormFromServer(record) {
     titleEn: String(record.titleEn || ''),
     category: categoryCode,
     educationLevel: levelCode,
+    hasPrototypeConfirmed,
     teamName: String(record.teamName || ''),
     affiliation: String(record.affiliation || record.institution || ''),
     advisorName: String(record.advisorName || ''),
@@ -536,8 +656,15 @@ export function normalizeStatusDossier(raw) {
   const preset = FALLBACK_DOSSIERS[code] || {};
   const merged = { ...preset, ...(raw || {}) };
 
-  const categoryCode = merged.category || 'energy_environment';
-  const levelCode = merged.educationLevel || 'higher_and_above';
+  const isLegacy2569 = code.includes('-2569-');
+  const categoryCode = merged.category || (isLegacy2569 ? 'energy_environment' : 'agri_food');
+  const levelCode = merged.educationLevel || (isLegacy2569 ? 'higher_and_above' : 'general_public');
+  const isRoyalTrophy =
+    typeof merged.isRoyalTrophy === 'boolean'
+      ? merged.isRoyalTrophy
+      : isLegacy2569 || levelCode === 'general_public' || levelCode === 'higher_and_above';
+  const trophyShortTh =
+    merged.trophyShortTh || (isRoyalTrophy ? ROYAL_TROPHY_SHORT_TH_2570 : KMUTNB_TROPHY_TITLE_TH_2570);
 
   let formattedDate = merged.submittedAt || '4 พฤศจิกายน 2569';
   if (formattedDate && typeof formattedDate === 'string' && formattedDate.includes('T')) {
@@ -608,6 +735,11 @@ export function normalizeStatusDossier(raw) {
     categoryNameTh: merged.categoryNameTh || CATEGORY_LABELS_TH[categoryCode] || categoryCode,
     educationLevel: levelCode,
     educationLevelNameTh: merged.educationLevelNameTh || LEVEL_LABELS_TH[levelCode] || levelCode,
+    isRoyalTrophy,
+    trophyShortTh,
+    hasPrototypeConfirmed: Boolean(
+      merged.hasPrototypeConfirmed ?? (merged.status !== 'DRAFT')
+    ),
     affiliation: merged.affiliation || merged.institution || 'ไม่ระบุสังกัด',
     advisorName: merged.advisorName || '',
     titleTh: merged.titleTh || 'โครงงานสิ่งประดิษฐ์และนวัตกรรม',
