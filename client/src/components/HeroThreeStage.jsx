@@ -13,7 +13,9 @@ import {
   getMotionFactor,
 } from './heroThreeStageConfig.js';
 
-const HEX_STRINGS = ['#00F5A0', '#22C55E', '#00D9F5', '#FB7185', '#F59E0B'];
+const HEX_STRINGS = DOMAIN_ORBIT_COLORS.map(
+  (hex) => `#${hex.toString(16).padStart(6, '0').toUpperCase()}`
+);
 
 function drawRoundedRect(ctx, x, y, w, h, r) {
   const radius = Math.min(r, w / 2, h / 2);
@@ -136,9 +138,9 @@ function createOverviewGlassTexture() {
   ctx.fillText('• อุทยานเทคโนโลยี มจพ. (Techno Park)', 185, 81);
 
   // Official Standards & Domains summary (Center)
-  const navItems = ['5 สาขานวัตกรรม + อื่นๆ', 'เกณฑ์ตัดสิน 100 คะแนน', 'เงินรางวัลรวม 180,000 บาท'];
+  const navItems = ['5 หมวดการแข่งขัน', 'ต้องมี Prototype ขั้นต่ำ', 'เงินรางวัลรวม 255,000 บาท'];
   navItems.forEach((label, idx) => {
-    const nx = 635 + idx * 280;
+    const nx = 635 + idx * 330;
     ctx.font = '600 18px "Noto Sans Thai", "DM Sans", sans-serif';
     ctx.fillStyle = idx === 0 ? '#00F5A0' : 'rgba(226, 232, 240, 0.85)';
     ctx.fillText(label, nx, 81);
@@ -188,12 +190,12 @@ function createOverviewGlassTexture() {
   ctx.fillStyle = '#FBBF24';
   fillFittedText(
     ctx,
-    '★ ชิงถ้วยพระราชทาน',
+    '★ ชิงถ้วยพระราชทานฯ (บุคคลทั่วไป) และถ้วยรางวัล มจพ. (อุดมศึกษา • ต่ำกว่าอุดมศึกษา)',
     194,
     192,
     880,
     '700',
-    23,
+    22,
     '"Noto Sans Thai", "DM Sans", sans-serif'
   );
   ctx.fillStyle = '#FFFBEB';
@@ -278,21 +280,21 @@ function createOverviewGlassTexture() {
   // ============================================================
   const bottomCards = [
     {
-      kicker: 'เกียรติยศสูงสุด • ROYAL HONOR',
-      title: 'ถ้วยพระราชทานฯ',
-      sub: 'สูงสุดแห่งเกียรติยศระดับประเทศ',
+      kicker: 'เกียรติยศสูงสุด • TROPHY HONORS',
+      title: 'ถ้วยพระราชทานฯ & ถ้วย มจพ.',
+      sub: 'สูงสุดแห่งเกียรติยศ 3 ประเภทการแข่งขัน',
       accent: '#FBBF24',
     },
     {
       kicker: 'เงินรางวัลรวม • PRIZE POOL',
-      title: '180,000 THB',
-      sub: 'เงินรางวัลรวมทั้ง 2 ระดับ (12 รางวัล)',
+      title: '255,000 THB',
+      sub: 'เงินรางวัลรวม 3 ประเภท (18 รางวัล)',
       accent: '#00F5A0',
     },
     {
-      kicker: 'สาขาการแข่งขัน • TARGET DOMAINS',
-      title: '5 สาขา + อื่นๆ',
-      sub: 'เปิดรับ 2 ระดับการศึกษาทั่วประเทศ',
+      kicker: 'หมวดการแข่งขัน • TARGET DOMAINS',
+      title: '5 หมวดนวัตกรรม',
+      sub: 'ต้องมีชิ้นงานต้นแบบ (Prototype) ขั้นต่ำ',
       accent: '#38BDF8',
     },
   ];
@@ -469,14 +471,14 @@ function createSpotlightSubCardTexture() {
   ctx.fillStyle = 'rgba(251, 191, 36, 0.5)';
   ctx.fillRect(W / 2 - 80, 740, 160, 3);
 
-  // 5 Domain status rows (like right panel in Pinterest 0:01)
+  // 5 Domain status rows (1..5 official 2570 order)
   ctx.textAlign = 'left';
   const shorts = [
-    '01  Energy, Environment & BCG',
-    '02  Food & Smart Agriculture',
-    '03  Social & Digital Economy',
-    '04  Medical & Health Device',
-    '05  Advanced Materials',
+    '01  Agriculture & Food Industry',
+    '02  Public Health & MedTech',
+    '03  Engineering, AI & Smart Devices',
+    '04  Energy, Materials & BCG',
+    '05  Quality of Life & Soft Power',
   ];
   shorts.forEach((label, idx) => {
     const ry = 790 + idx * 78;
@@ -554,9 +556,17 @@ function createBreakthroughGlassTexture() {
   ctx.fillStyle = subGrad;
   ctx.fillText('WE BUILD NATIONAL INNOVATION', W / 2, 610);
 
-  ctx.font = '600 32px "Prompt", sans-serif';
   ctx.fillStyle = '#E2E8F0';
-  ctx.fillText('5 สาขานวัตกรรมเป้าหมาย • ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท', W / 2, 720);
+  fillFittedText(
+    ctx,
+    '5 หมวดนวัตกรรมเป้าหมาย • ชิงถ้วยพระราชทานฯ ถ้วยรางวัล มจพ. และเงินรางวัลรวม 255,000 บาท',
+    W / 2,
+    720,
+    W - 160,
+    '600',
+    32,
+    '"Prompt", sans-serif'
+  );
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;

@@ -1,25 +1,25 @@
 export const DOMAIN_IDS = Object.freeze([
-  'energy_environment',
-  'food_agriculture',
-  'social_economy',
-  'medical_device',
-  'material',
+  'agri_food',
+  'health_medtech',
+  'engineering_ai',
+  'energy_env_material_bcg',
+  'quality_of_life_soft_power',
 ]);
 
 export const DOMAIN_ORBIT_COLORS = Object.freeze([
-  0x00F5A0, // Energy, Environment & BCG Economy
-  0x22C55E, // Food & Agriculture
-  0x00D9F5, // Social & Economy
-  0xFB7185, // Medical Device
-  0xF59E0B, // Material
+  0x22C55E, // 01 Agriculture & Food Industry
+  0xFB7185, // 02 Public Health, Healthcare & Medical Technology
+  0x00D9F5, // 03 Engineering, AI & Smart Devices
+  0x00F5A0, // 04 Energy, Environment, Materials & BCG Economy
+  0xF59E0B, // 05 Quality of Life & Soft Power
 ]);
 
 export const DOMAIN_PHOTO_URLS = Object.freeze([
-  '/domain-energy.jpg',
   '/domain-food.jpg',
-  '/domain-social.jpg',
   '/domain-medical.jpg',
-  '/domain-material.jpg',
+  '/domain-engineering.jpg',
+  '/domain-energy.jpg',
+  '/domain-softpower.jpg',
 ]);
 
 export const DOMAIN_CYCLE_SECONDS = 14;
@@ -57,14 +57,7 @@ const LIVING_PHOTO_GLSL_HELPERS = `
     vec3 boost = vec3(0.0);
 
     if (abs(domainId - 0.0) < 0.4) {
-      // 01 ENERGY & ENV: Subtle emerald/cyan pulses along the solar & ocean grid lines
-      float greenCyanMask = smoothstep(0.16, 0.48, max(col.g, col.b) - col.r * 0.85) * smoothstep(0.30, 0.78, lum);
-      float gridPulse1 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 16.0 + uv.y * 8.0) - time * 2.8)), 14.0);
-      float gridPulse2 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 12.0 - uv.y * 10.0) - time * 2.2)), 16.0);
-      boost = vec3(0.0, 0.95, 0.68) * greenCyanMask * (gridPulse1 + gridPulse2) * 0.52;
-
-    } else if (abs(domainId - 1.0) < 0.4) {
-      // 02 FOOD & AGRI: Gentle bioluminescent scan over vertical plant racks
+      // 01 AGRI & FOOD: Gentle bioluminescent scan over vertical plant racks & smart agri HUD
       float plantZone = smoothstep(0.38, 0.52, uv.x);
       float scanY = fract(time * 0.14);
       float scanBeam = exp(-sq((uv.y - scanY) * 32.0)) * plantZone;
@@ -74,20 +67,8 @@ const LIVING_PHOTO_GLSL_HELPERS = `
       boost = vec3(0.15, 0.95, 0.45) * scanBeam * (0.22 + greenLeafMask * 0.42)
             + vec3(0.0, 0.95, 0.62) * hudZone * hudPulse * 0.38;
 
-    } else if (abs(domainId - 2.0) < 0.4) {
-      // 03 SOCIAL & DIGITAL: Clean light packets racing along the cyan sky-network lines
-      float cyanLineMask = smoothstep(0.18, 0.52, col.b - col.r * 0.60) * smoothstep(0.36, 0.85, lum);
-      float highwayMask = smoothstep(0.20, 0.55, max(col.b, col.r) - col.g * 0.35) * smoothstep(0.42, 0.88, lum);
-      float networkMask = max(cyanLineMask, highwayMask * 0.65);
-
-      float packetA = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 18.0 + uv.y * 9.0) - time * 3.6)), 16.0);
-      float packetB = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * -15.0 + uv.y * 11.0) - time * 3.0)), 16.0);
-
-      float totalPackets = packetA + packetB;
-      boost = mix(vec3(0.0, 0.88, 1.0), vec3(1.0, 0.92, 0.65), 0.3) * networkMask * totalPackets * 0.58;
-
-    } else if (abs(domainId - 3.0) < 0.4) {
-      // 04 MEDICAL DEVICE: Clean ECG sweep across the holographic HUD + subtle ring pulse
+    } else if (abs(domainId - 1.0) < 0.4) {
+      // 02 HEALTH & MEDTECH: Clean ECG sweep across the holographic HUD + subtle ring pulse
       float hudScreenMask = smoothstep(0.06, 0.12, uv.x) * (1.0 - smoothstep(0.46, 0.52, uv.x)) * smoothstep(0.22, 0.88, uv.y);
       float ecgSweepX = mix(0.08, 0.48, fract(time * 0.28));
       float ecgWave = exp(-sq((uv.x - ecgSweepX) * 36.0)) * hudScreenMask * smoothstep(0.30, 0.75, lum);
@@ -97,12 +78,31 @@ const LIVING_PHOTO_GLSL_HELPERS = `
       boost = vec3(0.2, 0.95, 1.0) * ecgWave * 0.65
             + vec3(1.0, 0.38, 0.58) * ringMask * ringPulse * 0.32;
 
+    } else if (abs(domainId - 2.0) < 0.4) {
+      // 03 ENGINEERING, AI & SMART DEVICES: Clean cyan AI/neural light packets racing along smart circuit lines
+      float cyanLineMask = smoothstep(0.16, 0.50, col.b - col.r * 0.58) * smoothstep(0.34, 0.86, lum);
+      float circuitMask = smoothstep(0.20, 0.55, max(col.b, col.g) - col.r * 0.35) * smoothstep(0.40, 0.88, lum);
+      float networkMask = max(cyanLineMask, circuitMask * 0.65);
+
+      float packetA = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 18.0 + uv.y * 9.0) - time * 3.6)), 16.0);
+      float packetB = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * -15.0 + uv.y * 11.0) - time * 3.0)), 16.0);
+
+      float totalPackets = packetA + packetB;
+      boost = mix(vec3(0.0, 0.88, 1.0), vec3(0.35, 0.96, 1.0), 0.35) * networkMask * totalPackets * 0.58;
+
+    } else if (abs(domainId - 3.0) < 0.4) {
+      // 04 ENERGY, ENV, MATERIALS & BCG: Subtle emerald/cyan pulses along solar, material & BCG grid lines
+      float greenCyanMask = smoothstep(0.16, 0.48, max(col.g, col.b) - col.r * 0.85) * smoothstep(0.30, 0.78, lum);
+      float gridPulse1 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 16.0 + uv.y * 8.0) - time * 2.8)), 14.0);
+      float gridPulse2 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 12.0 - uv.y * 10.0) - time * 2.2)), 16.0);
+      boost = vec3(0.0, 0.95, 0.68) * greenCyanMask * (gridPulse1 + gridPulse2) * 0.52;
+
     } else {
-      // 05 MATERIAL: Subtle golden-cyan current along the hexagonal graphene lattice
-      float latticeMask = smoothstep(0.38, 0.85, lum) * smoothstep(0.12, 0.46, max(col.b, col.r) - col.g * 0.25);
-      float hexStream1 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 20.0 + uv.y * 14.0) - time * 3.2)), 14.0);
-      float hexStream2 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * -16.0 + uv.y * 18.0) - time * 2.6)), 14.0);
-      boost = mix(vec3(1.0, 0.68, 0.15), vec3(0.0, 0.92, 1.0), 0.45) * latticeMask * (hexStream1 + hexStream2) * 0.48;
+      // 05 QUALITY OF LIFE & SOFT POWER: Subtle golden-amber creative shimmer along warm craft & design highlights
+      float shimmerMask = smoothstep(0.34, 0.86, lum) * smoothstep(0.10, 0.46, max(col.r, col.b) - col.g * 0.22);
+      float goldStream1 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * 20.0 + uv.y * 14.0) - time * 3.0)), 14.0);
+      float goldStream2 = pow(max(0.0, 0.5 + 0.5 * sin((uv.x * -16.0 + uv.y * 18.0) - time * 2.4)), 14.0);
+      boost = mix(vec3(1.0, 0.68, 0.16), vec3(1.0, 0.88, 0.48), 0.42) * shimmerMask * (goldStream1 + goldStream2) * 0.48;
     }
 
     return clamp(col + boost, 0.0, 1.0);
@@ -181,6 +181,14 @@ ${LIVING_PHOTO_GLSL_HELPERS}
   }
 `;
 
+const LEGACY_DOMAIN_INDEX_MAP = Object.freeze({
+  food_agriculture: 0,
+  medical_device: 1,
+  social_economy: 2,
+  energy_environment: 3,
+  material: 3,
+});
+
 export function resolveDomainIndexById(domainIdOrIndex) {
   if (
     typeof domainIdOrIndex === 'number' &&
@@ -194,6 +202,9 @@ export function resolveDomainIndexById(domainIdOrIndex) {
     const idx = DOMAIN_IDS.indexOf(domainIdOrIndex);
     if (idx !== -1) {
       return idx;
+    }
+    if (Object.hasOwn(LEGACY_DOMAIN_INDEX_MAP, domainIdOrIndex)) {
+      return LEGACY_DOMAIN_INDEX_MAP[domainIdOrIndex];
     }
   }
   return 0;
