@@ -1,4 +1,18 @@
-import { PrismaClient, Role, SubmissionStatus, RoundStatus, AwardTier, CompetitionStatus, AnnouncementType } from '@prisma/client';
+import {
+  PrismaClient,
+  Role,
+  SubmissionStatus,
+  RoundStatus,
+  AwardTier,
+  CompetitionStatus,
+  AnnouncementType,
+} from '@prisma/client';
+import {
+  LEVELS_2570_DEFAULTS,
+  LEVELS_2569_DEFAULTS,
+  CATEGORIES_2570_DEFAULTS,
+  CATEGORIES_2569_LEGACY,
+} from '../src/modules/config/competition-defaults';
 
 const prisma = new PrismaClient();
 
@@ -7,27 +21,81 @@ async function main() {
 
   // 1. Seed Education Levels
   console.log('  -> Seeding Education Levels...');
+  const generalPublicSpec = LEVELS_2570_DEFAULTS.find((l) => l.code === 'general_public')!;
+  const higherEdSpec = LEVELS_2570_DEFAULTS.find((l) => l.code === 'higher_education')!;
+
+  const levelGeneralPublic = await prisma.educationLevel.upsert({
+    where: { code: 'general_public' },
+    update: {
+      nameTh: generalPublicSpec.nameTh,
+      nameEn: generalPublicSpec.nameEn,
+      eligibleTh: generalPublicSpec.eligibleTh,
+      eligibleEn: generalPublicSpec.eligibleEn,
+      orderIndex: 1,
+      isActive: true,
+    },
+    create: {
+      code: 'general_public',
+      nameTh: generalPublicSpec.nameTh,
+      nameEn: generalPublicSpec.nameEn,
+      eligibleTh: generalPublicSpec.eligibleTh,
+      eligibleEn: generalPublicSpec.eligibleEn,
+      orderIndex: 1,
+      isActive: true,
+    },
+  });
+
+  const levelHigherEducation = await prisma.educationLevel.upsert({
+    where: { code: 'higher_education' },
+    update: {
+      nameTh: higherEdSpec.nameTh,
+      nameEn: higherEdSpec.nameEn,
+      eligibleTh: higherEdSpec.eligibleTh,
+      eligibleEn: higherEdSpec.eligibleEn,
+      orderIndex: 2,
+      isActive: true,
+    },
+    create: {
+      code: 'higher_education',
+      nameTh: higherEdSpec.nameTh,
+      nameEn: higherEdSpec.nameEn,
+      eligibleTh: higherEdSpec.eligibleTh,
+      eligibleEn: higherEdSpec.eligibleEn,
+      orderIndex: 2,
+      isActive: true,
+    },
+  });
+
   const levelBelow = await prisma.educationLevel.upsert({
     where: { code: 'below_higher' },
-    update: {},
+    update: {
+      nameTh: 'ระดับต่ำกว่าอุดมศึกษา',
+      nameEn: 'Below Higher Education',
+      eligibleTh: 'นักเรียนระดับมัธยมศึกษา, ปวช., ปวส. หรือเทียบเท่า',
+      eligibleEn: 'High school and vocational students (Voc. Cert. / High Voc. Cert. or equivalent)',
+      orderIndex: 3,
+      isActive: true,
+    },
     create: {
       code: 'below_higher',
       nameTh: 'ระดับต่ำกว่าอุดมศึกษา',
       nameEn: 'Below Higher Education',
       eligibleTh: 'นักเรียนระดับมัธยมศึกษา, ปวช., ปวส. หรือเทียบเท่า',
       eligibleEn: 'High school and vocational students (Voc. Cert. / High Voc. Cert. or equivalent)',
-      orderIndex: 1,
+      orderIndex: 3,
       isActive: true,
     },
   });
 
-  const levelHigher = await prisma.educationLevel.upsert({
+  const levelHigherLegacy = await prisma.educationLevel.upsert({
     where: { code: 'higher_and_above' },
     update: {
       nameTh: 'ระดับอุดมศึกษาและบุคคลทั่วไป',
       nameEn: 'Higher Education & General Public',
       eligibleTh: 'นิสิต นักศึกษา (ป.ตรี-โท-เอก), อาจารย์, นักวิจัย, ผู้ประกอบการ และประชาชนทั่วไป',
       eligibleEn: 'Undergraduate, graduate students, researchers, startups, and general public',
+      orderIndex: 4,
+      isActive: false,
     },
     create: {
       code: 'higher_and_above',
@@ -35,83 +103,54 @@ async function main() {
       nameEn: 'Higher Education & General Public',
       eligibleTh: 'นิสิต นักศึกษา (ป.ตรี-โท-เอก), อาจารย์, นักวิจัย, ผู้ประกอบการ และประชาชนทั่วไป',
       eligibleEn: 'Undergraduate, graduate students, researchers, startups, and general public',
-      orderIndex: 2,
-      isActive: true,
+      orderIndex: 4,
+      isActive: false,
     },
   });
 
-  // 2. Seed Categories (Master Catalog)
-  console.log('  -> Seeding Categories...');
-  const categoriesData = [
-    {
-      code: 'energy_environment',
-      nameTh: 'Energy & Environment (พลังงานและสิ่งแวดล้อม)',
-      nameEn: 'Energy & Environment',
-      descriptionTh: 'นวัตกรรมด้านพลังงานทดแทน การจัดการสิ่งแวดล้อม เทคโนโลยีสีเขียว และการลดการปล่อยคาร์บอน',
-      descriptionEn: 'Renewable energy, environmental management, green technology, and carbon reduction innovations.',
-      icon: 'Zap',
-      color: '#059669',
-      bgImage: '/domain-energy.jpg',
-      orderIndex: 1,
-    },
-    {
-      code: 'food_agriculture',
-      nameTh: 'Food & Agriculture (เกษตรและอาหารแปรรูป)',
-      nameEn: 'Food & Agriculture',
-      descriptionTh: 'นวัตกรรมเกษตรอัจฉริยะ (AgriTech) อาหารแห่งอนาคต การแปรรูปผลิตผล และความมั่นคงทางอาหาร',
-      descriptionEn: 'Smart agricultural technology (AgriTech), future food, food processing, and food security.',
-      icon: 'Leaf',
-      color: '#16A34A',
-      bgImage: '/domain-food.jpg',
-      orderIndex: 2,
-    },
-    {
-      code: 'social_economy',
-      nameTh: 'Social & Economy (เศรษฐกิจและสังคมดิจิทัล)',
-      nameEn: 'Social & Economy',
-      descriptionTh: 'นวัตกรรมเพื่อการพัฒนาสังคม เศรษฐกิจดิจิทัล เทคโนโลยีการศึกษา และการยกระดับคุณภาพชีวิตชุมชน',
-      descriptionEn: 'Digital economy, educational technology, social development, and community quality of life enhancement.',
-      icon: 'Users',
-      color: '#06B6D4',
-      bgImage: '/domain-social.jpg',
-      orderIndex: 3,
-    },
-    {
-      code: 'medical_device',
-      nameTh: 'Medical Device (เครื่องมือแพทย์และสาธารณสุข)',
-      nameEn: 'Medical Device',
-      descriptionTh: 'อุปกรณ์และเครื่องมือทางการแพทย์ เทคโนโลยีสุขภาพ (HealthTech) ชีวการแพทย์ และอุปกรณ์ช่วยดูแลสุขภาพ',
-      descriptionEn: 'Medical devices, healthcare technology (HealthTech), biomedical engineering, and assistive health tools.',
-      icon: 'Activity',
-      color: '#E11D48',
-      bgImage: '/domain-medical.jpg',
-      orderIndex: 4,
-    },
-    {
-      code: 'material',
-      nameTh: 'Material (วัสดุศาสตร์และเทคโนโลยีก้าวหน้า)',
-      nameEn: 'Material',
-      descriptionTh: 'นวัตกรรมด้านวัสดุศาสตร์ คอมโพสิต โพลีเมอร์ สารเคลือบผิว นาโนเทคโนโลยี และวัสดุก้าวหน้า',
-      descriptionEn: 'Materials science, composites, polymers, functional coatings, nanotechnology, and advanced materials.',
-      icon: 'Box',
-      color: '#D97706',
-      bgImage: '/domain-material.jpg',
-      orderIndex: 5,
-    },
-  ];
+  const levelMap = new Map<string, any>([
+    ['general_public', levelGeneralPublic],
+    ['higher_education', levelHigherEducation],
+    ['below_higher', levelBelow],
+    ['higher_and_above', levelHigherLegacy],
+  ]);
 
+  // 2. Seed Categories (Master Catalog: 5 active 2570 categories + 5 legacy 2569 categories)
+  console.log('  -> Seeding Categories...');
   const categoryMap = new Map<string, any>();
-  for (const cat of categoriesData) {
+
+  for (const cat of CATEGORIES_2570_DEFAULTS) {
     const created = await prisma.category.upsert({
       where: { code: cat.code },
-      update: cat,
-      create: cat,
+      update: {
+        ...cat,
+        isActive: true,
+      },
+      create: {
+        ...cat,
+        isActive: true,
+      },
     });
     categoryMap.set(cat.code, created);
   }
 
-  // 3. Seed Competition Years
-  console.log('  -> Seeding Competition Years...');
+  for (const cat of CATEGORIES_2569_LEGACY) {
+    const created = await prisma.category.upsert({
+      where: { code: cat.code },
+      update: {
+        ...cat,
+        isActive: false,
+      },
+      create: {
+        ...cat,
+        isActive: false,
+      },
+    });
+    categoryMap.set(cat.code, created);
+  }
+
+  // 3. Seed Competition Years, CompetitionYearCategories, and CompetitionYearLevels
+  console.log('  -> Seeding Competition Years, Categories & Levels...');
   const yearsData = [
     {
       year: 2570,
@@ -168,6 +207,11 @@ async function main() {
     },
   ];
 
+  const active2570CategoryIds = CATEGORIES_2570_DEFAULTS.map((c) => categoryMap.get(c.code).id);
+  const legacyCategoryIds = CATEGORIES_2569_LEGACY.map((c) => categoryMap.get(c.code).id);
+  const active2570LevelIds = LEVELS_2570_DEFAULTS.map((l) => levelMap.get(l.code).id);
+  const legacyLevelIds = LEVELS_2569_DEFAULTS.map((l) => levelMap.get(l.code).id);
+
   const yearMap = new Map<number, any>();
   for (const y of yearsData) {
     const createdYear = await prisma.competitionYear.upsert({
@@ -177,26 +221,177 @@ async function main() {
     });
     yearMap.set(y.year, createdYear);
 
-    // Bind 5 categories to each competition year
-    const prizeSummaryText = 'ชิงถ้วยพระราชทานฯ (สำหรับรางวัลชนะเลิศ) เงินรางวัลรวม 180,000 บาท และเกียรติบัตร';
-    for (const [code, cat] of categoryMap.entries()) {
-      await prisma.competitionYearCategory.upsert({
-        where: {
-          competitionYearId_categoryId: {
+    if (y.year === 2570) {
+      const prizeSummary2570 =
+        'ชิงถ้วยพระราชทานฯ และถ้วยรางวัล มจพ. เงินรางวัลรวม 255,000 บาท พร้อมเกียรติบัตร';
+
+      for (const catSpec of CATEGORIES_2570_DEFAULTS) {
+        const cat = categoryMap.get(catSpec.code);
+        await prisma.competitionYearCategory.upsert({
+          where: {
+            competitionYearId_categoryId: {
+              competitionYearId: createdYear.id,
+              categoryId: cat.id,
+            },
+          },
+          update: {
+            customNameTh: null,
+            customDescription: null,
+            prizeSummary: prizeSummary2570,
+            isActive: true,
+            orderIndex: catSpec.orderIndex,
+          },
+          create: {
             competitionYearId: createdYear.id,
             categoryId: cat.id,
+            prizeSummary: prizeSummary2570,
+            isActive: true,
+            orderIndex: catSpec.orderIndex,
           },
-        },
-        update: {
-          prizeSummary: prizeSummaryText,
-        },
-        create: {
+        });
+      }
+
+      await prisma.competitionYearCategory.updateMany({
+        where: {
           competitionYearId: createdYear.id,
-          categoryId: cat.id,
-          prizeSummary: prizeSummaryText,
-          isActive: true,
-          orderIndex: cat.orderIndex,
+          categoryId: { notIn: active2570CategoryIds },
         },
+        data: { isActive: false },
+      });
+
+      for (const lvlSpec of LEVELS_2570_DEFAULTS) {
+        const lvl = levelMap.get(lvlSpec.code);
+        await prisma.competitionYearLevel.upsert({
+          where: {
+            competitionYearId_educationLevelId: {
+              competitionYearId: createdYear.id,
+              educationLevelId: lvl.id,
+            },
+          },
+          update: {
+            customNameTh: lvlSpec.nameTh,
+            customNameEn: lvlSpec.nameEn,
+            customEligibleTh: lvlSpec.eligibleTh,
+            trophyTitleTh: lvlSpec.trophyTitleTh,
+            trophyShortTh: lvlSpec.trophyShortTh,
+            isRoyalTrophy: lvlSpec.isRoyalTrophy,
+            totalPrizeAmount: lvlSpec.totalPrizeAmount,
+            prizeBreakdown: lvlSpec.prizeBreakdown as any,
+            requiresPrototype: lvlSpec.requiresPrototype,
+            prototypeRuleTh: lvlSpec.prototypeRuleTh,
+            isActive: true,
+            orderIndex: lvlSpec.orderIndex,
+          },
+          create: {
+            competitionYearId: createdYear.id,
+            educationLevelId: lvl.id,
+            customNameTh: lvlSpec.nameTh,
+            customNameEn: lvlSpec.nameEn,
+            customEligibleTh: lvlSpec.eligibleTh,
+            trophyTitleTh: lvlSpec.trophyTitleTh,
+            trophyShortTh: lvlSpec.trophyShortTh,
+            isRoyalTrophy: lvlSpec.isRoyalTrophy,
+            totalPrizeAmount: lvlSpec.totalPrizeAmount,
+            prizeBreakdown: lvlSpec.prizeBreakdown as any,
+            requiresPrototype: lvlSpec.requiresPrototype,
+            prototypeRuleTh: lvlSpec.prototypeRuleTh,
+            isActive: true,
+            orderIndex: lvlSpec.orderIndex,
+          },
+        });
+      }
+
+      await prisma.competitionYearLevel.updateMany({
+        where: {
+          competitionYearId: createdYear.id,
+          educationLevelId: { notIn: active2570LevelIds },
+        },
+        data: { isActive: false },
+      });
+    } else {
+      const prizeSummaryLegacy =
+        'ชิงถ้วยพระราชทานฯ (สำหรับรางวัลชนะเลิศ) เงินรางวัลรวม 180,000 บาท และเกียรติบัตร';
+
+      for (const catSpec of CATEGORIES_2569_LEGACY) {
+        const cat = categoryMap.get(catSpec.code);
+        await prisma.competitionYearCategory.upsert({
+          where: {
+            competitionYearId_categoryId: {
+              competitionYearId: createdYear.id,
+              categoryId: cat.id,
+            },
+          },
+          update: {
+            prizeSummary: prizeSummaryLegacy,
+            isActive: true,
+            orderIndex: catSpec.orderIndex,
+          },
+          create: {
+            competitionYearId: createdYear.id,
+            categoryId: cat.id,
+            prizeSummary: prizeSummaryLegacy,
+            isActive: true,
+            orderIndex: catSpec.orderIndex,
+          },
+        });
+      }
+
+      await prisma.competitionYearCategory.updateMany({
+        where: {
+          competitionYearId: createdYear.id,
+          categoryId: { notIn: legacyCategoryIds },
+        },
+        data: { isActive: false },
+      });
+
+      for (const lvlSpec of LEVELS_2569_DEFAULTS) {
+        const lvl = levelMap.get(lvlSpec.code);
+        await prisma.competitionYearLevel.upsert({
+          where: {
+            competitionYearId_educationLevelId: {
+              competitionYearId: createdYear.id,
+              educationLevelId: lvl.id,
+            },
+          },
+          update: {
+            customNameTh: lvlSpec.nameTh,
+            customNameEn: lvlSpec.nameEn,
+            customEligibleTh: lvlSpec.eligibleTh,
+            trophyTitleTh: lvlSpec.trophyTitleTh,
+            trophyShortTh: lvlSpec.trophyShortTh,
+            isRoyalTrophy: lvlSpec.isRoyalTrophy,
+            totalPrizeAmount: lvlSpec.totalPrizeAmount,
+            prizeBreakdown: lvlSpec.prizeBreakdown as any,
+            requiresPrototype: lvlSpec.requiresPrototype,
+            prototypeRuleTh: lvlSpec.prototypeRuleTh,
+            isActive: true,
+            orderIndex: lvlSpec.orderIndex,
+          },
+          create: {
+            competitionYearId: createdYear.id,
+            educationLevelId: lvl.id,
+            customNameTh: lvlSpec.nameTh,
+            customNameEn: lvlSpec.nameEn,
+            customEligibleTh: lvlSpec.eligibleTh,
+            trophyTitleTh: lvlSpec.trophyTitleTh,
+            trophyShortTh: lvlSpec.trophyShortTh,
+            isRoyalTrophy: lvlSpec.isRoyalTrophy,
+            totalPrizeAmount: lvlSpec.totalPrizeAmount,
+            prizeBreakdown: lvlSpec.prizeBreakdown as any,
+            requiresPrototype: lvlSpec.requiresPrototype,
+            prototypeRuleTh: lvlSpec.prototypeRuleTh,
+            isActive: true,
+            orderIndex: lvlSpec.orderIndex,
+          },
+        });
+      }
+
+      await prisma.competitionYearLevel.updateMany({
+        where: {
+          competitionYearId: createdYear.id,
+          educationLevelId: { notIn: legacyLevelIds },
+        },
+        data: { isActive: false },
       });
     }
   }
@@ -207,44 +402,50 @@ async function main() {
   const judgePasswordHash = await Bun.password.hash('JudgePassword2026!', { algorithm: 'argon2id' });
   const contestantPasswordHash = await Bun.password.hash('Contestant2026!', { algorithm: 'argon2id' });
 
-  const adminUser = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'admin@kmutnb.ac.th' },
-    update: {},
+    update: {
+      educationLevelId: levelGeneralPublic.id,
+    },
     create: {
       email: 'admin@kmutnb.ac.th',
       passwordHash: adminPasswordHash,
       fullName: 'ผู้ดูแลระบบ อุทยานเทคโนโลยี มจพ.',
       phone: '02-555-2000 ต่อ 2999',
       institution: 'มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
-      educationLevelId: levelHigher.id,
+      educationLevelId: levelGeneralPublic.id,
       role: Role.ADMIN,
     },
   });
 
   await prisma.user.upsert({
     where: { email: 'judge@kmutnb.ac.th' },
-    update: {},
+    update: {
+      educationLevelId: levelGeneralPublic.id,
+    },
     create: {
       email: 'judge@kmutnb.ac.th',
       passwordHash: judgePasswordHash,
       fullName: 'คณะกรรมการผู้ทรงคุณวุฒิ มจพ.',
       phone: '02-555-2000 ต่อ 2998',
       institution: 'มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
-      educationLevelId: levelHigher.id,
+      educationLevelId: levelGeneralPublic.id,
       role: Role.JUDGE,
     },
   });
 
   const contestantUser = await prisma.user.upsert({
     where: { email: 'contestant@kmutnb.ac.th' },
-    update: {},
+    update: {
+      educationLevelId: levelGeneralPublic.id,
+    },
     create: {
       email: 'contestant@kmutnb.ac.th',
       passwordHash: contestantPasswordHash,
       fullName: 'สมชาย นวัตกรรม',
       phone: '081-234-5678',
       institution: 'มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ',
-      educationLevelId: levelHigher.id,
+      educationLevelId: levelGeneralPublic.id,
       role: Role.CONTESTANT,
     },
   });
@@ -422,7 +623,25 @@ async function main() {
   for (const win of winnersData) {
     const compYear = yearMap.get(win.year);
     const cat = categoryMap.get(win.categoryCode);
-    const level = win.levelCode === 'below_higher' ? levelBelow : levelHigher;
+    const level = levelMap.get(win.levelCode)!;
+
+    const yearCat = await prisma.competitionYearCategory.findUnique({
+      where: {
+        competitionYearId_categoryId: {
+          competitionYearId: compYear.id,
+          categoryId: cat.id,
+        },
+      },
+    });
+
+    const yearLevel = await prisma.competitionYearLevel.findUnique({
+      where: {
+        competitionYearId_educationLevelId: {
+          competitionYearId: compYear.id,
+          educationLevelId: level.id,
+        },
+      },
+    });
 
     const existingSub = await prisma.submission.findUnique({
       where: { trackingCode: win.trackingCode },
@@ -430,6 +649,11 @@ async function main() {
 
     const winAny = win as any;
     const commonDossierData = {
+      competitionYearId: compYear.id,
+      categoryId: cat.id,
+      competitionYearCategoryId: yearCat?.id,
+      educationLevelId: level.id,
+      competitionYearLevelId: yearLevel?.id,
       affiliation: win.institution,
       proposalPdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
       documentUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
@@ -450,23 +674,10 @@ async function main() {
     };
 
     if (!existingSub) {
-      const yearCat = await prisma.competitionYearCategory.findUnique({
-        where: {
-          competitionYearId_categoryId: {
-            competitionYearId: compYear.id,
-            categoryId: cat.id,
-          },
-        },
-      });
-
       const sub = await prisma.submission.create({
         data: {
           trackingCode: win.trackingCode,
           userId: contestantUser.id,
-          competitionYearId: compYear.id,
-          categoryId: cat.id,
-          competitionYearCategoryId: yearCat?.id,
-          educationLevelId: level.id,
           titleTh: win.titleTh,
           titleEn: win.titleEn,
           teamName: win.teamName,
@@ -548,8 +759,9 @@ async function main() {
       badgeText: 'ข่าวสารโครงการ',
       badgeClass: 'announcement-badge-general',
       dateStr: '1 พฤศจิกายน 2569',
-      title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) ชิงถ้วยพระราชทานฯ',
-      abstract: 'ขอเชิญชวนนักเรียน นักศึกษา นักวิจัย และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมเข้าร่วมประกวด 5 สาขาเป้าหมาย ชิงถ้วยพระราชทานฯ และเงินรางวัลรวม 180,000 บาท เปิดรับสมัครตั้งแต่บัดนี้ – 28 ก.พ. 2570',
+      title: 'เปิดรับสมัครข้อเสนอโครงการ KMUTNB Innovation Awards 2027 (ประจำปี 2570) ชิงถ้วยพระราชทานฯ และถ้วยรางวัล มจพ.',
+      abstract:
+        'ขอเชิญชวนนักเรียน นิสิต นักศึกษา นักวิจัย ผู้ประกอบการ และประชาชนทั่วไป ส่งผลงานสิ่งประดิษฐ์และนวัตกรรมที่มีชิ้นงานต้นแบบ (Prototype) ขั้นต่ำ เข้าร่วมประกวดใน 3 ประเภทการแข่งขัน ครอบคลุม 5 หมวดหมู่ ชิงถ้วยพระราชทานฯ ถ้วยรางวัล มจพ. และเงินรางวัลรวม 255,000 บาท เปิดรับสมัครตั้งแต่บัดนี้ – 28 ก.พ. 2570',
       pdfUrl: '/docs/KMUTNB_Innovation_Awards_2027_Announcement.pdf',
       isPublished: true,
       publishedAt: new Date('2026-11-01T09:00:00+07:00'),

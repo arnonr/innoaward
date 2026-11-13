@@ -73,6 +73,7 @@ model CompetitionYear {
   rubricConfig     Json?
   
   categories       CompetitionYearCategory[]
+  levels           CompetitionYearLevel[]
   submissions      Submission[]
   announcements    Announcement[]
   judgeAssignments JudgeCategoryAssignment[]
@@ -128,20 +129,49 @@ model CompetitionYearCategory {
 }
 
 model EducationLevel {
-  id          String       @id @default(cuid())
-  code        String       @unique // below_higher, higher_and_above
+  id          String                 @id @default(cuid())
+  code        String                 @unique // general_public, higher_education, below_higher, higher_and_above
   nameTh      String
   nameEn      String
-  eligibleTh  String?      @db.Text
-  eligibleEn  String?      @db.Text
-  orderIndex  Int          @default(0)
-  isActive    Boolean      @default(true)
+  eligibleTh  String?                @db.Text
+  eligibleEn  String?                @db.Text
+  orderIndex  Int                    @default(0)
+  isActive    Boolean                @default(true)
+  yearLevels  CompetitionYearLevel[]
   users       User[]
   submissions Submission[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
 
   @@map("education_levels")
+}
+
+model CompetitionYearLevel {
+  id                String          @id @default(cuid())
+  competitionYearId String
+  competitionYear   CompetitionYear @relation(fields: [competitionYearId], references: [id], onDelete: Cascade)
+  educationLevelId  String
+  educationLevel    EducationLevel  @relation(fields: [educationLevelId], references: [id], onDelete: Cascade)
+
+  customNameTh      String?
+  customNameEn      String?
+  customEligibleTh  String?         @db.Text
+  trophyTitleTh     String          @default("ถ้วยรางวัล มจพ.")
+  trophyShortTh     String          @default("ถ้วยรางวัล มจพ.")
+  isRoyalTrophy     Boolean         @default(false)
+  totalPrizeAmount  Int             @default(75000)
+  prizeBreakdown    Json?
+  requiresPrototype Boolean         @default(true)
+  prototypeRuleTh   String?         @default("ต้องมีชิ้นงานต้นแบบ (Prototype) เป็นขั้นต่ำ ไม่รับพิจารณาผลงานที่เป็นเพียงแนวคิด (Idea)")
+  isActive          Boolean         @default(true)
+  orderIndex        Int             @default(0)
+
+  submissions       Submission[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([competitionYearId, educationLevelId])
+  @@map("competition_year_levels")
 }
 
 model User {
@@ -177,6 +207,8 @@ model Submission {
   competitionYearCategory   CompetitionYearCategory? @relation(fields: [competitionYearCategoryId], references: [id])
   educationLevelId          String
   educationLevel            EducationLevel           @relation(fields: [educationLevelId], references: [id])
+  competitionYearLevelId    String?
+  competitionYearLevel      CompetitionYearLevel?    @relation(fields: [competitionYearLevelId], references: [id])
   
   titleTh                   String
   titleEn                   String?                  @default("")
@@ -229,6 +261,7 @@ model Submission {
   @@index([educationLevelId])
   @@index([competitionYearId])
   @@index([competitionYearCategoryId])
+  @@index([competitionYearLevelId])
   @@index([status])
   @@map("submissions")
 }
