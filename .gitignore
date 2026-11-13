@@ -27,6 +27,7 @@ pnpm-debug.log*
 !.vscode/extensions.json
 Thumbs.db
 .superpowers/
+.worktrees/
 
 # Large video files (kept locally)
 *.mp4
