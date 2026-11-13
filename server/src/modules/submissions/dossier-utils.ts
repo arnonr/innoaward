@@ -1,3 +1,8 @@
+import {
+  KMUTNB_TROPHY_SHORT_TH,
+  ROYAL_TROPHY_SHORT_TH,
+} from '../config/competition-defaults';
+
 export interface NormalizedMember {
   fullName: string;
   role: string;
@@ -126,6 +131,14 @@ export function formatDossierResponse(found: any, isOwnerOrAdmin: boolean) {
   const round3Status =
     found.round3Status || (found.status === 'AWARDED' ? 'PASSED' : 'PENDING');
   const round3Result = found.round3Result || found.awardNameTh || '';
+  const isRoyalTrophy = Boolean(
+    found.competitionYearLevel?.isRoyalTrophy ??
+      (found.educationLevel?.code === 'general_public' ||
+        found.educationLevel?.code === 'higher_and_above')
+  );
+  const trophyShortTh =
+    found.competitionYearLevel?.trophyShortTh?.trim() ||
+    (isRoyalTrophy ? ROYAL_TROPHY_SHORT_TH : KMUTNB_TROPHY_SHORT_TH);
 
   return {
     id: found.id,
@@ -135,10 +148,14 @@ export function formatDossierResponse(found: any, isOwnerOrAdmin: boolean) {
     titleTh: found.titleTh,
     titleEn: found.titleEn || '',
     category: found.category?.code || '',
-    categoryNameTh: found.category?.nameTh || '',
+    categoryNameTh:
+      found.competitionYearCategory?.customNameTh || found.category?.nameTh || '',
     categoryNameEn: found.category?.nameEn || '',
     educationLevel: found.educationLevel?.code || '',
-    educationLevelNameTh: found.educationLevel?.nameTh || '',
+    educationLevelNameTh:
+      found.competitionYearLevel?.customNameTh || found.educationLevel?.nameTh || '',
+    isRoyalTrophy,
+    trophyShortTh,
     teamName: found.teamName,
     affiliation: found.affiliation || found.institution || '',
     institution: found.institution || found.affiliation || '',
@@ -146,6 +163,8 @@ export function formatDossierResponse(found: any, isOwnerOrAdmin: boolean) {
     abstractTh: found.abstractTh || '',
     abstractEn: found.abstractEn || '',
     status: found.status,
+    awardTier: found.awardTier || null,
+    awardNameTh: found.awardNameTh || '',
     round1Status,
     round2Status,
     round3Status,

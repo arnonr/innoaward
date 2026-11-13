@@ -52,6 +52,7 @@ export const submissionPayloadSchema = t.Object({
   round2Status: t.Optional(t.String()),
   round3Status: t.Optional(t.String()),
   round3Result: t.Optional(t.String()),
+  hasPrototypeConfirmed: t.Optional(t.Boolean()),
   isDraft: t.Optional(t.Boolean()),
 });
 

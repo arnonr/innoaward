@@ -1,11 +1,27 @@
-import { describe, expect, test } from 'bun:test';
+import { afterAll, describe, expect, test } from 'bun:test';
+import { unlink } from 'node:fs/promises';
+import path from 'node:path';
 import { app } from '../src/index';
+import { prisma } from '../src/lib/prisma';
+
+const UPLOADS_ROOT = path.resolve(import.meta.dir, '../uploads');
 
 describe('Artifact Uploads Controller (/api/uploads)', () => {
   const ts = Date.now();
   const email = `uploader-${ts}@kmutnb.ac.th`;
   let token = '';
   let uploadedVideoUrl = '';
+  const uploadedUrls: string[] = [];
+
+  afterAll(async () => {
+    await prisma.user.deleteMany({ where: { email } });
+    for (const url of uploadedUrls) {
+      const rel = url.replace(/^\/api\/uploads\/files\//, '');
+      if (rel && rel !== url) {
+        await unlink(path.join(UPLOADS_ROOT, rel)).catch(() => {});
+      }
+    }
+  });
 
   test('setup test contestant user', async () => {
     const reg = await app.handle(
@@ -16,11 +32,11 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
           email,
           password: 'UploadPassword2027!',
           fullName: 'Uploader Contestant',
-          educationLevel: 'higher_and_above',
+          educationLevel: 'general_public',
         }),
       })
     );
-    const json = await reg.json();
+    const json: any = await reg.json();
     expect(reg.status).toBe(200);
     token = json.token;
     expect(typeof token).toBe('string');
@@ -61,7 +77,7 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
       })
     );
     expect(res.status).toBe(400);
-    const json = await res.json();
+    const json: any = await res.json();
     expect(json.success).toBe(false);
   });
 
@@ -69,7 +85,7 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
     const pdfBytes = new TextEncoder().encode('%PDF-1.7 sample innovation proposal content');
     const pdfForm = new FormData();
     pdfForm.append('slot', 'proposal');
-    pdfForm.append('year', '2569');
+    pdfForm.append('year', '2570');
     pdfForm.append(
       'file',
       new File([pdfBytes], 'kmutnb_proposal.pdf', { type: 'application/pdf' })
@@ -83,10 +99,11 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
       })
     );
     expect(pdfRes.status).toBe(200);
-    const pdfJson = await pdfRes.json();
+    const pdfJson: any = await pdfRes.json();
     expect(pdfJson.success).toBe(true);
-    expect(pdfJson.data.url).toStartWith('/api/uploads/files/2569/proposal/');
+    expect(pdfJson.data.url).toStartWith('/api/uploads/files/2570/proposal/');
     expect(pdfJson.data.url.endsWith('.pdf')).toBe(true);
+    uploadedUrls.push(pdfJson.data.url);
 
     // Fetch full PDF file
     const getPdfRes = await app.handle(
@@ -102,7 +119,7 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
     for (let i = 0; i < videoBytes.length; i++) videoBytes[i] = i % 256;
     const videoForm = new FormData();
     videoForm.append('slot', 'video');
-    videoForm.append('year', '2569');
+    videoForm.append('year', '2570');
     videoForm.append(
       'file',
       new File([videoBytes], 'demo_pitch.mp4', { type: 'video/mp4' })
@@ -116,9 +133,10 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
       })
     );
     expect(vidRes.status).toBe(200);
-    const vidJson = await vidRes.json();
+    const vidJson: any = await vidRes.json();
     expect(vidJson.success).toBe(true);
     uploadedVideoUrl = vidJson.data.url;
+    uploadedUrls.push(uploadedVideoUrl);
 
     const rangeRes = await app.handle(
       new Request(`http://localhost${uploadedVideoUrl}`, {
@@ -136,7 +154,7 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
 
   test('rejects path traversal characters in GET /api/uploads/files/:year/:slot/:filename', async () => {
     const badRes = await app.handle(
-      new Request('http://localhost/api/uploads/files/2569/proposal/..%2F..%2Fpackage.json', {
+      new Request('http://localhost/api/uploads/files/2570/proposal/..%2F..%2Fpackage.json', {
         method: 'GET',
       })
     );
@@ -150,7 +168,7 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
 
     const form0 = new FormData();
     form0.append('slot', 'video');
-    form0.append('year', '2569');
+    form0.append('year', '2570');
     form0.append('uploadId', uploadId);
     form0.append('chunkIndex', '0');
     form0.append('totalChunks', '2');
@@ -166,13 +184,13 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
       })
     );
     expect(res0.status).toBe(200);
-    const json0 = await res0.json();
+    const json0: any = await res0.json();
     expect(json0.success).toBe(true);
     expect(json0.partial).toBe(true);
 
     const form1 = new FormData();
     form1.append('slot', 'video');
-    form1.append('year', '2569');
+    form1.append('year', '2570');
     form1.append('uploadId', uploadId);
     form1.append('chunkIndex', '1');
     form1.append('totalChunks', '2');
@@ -188,10 +206,11 @@ describe('Artifact Uploads Controller (/api/uploads)', () => {
       })
     );
     expect(res1.status).toBe(200);
-    const json1 = await res1.json();
+    const json1: any = await res1.json();
     expect(json1.success).toBe(true);
     expect(json1.data.size).toBe(10);
-    expect(json1.data.url).toStartWith('/api/uploads/files/2569/video/');
+    expect(json1.data.url).toStartWith('/api/uploads/files/2570/video/');
+    uploadedUrls.push(json1.data.url);
 
     const getRes = await app.handle(
       new Request(`http://localhost${json1.data.url}`, { method: 'GET' })

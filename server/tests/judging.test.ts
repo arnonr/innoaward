@@ -1,4 +1,4 @@
-import { test, expect, describe } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { app } from "../src/index";
 import { prisma } from "../src/lib/prisma";
 import { Role } from "@prisma/client";
@@ -6,18 +6,28 @@ import { Role } from "@prisma/client";
 describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)", () => {
   const ts = Date.now();
   const adminEmail = `admin-judge-${ts}@kmutnb.ac.th`;
-  const judgeEmail = `judge-energy-${ts}@kmutnb.ac.th`;
+  const judgeEmail = `judge-eng-${ts}@kmutnb.ac.th`;
   const contestantEmail = `contestant-judge-${ts}@kmutnb.ac.th`;
 
   let adminToken = "";
   let judgeToken = "";
   let judgeId = "";
   let contestantToken = "";
-  let energySubId = "";
-  let energyTrackingCode = "";
-  let foodSubId = "";
+  let engSubId = "";
+  let engTrackingCode = "";
+  let agriSubId = "";
+  let agriTrackingCode = "";
 
-  test("Setup ADMIN and CONTESTANT and create 2 submissions in different categories", async () => {
+  afterAll(async () => {
+    await prisma.submission.deleteMany({
+      where: { id: { in: [engSubId, agriSubId].filter(Boolean) } },
+    });
+    await prisma.user.deleteMany({
+      where: { email: { in: [adminEmail, judgeEmail, contestantEmail] } },
+    });
+  });
+
+  test("Setup ADMIN and CONTESTANT and create 2 submissions in active 2570 categories and tiers", async () => {
     const adminReg = await app.handle(
       new Request("http://localhost/api/auth/register", {
         method: "POST",
@@ -26,11 +36,11 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
           email: adminEmail,
           password: "AdminPassword2027!",
           fullName: "Admin Judging Tester",
-          educationLevel: "higher_and_above",
+          educationLevel: "general_public",
         }),
       })
     );
-    const adminJson = await adminReg.json();
+    const adminJson: any = await adminReg.json();
     await prisma.user.update({
       where: { id: adminJson.user.id },
       data: { role: Role.ADMIN },
@@ -45,14 +55,14 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
           email: contestantEmail,
           password: "ContestantPassword2027!",
           fullName: "Contestant Judging Tester",
-          educationLevel: "higher_and_above",
+          educationLevel: "general_public",
         }),
       })
     );
-    const contJson = await contReg.json();
+    const contJson: any = await contReg.json();
     contestantToken = contJson.token;
 
-    // Submission 1: energy_environment
+    // Submission 1: engineering_ai + general_public (Royal Trophy tier)
     const sub1Res = await app.handle(
       new Request("http://localhost/api/submissions", {
         method: "POST",
@@ -61,25 +71,26 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
           Authorization: `Bearer ${contestantToken}`,
         },
         body: JSON.stringify({
-          titleTh: "ระบบโซลาร์เซลล์อัจฉริยะติดตามแสงอาทิตย์",
-          titleEn: "Smart Dual-Axis Solar Tracker",
-          category: "energy_environment",
-          educationLevel: "higher_and_above",
-          teamName: "SolarSmart",
-          abstractTh: "ระบบควบคุมแผงโซลาร์เซลล์อัตโนมัติ",
-          proposalPdfUrl: "https://drive.google.com/solar-proposal.pdf",
-          videoUrl: "https://youtube.com/watch?v=solar123",
-          coverImage: "/winner-solar.jpg",
+          titleTh: "ระบบหุ่นยนต์ปัญญาประดิษฐ์ตรวจสอบโครงสร้างอุตสาหกรรม",
+          titleEn: "Autonomous Industrial Structure Inspection Robot",
+          category: "engineering_ai",
+          educationLevel: "general_public",
+          teamName: "RoboInspect AI",
+          abstractTh: "หุ่นยนต์อัตโนมัติพร้อมต้นแบบใช้งานจริงในโรงงาน",
+          proposalPdfUrl: "https://drive.google.com/robo-proposal.pdf",
+          videoUrl: "https://youtube.com/watch?v=robo123",
+          coverImage: "/winner-robo.jpg",
+          hasPrototypeConfirmed: true,
           isDraft: false,
         }),
       })
     );
-    const sub1Json = await sub1Res.json();
+    const sub1Json: any = await sub1Res.json();
     expect(sub1Res.status).toBe(200);
-    energySubId = sub1Json.data.id;
-    energyTrackingCode = sub1Json.data.trackingCode;
+    engSubId = sub1Json.data.id;
+    engTrackingCode = sub1Json.data.trackingCode;
 
-    // Submission 2: food_agriculture
+    // Submission 2: agri_food + higher_education (KMUTNB Trophy tier)
     const sub2Res = await app.handle(
       new Request("http://localhost/api/submissions", {
         method: "POST",
@@ -90,24 +101,26 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
         body: JSON.stringify({
           titleTh: "เครื่องคัดแยกคุณภาพผลไม้ด้วยสเปกตรัม",
           titleEn: "Spectral Fruit Sorter",
-          category: "food_agriculture",
-          educationLevel: "higher_and_above",
+          category: "agri_food",
+          educationLevel: "higher_education",
           teamName: "AgriSort",
-          abstractTh: "เครื่องตรวจความหวานของผลไม้แบบไม่ทำลาย",
+          abstractTh: "เครื่องตรวจความหวานของผลไม้แบบไม่ทำลายพร้อมชิ้นงานต้นแบบ",
           proposalPdfUrl: "https://drive.google.com/agri-proposal.pdf",
           videoUrl: "https://youtube.com/watch?v=agri123",
           coverImage: "/winner-agri.jpg",
+          hasPrototypeConfirmed: true,
           isDraft: false,
         }),
       })
     );
-    const sub2Json = await sub2Res.json();
+    const sub2Json: any = await sub2Res.json();
     expect(sub2Res.status).toBe(200);
-    foodSubId = sub2Json.data.id;
+    agriSubId = sub2Json.data.id;
+    agriTrackingCode = sub2Json.data.trackingCode;
 
     // Admin passes Stage 0 screening (UNDER_REVIEW) for both
     await app.handle(
-      new Request(`http://localhost/api/submissions/${energySubId}/status`, {
+      new Request(`http://localhost/api/submissions/${engSubId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -117,7 +130,7 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
       })
     );
     await app.handle(
-      new Request(`http://localhost/api/submissions/${foodSubId}/status`, {
+      new Request(`http://localhost/api/submissions/${agriSubId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -128,7 +141,7 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
     );
   });
 
-  test("POST /api/judging/judges creates a judge assigned to energy_environment for year 2570 and GET /api/judging/judges lists assignments", async () => {
+  test("POST /api/judging/judges creates a judge defaulting to general_public assigned to engineering_ai for year 2570", async () => {
     const createJudgeRes = await app.handle(
       new Request("http://localhost/api/judging/judges", {
         method: "POST",
@@ -139,18 +152,24 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
         body: JSON.stringify({
           email: judgeEmail,
           password: "JudgePassword2027!",
-          fullName: "รศ.ดร. กรรมการ พลังงาน",
+          fullName: "รศ.ดร. กรรมการ วิศวกรรมและ AI",
           institution: "คณะวิศวกรรมศาสตร์ มจพ.",
-          categories: ["energy_environment"],
+          categories: ["engineering_ai"],
           year: 2570,
         }),
       })
     );
     expect(createJudgeRes.status).toBe(200);
-    const createJudgeJson = await createJudgeRes.json();
+    const createJudgeJson: any = await createJudgeRes.json();
     expect(createJudgeJson.success).toBe(true);
-    expect(createJudgeJson.data.assignedCategories).toEqual(["energy_environment"]);
+    expect(createJudgeJson.data.assignedCategories).toEqual(["engineering_ai"]);
     judgeId = createJudgeJson.data.id;
+
+    const judgeUserDb = await prisma.user.findUnique({
+      where: { id: judgeId },
+      include: { educationLevel: true },
+    });
+    expect(judgeUserDb?.educationLevel.code).toBe("general_public");
 
     const listRes = await app.handle(
       new Request("http://localhost/api/judging/judges?year=2570", {
@@ -158,10 +177,10 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
       })
     );
     expect(listRes.status).toBe(200);
-    const listJson = await listRes.json();
+    const listJson: any = await listRes.json();
     const found = listJson.data.find((j: any) => j.email === judgeEmail);
     expect(found).toBeDefined();
-    expect(found.assignedCategories).toEqual(["energy_environment"]);
+    expect(found.assignedCategories).toEqual(["engineering_ai"]);
 
     // Login as the newly created judge
     const loginRes = await app.handle(
@@ -175,24 +194,40 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
       })
     );
     expect(loginRes.status).toBe(200);
-    const loginJson = await loginRes.json();
+    const loginJson: any = await loginRes.json();
     judgeToken = loginJson.token;
   });
 
-  test("GET /api/judging/submissions filters by judge's assigned categories and POST /api/judging/submissions/:id/evaluate enforces category assignment and computes weighted score", async () => {
+  test("GET /api/judging/submissions exposes trophy metadata, filters by judge's assigned categories, and evaluates weighted rubric", async () => {
     const judgeListRes = await app.handle(
       new Request("http://localhost/api/judging/submissions?year=2570", {
         headers: { Authorization: `Bearer ${judgeToken}` },
       })
     );
     expect(judgeListRes.status).toBe(200);
-    const judgeListJson = await judgeListRes.json();
-    expect(judgeListJson.data.some((s: any) => s.id === energySubId)).toBe(true);
-    expect(judgeListJson.data.some((s: any) => s.id === foodSubId)).toBe(false);
+    const judgeListJson: any = await judgeListRes.json();
+    const judgeEngSub = judgeListJson.data.find((s: any) => s.id === engSubId);
+    expect(judgeEngSub).toBeDefined();
+    expect(judgeEngSub.isRoyalTrophy).toBe(true);
+    expect(judgeEngSub.trophyShortTh).toBe("ถ้วยพระราชทานฯ");
+    expect(judgeListJson.data.some((s: any) => s.id === agriSubId)).toBe(false);
 
-    // Attempting to evaluate unassigned category (food_agriculture) returns 403
+    // Admin sees both tiers with distinct trophy metadata
+    const adminListRes = await app.handle(
+      new Request("http://localhost/api/judging/submissions?year=2570", {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      })
+    );
+    expect(adminListRes.status).toBe(200);
+    const adminListJson: any = await adminListRes.json();
+    const adminAgriSub = adminListJson.data.find((s: any) => s.id === agriSubId);
+    expect(adminAgriSub).toBeDefined();
+    expect(adminAgriSub.isRoyalTrophy).toBe(false);
+    expect(adminAgriSub.trophyShortTh).toBe("ถ้วยรางวัล มจพ.");
+
+    // Attempting to evaluate unassigned category (agri_food) returns 403
     const forbiddenEvalRes = await app.handle(
-      new Request(`http://localhost/api/judging/submissions/${foodSubId}/evaluate`, {
+      new Request(`http://localhost/api/judging/submissions/${agriSubId}/evaluate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -213,10 +248,10 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
     );
     expect(forbiddenEvalRes.status).toBe(403);
 
-    // Evaluating assigned category (energy_environment) in ROUND_1 succeeds
+    // Evaluating assigned category (engineering_ai) in ROUND_1 succeeds
     // Weights: creativity(25)*5/5=25 + prototype(25)*4/5=20 + impact(20)*4/5=16 + sustainability(15)*4/5=12 + presentation(15)*5/5=15 = 88
     const r1EvalRes = await app.handle(
-      new Request(`http://localhost/api/judging/submissions/${energySubId}/evaluate`, {
+      new Request(`http://localhost/api/judging/submissions/${engSubId}/evaluate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -236,26 +271,26 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
       })
     );
     expect(r1EvalRes.status).toBe(200);
-    const r1EvalJson = await r1EvalRes.json();
+    const r1EvalJson: any = await r1EvalRes.json();
     expect(r1EvalJson.data.weightedTotal).toBe(88);
 
     // Contestant attaches POSTER for Round 2
     await app.handle(
-      new Request(`http://localhost/api/submissions/tracking/${energyTrackingCode}/artifacts`, {
+      new Request(`http://localhost/api/submissions/tracking/${engTrackingCode}/artifacts`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${contestantToken}`,
         },
         body: JSON.stringify({
-          posterUrl: "https://drive.google.com/solar-poster.pdf",
+          posterUrl: "https://drive.google.com/robo-poster.pdf",
         }),
       })
     );
 
     // Evaluate ROUND_2 independently without overwriting ROUND_1 (all 5s => 100)
     const r2EvalRes = await app.handle(
-      new Request(`http://localhost/api/judging/submissions/${energySubId}/evaluate`, {
+      new Request(`http://localhost/api/judging/submissions/${engSubId}/evaluate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -275,7 +310,7 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
       })
     );
     expect(r2EvalRes.status).toBe(200);
-    const r2EvalJson = await r2EvalRes.json();
+    const r2EvalJson: any = await r2EvalRes.json();
     expect(r2EvalJson.data.weightedTotal).toBe(100);
 
     // Verify GET /api/judging/submissions has both ROUND_1 (88) and ROUND_2 (100) summaries and hasPoster = true
@@ -284,32 +319,38 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
         headers: { Authorization: `Bearer ${judgeToken}` },
       })
     );
-    const afterEvalJson = await afterEvalRes.json();
-    const targetSub = afterEvalJson.data.find((s: any) => s.id === energySubId);
+    const afterEvalJson: any = await afterEvalRes.json();
+    const targetSub = afterEvalJson.data.find((s: any) => s.id === engSubId);
     expect(targetSub.hasPoster).toBe(true);
     expect(targetSub.roundSummaries.ROUND_1.avgScore).toBe(88);
     expect(targetSub.roundSummaries.ROUND_2.avgScore).toBe(100);
   });
 
-  test("POST /api/judging/publish-results publishes FINALISTS and WINNERS announcements with rosters", async () => {
+  test("PATCH /api/submissions/:id/status auto-resolves Royal vs KMUTNB Trophy for GRAND_WINNER and POST /api/judging/publish-results mentions both trophies in ROUND_3", async () => {
     let r2AnnId = "";
     let r3AnnId = "";
+    const year2570Before = await prisma.competitionYear.findUnique({
+      where: { year: 2570 },
+    });
+
     try {
-      // Admin advances energySubId to FINALIST and then AWARDED
-      await app.handle(
-        new Request(`http://localhost/api/submissions/${energySubId}/status`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            status: "FINALIST",
-            round1Status: "PASSED",
-            round2Status: "PASSED",
-          }),
-        })
-      );
+      // Admin advances both submissions to FINALIST
+      for (const subId of [engSubId, agriSubId]) {
+        await app.handle(
+          new Request(`http://localhost/api/submissions/${subId}/status`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({
+              status: "FINALIST",
+              round1Status: "PASSED",
+              round2Status: "PASSED",
+            }),
+          })
+        );
+      }
 
       const pubRound2Res = await app.handle(
         new Request("http://localhost/api/judging/publish-results", {
@@ -325,14 +366,14 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
         })
       );
       expect(pubRound2Res.status).toBe(200);
-      const pubRound2Json = await pubRound2Res.json();
+      const pubRound2Json: any = await pubRound2Res.json();
       expect(pubRound2Json.success).toBe(true);
-      expect(pubRound2Json.data.rosterCount).toBeGreaterThanOrEqual(1);
+      expect(pubRound2Json.data.rosterCount).toBeGreaterThanOrEqual(2);
       r2AnnId = pubRound2Json.data.announcementId;
 
-      // Admin awards GRAND_WINNER in Round 3
-      await app.handle(
-        new Request(`http://localhost/api/submissions/${energySubId}/status`, {
+      // Manual round3Result override is respected when explicitly supplied
+      const manualAwardRes = await app.handle(
+        new Request(`http://localhost/api/submissions/${agriSubId}/status`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -342,11 +383,58 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
             status: "AWARDED",
             round3Status: "PASSED",
             awardTier: "GRAND_WINNER",
-            awardNameTh: "รางวัลชนะเลิศ ถ้วยพระราชทานฯ",
+            round3Result: "รางวัลชนะเลิศกิตติมศักดิ์ (ถ้วยรางวัล มจพ.)",
           }),
         })
       );
+      expect(manualAwardRes.status).toBe(200);
+      const manualAwardJson: any = await manualAwardRes.json();
+      expect(manualAwardJson.data.round3Result).toBe("รางวัลชนะเลิศกิตติมศักดิ์ (ถ้วยรางวัล มจพ.)");
 
+      // Review Focus #5: Award GRAND_WINNER without manual round3Result / awardNameTh override
+      // 1) general_public -> รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)
+      const engAwardRes = await app.handle(
+        new Request(`http://localhost/api/submissions/${engSubId}/status`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            status: "AWARDED",
+            round3Status: "PASSED",
+            awardTier: "GRAND_WINNER",
+          }),
+        })
+      );
+      expect(engAwardRes.status).toBe(200);
+      const engAwardJson: any = await engAwardRes.json();
+      expect(engAwardJson.data.round3Result).toBe("รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)");
+      const engAwardDb = await prisma.submission.findUnique({ where: { id: engSubId } });
+      expect(engAwardDb?.awardNameTh).toBe("รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)");
+
+      // 2) higher_education -> รางวัลชนะเลิศ (ถ้วยรางวัล มจพ.)
+      const agriAwardRes = await app.handle(
+        new Request(`http://localhost/api/submissions/${agriSubId}/status`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            status: "AWARDED",
+            round3Status: "PASSED",
+            awardTier: "GRAND_WINNER",
+          }),
+        })
+      );
+      expect(agriAwardRes.status).toBe(200);
+      const agriAwardJson: any = await agriAwardRes.json();
+      expect(agriAwardJson.data.round3Result).toBe("รางวัลชนะเลิศ (ถ้วยรางวัล มจพ.)");
+      const agriAwardDb = await prisma.submission.findUnique({ where: { id: agriSubId } });
+      expect(agriAwardDb?.awardNameTh).toBe("รางวัลชนะเลิศ (ถ้วยรางวัล มจพ.)");
+
+      // Publish ROUND_3 without custom title/abstract
       const pubRound3Res = await app.handle(
         new Request("http://localhost/api/judging/publish-results", {
           method: "POST",
@@ -361,15 +449,30 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
         })
       );
       expect(pubRound3Res.status).toBe(200);
-      const pubRound3Json = await pubRound3Res.json();
+      const pubRound3Json: any = await pubRound3Res.json();
       expect(pubRound3Json.success).toBe(true);
-      expect(pubRound3Json.data.rosterCount).toBeGreaterThanOrEqual(1);
+      expect(pubRound3Json.data.rosterCount).toBeGreaterThanOrEqual(2);
       r3AnnId = pubRound3Json.data.announcementId;
 
-      const annCheckRes = await app.handle(new Request("http://localhost/api/announcements?year=2570"));
-      const annCheckJson = await annCheckRes.json();
+      const annCheckRes = await app.handle(
+        new Request("http://localhost/api/announcements?year=2570")
+      );
+      const annCheckJson: any = await annCheckRes.json();
       expect(annCheckJson.data.some((a: any) => a.id === r2AnnId)).toBe(true);
-      expect(annCheckJson.data.some((a: any) => a.id === r3AnnId)).toBe(true);
+
+      const r3Ann = annCheckJson.data.find((a: any) => a.id === r3AnnId);
+      expect(r3Ann).toBeDefined();
+      expect(r3Ann.title).toContain("ถ้วยพระราชทานฯ");
+      expect(r3Ann.title).toContain("ถ้วยรางวัล มจพ.");
+      expect(r3Ann.title).not.toContain("โล่");
+      expect(r3Ann.abstract).toContain("ถ้วยพระราชทานฯ");
+      expect(r3Ann.abstract).toContain("ถ้วยรางวัล มจพ.");
+      expect(r3Ann.abstract).not.toContain("โล่");
+
+      const engRoster = r3Ann.roster.find((r: any) => r.code === engTrackingCode);
+      const agriRoster = r3Ann.roster.find((r: any) => r.code === agriTrackingCode);
+      expect(engRoster?.awardTierText).toBe("รางวัลชนะเลิศ (ถ้วยพระราชทานฯ)");
+      expect(agriRoster?.awardTierText).toBe("รางวัลชนะเลิศ (ถ้วยรางวัล มจพ.)");
     } finally {
       if (r2AnnId) await prisma.announcement.deleteMany({ where: { id: r2AnnId } });
       if (r3AnnId) await prisma.announcement.deleteMany({ where: { id: r3AnnId } });
@@ -380,8 +483,14 @@ describe("Judging, Weighted Rubric Evaluation & Result Publishing (/api/judging)
           },
         },
       });
+      if (year2570Before) {
+        await prisma.competitionYear.update({
+          where: { id: year2570Before.id },
+          data: { status: year2570Before.status },
+        });
+      }
       await prisma.submission.deleteMany({
-        where: { id: { in: [energySubId, foodSubId].filter(Boolean) } },
+        where: { id: { in: [engSubId, agriSubId].filter(Boolean) } },
       });
     }
   });

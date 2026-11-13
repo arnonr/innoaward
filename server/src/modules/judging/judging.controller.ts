@@ -101,10 +101,14 @@ export const judgingController = new Elysia({ prefix: '/api/judging' })
 
       const emailLower = body.email.trim().toLowerCase();
       let eduLevel = await prisma.educationLevel.findUnique({
-        where: { code: 'higher_and_above' },
+        where: { code: 'general_public' },
       });
       if (!eduLevel) {
-        eduLevel = await prisma.educationLevel.findFirst();
+        eduLevel =
+          (await prisma.educationLevel.findFirst({
+            where: { isActive: true },
+            orderBy: { orderIndex: 'asc' },
+          })) ?? (await prisma.educationLevel.findFirst());
       }
 
       const existingUser = await prisma.user.findUnique({
@@ -330,7 +334,9 @@ export const judgingController = new Elysia({ prefix: '/api/judging' })
         where: whereClause,
         include: {
           category: true,
+          competitionYearCategory: true,
           educationLevel: true,
+          competitionYearLevel: true,
           competitionYear: true,
           members: { orderBy: { orderIndex: 'asc' } },
           evaluations: {
@@ -609,8 +615,8 @@ export const judgingController = new Elysia({ prefix: '/api/judging' })
         annType = AnnouncementType.WINNERS;
         badgeText = `ประกาศผลผู้ชนะเลิศ • ${compYear.year}`;
         badgeClass = 'announcement-badge-winner';
-        defaultTitle = `ประกาศผลการตัดสินรางวัลชนะเลิศ ถ้วยพระราชทานฯ ประจำปี ${compYear.year}`;
-        defaultAbstract = `ประกาศรายชื่อผลงานที่ได้รับรางวัลชนะเลิศถ้วยพระราชทานฯ รองชนะเลิศ และรางวัลชมเชย ประจำปี ${compYear.year}`;
+        defaultTitle = `ประกาศผลการตัดสินรางวัลชนะเลิศ ถ้วยพระราชทานฯ และถ้วยรางวัล มจพ. ประจำปี ${compYear.year}`;
+        defaultAbstract = `ประกาศผลการตัดสินรางวัลชนะเลิศ ถ้วยพระราชทานฯ และถ้วยรางวัล มจพ. รองชนะเลิศ และรางวัลชมเชย ประจำปี ${compYear.year}`;
         nextYearStatus = CompetitionStatus.COMPLETED;
         whereQualifying.status = SubmissionStatus.AWARDED;
       }
@@ -619,7 +625,9 @@ export const judgingController = new Elysia({ prefix: '/api/judging' })
         where: whereQualifying,
         include: {
           category: true,
+          competitionYearCategory: true,
           educationLevel: true,
+          competitionYearLevel: true,
         },
         orderBy: [{ trackingCode: 'asc' }],
       });
@@ -637,17 +645,28 @@ export const judgingController = new Elysia({ prefix: '/api/judging' })
         },
       });
 
+      const legacyRound3Title = `ประกาศผลการตัดสินรางวัลชนะเลิศ ถ้วยพระราชทานฯ ประจำปี ${compYear.year}`;
+      const legacyRound3Abstract = `ประกาศรายชื่อผลงานที่ได้รับรางวัลชนะเลิศถ้วยพระราชทานฯ รองชนะเลิศ และรางวัลชมเชย ประจำปี ${compYear.year}`;
+
       let announcement;
       if (existingAnn) {
         await prisma.announcementRoster.deleteMany({
           where: { announcementId: existingAnn.id },
         });
+        const preservedTitle =
+          stage === 'ROUND_3' && existingAnn.title === legacyRound3Title
+            ? defaultTitle
+            : existingAnn.title;
+        const preservedAbstract =
+          stage === 'ROUND_3' && existingAnn.abstract === legacyRound3Abstract
+            ? defaultAbstract
+            : existingAnn.abstract;
         announcement = await prisma.announcement.update({
           where: { id: existingAnn.id },
           data: {
             type: annType,
-            title: body.title?.trim() || existingAnn.title,
-            abstract: body.abstract?.trim() || existingAnn.abstract,
+            title: body.title?.trim() || preservedTitle || defaultTitle,
+            abstract: body.abstract?.trim() || preservedAbstract || defaultAbstract,
             dateStr,
             isPublished: true,
             publishedAt: new Date(),
@@ -670,6 +689,7 @@ export const judgingController = new Elysia({ prefix: '/api/judging' })
 
       for (let i = 0; i < qualifying.length; i++) {
         const q = qualifying[i];
+        if (!q) continue;
         await prisma.announcementRoster.create({
           data: {
             announcementId: announcement.id,
@@ -678,8 +698,8 @@ export const judgingController = new Elysia({ prefix: '/api/judging' })
             title: q.titleTh,
             team: q.teamName,
             institution: q.affiliation || q.institution || 'มจพ.',
-            level: q.educationLevel.nameTh,
-            categoryName: q.category.nameTh,
+            level: q.competitionYearLevel?.customNameTh || q.educationLevel.nameTh,
+            categoryName: q.competitionYearCategory?.customNameTh || q.category.nameTh,
             awardTierText:
               stage === 'ROUND_3'
                 ? q.awardNameTh || q.round3Result || 'รางวัลเกียรติยศ'

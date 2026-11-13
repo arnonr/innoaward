@@ -11,7 +11,20 @@ import {
   formatDossierResponse,
   normalizeMembersInput,
 } from './dossier-utils';
+import {
+  KMUTNB_TROPHY_SHORT_TH,
+  ROYAL_TROPHY_SHORT_TH,
+} from '../config/competition-defaults';
 import { SubmissionStatus, RoundStatus, AwardTier, Role } from '@prisma/client';
+
+const submissionRelationsInclude = {
+  category: true,
+  competitionYearCategory: true,
+  educationLevel: true,
+  competitionYearLevel: true,
+  competitionYear: true,
+  members: { orderBy: { orderIndex: 'asc' as const } },
+};
 
 export const submissionsController = new Elysia({ prefix: '/api/submissions' })
   .use(authPlugin)
@@ -75,7 +88,17 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
       });
 
       if (!category && rawCat) {
-        const allCategories = await prisma.category.findMany();
+        const yearCats = await prisma.competitionYearCategory.findMany({
+          where: { competitionYearId: compYear!.id, isActive: true },
+          include: { category: true },
+        });
+        const allCategories =
+          yearCats.length > 0
+            ? [
+                ...yearCats.map((yc) => yc.category),
+                ...(await prisma.category.findMany()),
+              ]
+            : await prisma.category.findMany();
         const lowerCat = rawCat.toLowerCase();
         category =
           allCategories.find(
@@ -111,7 +134,7 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         return { success: false, message: 'ไม่พบหมวดหมู่นวัตกรรมที่ระบุ' };
       }
 
-      // 3. Resolve CompetitionYearCategory
+      // 3. Resolve & Enforce Year-Scoped CompetitionYearCategory (keep 'others' catch-all allowed)
       const yearCategory = await prisma.competitionYearCategory.findUnique({
         where: {
           competitionYearId_categoryId: {
@@ -120,6 +143,26 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
           },
         },
       });
+
+      const activeYearCategoryCount = await prisma.competitionYearCategory.count({
+        where: {
+          competitionYearId: compYear!.id,
+          isActive: true,
+        },
+      });
+
+      if (
+        category.code !== 'others' &&
+        activeYearCategoryCount > 0 &&
+        (!yearCategory || !yearCategory.isActive) &&
+        currentUser?.role !== Role.ADMIN
+      ) {
+        set.status = 400;
+        return {
+          success: false,
+          message: 'หมวดหมู่นวัตกรรมที่เลือกไม่เปิดรับในปีการแข่งขันนี้',
+        };
+      }
 
       // 4. Resolve Education Level
       const educationLevel = await prisma.educationLevel.findFirst({
@@ -131,6 +174,49 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
       if (!educationLevel) {
         set.status = 400;
         return { success: false, message: 'ไม่พบระดับการศึกษาที่ระบุ' };
+      }
+
+      // 4b. Resolve & Enforce Year-Scoped CompetitionYearLevel
+      const yearLevel = await prisma.competitionYearLevel.findUnique({
+        where: {
+          competitionYearId_educationLevelId: {
+            competitionYearId: compYear!.id,
+            educationLevelId: educationLevel.id,
+          },
+        },
+      });
+
+      const activeYearLevelCount = await prisma.competitionYearLevel.count({
+        where: {
+          competitionYearId: compYear!.id,
+          isActive: true,
+        },
+      });
+
+      if (
+        activeYearLevelCount > 0 &&
+        (!yearLevel || !yearLevel.isActive) &&
+        currentUser?.role !== Role.ADMIN
+      ) {
+        set.status = 400;
+        return {
+          success: false,
+          message: 'ประเภทการแข่งขันที่เลือกไม่เปิดรับในปีการแข่งขันนี้',
+        };
+      }
+
+      const isDraft = payload.isDraft === true;
+
+      if (
+        !isDraft &&
+        (yearLevel?.requiresPrototype ?? true) &&
+        payload.hasPrototypeConfirmed === false
+      ) {
+        set.status = 400;
+        return {
+          success: false,
+          message: 'กรุณายืนยันว่าผลงานมีชิ้นงานต้นแบบ (Prototype) ขั้นต่ำตามเกณฑ์การแข่งขัน',
+        };
       }
 
       // 5. Resolve User (only ADMIN may attribute a submission to an arbitrary payload.userId)
@@ -155,7 +241,6 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         targetUserId = defaultUser.id;
       }
 
-      const isDraft = payload.isDraft === true;
       const status = isDraft ? SubmissionStatus.DRAFT : SubmissionStatus.SUBMITTED;
 
       // Normalize Members
@@ -179,8 +264,9 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
       const commonData = {
         competitionYearId: compYear!.id,
         categoryId: category.id,
-        competitionYearCategoryId: yearCategory?.id,
+        competitionYearCategoryId: yearCategory?.id ?? null,
         educationLevelId: educationLevel.id,
+        competitionYearLevelId: yearLevel?.id ?? null,
         titleTh: payload.titleTh,
         titleEn: payload.titleEn || '',
         teamName: payload.teamName || 'ทีมสร้างสรรค์นวัตกรรม',
@@ -238,12 +324,14 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
 
           await prisma.teamMember.deleteMany({ where: { submissionId: submission.id } });
           for (let i = 0; i < normalizedMembers.length; i++) {
+            const member = normalizedMembers[i];
+            if (!member) continue;
             await prisma.teamMember.create({
               data: {
                 submissionId: submission.id,
-                fullName: normalizedMembers[i].fullName,
-                role: normalizedMembers[i].role,
-                idCard: normalizedMembers[i].idCard,
+                fullName: member.fullName,
+                role: member.role,
+                idCard: member.idCard,
                 orderIndex: i + 1,
               },
             });
@@ -268,7 +356,15 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
           }
         }
 
-        const trackingCode = generateTrackingCode(compYear!.year);
+        let trackingCode = generateTrackingCode(compYear!.year);
+        for (let attempt = 0; attempt < 15; attempt++) {
+          const existingByCode = await prisma.submission.findUnique({
+            where: { trackingCode },
+            select: { id: true },
+          });
+          if (!existingByCode) break;
+          trackingCode = generateTrackingCode(compYear!.year);
+        }
 
         submission = await prisma.submission.create({
           data: {
@@ -293,12 +389,7 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
 
       const fresh = await prisma.submission.findUnique({
         where: { id: submission.id },
-        include: {
-          category: true,
-          educationLevel: true,
-          competitionYear: true,
-          members: { orderBy: { orderIndex: 'asc' } },
-        },
+        include: submissionRelationsInclude,
       });
 
       return {
@@ -318,12 +409,7 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
 
     const found = await prisma.submission.findUnique({
       where: { trackingCode: code },
-      include: {
-        category: true,
-        educationLevel: true,
-        competitionYear: true,
-        members: { orderBy: { orderIndex: 'asc' } },
-      },
+      include: submissionRelationsInclude,
     });
 
     if (!found) {
@@ -403,12 +489,7 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
           image: nextImage,
           presentationUrl: pickUrl(body.presentationUrl, found.presentationUrl),
         },
-        include: {
-          category: true,
-          educationLevel: true,
-          competitionYear: true,
-          members: { orderBy: { orderIndex: 'asc' } },
-        },
+        include: submissionRelationsInclude,
       });
 
       const isOwnerOrAdmin = Boolean(
@@ -438,7 +519,13 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         return { success: false, message: 'เฉพาะผู้ดูแลระบบหรือคณะกรรมการเท่านั้น' };
       }
 
-      const existing = await prisma.submission.findUnique({ where: { id: params.id } });
+      const existing = await prisma.submission.findUnique({
+        where: { id: params.id },
+        include: {
+          educationLevel: true,
+          competitionYearLevel: true,
+        },
+      });
       if (!existing) {
         set.status = 404;
         return { success: false, message: 'ไม่พบผลงานที่ระบุ' };
@@ -453,6 +540,46 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
         return undefined;
       };
 
+      const nextAwardTier = body.awardTier
+        ? (body.awardTier.toUpperCase() as AwardTier)
+        : existing.awardTier;
+
+      let resolvedRound3Result = body.round3Result ?? existing.round3Result;
+      let resolvedAwardNameTh = body.awardNameTh ?? existing.awardNameTh;
+
+      if (body.awardTier?.toUpperCase() === AwardTier.GRAND_WINNER) {
+        const existingYearLevel =
+          existing.competitionYearLevel ??
+          (await prisma.competitionYearLevel.findUnique({
+            where: {
+              competitionYearId_educationLevelId: {
+                competitionYearId: existing.competitionYearId,
+                educationLevelId: existing.educationLevelId,
+              },
+            },
+          }));
+        const isRoyalTrophy = Boolean(
+          existingYearLevel?.isRoyalTrophy ??
+            (existing.educationLevel?.code === 'general_public' ||
+              existing.educationLevel?.code === 'higher_and_above')
+        );
+        const trophyShortTh =
+          existingYearLevel?.trophyShortTh?.trim() || KMUTNB_TROPHY_SHORT_TH;
+        const defaultGrandWinnerLabel = isRoyalTrophy
+          ? `รางวัลชนะเลิศ (${ROYAL_TROPHY_SHORT_TH})`
+          : `รางวัลชนะเลิศ (${trophyShortTh || KMUTNB_TROPHY_SHORT_TH})`;
+
+        const manualRound3Result = body.round3Result?.trim();
+        const manualAwardNameTh = body.awardNameTh?.trim();
+
+        if (!manualRound3Result) {
+          resolvedRound3Result = manualAwardNameTh || defaultGrandWinnerLabel;
+          resolvedAwardNameTh = manualAwardNameTh || defaultGrandWinnerLabel;
+        } else if (!manualAwardNameTh) {
+          resolvedAwardNameTh = manualRound3Result;
+        }
+      }
+
       const updated = await prisma.submission.update({
         where: { id: params.id },
         data: {
@@ -462,20 +589,13 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
           round1Status: toRoundStatus(body.round1Status) ?? existing.round1Status,
           round2Status: toRoundStatus(body.round2Status) ?? existing.round2Status,
           round3Status: toRoundStatus(body.round3Status) ?? existing.round3Status,
-          round3Result: body.round3Result ?? existing.round3Result,
+          round3Result: resolvedRound3Result,
           feedback: body.feedback ?? existing.feedback,
-          awardTier: body.awardTier
-            ? (body.awardTier.toUpperCase() as AwardTier)
-            : existing.awardTier,
-          awardNameTh: body.awardNameTh ?? existing.awardNameTh,
+          awardTier: nextAwardTier,
+          awardNameTh: resolvedAwardNameTh,
           prizeDetails: body.prizeDetails ?? existing.prizeDetails,
         },
-        include: {
-          category: true,
-          educationLevel: true,
-          competitionYear: true,
-          members: { orderBy: { orderIndex: 'asc' } },
-        },
+        include: submissionRelationsInclude,
       });
 
       return {
@@ -497,12 +617,7 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
 
     const submissions = await prisma.submission.findMany({
       where: { userId: currentUser.id },
-      include: {
-        category: true,
-        educationLevel: true,
-        competitionYear: true,
-        members: { orderBy: { orderIndex: 'asc' } },
-      },
+      include: submissionRelationsInclude,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -516,12 +631,7 @@ export const submissionsController = new Elysia({ prefix: '/api/submissions' })
   .get('/:id', async ({ params, currentUser, set }) => {
     const found = await prisma.submission.findUnique({
       where: { id: params.id },
-      include: {
-        category: true,
-        educationLevel: true,
-        competitionYear: true,
-        members: { orderBy: { orderIndex: 'asc' } },
-      },
+      include: submissionRelationsInclude,
     });
 
     if (!found) {
